@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://ci0j3txhuqef2"]
+
+[ext_resource type="Texture2D" uid="uid://b2jeyrrk2no25" path="res://Assets/BaseChracters/Player/Textures/Hoodie2.png" id="1_dqobt"]
+[ext_resource type="Texture2D" uid="uid://bpfo485r8uq7d" path="res://Assets/BaseChracters/Player/Textures/Hoodie2N.png" id="2_pwack"]
+
+[resource]
+albedo_texture = ExtResource("1_dqobt")
+normal_enabled = true
+normal_texture = ExtResource("2_pwack")

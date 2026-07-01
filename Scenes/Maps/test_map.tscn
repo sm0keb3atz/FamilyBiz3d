@@ -1,0 +1,103 @@
+[gd_scene format=3 uid="uid://bgd17tl63bwxj"]
+
+[ext_resource type="ArrayMesh" uid="uid://vyit8dmgnec0" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirt_00.glb" id="1_dorj5"]
+[ext_resource type="ArrayMesh" uid="uid://l4lon2ffssug" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01.glb" id="2_rnym6"]
+[ext_resource type="ArrayMesh" uid="uid://crrqswtr4tfb8" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01_cornerIn.glb" id="3_wrd4j"]
+[ext_resource type="PackedScene" uid="uid://b7lu430qitjcu" path="res://Scenes/Player.tscn" id="4_rnym6"]
+[ext_resource type="Script" uid="uid://daq7qgwhbofw5" path="res://Scripts/Gameplay/territory_stats_component.gd" id="5_territory"]
+[ext_resource type="PackedScene" uid="uid://b0tcbblin3k4b" path="res://Scenes/NPC/DealerNPC.tscn" id="6_dealer"]
+[ext_resource type="PackedScene" uid="uid://lbnphh8gm20q" path="res://Scenes/NPC/CustomerNPC.tscn" id="7_customer"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rnym6"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_wrd4j"]
+sky_material = SubResource("ProceduralSkyMaterial_rnym6")
+
+[sub_resource type="Environment" id="Environment_o1aaj"]
+background_mode = 2
+sky = SubResource("Sky_wrd4j")
+glow_enabled = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground_floor"]
+size = Vector3(24, 1, 24)
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_test"]
+vertices = PackedVector3Array(-3, 0, -19, 19, 0, -19, 19, 0, 3, -3, 0, 3)
+polygons = [PackedInt32Array(0, 1, 2), PackedInt32Array(0, 2, 3)]
+agent_height = 1.8
+agent_radius = 0.45
+
+[node name="TestMap" type="Node3D" unique_id=552680749]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1649935349]
+environment = SubResource("Environment_o1aaj")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2003656213]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Ground" type="Node3D" parent="." unique_id=1959206769]
+
+[node name="FloorCollision" type="StaticBody3D" parent="Ground" unique_id=915440231]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, -0.5, -8)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/FloorCollision" unique_id=936418227]
+shape = SubResource("BoxShape3D_ground_floor")
+
+[node name="SmDirt00" type="MeshInstance3D" parent="Ground" unique_id=467249062]
+mesh = ExtResource("1_dorj5")
+
+[node name="SmDirtEdge01" type="MeshInstance3D" parent="Ground" unique_id=1433049270]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -20)
+mesh = ExtResource("2_rnym6")
+
+[node name="SmDirtEdge02" type="MeshInstance3D" parent="Ground" unique_id=1670180063]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 16, 0, 4)
+mesh = ExtResource("2_rnym6")
+
+[node name="SmDirtEdge03" type="MeshInstance3D" parent="Ground" unique_id=186950222]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, -4, 0, 0)
+mesh = ExtResource("2_rnym6")
+
+[node name="SmDirtEdge04" type="MeshInstance3D" parent="Ground" unique_id=1963896272]
+transform = Transform3D(-2.1855693e-07, 0, -1, 0, 1, 0, 1, 0, -2.1855693e-07, 20, 0, -16)
+mesh = ExtResource("2_rnym6")
+
+[node name="SmDirtEdge01CornerIn" type="MeshInstance3D" parent="Ground" unique_id=1577871581]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0, 4)
+mesh = ExtResource("3_wrd4j")
+
+[node name="SmDirtEdge01CornerIn2" type="MeshInstance3D" parent="Ground" unique_id=1028382363]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 20, 0, 4)
+mesh = ExtResource("3_wrd4j")
+
+[node name="SmDirtEdge01CornerIn3" type="MeshInstance3D" parent="Ground" unique_id=363135208]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 20, 0, -20)
+mesh = ExtResource("3_wrd4j")
+
+[node name="SmDirtEdge01CornerIn4" type="MeshInstance3D" parent="Ground" unique_id=1031916306]
+transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, -4, 0, -20)
+mesh = ExtResource("3_wrd4j")
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=906225969]
+navigation_mesh = SubResource("NavigationMesh_test")
+
+[node name="TerritoryStats" type="Node" parent="." unique_id=1715646852]
+script = ExtResource("5_territory")
+
+[node name="Player" parent="." unique_id=1713473279 instance=ExtResource("4_rnym6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -5)
+
+[node name="Dealer" parent="." unique_id=303519539 instance=ExtResource("6_dealer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, -5)
+
+[node name="CustomerNear" parent="." unique_id=667484185 instance=ExtResource("7_customer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -4)
+
+[node name="CustomerEast" parent="." unique_id=129113382 instance=ExtResource("7_customer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -2)
+
+[node name="CustomerSouth" parent="." unique_id=523905384 instance=ExtResource("7_customer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -12)

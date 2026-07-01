@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://blvd70gmmdug5"]
+
+[ext_resource type="Texture2D" uid="uid://sj8qfqdai6v3" path="res://Assets/BaseChracters/Player/Textures/NewPlayerTest_sneaker_1.glb_basecolor.jpg" id="1_pof0e"]
+[ext_resource type="Texture2D" uid="uid://4h15gjpc674a" path="res://Assets/BaseChracters/Player/Textures/NewPlayerTest_sneaker_1.glb_normal.jpg" id="2_cf02e"]
+
+[resource]
+albedo_texture = ExtResource("1_pof0e")
+normal_enabled = true
+normal_texture = ExtResource("2_cf02e")

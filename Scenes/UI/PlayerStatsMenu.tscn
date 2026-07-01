@@ -1,0 +1,188 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/player_stats_menu.gd" id="1_menu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.035, 0.043, 0.055, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.75, 0.57, 0.16, 0.9)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="PlayerStatsMenu" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_menu")
+
+[node name="MenuRoot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Dimmer" type="ColorRect" parent="MenuRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.55)
+
+[node name="Panel" type="PanelContainer" parent="MenuRoot"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -250.0
+offset_right = 230.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="MenuRoot/Panel"]
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.25, 1)
+theme_override_font_sizes/font_size = 28
+text = "PLAYER ATTRIBUTES"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.68, 0.72, 1)
+text = "Spend skill points earned from leveling up"
+horizontal_alignment = 1
+
+[node name="SeparatorTop" type="HSeparator" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="LevelRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/LevelRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Level"
+
+[node name="LevelValue" type="Label" parent="MenuRoot/Panel/Margin/Content/LevelRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1"
+
+[node name="ExperienceRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/ExperienceRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Experience"
+
+[node name="ExperienceValue" type="Label" parent="MenuRoot/Panel/Margin/Content/ExperienceRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 / 100"
+
+[node name="SkillPointsRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/SkillPointsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.82, 0.25, 1)
+text = "Available Skill Points"
+
+[node name="SkillPointsValue" type="Label" parent="MenuRoot/Panel/Margin/Content/SkillPointsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.25, 1)
+text = "0"
+
+[node name="SeparatorMiddle" type="HSeparator" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="StrengthHeading" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 21
+text = "STRENGTH"
+
+[node name="StrengthDescription" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.73, 0.78, 1)
+text = "Each point grants +10 maximum Health and +5 maximum Stamina."
+autowrap_mode = 2
+
+[node name="StrengthRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Current Strength"
+
+[node name="StrengthValue" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1"
+
+[node name="HealthRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/HealthRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Maximum Health"
+
+[node name="HealthValue" type="Label" parent="MenuRoot/Panel/Margin/Content/HealthRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "100"
+
+[node name="StaminaRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/StaminaRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Maximum Stamina"
+
+[node name="StaminaValue" type="Label" parent="MenuRoot/Panel/Margin/Content/StaminaRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "100"
+
+[node name="PurchaseStrengthButton" type="Button" parent="MenuRoot/Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+disabled = true
+text = "Requires 1 Skill Point"
+
+[node name="DebugHint" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.55, 0.6, 1)
+theme_override_font_sizes/font_size = 12
+text = "DEBUG: Press 2 to gain 100 EXP   •   TAB to close"
+horizontal_alignment = 1

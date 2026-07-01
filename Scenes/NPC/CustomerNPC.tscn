@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://lbnphh8gm20q"]
+
+[ext_resource type="PackedScene" path="res://Scenes/NPC/BaseNPC.tscn" id="1_base"]
+[ext_resource type="Script" uid="uid://u4m3q0ch2oom" path="res://Scripts/NPC/customer_npc.gd" id="2_customer"]
+[ext_resource type="Resource" path="res://Scripts/Gameplay/Resources/test_product.tres" id="3_product"]
+[ext_resource type="Texture2D" uid="uid://bhukfc0anklqr" path="res://Assets/BaseChracters/Player/Textures/whiteguy.png" id="4_up7i0"]
+[ext_resource type="Texture2D" uid="uid://wflkmyd6cv2a" path="res://Assets/BaseChracters/Player/Textures/whiteguyN.png" id="5_kumv7"]
+[ext_resource type="Texture2D" uid="uid://ba7cdlxyuaj5i" path="res://Assets/BaseChracters/Player/Textures/Hoodie1.png" id="6_of10p"]
+[ext_resource type="Texture2D" uid="uid://b57pqm7vakoq4" path="res://Assets/BaseChracters/Player/Textures/Hoodie1N.png" id="7_yfekk"]
+[ext_resource type="Texture2D" uid="uid://d1tc22lsmxo2t" path="res://Assets/BaseChracters/Player/Textures/NewPlayerTest_jeans_1.glb_basecolor.jpg" id="8_w1kat"]
+[ext_resource type="Texture2D" uid="uid://n8adyll8berc" path="res://Assets/BaseChracters/Player/Textures/NewPlayerTest_jeans_1.glb_normal.jpg" id="9_aioxj"]
+[ext_resource type="Texture2D" uid="uid://sj8qfqdai6v3" path="res://Assets/BaseChracters/Player/Textures/NewPlayerTest_sneaker_1.glb_basecolor.jpg" id="10_qgp4t"]
+[ext_resource type="Texture2D" uid="uid://4h15gjpc674a" path="res://Assets/BaseChracters/Player/Textures/NewPlayerTest_sneaker_1.glb_normal.jpg" id="11_cqs1t"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qnd68"]
+albedo_texture = ExtResource("4_up7i0")
+normal_enabled = true
+normal_texture = ExtResource("5_kumv7")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u36am"]
+albedo_texture = ExtResource("6_of10p")
+normal_enabled = true
+normal_texture = ExtResource("7_yfekk")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ueg5u"]
+albedo_texture = ExtResource("8_w1kat")
+normal_enabled = true
+normal_texture = ExtResource("9_aioxj")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y0re0"]
+albedo_texture = ExtResource("10_qgp4t")
+normal_enabled = true
+normal_texture = ExtResource("11_cqs1t")
+
+[node name="CustomerNPC" unique_id=894363411 instance=ExtResource("1_base")]
+script = ExtResource("2_customer")
+product_wanted = ExtResource("3_product")
+territory_stats_path = NodePath("../TerritoryStats")
+player_stop_distance = 1.6
+home_stop_distance = 0.6
+cooldown_duration = 5.0
+
+[node name="Body" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" index="0" unique_id=424530482]
+material_override = SubResource("StandardMaterial3D_qnd68")
+
+[node name="Hoodie" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" index="1" unique_id=820249141]
+material_override = SubResource("StandardMaterial3D_u36am")
+
+[node name="Jeans" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" index="2" unique_id=1828880197]
+material_override = SubResource("StandardMaterial3D_ueg5u")
+
+[node name="Sneakers_001" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" index="3" unique_id=2066545868]
+material_override = SubResource("StandardMaterial3D_y0re0")
+
+[node name="RoleLabel" parent="." index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
+modulate = Color(0.3, 0.9, 1, 1)
+text = "CUSTOMER"
+
+[editable path="Visual/PlayerTest2"]

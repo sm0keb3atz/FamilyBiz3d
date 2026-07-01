@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://cimrw7jh4od7l"]
+
+[ext_resource type="Texture2D" uid="uid://bn3d0e27p8fdv" path="res://Assets/BaseChracters/Player/Textures/Body.png" id="1_5dba7"]
+[ext_resource type="Texture2D" uid="uid://ce4vtpg5hnjp3" path="res://Assets/BaseChracters/Player/Textures/BodyN.png" id="2_n4mbh"]
+
+[resource]
+albedo_texture = ExtResource("1_5dba7")
+normal_enabled = true
+normal_texture = ExtResource("2_n4mbh")

@@ -1,0 +1,256 @@
+[gd_scene format=3 uid="uid://b7lu430qitjcu"]
+
+[ext_resource type="Script" uid="uid://ydluhxrenj7h" path="res://Scripts/Player/player.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://cied5oejbgi81" path="res://Scenes/PlayerVisual.scn" id="2_i2e8t"]
+[ext_resource type="AnimationNodeBlendSpace1D" uid="uid://btyinpafsjvni" path="res://Assets/Animations/Blendpsaces/Unarmed.tres" id="3_gntrk"]
+[ext_resource type="Script" uid="uid://b4f1vvgfl3sgo" path="res://Scripts/Player/Components/player_camera_component.gd" id="4_camera"]
+[ext_resource type="Script" uid="uid://b4q1m3g62kgf5" path="res://Scripts/Player/Components/player_animation_component.gd" id="5_animation"]
+[ext_resource type="Script" uid="uid://do0t2xi63ufk7" path="res://Scripts/Player/Components/player_movement_component.gd" id="6_movement"]
+[ext_resource type="Script" uid="uid://db6jb4dw00h34" path="res://Scripts/Player/Components/player_stats_component.gd" id="7_stats"]
+[ext_resource type="Resource" path="res://Scripts/Player/Resources/default_player_stats.tres" id="8_stats_config"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PlayerHUD.tscn" id="9_hud"]
+[ext_resource type="Script" uid="uid://bs24xgeieotus" path="res://Scripts/Player/Components/player_health_component.gd" id="10_health"]
+[ext_resource type="Script" uid="uid://c0c3nnrp2fcfq" path="res://Scripts/Player/Components/player_ragdoll_component.gd" id="11_ragdoll"]
+[ext_resource type="Script" uid="uid://culvd2uyrw0g2" path="res://Scripts/Player/Components/player_respawn_component.gd" id="12_respawn"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PlayerStatsMenu.tscn" id="13_stats_menu"]
+[ext_resource type="Script" uid="uid://cplpescseno4m" path="res://Scripts/Player/Components/player_weapon_component.gd" id="14_weapon"]
+[ext_resource type="Script" uid="uid://cj3swlfkjnljr" path="res://Scripts/Player/Components/player_wallet_component.gd" id="15_wallet"]
+[ext_resource type="Script" uid="uid://dfie7rnpu56wa" path="res://Scripts/Player/Components/player_inventory_component.gd" id="16_inventory"]
+[ext_resource type="Resource" path="res://Scripts/Gameplay/Resources/test_product.tres" id="17_product"]
+[ext_resource type="Script" uid="uid://dinop6h3mheqs" path="res://Scripts/Player/Components/player_interaction_component.gd" id="18_interaction"]
+[ext_resource type="Script" uid="uid://ckjlxfqiq7npe" path="res://Scripts/Gameplay/Resources/product_definition.gd" id="19_c43xd"]
+[ext_resource type="Script" uid="uid://uee27rbx7rjt" path="res://Scripts/Player/Components/player_solicitation_component.gd" id="19_solicitation"]
+[ext_resource type="Script" uid="uid://cggxogh78fv7a" path="res://Scripts/Player/Components/player_menu_controller.gd" id="20_menu_controller"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PlayerInventoryMenu.tscn" id="21_inventory_menu"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DealerShopMenu.tscn" id="22_shop_menu"]
+[ext_resource type="Script" uid="uid://b08ui4exqy0kl" path="res://Scripts/Shared/character_visual_scale.gd" id="23_visual_scale"]
+[ext_resource type="Resource" uid="uid://dqyaai88180j" path="res://Scripts/Gameplay/Weapons/pistol_definition.tres" id="24_pistol"]
+[ext_resource type="PackedScene" path="res://Scenes/Weapons/Pistol.tscn" id="25_pistol_visual"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_dewec"]
+filter_enabled = true
+filters = ["%GeneralSkeleton:Chest", "%GeneralSkeleton:Head", "%GeneralSkeleton:LeftHand", "%GeneralSkeleton:LeftIndexIntermediate", "%GeneralSkeleton:LeftIndexProximal", "%GeneralSkeleton:LeftLowerArm", "%GeneralSkeleton:LeftShoulder", "%GeneralSkeleton:LeftThumbMetacarpal", "%GeneralSkeleton:LeftThumbProximal", "%GeneralSkeleton:LeftUpperArm", "%GeneralSkeleton:Neck", "%GeneralSkeleton:RightHand", "%GeneralSkeleton:RightIndexIntermediate", "%GeneralSkeleton:RightIndexProximal", "%GeneralSkeleton:RightLowerArm", "%GeneralSkeleton:RightShoulder", "%GeneralSkeleton:RightThumbMetacarpal", "%GeneralSkeleton:RightThumbProximal", "%GeneralSkeleton:RightUpperArm", "%GeneralSkeleton:Spine", "%GeneralSkeleton:UpperChest", "%GeneralSkeleton:mixamorig_LeftHandIndex1", "%GeneralSkeleton:mixamorig_LeftHandThumb1", "%GeneralSkeleton:mixamorig_RightHandIndex1", "%GeneralSkeleton:mixamorig_RightHandThumb1"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim_idle"]
+animation = &"Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim_forward"]
+animation = &"Walk"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim_backward"]
+animation = &"Walk"
+play_mode = 1
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim_left"]
+animation = &"LeftStrafe"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim_right"]
+animation = &"RightStrafe"
+
+[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_aim_movement"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_aim_idle")
+blend_point_0/pos = Vector2(0, 0)
+blend_point_0/name = &"Idle"
+blend_point_1/node = SubResource("AnimationNodeAnimation_aim_forward")
+blend_point_1/pos = Vector2(0, 1)
+blend_point_1/name = &"Forward"
+blend_point_2/node = SubResource("AnimationNodeAnimation_aim_backward")
+blend_point_2/pos = Vector2(0, -1)
+blend_point_2/name = &"Backward"
+blend_point_3/node = SubResource("AnimationNodeAnimation_aim_left")
+blend_point_3/pos = Vector2(-1, 0)
+blend_point_3/name = &"Left"
+blend_point_4/node = SubResource("AnimationNodeAnimation_aim_right")
+blend_point_4/pos = Vector2(1, 0)
+blend_point_4/name = &"Right"
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_aim_movement"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_5ixxa"]
+animation = &"PistolAim"
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_base_locomotion"]
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_movement_mode"]
+sync = true
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_reload"]
+animation = &"Pistol_Reload"
+
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_reload"]
+filter_enabled = true
+filters = ["%GeneralSkeleton:Chest", "%GeneralSkeleton:Head", "%GeneralSkeleton:LeftHand", "%GeneralSkeleton:LeftIndexDistal", "%GeneralSkeleton:LeftIndexIntermediate", "%GeneralSkeleton:LeftIndexProximal", "%GeneralSkeleton:LeftLowerArm", "%GeneralSkeleton:LeftShoulder", "%GeneralSkeleton:LeftThumbDistal", "%GeneralSkeleton:LeftThumbMetacarpal", "%GeneralSkeleton:LeftThumbProximal", "%GeneralSkeleton:LeftUpperArm", "%GeneralSkeleton:Neck", "%GeneralSkeleton:RightHand", "%GeneralSkeleton:RightIndexDistal", "%GeneralSkeleton:RightIndexIntermediate", "%GeneralSkeleton:RightIndexProximal", "%GeneralSkeleton:RightLowerArm", "%GeneralSkeleton:RightShoulder", "%GeneralSkeleton:RightThumbDistal", "%GeneralSkeleton:RightThumbMetacarpal", "%GeneralSkeleton:RightThumbProximal", "%GeneralSkeleton:RightUpperArm", "%GeneralSkeleton:Spine", "%GeneralSkeleton:UpperChest", "%GeneralSkeleton:mixamorig_LeftHandIndex1", "%GeneralSkeleton:mixamorig_LeftHandThumb1", "%GeneralSkeleton:mixamorig_RightHandIndex1", "%GeneralSkeleton:mixamorig_RightHandThumb1"]
+fadein_time = 0.12
+fadeout_time = 0.18
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_reload"]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_megsn"]
+graph_offset = Vector2(-534.73517, -24.043125)
+nodes/output/position = Vector2(360, 120)
+nodes/BaseLocomotion/node = ExtResource("3_gntrk")
+nodes/BaseLocomotion/position = Vector2(-160, 60)
+nodes/BaseLocomotionSpeed/node = SubResource("AnimationNodeTimeScale_base_locomotion")
+nodes/BaseLocomotionSpeed/position = Vector2(0, 20)
+nodes/AimMovement/node = SubResource("AnimationNodeBlendSpace2D_aim_movement")
+nodes/AimMovement/position = Vector2(-160, 180)
+nodes/AimMovementSpeed/node = SubResource("AnimationNodeTimeScale_aim_movement")
+nodes/AimMovementSpeed/position = Vector2(0, 180)
+nodes/MovementModeBlend/node = SubResource("AnimationNodeBlend2_movement_mode")
+nodes/MovementModeBlend/position = Vector2(40, 80)
+nodes/AimPose/node = SubResource("AnimationNodeAnimation_5ixxa")
+nodes/AimPose/position = Vector2(40, 260)
+nodes/AimBlend/node = SubResource("AnimationNodeBlend2_dewec")
+nodes/AimBlend/position = Vector2(240, 100)
+nodes/ReloadAnimation/node = SubResource("AnimationNodeAnimation_reload")
+nodes/ReloadAnimation/position = Vector2(40, 360)
+nodes/ReloadSpeed/node = SubResource("AnimationNodeTimeScale_reload")
+nodes/ReloadSpeed/position = Vector2(240, 320)
+nodes/ReloadOneShot/node = SubResource("AnimationNodeOneShot_reload")
+nodes/ReloadOneShot/position = Vector2(440, 100)
+node_connections = [&"output", 0, &"ReloadOneShot", &"BaseLocomotionSpeed", 0, &"BaseLocomotion", &"AimMovementSpeed", 0, &"AimMovement", &"MovementModeBlend", 0, &"BaseLocomotionSpeed", &"MovementModeBlend", 1, &"AimMovementSpeed", &"AimBlend", 0, &"MovementModeBlend", &"AimBlend", 1, &"AimPose", &"ReloadSpeed", 0, &"ReloadAnimation", &"ReloadOneShot", 0, &"AimBlend", &"ReloadOneShot", 1, &"ReloadSpeed"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gntrk"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_rg5yv"]
+states/Locomotion/node = SubResource("AnimationNodeBlendTree_megsn")
+states/Locomotion/position = Vector2(414, 100)
+states/Start/position = Vector2(128, 100)
+transitions = ["Start", "Locomotion", SubResource("AnimationNodeStateMachineTransition_gntrk")]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pulse"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.2, 0.85, 1, 0.5)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_pulse"]
+material = SubResource("StandardMaterial3D_pulse")
+top_radius = 1.0
+bottom_radius = 1.0
+height = 0.02
+
+[node name="Player" type="CharacterBody3D" unique_id=1713473279]
+floor_snap_length = 0.3
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=305279240]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+visible = false
+shape = SubResource("CapsuleShape3D_player")
+
+[node name="Visual" type="Node3D" parent="." unique_id=318710232]
+process_priority = 100
+script = ExtResource("23_visual_scale")
+
+[node name="PlayerTest2" parent="Visual" unique_id=268945370 instance=ExtResource("2_i2e8t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Armature" parent="Visual/PlayerTest2" index="0" unique_id=1599973410]
+transform = Transform3D(1.75, 0, 0, 0, 1.75, 0, 0, 0, 1.75, 0, 0, 0)
+
+[node name="PhysicalBoneSimulator3D" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" parent_id_path=PackedInt32Array(268945370, 1482216279) index="4" unique_id=1352115426]
+visible = false
+active = false
+
+[node name="WeaponSocket" type="BoneAttachment3D" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" parent_id_path=PackedInt32Array(268945370, 1482216279) index="5" unique_id=590233809]
+transform = Transform3D(-4.857202e-07, -1, -6.705522e-06, -5.9604645e-08, 6.7055225e-06, -0.9999999, 0.9999999, -4.857209e-07, -5.960548e-08, -0.3426354, 0.25390247, -0.048910514)
+bone_name = "RightHand"
+bone_idx = 25
+
+[node name="EquippedWeapon" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/WeaponSocket" unique_id=1823403475 instance=ExtResource("25_pistol_visual")]
+transform = Transform3D(-0.019216698, 0.39366242, -0.06826856, 0.34252897, 0.05141738, 0.20007566, 0.20568122, -0.048847914, -0.33957195, 0.016574025, 0.09833683, 0.060579337)
+
+[node name="AnimationTree" type="AnimationTree" parent="." unique_id=1635263273]
+active = false
+root_node = NodePath("../Visual/PlayerTest2")
+tree_root = SubResource("AnimationNodeStateMachine_rg5yv")
+anim_player = NodePath("../Visual/PlayerTest2/AnimationPlayer")
+parameters/Locomotion/BaseLocomotion/blend_position = 0.0
+parameters/Locomotion/BaseLocomotionSpeed/scale = 1.0
+parameters/Locomotion/AimMovement/blend_position = Vector2(0, 0)
+parameters/Locomotion/AimMovementSpeed/scale = 1.0
+parameters/Locomotion/MovementModeBlend/blend_amount = 0.0
+parameters/Locomotion/AimBlend/blend_amount = 0.0
+parameters/Locomotion/ReloadSpeed/scale = 1.0
+parameters/Locomotion/ReloadOneShot/active = false
+parameters/Locomotion/ReloadOneShot/internal_active = false
+parameters/Locomotion/ReloadOneShot/request = 0
+
+[node name="CameraPivot" type="Node3D" parent="." unique_id=583191633]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot" unique_id=166384298]
+spring_length = 3.0
+margin = 0.1
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D" unique_id=1191777060]
+current = true
+
+[node name="SolicitationPulse" type="MeshInstance3D" parent="." unique_id=1864319929]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
+visible = false
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_pulse")
+
+[node name="Components" type="Node" parent="." unique_id=993241314]
+
+[node name="CameraComponent" type="Node" parent="Components" unique_id=748876688]
+script = ExtResource("4_camera")
+default_distance = 2.0
+aim_distance = 1.0
+
+[node name="AnimationComponent" type="Node" parent="Components" unique_id=1671617425]
+script = ExtResource("5_animation")
+
+[node name="MovementComponent" type="Node" parent="Components" unique_id=1361433278]
+script = ExtResource("6_movement")
+walk_speed = 2.5
+aim_facing_offset_degrees = 5.0
+
+[node name="StatsComponent" type="Node" parent="Components" unique_id=108249701]
+script = ExtResource("7_stats")
+config = ExtResource("8_stats_config")
+
+[node name="HealthComponent" type="Node" parent="Components" unique_id=820442258]
+script = ExtResource("10_health")
+
+[node name="RagdollComponent" type="Node" parent="Components" unique_id=759563522]
+script = ExtResource("11_ragdoll")
+
+[node name="RespawnComponent" type="Node" parent="Components" unique_id=895935570]
+script = ExtResource("12_respawn")
+
+[node name="WeaponComponent" type="Node" parent="Components" unique_id=1354118472]
+script = ExtResource("14_weapon")
+pistol_definition = ExtResource("24_pistol")
+
+[node name="WalletComponent" type="Node" parent="Components" unique_id=1160500404]
+script = ExtResource("15_wallet")
+
+[node name="InventoryComponent" type="Node" parent="Components" unique_id=92819809]
+script = ExtResource("16_inventory")
+known_products = Array[ExtResource("19_c43xd")]([ExtResource("17_product")])
+
+[node name="InteractionComponent" type="Node" parent="Components" unique_id=324301799]
+script = ExtResource("18_interaction")
+
+[node name="SolicitationComponent" type="Node" parent="Components" unique_id=1754771660]
+script = ExtResource("19_solicitation")
+
+[node name="MenuController" type="Node" parent="Components" unique_id=2023999141]
+script = ExtResource("20_menu_controller")
+
+[node name="PlayerHUD" parent="." unique_id=1245845484 instance=ExtResource("9_hud")]
+
+[node name="PlayerStatsMenu" parent="." unique_id=1165805739 instance=ExtResource("13_stats_menu")]
+
+[node name="PlayerInventoryMenu" parent="." unique_id=1453711422 instance=ExtResource("21_inventory_menu")]
+
+[node name="DealerShopMenu" parent="." unique_id=931469992 instance=ExtResource("22_shop_menu")]
+
+[editable path="Visual/PlayerTest2"]

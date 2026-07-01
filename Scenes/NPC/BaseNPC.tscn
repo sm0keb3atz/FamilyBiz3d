@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3 uid="uid://dgvjydxleghlo"]
+
+[ext_resource type="Script" uid="uid://bvn1m8v758ycv" path="res://Scripts/NPC/base_npc.gd" id="1_base"]
+[ext_resource type="PackedScene" uid="uid://cied5oejbgi81" path="res://Scenes/PlayerVisual.scn" id="2_visual"]
+[ext_resource type="Script" path="res://Scripts/Shared/character_visual_scale.gd" id="3_visual_scale"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/Combat/damageable_component.gd" id="4_damageable"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_npc"]
+radius = 0.4
+height = 1.8
+
+[node name="BaseNPC" type="CharacterBody3D" unique_id=673464585]
+floor_snap_length = 0.3
+script = ExtResource("1_base")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1116200965]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_npc")
+
+[node name="Visual" type="Node3D" parent="." unique_id=2091785923]
+script = ExtResource("3_visual_scale")
+
+[node name="PlayerTest2" parent="Visual" instance=ExtResource("2_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="RoleLabel" type="Label3D" parent="." unique_id=1275312916]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
+billboard = 1
+text = "NPC"
+outline_size = 8
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=1935228868]
+path_desired_distance = 0.3
+target_desired_distance = 0.6
+height = 1.8
+radius = 0.45
+
+[node name="DamageableComponent" type="Node" parent="."]
+script = ExtResource("4_damageable")
+
+[editable path="Visual/PlayerTest2"]

@@ -1,0 +1,262 @@
+class_name PlayerWeaponComponent
+extends Node
+
+signal weapon_changed(definition: WeaponDefinition)
+signal ammo_changed(magazine: int, reserve: int)
+signal fired(hit_position: Vector3)
+signal reload_started
+signal reload_completed
+
+@export_category("Scene References")
+@export var animation_component_path := NodePath("../AnimationComponent")
+@export var health_component_path := NodePath("../HealthComponent")
+@export var body_path := NodePath("../..")
+@export var camera_path := NodePath("../../CameraPivot/SpringArm3D/Camera3D")
+@export var weapon_model_path := NodePath(
+	"../../Visual/PlayerTest2/Armature/GeneralSkeleton/WeaponSocket/EquippedWeapon"
+)
+
+@export_category("Loadout")
+@export var pistol_definition: WeaponDefinition
+
+@export_category("Input")
+@export var aim_action := &"aim"
+@export var fire_action := &"fire"
+@export var reload_action := &"reload"
+@export var next_weapon_action := &"weapon_next"
+@export var previous_weapon_action := &"weapon_previous"
+
+@onready var animation_component := (
+	get_node(animation_component_path) as PlayerAnimationComponent
+)
+@onready var health_component := (
+	get_node(health_component_path) as PlayerHealthComponent
+)
+@onready var body := get_node(body_path) as CharacterBody3D
+@onready var camera := get_node(camera_path) as Camera3D
+@onready var weapon_model := get_node(weapon_model_path) as Node3D
+
+var _slots: Array[WeaponDefinition] = []
+var _magazine_ammo: Dictionary[StringName, int] = {}
+var _reserve_ammo: Dictionary[StringName, int] = {}
+var _equipped_slot := 0
+var _cooldown_remaining := 0.0
+var _reload_remaining := 0.0
+
+
+func _ready() -> void:
+	_slots.append(null)
+	if pistol_definition != null:
+		_slots.append(pistol_definition)
+		_magazine_ammo[pistol_definition.weapon_id] = (
+			pistol_definition.magazine_capacity
+		)
+		_reserve_ammo[pistol_definition.weapon_id] = (
+			pistol_definition.starting_reserve_ammo
+		)
+	health_component.state_changed.connect(_on_health_state_changed)
+	_apply_equipped_weapon()
+
+
+func _process(delta: float) -> void:
+	_cooldown_remaining = maxf(_cooldown_remaining - delta, 0.0)
+	if _reload_remaining <= 0.0:
+		return
+
+	_reload_remaining = maxf(_reload_remaining - delta, 0.0)
+	if is_zero_approx(_reload_remaining):
+		_finish_reload()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(next_weapon_action):
+		cycle_weapon(1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed(previous_weapon_action):
+		cycle_weapon(-1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed(fire_action):
+		if try_fire():
+			get_viewport().set_input_as_handled()
+	elif event.is_action_pressed(reload_action):
+		if try_reload():
+			get_viewport().set_input_as_handled()
+
+
+func cycle_weapon(direction: int) -> bool:
+	if direction == 0 or _slots.size() <= 1 or not health_component.is_alive():
+		return false
+
+	var next_slot := wrapi(_equipped_slot + signi(direction), 0, _slots.size())
+	return equip_slot(next_slot)
+
+
+func equip_slot(slot_index: int) -> bool:
+	if (
+		slot_index < 0
+		or slot_index >= _slots.size()
+		or slot_index == _equipped_slot
+	):
+		return false
+
+	cancel_reload()
+	_equipped_slot = slot_index
+	_cooldown_remaining = 0.0
+	_apply_equipped_weapon()
+	return true
+
+
+func try_fire() -> bool:
+	var definition := get_equipped_weapon()
+	if (
+		definition == null
+		or not health_component.is_alive()
+		or not is_aiming()
+		or _cooldown_remaining > 0.0
+		or is_reloading()
+	):
+		return false
+
+	if get_magazine_ammo() <= 0:
+		return try_reload()
+
+	_magazine_ammo[definition.weapon_id] = get_magazine_ammo() - 1
+	_cooldown_remaining = definition.fire_interval
+	animation_component.trigger_recoil()
+	var hit_position := _fire_hitscan(definition)
+	ammo_changed.emit(get_magazine_ammo(), get_reserve_ammo())
+	fired.emit(hit_position)
+	return true
+
+
+func try_reload() -> bool:
+	var definition := get_equipped_weapon()
+	if (
+		definition == null
+		or not health_component.is_alive()
+		or is_reloading()
+		or get_magazine_ammo() >= definition.magazine_capacity
+		or get_reserve_ammo() <= 0
+		or not animation_component.trigger_reload(definition.reload_duration)
+	):
+		return false
+
+	_reload_remaining = definition.reload_duration
+	reload_started.emit()
+	return true
+
+
+func cancel_reload() -> void:
+	if not is_reloading():
+		return
+
+	_reload_remaining = 0.0
+	animation_component.cancel_reload()
+
+
+func is_reloading() -> bool:
+	return _reload_remaining > 0.0
+
+
+func is_aiming() -> bool:
+	return (
+		get_equipped_weapon() != null
+		and health_component.is_alive()
+		and Input.is_action_pressed(aim_action)
+	)
+
+
+func get_equipped_weapon() -> WeaponDefinition:
+	if _slots.is_empty():
+		return null
+	return _slots[_equipped_slot]
+
+
+func get_magazine_ammo() -> int:
+	var definition := get_equipped_weapon()
+	if definition == null:
+		return 0
+	return _magazine_ammo.get(definition.weapon_id, 0)
+
+
+func get_reserve_ammo() -> int:
+	var definition := get_equipped_weapon()
+	if definition == null:
+		return 0
+	return _reserve_ammo.get(definition.weapon_id, 0)
+
+
+func _apply_equipped_weapon() -> void:
+	var definition := get_equipped_weapon()
+	weapon_model.visible = definition != null
+	weapon_changed.emit(definition)
+	ammo_changed.emit(get_magazine_ammo(), get_reserve_ammo())
+
+
+func _finish_reload() -> void:
+	var definition := get_equipped_weapon()
+	if definition == null:
+		return
+
+	var missing_ammo := definition.magazine_capacity - get_magazine_ammo()
+	var transferred_ammo := mini(missing_ammo, get_reserve_ammo())
+	_magazine_ammo[definition.weapon_id] = (
+		get_magazine_ammo() + transferred_ammo
+	)
+	_reserve_ammo[definition.weapon_id] = (
+		get_reserve_ammo() - transferred_ammo
+	)
+	ammo_changed.emit(get_magazine_ammo(), get_reserve_ammo())
+	reload_completed.emit()
+
+
+func _fire_hitscan(definition: WeaponDefinition) -> Vector3:
+	var screen_center := camera.get_viewport().get_visible_rect().size * 0.5
+	var ray_origin := camera.project_ray_origin(screen_center)
+	var ray_direction := camera.project_ray_normal(screen_center)
+	var ray_end := (
+		ray_origin
+		+ ray_direction * definition.max_range
+	)
+	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
+	query.exclude = [body.get_rid()]
+	var hit := body.get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty():
+		return ray_end
+
+	var hit_position := hit.position as Vector3
+	var collider := hit.collider as Node
+	var damageable := _find_damageable(collider)
+	if damageable != null:
+		damageable.apply_damage(
+			definition.damage,
+			body,
+			hit_position,
+			ray_direction
+		)
+	return hit_position
+
+
+func _find_damageable(collider: Node) -> DamageableComponent:
+	var current := collider
+	while current != null:
+		var component := current.get_node_or_null(
+			"DamageableComponent"
+		) as DamageableComponent
+		if component != null:
+			return component
+		current = current.get_parent()
+	return null
+
+
+func _on_health_state_changed(
+	_previous: PlayerHealthComponent.State,
+	current: PlayerHealthComponent.State
+) -> void:
+	if current == PlayerHealthComponent.State.ALIVE:
+		return
+
+	cancel_reload()
+	if _equipped_slot != 0:
+		_equipped_slot = 0
+		_apply_equipped_weapon()
