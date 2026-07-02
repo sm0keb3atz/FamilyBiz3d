@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dan0oxg1lago7"
+path="res://.godot/imported/Nail Wood 1-1.wav-8efc16eb677854cc8b25690b2782275e.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Free Sounds Pack/Nail Wood 1-1.wav"
+dest_files=["res://.godot/imported/Nail Wood 1-1.wav-8efc16eb677854cc8b25690b2782275e.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

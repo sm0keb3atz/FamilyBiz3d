@@ -1,0 +1,514 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 5,
+			"type": "MAT4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 1,
+			"count": 54,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 2,
+			"count": 38,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-10.2953806,
+				1.50075173,
+				-1.46241021
+			],
+			"max": [
+				0.481881708,
+				3.99295712,
+				1.32025707
+			]
+		},
+		{
+			"bufferView": 3,
+			"count": 38,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 38,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 38,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 6,
+			"count": 38,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 7,
+			"count": 38,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		},
+		{
+			"bufferView": 8,
+			"count": 24,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 9,
+			"count": 16,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-2.36997771,
+				1.60700202,
+				-1.46241021
+			],
+			"max": [
+				0.419199288,
+				3.98415852,
+				1.32025707
+			]
+		},
+		{
+			"bufferView": 10,
+			"count": 16,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 11,
+			"count": 16,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 12,
+			"count": 16,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 13,
+			"count": 16,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 14,
+			"count": 16,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		},
+		{
+			"bufferView": 15,
+			"count": 25080,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 16,
+			"count": 13995,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-10.3629827,
+				0.00749871694,
+				-1.60778105
+			],
+			"max": [
+				0.563867509,
+				4.15010405,
+				1.46574414
+			]
+		},
+		{
+			"bufferView": 17,
+			"count": 13995,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 18,
+			"count": 13995,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 19,
+			"count": 13995,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 20,
+			"count": 13995,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 21,
+			"count": 13995,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SK_veh_TruckTrailer_01.bin",
+			"byteLength": 837304
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 320
+		},
+		{
+			"buffer": 0,
+			"byteLength": 54,
+			"byteOffset": 320,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 456,
+			"byteOffset": 376,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 456,
+			"byteOffset": 832,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 608,
+			"byteOffset": 1288,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 304,
+			"byteOffset": 1896,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 152,
+			"byteOffset": 2200,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 152,
+			"byteOffset": 2352,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 24,
+			"byteOffset": 2504,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 192,
+			"byteOffset": 2528,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 192,
+			"byteOffset": 2720,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 256,
+			"byteOffset": 2912,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 128,
+			"byteOffset": 3168,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 64,
+			"byteOffset": 3296,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 64,
+			"byteOffset": 3360,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 50160,
+			"byteOffset": 3424,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 167940,
+			"byteOffset": 53584,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 167940,
+			"byteOffset": 221524,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 223920,
+			"byteOffset": 389464,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 111960,
+			"byteOffset": 613384,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 55980,
+			"byteOffset": 725344,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 55980,
+			"byteOffset": 781324,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_ColorPalette_MetallicRoughness.png"
+		},
+		{
+			"uri": "T_colorPalette2048.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_glossyBlue",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0.029995,
+					0.0512479991,
+					0.0677080005,
+					1
+				],
+				"metallicFactor": 0,
+				"roughnessFactor": 0.349999994
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_glossyWhite",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0.331874996,
+					0.350784987,
+					0.375,
+					1
+				],
+				"metallicFactor": 0,
+				"roughnessFactor": 0.349999994
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_ColorPalette",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 1
+				}
+			},
+			"doubleSided": true
+		}
+	],
+	"meshes": [
+		{
+			"name": "SK_veh_TruckTrailer_01",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 2,
+						"NORMAL": 3,
+						"TANGENT": 4,
+						"TEXCOORD_0": 5,
+						"JOINTS_0": 6,
+						"WEIGHTS_0": 7
+					},
+					"indices": 1,
+					"material": 0
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 9,
+						"NORMAL": 10,
+						"TANGENT": 11,
+						"TEXCOORD_0": 12,
+						"JOINTS_0": 13,
+						"WEIGHTS_0": 14
+					},
+					"indices": 8,
+					"material": 1
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 16,
+						"NORMAL": 17,
+						"TANGENT": 18,
+						"TEXCOORD_0": 19,
+						"JOINTS_0": 20,
+						"WEIGHTS_0": 21
+					},
+					"indices": 15,
+					"material": 2
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"skin": 0,
+			"mesh": 0,
+			"children": [
+				1
+			]
+		},
+		{
+			"name": "trailerBody",
+			"translation": [
+				-0.0244384762,
+				0,
+				-0.0710766613
+			],
+			"rotation": [
+				0.707106709,
+				-0,
+				-0,
+				0.707106829
+			],
+			"children": [
+				2,
+				3,
+				4,
+				5
+			]
+		},
+		{
+			"name": "wheelFL",
+			"translation": [
+				-7.924788,
+				-1.38575792,
+				-0.53474921
+			]
+		},
+		{
+			"name": "wheelRL",
+			"translation": [
+				-9.04382706,
+				-1.38575661,
+				-0.53474921
+			]
+		},
+		{
+			"name": "wheelRR",
+			"translation": [
+				-9.04332447,
+				1.38587427,
+				-0.534748852
+			]
+		},
+		{
+			"name": "wheelFR",
+			"translation": [
+				-7.924788,
+				1.38587427,
+				-0.534748852
+			]
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"skins": [
+		{
+			"name": "SK_veh_TruckTrailer_01",
+			"inverseBindMatrices": 0,
+			"skeleton": 0,
+			"joints": [
+				1,
+				2,
+				3,
+				4,
+				5
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "T_colorPalette2048",
+			"sampler": 0,
+			"source": 1
+		},
+		{
+			"name": "MI_ColorPalette_MetallicRoughness",
+			"sampler": 0,
+			"source": 0
+		}
+	]
+}

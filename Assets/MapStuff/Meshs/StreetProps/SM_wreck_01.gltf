@@ -1,0 +1,146 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 12282,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 1,
+			"count": 8836,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-2.42078781,
+				-0.0388102718,
+				-0.934229076
+			],
+			"max": [
+				2.42078781,
+				1.56626189,
+				1.10786188
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 8836,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 8836,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 8836,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 8836,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_wreck_01.bin",
+			"byteLength": 519380
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 24564,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 106032,
+			"byteOffset": 24564,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 106032,
+			"byteOffset": 130596,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 141376,
+			"byteOffset": 236628,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 70688,
+			"byteOffset": 378004,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 70688,
+			"byteOffset": 448692,
+			"target": 34962
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_matteDarkBrown2",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0.0104170004,
+					0.00685099978,
+					0.00235099997,
+					1
+				],
+				"metallicFactor": 0
+			},
+			"doubleSided": true
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_wreck_01",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	]
+}

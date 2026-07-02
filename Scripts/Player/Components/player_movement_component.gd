@@ -53,6 +53,7 @@ extends Node
 var _gravity := ProjectSettings.get_setting("physics/3d/default_gravity") as float
 var _move_input := Vector2.ZERO
 var _is_aiming := false
+var _is_sprinting := false
 var _sprint_exhausted := false
 
 
@@ -80,13 +81,13 @@ func _physics_process(delta: float) -> void:
 		and _move_input != Vector2.ZERO
 		and not _is_aiming
 	)
-	var is_sprinting := wants_to_sprint and not _sprint_exhausted
-	if is_sprinting:
+	_is_sprinting = wants_to_sprint and not _sprint_exhausted
+	if _is_sprinting:
 		var stamina_cost := sprint_stamina_per_second * delta
 		if not stats_component.consume_stamina(stamina_cost):
 			stats_component.consume_stamina(stats_component.stamina)
 			_sprint_exhausted = true
-			is_sprinting = false
+			_is_sprinting = false
 		elif is_zero_approx(stats_component.stamina):
 			_sprint_exhausted = true
 	var camera_basis := Basis(Vector3.UP, camera_component.get_yaw())
@@ -94,7 +95,7 @@ func _physics_process(delta: float) -> void:
 		camera_basis * Vector3(_move_input.x, 0.0, _move_input.y)
 	).normalized()
 	var target_speed := aim_move_speed if _is_aiming else (
-		run_speed if is_sprinting else walk_speed
+		run_speed if _is_sprinting else walk_speed
 	)
 	var horizontal_velocity := Vector3(body.velocity.x, 0.0, body.velocity.z)
 
@@ -126,6 +127,14 @@ func _physics_process(delta: float) -> void:
 		walk_speed,
 		run_speed
 	)
+
+
+func is_sprinting() -> bool:
+	return _is_sprinting
+
+
+func get_horizontal_speed() -> float:
+	return Vector2(body.velocity.x, body.velocity.z).length()
 
 
 func _apply_gravity(delta: float) -> void:

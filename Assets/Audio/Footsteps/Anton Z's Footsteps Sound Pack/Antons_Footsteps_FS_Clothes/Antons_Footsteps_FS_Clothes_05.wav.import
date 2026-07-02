@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cl0b56nunqgoe"
+path="res://.godot/imported/Antons_Footsteps_FS_Clothes_05.wav-2337cfa91cb1a58ceded8d28e43f23d8.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Footsteps/Anton Z's Footsteps Sound Pack/Antons_Footsteps_FS_Clothes/Antons_Footsteps_FS_Clothes_05.wav"
+dest_files=["res://.godot/imported/Antons_Footsteps_FS_Clothes_05.wav-2337cfa91cb1a58ceded8d28e43f23d8.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -1,0 +1,298 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 7836,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 1,
+			"count": 5896,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-0.644929588,
+				0.0111354114,
+				-0.374307483
+			],
+			"max": [
+				0.491314471,
+				2.08680797,
+				0.374307513
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 5896,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 5896,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 5896,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 5896,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 6,
+			"count": 564,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 7,
+			"count": 328,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-0.617967784,
+				0.851703644,
+				-0.352336407
+			],
+			"max": [
+				0.192899585,
+				2.03071952,
+				0.354609549
+			]
+		},
+		{
+			"bufferView": 8,
+			"count": 328,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 9,
+			"count": 328,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 10,
+			"count": 328,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 11,
+			"count": 328,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_candy_machine_1.bin",
+			"byteLength": 365344
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 15672,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 70752,
+			"byteOffset": 15672,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 70752,
+			"byteOffset": 86424,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 94336,
+			"byteOffset": 157176,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 47168,
+			"byteOffset": 251512,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 47168,
+			"byteOffset": 298680,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1128,
+			"byteOffset": 345848,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 3936,
+			"byteOffset": 346976,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 3936,
+			"byteOffset": 350912,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 5248,
+			"byteOffset": 354848,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2624,
+			"byteOffset": 360096,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2624,
+			"byteOffset": 362720,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "M_BaseColorPalette_MetallicRoughness.png"
+		},
+		{
+			"uri": "T_colorPalette2048.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "M_BaseColorPalette",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 1
+				}
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_GlassBasic",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0,
+					0,
+					0,
+					0.25
+				],
+				"metallicFactor": 0,
+				"roughnessFactor": 0
+			},
+			"alphaMode": "BLEND",
+			"doubleSided": true,
+			"extensions":
+			{
+				"KHR_materials_specular":
+				{
+					"specularFactor": 10
+				},
+				"KHR_materials_ior":
+				{
+					"ior": 1
+				}
+			}
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_candy_machine_1",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 7,
+						"NORMAL": 8,
+						"TANGENT": 9,
+						"TEXCOORD_0": 10,
+						"TEXCOORD_1": 11
+					},
+					"indices": 6,
+					"material": 1
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "T_colorPalette2048",
+			"sampler": 0,
+			"source": 1
+		},
+		{
+			"name": "M_BaseColorPalette_MetallicRoughness",
+			"sampler": 0,
+			"source": 0
+		}
+	],
+	"extensionsUsed": [
+		"KHR_materials_specular",
+		"KHR_materials_ior"
+	]
+}

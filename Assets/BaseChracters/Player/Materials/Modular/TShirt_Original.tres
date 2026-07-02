@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://Assets/BaseChracters/Player/FB_Player_Modular_v002_Tshirt1_basecolor.png" id="1_albedo"]
+
+[resource]
+resource_name = "T-Shirt Original"
+cull_mode = 2
+albedo_texture = ExtResource("1_albedo")
+roughness = 0.9

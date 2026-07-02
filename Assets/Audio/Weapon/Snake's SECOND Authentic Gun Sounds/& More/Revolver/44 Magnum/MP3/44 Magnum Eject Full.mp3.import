@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://sgslx4uwpx6f"
+path="res://.godot/imported/44 Magnum Eject Full.mp3-c7a5b1d58fa8c0245d993cc17888cc6d.mp3str"
+
+[deps]
+
+source_file="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Revolver/44 Magnum/MP3/44 Magnum Eject Full.mp3"
+dest_files=["res://.godot/imported/44 Magnum Eject Full.mp3-c7a5b1d58fa8c0245d993cc17888cc6d.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

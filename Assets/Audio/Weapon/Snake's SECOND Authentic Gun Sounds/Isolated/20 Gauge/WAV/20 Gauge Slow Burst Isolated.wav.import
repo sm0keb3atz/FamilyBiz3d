@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://b3kox6s4n22s8"
+path="res://.godot/imported/20 Gauge Slow Burst Isolated.wav-ad8ab7253effe0ab7d534880a60e68b2.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/Isolated/20 Gauge/WAV/20 Gauge Slow Burst Isolated.wav"
+dest_files=["res://.godot/imported/20 Gauge Slow Burst Isolated.wav-ad8ab7253effe0ab7d534880a60e68b2.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

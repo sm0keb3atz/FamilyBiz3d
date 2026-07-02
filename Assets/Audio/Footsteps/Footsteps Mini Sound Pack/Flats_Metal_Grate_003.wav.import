@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dg10eparm8xpp"
+path="res://.godot/imported/Flats_Metal_Grate_003.wav-43dcb8c2af35d4279e29c72d98b71fb2.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Footsteps/Footsteps Mini Sound Pack/Flats_Metal_Grate_003.wav"
+dest_files=["res://.godot/imported/Flats_Metal_Grate_003.wav-43dcb8c2af35d4279e29c72d98b71fb2.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

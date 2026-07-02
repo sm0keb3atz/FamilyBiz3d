@@ -4,6 +4,7 @@ extends Node
 @export_category("Scene References")
 @export var health_component_path := NodePath("../HealthComponent")
 @export var movement_component_path := NodePath("../MovementComponent")
+@export var appearance_component_path := NodePath("../AppearanceComponent")
 @export var body_path := NodePath("../..")
 @export var body_collision_path := NodePath("../../CollisionShape3D")
 @export var animation_tree_path := NodePath("../../AnimationTree")
@@ -19,6 +20,9 @@ extends Node
 )
 @onready var movement_component := (
 	get_node(movement_component_path) as PlayerMovementComponent
+)
+@onready var appearance_component := (
+	get_node_or_null(appearance_component_path) as PlayerAppearanceComponent
 )
 @onready var body := get_node(body_path) as CharacterBody3D
 @onready var body_collision := (
@@ -64,7 +68,8 @@ func activate_ragdoll() -> void:
 	_is_ragdoll_active = true
 	movement_component.set_physics_process(false)
 	body.velocity = Vector3.ZERO
-	animation_tree.active = false
+	if appearance_component != null:
+		appearance_component.set_ragdoll_visibility(true)
 	body_collision.set_deferred("disabled", true)
 	_set_physical_bone_collisions(simulator, true)
 	call_deferred("_start_simulation")
@@ -80,6 +85,8 @@ func _prepare_respawn() -> void:
 	_set_physical_bone_collisions(simulator, false)
 	if skeleton != null:
 		skeleton.reset_bone_poses()
+	if appearance_component != null:
+		appearance_component.set_ragdoll_visibility(false)
 
 
 func _finish_respawn() -> void:

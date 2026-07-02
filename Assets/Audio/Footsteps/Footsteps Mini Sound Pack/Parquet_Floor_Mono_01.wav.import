@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bf8yw8i1xr81n"
+path="res://.godot/imported/Parquet_Floor_Mono_01.wav-e87bf843cc78a7f799b1715672fb3c9e.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Footsteps/Footsteps Mini Sound Pack/Parquet_Floor_Mono_01.wav"
+dest_files=["res://.godot/imported/Parquet_Floor_Mono_01.wav-e87bf843cc78a7f799b1715672fb3c9e.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

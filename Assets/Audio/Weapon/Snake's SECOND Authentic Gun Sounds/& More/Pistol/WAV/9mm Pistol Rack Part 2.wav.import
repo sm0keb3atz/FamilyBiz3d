@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://d1w7oxorcuqsq"
+path="res://.godot/imported/9mm Pistol Rack Part 2.wav-0942f7a4a79395b3941e1df8c32e5405.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Rack Part 2.wav"
+dest_files=["res://.godot/imported/9mm Pistol Rack Part 2.wav-0942f7a4a79395b3941e1df8c32e5405.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

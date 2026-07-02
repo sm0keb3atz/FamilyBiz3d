@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://bu34jrbyqy8ge"]
+
+[ext_resource type="PackedScene" uid="uid://chfupylvwjkco" path="res://Scenes/Maps/Territorys/HoodEast.tscn" id="1_sajyk"]
+[ext_resource type="PackedScene" uid="uid://blrfy38pd5dw2" path="res://Scenes/Maps/Territorys/HoodWest.tscn" id="2_qqvyc"]
+
+[node name="World" type="Node3D" unique_id=250597188]
+
+[node name="HoodEast" parent="." unique_id=1815818858 instance=ExtResource("1_sajyk")]
+
+[node name="HoodEast2" parent="." unique_id=1046546524 instance=ExtResource("2_qqvyc")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 128, 0, -256)

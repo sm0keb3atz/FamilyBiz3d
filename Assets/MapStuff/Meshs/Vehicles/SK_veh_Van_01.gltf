@@ -1,0 +1,519 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 5,
+			"type": "MAT4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 1,
+			"count": 1212,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 2,
+			"count": 984,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-2.54894519,
+				0.394657761,
+				-1.07601821
+			],
+			"max": [
+				2.45849061,
+				2.00847578,
+				1.07568347
+			]
+		},
+		{
+			"bufferView": 3,
+			"count": 984,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 984,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 984,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 6,
+			"count": 984,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 7,
+			"count": 984,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		},
+		{
+			"bufferView": 8,
+			"count": 6996,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 9,
+			"count": 5293,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-2.60070491,
+				0.00034513342,
+				-1.28670096
+			],
+			"max": [
+				2.60070491,
+				2.11418247,
+				1.28670096
+			]
+		},
+		{
+			"bufferView": 10,
+			"count": 5293,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 11,
+			"count": 5293,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 12,
+			"count": 5293,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 13,
+			"count": 5293,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 14,
+			"count": 5293,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		},
+		{
+			"bufferView": 15,
+			"count": 36,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 16,
+			"count": 28,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-2.53223133,
+				1.37759233,
+				-0.987067103
+			],
+			"max": [
+				1.79736507,
+				1.96965539,
+				0.987067163
+			]
+		},
+		{
+			"bufferView": 17,
+			"count": 28,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 18,
+			"count": 28,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 19,
+			"count": 28,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 20,
+			"count": 28,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 21,
+			"count": 28,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SK_veh_Van_01.bin",
+			"byteLength": 369852
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 320
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2424,
+			"byteOffset": 320,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 11808,
+			"byteOffset": 2744,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 11808,
+			"byteOffset": 14552,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 15744,
+			"byteOffset": 26360,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 7872,
+			"byteOffset": 42104,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 3936,
+			"byteOffset": 49976,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 3936,
+			"byteOffset": 53912,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 13992,
+			"byteOffset": 57848,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 63516,
+			"byteOffset": 71840,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 63516,
+			"byteOffset": 135356,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 84688,
+			"byteOffset": 198872,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 42344,
+			"byteOffset": 283560,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 21172,
+			"byteOffset": 325904,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 21172,
+			"byteOffset": 347076,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 36,
+			"byteOffset": 368248,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 336,
+			"byteOffset": 368284,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 336,
+			"byteOffset": 368620,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 448,
+			"byteOffset": 368956,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 224,
+			"byteOffset": 369404,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 112,
+			"byteOffset": 369628,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 112,
+			"byteOffset": 369740,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_ColorPalette_MetallicRoughness.png"
+		},
+		{
+			"uri": "T_colorPalette2048.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_glossyCream",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0.223958001,
+					0.186272994,
+					0.136607006,
+					1
+				],
+				"metallicFactor": 0,
+				"roughnessFactor": 0.349999994
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_ColorPalette",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 1
+				}
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_GlassBasic",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0,
+					0,
+					0,
+					0.25
+				],
+				"metallicFactor": 0,
+				"roughnessFactor": 0
+			},
+			"alphaMode": "BLEND",
+			"doubleSided": true,
+			"extensions":
+			{
+				"KHR_materials_specular":
+				{
+					"specularFactor": 10
+				},
+				"KHR_materials_ior":
+				{
+					"ior": 1
+				}
+			}
+		}
+	],
+	"meshes": [
+		{
+			"name": "SK_veh_Van_01",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 2,
+						"NORMAL": 3,
+						"TANGENT": 4,
+						"TEXCOORD_0": 5,
+						"JOINTS_0": 6,
+						"WEIGHTS_0": 7
+					},
+					"indices": 1,
+					"material": 0
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 9,
+						"NORMAL": 10,
+						"TANGENT": 11,
+						"TEXCOORD_0": 12,
+						"JOINTS_0": 13,
+						"WEIGHTS_0": 14
+					},
+					"indices": 8,
+					"material": 1
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 16,
+						"NORMAL": 17,
+						"TANGENT": 18,
+						"TEXCOORD_0": 19,
+						"JOINTS_0": 20,
+						"WEIGHTS_0": 21
+					},
+					"indices": 15,
+					"material": 2
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"skin": 0,
+			"mesh": 0,
+			"children": [
+				1
+			]
+		},
+		{
+			"name": "carBody",
+			"children": [
+				2,
+				3,
+				4,
+				5
+			]
+		},
+		{
+			"name": "wheelRR",
+			"translation": [
+				-1.43000364,
+				0.376849294,
+				0.862538278
+			]
+		},
+		{
+			"name": "wheelRL",
+			"translation": [
+				-1.43000364,
+				0.376849294,
+				-0.862538218
+			]
+		},
+		{
+			"name": "wheelFR",
+			"translation": [
+				1.77811122,
+				0.379891872,
+				0.862538278
+			]
+		},
+		{
+			"name": "wheelFL",
+			"translation": [
+				1.77811122,
+				0.376849294,
+				-0.862537801
+			]
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"skins": [
+		{
+			"name": "SK_veh_Van_01",
+			"inverseBindMatrices": 0,
+			"skeleton": 0,
+			"joints": [
+				1,
+				2,
+				3,
+				4,
+				5
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "T_colorPalette2048",
+			"sampler": 0,
+			"source": 1
+		},
+		{
+			"name": "MI_ColorPalette_MetallicRoughness",
+			"sampler": 0,
+			"source": 0
+		}
+	],
+	"extensionsUsed": [
+		"KHR_materials_specular",
+		"KHR_materials_ior"
+	]
+}

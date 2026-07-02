@@ -244,6 +244,11 @@ func _update_locomotion(
 	run_speed: float
 ) -> void:
 	var blend_position := idle_blend_position
+	var sprint_blend := clampf(
+		inverse_lerp(walk_speed, run_speed, horizontal_speed),
+		0.0,
+		1.0
+	)
 
 	if horizontal_speed > 0.01:
 		if horizontal_speed <= walk_speed:
@@ -272,11 +277,6 @@ func _update_locomotion(
 		if horizontal_speed <= walk_speed:
 			playback_scale = walk_animation_speed_scale
 		else:
-			var sprint_blend := clampf(
-				inverse_lerp(walk_speed, run_speed, horizontal_speed),
-				0.0,
-				1.0
-			)
 			playback_scale = lerpf(
 				walk_animation_speed_scale,
 				1.0,
@@ -462,6 +462,12 @@ func _create_upper_body_reload(source_animation: Animation) -> Animation:
 		-1
 	):
 		var track_type := aligned_reload.track_get_type(track_index)
+		if (
+			track_type != Animation.TYPE_POSITION_3D
+			and track_type != Animation.TYPE_ROTATION_3D
+			and track_type != Animation.TYPE_SCALE_3D
+		):
+			continue
 		var track_path := aligned_reload.track_get_path(track_index)
 		var bone_name := track_path.get_subname(0)
 		var remove_track := (

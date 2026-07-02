@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://cl06v2ykl4ng0"]
+
+[ext_resource type="ArrayMesh" uid="uid://ci4i6klxu7bk6" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_00.glb" id="1_cgirt"]
+[ext_resource type="ArrayMesh" uid="uid://rx4v88ha1ltc" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_corner.glb" id="2_u508n"]
+[ext_resource type="ArrayMesh" uid="uid://ciqwe8yur35ny" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_04_quarter.glb" id="3_dfo8n"]
+[ext_resource type="PackedScene" uid="uid://1s0n01rsb67d" path="res://Assets/MapStuff/Meshs/StreetProps/SM_traffic_lights_1.gltf" id="4_gw41w"]
+
+[node name="Intersection" type="Node3D" unique_id=1070683106]
+
+[node name="Road" type="Node3D" parent="." unique_id=2103499193]
+
+[node name="SmRoad00" type="MeshInstance3D" parent="Road" unique_id=658026147]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 16, 0, 0)
+mesh = ExtResource("1_cgirt")
+
+[node name="SmSidewalk01Corner" type="MeshInstance3D" parent="Road" unique_id=2135479966]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 20, 0, -20)
+mesh = ExtResource("2_u508n")
+
+[node name="SmSidewalk01Corner2" type="MeshInstance3D" parent="Road" unique_id=721204243]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 20, 0, 4)
+mesh = ExtResource("2_u508n")
+
+[node name="SmSidewalk01Corner3" type="MeshInstance3D" parent="Road" unique_id=1140319350]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0, 4)
+mesh = ExtResource("2_u508n")
+
+[node name="SmSidewalk01Corner4" type="MeshInstance3D" parent="Road" unique_id=2060269393]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -20)
+mesh = ExtResource("2_u508n")
+
+[node name="SmRoad04Quarter" type="MeshInstance3D" parent="Road" unique_id=1746827692]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 16, 0, -16)
+mesh = ExtResource("3_dfo8n")
+
+[node name="SmRoad04Quarter2" type="MeshInstance3D" parent="Road" unique_id=2139229063]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 16, 0, 4)
+mesh = ExtResource("3_dfo8n")
+
+[node name="SmRoad04Quarter3" type="MeshInstance3D" parent="Road" unique_id=1381823280]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -16)
+mesh = ExtResource("3_dfo8n")
+
+[node name="SmRoad04Quarter4" type="MeshInstance3D" parent="Road" unique_id=101431248]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 20, 0, -16)
+mesh = ExtResource("3_dfo8n")
+
+[node name="TrafficLights" type="Node3D" parent="." unique_id=946897813]
+
+[node name="SM_traffic_lights_1" parent="TrafficLights" unique_id=614324681 instance=ExtResource("4_gw41w")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 19, 0, 3)
+
+[node name="SM_traffic_lights_2" parent="TrafficLights" unique_id=165831438 instance=ExtResource("4_gw41w")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3, 0, -19)
+
+[node name="SM_traffic_lights_3" parent="TrafficLights" unique_id=2098133508 instance=ExtResource("4_gw41w")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -3, 0, 3)
+
+[node name="SM_traffic_lights_4" parent="TrafficLights" unique_id=1727057446 instance=ExtResource("4_gw41w")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, -19)

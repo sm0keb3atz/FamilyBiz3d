@@ -1,0 +1,281 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 102,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 1,
+			"count": 67,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-4.03014183,
+				3.71758056,
+				-4.03012705
+			],
+			"max": [
+				3.99999619,
+				4.33867025,
+				4.03014135
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 67,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 67,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 67,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 67,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 6,
+			"count": 1020,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 7,
+			"count": 664,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-4.03014231,
+				5.7392608e-08,
+				-4.03012705
+			],
+			"max": [
+				3.99999619,
+				4.20294523,
+				4.03014135
+			]
+		},
+		{
+			"bufferView": 8,
+			"count": 664,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 9,
+			"count": 664,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 10,
+			"count": 664,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 11,
+			"count": 664,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_gasStationCarPort_01.bin",
+			"byteLength": 43080
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 102,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 804,
+			"byteOffset": 104,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 804,
+			"byteOffset": 908,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1072,
+			"byteOffset": 1712,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 536,
+			"byteOffset": 2784,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 536,
+			"byteOffset": 3320,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2040,
+			"byteOffset": 3856,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 7968,
+			"byteOffset": 5896,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 7968,
+			"byteOffset": 13864,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 10624,
+			"byteOffset": 21832,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 5312,
+			"byteOffset": 32456,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 5312,
+			"byteOffset": 37768,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_ColorPalette_MetallicRoughness.png"
+		},
+		{
+			"uri": "T_colorPalette2048.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_matteDarkGreen",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0.0186839998,
+					0.0416669995,
+					0.0374969989,
+					1
+				],
+				"metallicFactor": 0
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_ColorPalette",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 1
+				}
+			},
+			"doubleSided": true
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_gasStationCarPort_01",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 7,
+						"NORMAL": 8,
+						"TANGENT": 9,
+						"TEXCOORD_0": 10,
+						"TEXCOORD_1": 11
+					},
+					"indices": 6,
+					"material": 1
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "T_colorPalette2048",
+			"sampler": 0,
+			"source": 1
+		},
+		{
+			"name": "MI_ColorPalette_MetallicRoughness",
+			"sampler": 0,
+			"source": 0
+		}
+	]
+}

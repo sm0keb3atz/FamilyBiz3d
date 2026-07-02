@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://i5hq006wri2f"
+path="res://.godot/imported/BootsLinoleum_01.wav-8e1c5971e05a93fa55115caa313b3891.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Footsteps/Footsteps Mini Sound Pack/BootsLinoleum_01.wav"
+dest_files=["res://.godot/imported/BootsLinoleum_01.wav-8e1c5971e05a93fa55115caa313b3891.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

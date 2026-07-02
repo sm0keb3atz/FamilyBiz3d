@@ -5,6 +5,7 @@ extends CanvasLayer
 @export var wallet_component_path := NodePath("../Components/WalletComponent")
 @export var weapon_component_path := NodePath("../Components/WeaponComponent")
 @export_range(0.0, 1000.0, 1.0) var debug_damage_amount := 25.0
+@export_range(0.05, 1.0, 0.01) var hit_marker_duration := 0.18
 
 @onready var health_bar := %HealthBar as ProgressBar
 @onready var health_value := %HealthValue as Label
@@ -19,6 +20,7 @@ extends CanvasLayer
 @onready var feedback_label := %FeedbackLabel as Label
 @onready var feedback_timer := %FeedbackTimer as Timer
 @onready var crosshair := %Crosshair as Label
+@onready var hit_marker := %HitMarker as Label
 @onready var weapon_name_label := %WeaponNameLabel as Label
 @onready var ammo_label := %AmmoLabel as Label
 @onready var reload_label := %ReloadLabel as Label
@@ -30,6 +32,8 @@ extends CanvasLayer
 	get_node(weapon_component_path) as PlayerWeaponComponent
 )
 
+var _hit_marker_remaining := 0.0
+
 
 func _ready() -> void:
 	stats.health_changed.connect(_on_health_changed)
@@ -40,17 +44,24 @@ func _ready() -> void:
 	wallet.money_changed.connect(_on_money_changed)
 	weapon.weapon_changed.connect(_on_weapon_changed)
 	weapon.ammo_changed.connect(_on_ammo_changed)
+	weapon.hit_confirmed.connect(_on_hit_confirmed)
 	weapon.reload_started.connect(_on_reload_started)
 	weapon.reload_completed.connect(_on_reload_completed)
 	feedback_timer.timeout.connect(_on_feedback_timeout)
 	_refresh_all()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	crosshair.visible = (
 		weapon.is_aiming()
 		and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	)
+	if _hit_marker_remaining <= 0.0:
+		return
+	_hit_marker_remaining = maxf(_hit_marker_remaining - delta, 0.0)
+	hit_marker.modulate.a = _hit_marker_remaining / hit_marker_duration
+	if is_zero_approx(_hit_marker_remaining):
+		hit_marker.visible = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -76,6 +87,7 @@ func _refresh_all() -> void:
 	state_label.visible = is_zero_approx(stats.health)
 	interaction_prompt.visible = false
 	feedback_label.visible = false
+	hit_marker.visible = false
 	_on_weapon_changed(weapon.get_equipped_weapon())
 
 
@@ -152,3 +164,13 @@ func _on_reload_started() -> void:
 
 func _on_reload_completed() -> void:
 	reload_label.visible = false
+
+
+func _on_hit_confirmed(fatal_hit: bool) -> void:
+	_hit_marker_remaining = hit_marker_duration
+	hit_marker.modulate = (
+		Color(1.0, 0.36, 0.22, 1.0)
+		if fatal_hit
+		else Color.WHITE
+	)
+	hit_marker.visible = true

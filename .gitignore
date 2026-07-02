@@ -1,3 +1,4 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+temp_inspect_output.txt

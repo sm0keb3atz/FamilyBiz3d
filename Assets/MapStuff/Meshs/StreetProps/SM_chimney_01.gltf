@@ -1,0 +1,298 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 66,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 1,
+			"count": 44,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-1.12281704,
+				1.83105465e-06,
+				-0.49811843
+			],
+			"max": [
+				1.12281525,
+				3.72298455,
+				0.498101324
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 44,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 44,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 44,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 44,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 6,
+			"count": 180,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 7,
+			"count": 120,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-0.923936367,
+				3.54058719,
+				-0.409888446
+			],
+			"max": [
+				0.923935115,
+				4.09033918,
+				0.409875035
+			]
+		},
+		{
+			"bufferView": 8,
+			"count": 120,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 9,
+			"count": 120,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 10,
+			"count": 120,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 11,
+			"count": 120,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_chimney_01.bin",
+			"byteLength": 9432
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 66,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 528,
+			"byteOffset": 68,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 528,
+			"byteOffset": 596,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 704,
+			"byteOffset": 1124,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 352,
+			"byteOffset": 1828,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 352,
+			"byteOffset": 2180,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 180,
+			"byteOffset": 2532,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1440,
+			"byteOffset": 2712,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1440,
+			"byteOffset": 4152,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1920,
+			"byteOffset": 5592,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 960,
+			"byteOffset": 7512,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 960,
+			"byteOffset": 8472,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_BrickSmall_01_white_BaseColor.png"
+		},
+		{
+			"uri": "MI_BrickSmall_01_white_MetallicRoughness.png"
+		},
+		{
+			"uri": "MI_ColorPalette_MetallicRoughness.png"
+		},
+		{
+			"uri": "T_colorPalette2048.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_BrickSmall_01_white",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 1
+				}
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_ColorPalette",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 2
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 3
+				}
+			},
+			"doubleSided": true
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_chimney_01",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 7,
+						"NORMAL": 8,
+						"TANGENT": 9,
+						"TEXCOORD_0": 10,
+						"TEXCOORD_1": 11
+					},
+					"indices": 6,
+					"material": 1
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "MI_BrickSmall_01_white_BaseColor",
+			"sampler": 0,
+			"source": 0
+		},
+		{
+			"name": "MI_BrickSmall_01_white_MetallicRoughness",
+			"sampler": 0,
+			"source": 1
+		},
+		{
+			"name": "T_colorPalette2048",
+			"sampler": 0,
+			"source": 3
+		},
+		{
+			"name": "MI_ColorPalette_MetallicRoughness",
+			"sampler": 0,
+			"source": 2
+		}
+	]
+}

@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://c0soss04hbc4i"
+path="res://.godot/imported/44 Magnum Cock Hammer.wav-2fa1f0a819ce535d3936fc4bd13d6ae0.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Revolver/44 Magnum/WAV/44 Magnum Cock Hammer.wav"
+dest_files=["res://.godot/imported/44 Magnum Cock Hammer.wav-2fa1f0a819ce535d3936fc4bd13d6ae0.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -1,19 +1,29 @@
 class_name PlayerWeaponComponent
 extends Node
 
+const BLOOD_IMPACT_VFX := preload(
+	"res://Scenes/VFX/BloodImpactVFX.tscn"
+)
+
 signal weapon_changed(definition: WeaponDefinition)
 signal ammo_changed(magazine: int, reserve: int)
 signal fired(hit_position: Vector3)
+signal hit_confirmed(fatal_hit: bool)
 signal reload_started
 signal reload_completed
 
 @export_category("Scene References")
 @export var animation_component_path := NodePath("../AnimationComponent")
 @export var health_component_path := NodePath("../HealthComponent")
+@export var sound_component_path := NodePath("../SoundComponent")
 @export var body_path := NodePath("../..")
 @export var camera_path := NodePath("../../CameraPivot/SpringArm3D/Camera3D")
 @export var weapon_model_path := NodePath(
 	"../../Visual/PlayerTest2/Armature/GeneralSkeleton/WeaponSocket/EquippedWeapon"
+)
+@export var muzzle_particles_path := NodePath(
+	"../../Visual/PlayerTest2/Armature/GeneralSkeleton/WeaponSocket/"
+	+ "EquippedWeapon/Mesh/MuzzleFlash/MuzzlePlanes"
 )
 
 @export_category("Loadout")
@@ -32,9 +42,15 @@ signal reload_completed
 @onready var health_component := (
 	get_node(health_component_path) as PlayerHealthComponent
 )
+@onready var sound_component := (
+	get_node(sound_component_path) as PlayerSoundComponent
+)
 @onready var body := get_node(body_path) as CharacterBody3D
 @onready var camera := get_node(camera_path) as Camera3D
 @onready var weapon_model := get_node(weapon_model_path) as Node3D
+@onready var muzzle_particles := (
+	get_node_or_null(muzzle_particles_path) as GPUParticles3D
+)
 
 var _slots: Array[WeaponDefinition] = []
 var _magazine_ammo: Dictionary[StringName, int] = {}
@@ -45,6 +61,8 @@ var _reload_remaining := 0.0
 
 
 func _ready() -> void:
+	BloodImpactVFX.prewarm_resources()
+	call_deferred("_prewarm_blood_vfx_runtime")
 	_slots.append(null)
 	if pistol_definition != null:
 		_slots.append(pistol_definition)
@@ -55,7 +73,28 @@ func _ready() -> void:
 			pistol_definition.starting_reserve_ammo
 		)
 	health_component.state_changed.connect(_on_health_state_changed)
+	if muzzle_particles != null:
+		muzzle_particles.emitting = false
 	_apply_equipped_weapon()
+
+
+func _prewarm_blood_vfx_runtime() -> void:
+	if camera == null:
+		return
+	var effect := BLOOD_IMPACT_VFX.instantiate() as BloodImpactVFX
+	camera.add_child(effect)
+	effect.position = Vector3(
+		0.0,
+		0.0,
+		-maxf(camera.near * 2.0, 0.12)
+	)
+	effect.scale = Vector3.ONE * 0.0001
+	effect.prewarm_runtime()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if is_instance_valid(effect):
+		effect.queue_free()
 
 
 func _process(delta: float) -> void:
@@ -103,6 +142,8 @@ func equip_slot(slot_index: int) -> bool:
 	_equipped_slot = slot_index
 	_cooldown_remaining = 0.0
 	_apply_equipped_weapon()
+	if get_equipped_weapon() != null:
+		sound_component.play_equip_sound()
 	return true
 
 
@@ -123,6 +164,8 @@ func try_fire() -> bool:
 	_magazine_ammo[definition.weapon_id] = get_magazine_ammo() - 1
 	_cooldown_remaining = definition.fire_interval
 	animation_component.trigger_recoil()
+	_play_gunshot()
+	_play_muzzle_flash()
 	var hit_position := _fire_hitscan(definition)
 	ammo_changed.emit(get_magazine_ammo(), get_reserve_ammo())
 	fired.emit(hit_position)
@@ -152,6 +195,7 @@ func cancel_reload() -> void:
 
 	_reload_remaining = 0.0
 	animation_component.cancel_reload()
+	sound_component.stop_reload()
 
 
 func is_reloading() -> bool:
@@ -225,6 +269,7 @@ func _fire_hitscan(definition: WeaponDefinition) -> Vector3:
 		return ray_end
 
 	var hit_position := hit.position as Vector3
+	var hit_normal := hit.normal as Vector3
 	var collider := hit.collider as Node
 	var damageable := _find_damageable(collider)
 	if damageable != null:
@@ -234,7 +279,65 @@ func _fire_hitscan(definition: WeaponDefinition) -> Vector3:
 			hit_position,
 			ray_direction
 		)
+		var fatal_hit := damageable.is_depleted()
+		hit_confirmed.emit(fatal_hit)
+		_play_npc_impact(hit_position)
+		_spawn_blood_impact(
+			hit_position,
+			hit_normal,
+			ray_direction,
+			collider as Node3D,
+			fatal_hit
+		)
+	else:
+		_spawn_surface_impact(
+			hit_position,
+			hit_normal,
+			collider as Node3D
+		)
 	return hit_position
+
+
+func _play_gunshot() -> void:
+	sound_component.play_gunshot(weapon_model.global_position)
+
+
+func _play_muzzle_flash() -> void:
+	if muzzle_particles == null:
+		return
+	muzzle_particles.restart()
+
+
+func _play_npc_impact(hit_position: Vector3) -> void:
+	sound_component.play_npc_impact(hit_position)
+
+
+func _spawn_blood_impact(
+	hit_position: Vector3,
+	hit_normal: Vector3,
+	hit_direction: Vector3,
+	hit_collider: Node3D,
+	fatal_hit: bool
+) -> void:
+	var effect := BLOOD_IMPACT_VFX.instantiate() as BloodImpactVFX
+	get_tree().current_scene.add_child(effect)
+	effect.setup_blood_hit(
+		hit_position,
+		hit_normal,
+		hit_direction,
+		hit_collider,
+		fatal_hit
+	)
+
+
+func _spawn_surface_impact(
+	hit_position: Vector3,
+	hit_normal: Vector3,
+	hit_collider: Node3D
+) -> void:
+	var effect := BLOOD_IMPACT_VFX.instantiate() as BloodImpactVFX
+	get_tree().current_scene.add_child(effect)
+	effect.setup_surface_hit(hit_position, hit_normal, hit_collider)
 
 
 func _find_damageable(collider: Node) -> DamageableComponent:

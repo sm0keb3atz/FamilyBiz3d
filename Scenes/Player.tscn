@@ -1,14 +1,15 @@
 [gd_scene format=3 uid="uid://b7lu430qitjcu"]
 
 [ext_resource type="Script" uid="uid://ydluhxrenj7h" path="res://Scripts/Player/player.gd" id="1_script"]
-[ext_resource type="PackedScene" uid="uid://cied5oejbgi81" path="res://Scenes/PlayerVisual.scn" id="2_i2e8t"]
+[ext_resource type="PackedScene" uid="uid://bh4hb5ftlxgdl" path="res://Scenes/PlayerVisualModular.tscn" id="2_i2e8t"]
 [ext_resource type="AnimationNodeBlendSpace1D" uid="uid://btyinpafsjvni" path="res://Assets/Animations/Blendpsaces/Unarmed.tres" id="3_gntrk"]
 [ext_resource type="Script" uid="uid://b4f1vvgfl3sgo" path="res://Scripts/Player/Components/player_camera_component.gd" id="4_camera"]
 [ext_resource type="Script" uid="uid://b4q1m3g62kgf5" path="res://Scripts/Player/Components/player_animation_component.gd" id="5_animation"]
+[ext_resource type="AnimationLibrary" uid="uid://nfmqp5qfafvr" path="res://Assets/Animations/MainAnimationLibary.res" id="5_u7x0b"]
 [ext_resource type="Script" uid="uid://do0t2xi63ufk7" path="res://Scripts/Player/Components/player_movement_component.gd" id="6_movement"]
 [ext_resource type="Script" uid="uid://db6jb4dw00h34" path="res://Scripts/Player/Components/player_stats_component.gd" id="7_stats"]
 [ext_resource type="Resource" path="res://Scripts/Player/Resources/default_player_stats.tres" id="8_stats_config"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/PlayerHUD.tscn" id="9_hud"]
+[ext_resource type="PackedScene" uid="uid://7scsrfqwimno" path="res://Scenes/UI/PlayerHUD.tscn" id="9_hud"]
 [ext_resource type="Script" uid="uid://bs24xgeieotus" path="res://Scripts/Player/Components/player_health_component.gd" id="10_health"]
 [ext_resource type="Script" uid="uid://c0c3nnrp2fcfq" path="res://Scripts/Player/Components/player_ragdoll_component.gd" id="11_ragdoll"]
 [ext_resource type="Script" uid="uid://culvd2uyrw0g2" path="res://Scripts/Player/Components/player_respawn_component.gd" id="12_respawn"]
@@ -16,6 +17,8 @@
 [ext_resource type="Script" uid="uid://cplpescseno4m" path="res://Scripts/Player/Components/player_weapon_component.gd" id="14_weapon"]
 [ext_resource type="Script" uid="uid://cj3swlfkjnljr" path="res://Scripts/Player/Components/player_wallet_component.gd" id="15_wallet"]
 [ext_resource type="Script" uid="uid://dfie7rnpu56wa" path="res://Scripts/Player/Components/player_inventory_component.gd" id="16_inventory"]
+[ext_resource type="AudioStream" uid="uid://cspc8l73m5pcb" path="res://Assets/Audio/Footsteps/Anton Z's Footsteps Sound Pack/Antons_Footsteps_FS_Stone/Antons_Footsteps_FS_Stone_Walk_06.wav" id="16_wosd6"]
+[ext_resource type="AudioStream" uid="uid://6yqrldtbjwce" path="res://Assets/Audio/Footsteps/Anton Z's Footsteps Sound Pack/Antons_Footsteps_FS_Stone/Antons_Footsteps_FS_Stone_Walk_07.wav" id="17_hkrn1"]
 [ext_resource type="Resource" path="res://Scripts/Gameplay/Resources/test_product.tres" id="17_product"]
 [ext_resource type="Script" uid="uid://dinop6h3mheqs" path="res://Scripts/Player/Components/player_interaction_component.gd" id="18_interaction"]
 [ext_resource type="Script" uid="uid://ckjlxfqiq7npe" path="res://Scripts/Gameplay/Resources/product_definition.gd" id="19_c43xd"]
@@ -25,7 +28,15 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/DealerShopMenu.tscn" id="22_shop_menu"]
 [ext_resource type="Script" uid="uid://b08ui4exqy0kl" path="res://Scripts/Shared/character_visual_scale.gd" id="23_visual_scale"]
 [ext_resource type="Resource" uid="uid://dqyaai88180j" path="res://Scripts/Gameplay/Weapons/pistol_definition.tres" id="24_pistol"]
-[ext_resource type="PackedScene" path="res://Scenes/Weapons/Pistol.tscn" id="25_pistol_visual"]
+[ext_resource type="Script" uid="uid://bjqk3lymu6fn0" path="res://Scripts/Player/Components/player_sound_component.gd" id="26_sound"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_appearance_component.gd" id="27_appearance"]
+[ext_resource type="Script" path="res://Scripts/UI/player_appearance_menu.gd" id="28_appearance_menu"]
+[ext_resource type="AudioStream" uid="uid://dkocn7g7w2ix0" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Reload 1.wav" id="28_reload_1"]
+[ext_resource type="AudioStream" uid="uid://bec60i8tm0p8b" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Reload 2.wav" id="29_reload_2"]
+[ext_resource type="AudioStream" uid="uid://b4nn0vdqabdqo" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/Full Sounds/9mm/MP3/9mm Single.mp3" id="32_gunshot"]
+[ext_resource type="AudioStream" uid="uid://bei7tra2j61vs" path="res://Assets/Audio/Weapon/BulletImpacts/BulletImpact1.ogg" id="33_impact_1"]
+[ext_resource type="AudioStream" uid="uid://cmgxkpdp6kvf1" path="res://Assets/Audio/Weapon/BulletImpacts/BulletImpact2.ogg" id="34_impact_2"]
+[ext_resource type="AudioStream" uid="uid://bycu5qf0p41da" path="res://Assets/Audio/Weapon/BulletImpacts/BulletImpact3.ogg" id="35_impact_3"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
 radius = 0.4
@@ -83,7 +94,7 @@ animation = &"Pistol_Reload"
 
 [sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_reload"]
 filter_enabled = true
-filters = ["%GeneralSkeleton:Chest", "%GeneralSkeleton:Head", "%GeneralSkeleton:LeftHand", "%GeneralSkeleton:LeftIndexDistal", "%GeneralSkeleton:LeftIndexIntermediate", "%GeneralSkeleton:LeftIndexProximal", "%GeneralSkeleton:LeftLowerArm", "%GeneralSkeleton:LeftShoulder", "%GeneralSkeleton:LeftThumbDistal", "%GeneralSkeleton:LeftThumbMetacarpal", "%GeneralSkeleton:LeftThumbProximal", "%GeneralSkeleton:LeftUpperArm", "%GeneralSkeleton:Neck", "%GeneralSkeleton:RightHand", "%GeneralSkeleton:RightIndexDistal", "%GeneralSkeleton:RightIndexIntermediate", "%GeneralSkeleton:RightIndexProximal", "%GeneralSkeleton:RightLowerArm", "%GeneralSkeleton:RightShoulder", "%GeneralSkeleton:RightThumbDistal", "%GeneralSkeleton:RightThumbMetacarpal", "%GeneralSkeleton:RightThumbProximal", "%GeneralSkeleton:RightUpperArm", "%GeneralSkeleton:Spine", "%GeneralSkeleton:UpperChest", "%GeneralSkeleton:mixamorig_LeftHandIndex1", "%GeneralSkeleton:mixamorig_LeftHandThumb1", "%GeneralSkeleton:mixamorig_RightHandIndex1", "%GeneralSkeleton:mixamorig_RightHandThumb1"]
+filters = ["%GeneralSkeleton:Chest", "%GeneralSkeleton:Head", "%GeneralSkeleton:LeftHand", "%GeneralSkeleton:LeftIndexDistal", "%GeneralSkeleton:LeftIndexIntermediate", "%GeneralSkeleton:LeftIndexProximal", "%GeneralSkeleton:LeftLowerArm", "%GeneralSkeleton:LeftShoulder", "%GeneralSkeleton:LeftThumbDistal", "%GeneralSkeleton:LeftThumbMetacarpal", "%GeneralSkeleton:LeftThumbProximal", "%GeneralSkeleton:LeftUpperArm", "%GeneralSkeleton:Neck", "%GeneralSkeleton:RightHand", "%GeneralSkeleton:RightIndexDistal", "%GeneralSkeleton:RightIndexIntermediate", "%GeneralSkeleton:RightIndexProximal", "%GeneralSkeleton:RightLowerArm", "%GeneralSkeleton:RightShoulder", "%GeneralSkeleton:RightThumbDistal", "%GeneralSkeleton:RightThumbMetacarpal", "%GeneralSkeleton:RightThumbProximal", "%GeneralSkeleton:RightUpperArm", "%GeneralSkeleton:Spine", "%GeneralSkeleton:UpperChest", "%GeneralSkeleton:mixamorig_LeftHandIndex1", "%GeneralSkeleton:mixamorig_LeftHandThumb1", "%GeneralSkeleton:mixamorig_RightHandIndex1", "%GeneralSkeleton:mixamorig_RightHandThumb1", "../../Components/SoundComponent"]
 fadein_time = 0.12
 fadeout_time = 0.18
 
@@ -150,20 +161,8 @@ script = ExtResource("23_visual_scale")
 [node name="PlayerTest2" parent="Visual" unique_id=268945370 instance=ExtResource("2_i2e8t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
-[node name="Armature" parent="Visual/PlayerTest2" index="0" unique_id=1599973410]
-transform = Transform3D(1.75, 0, 0, 0, 1.75, 0, 0, 0, 1.75, 0, 0, 0)
-
-[node name="PhysicalBoneSimulator3D" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" parent_id_path=PackedInt32Array(268945370, 1482216279) index="4" unique_id=1352115426]
-visible = false
-active = false
-
-[node name="WeaponSocket" type="BoneAttachment3D" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" parent_id_path=PackedInt32Array(268945370, 1482216279) index="5" unique_id=590233809]
-transform = Transform3D(-4.857202e-07, -1, -6.705522e-06, -5.9604645e-08, 6.7055225e-06, -0.9999999, 0.9999999, -4.857209e-07, -5.960548e-08, -0.3426354, 0.25390247, -0.048910514)
-bone_name = "RightHand"
-bone_idx = 25
-
-[node name="EquippedWeapon" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/WeaponSocket" unique_id=1823403475 instance=ExtResource("25_pistol_visual")]
-transform = Transform3D(-0.019216698, 0.39366242, -0.06826856, 0.34252897, 0.05141738, 0.20007566, 0.20568122, -0.048847914, -0.33957195, 0.016574025, 0.09833683, 0.060579337)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Visual/PlayerTest2" unique_id=675890599]
+libraries/ = ExtResource("5_u7x0b")
 
 [node name="AnimationTree" type="AnimationTree" parent="." unique_id=1635263273]
 active = false
@@ -225,6 +224,29 @@ script = ExtResource("11_ragdoll")
 [node name="RespawnComponent" type="Node" parent="Components" unique_id=895935570]
 script = ExtResource("12_respawn")
 
+[node name="SoundComponent" type="Node" parent="Components" unique_id=828656690]
+script = ExtResource("26_sound")
+footstep_sounds = Array[AudioStream]([ExtResource("16_wosd6"), ExtResource("17_hkrn1")])
+reload_sounds = Array[AudioStream]([ExtResource("28_reload_1"), ExtResource("29_reload_2")])
+gunshot_sound = ExtResource("32_gunshot")
+npc_impact_sounds = Array[AudioStream]([ExtResource("33_impact_1"), ExtResource("34_impact_2"), ExtResource("35_impact_3")])
+walk_volume_db = -16.0
+sprint_volume_db = -14.0
+reload_volume_db = -14.0
+gunshot_volume_db = -10.0
+impact_volume_db = -6.0
+
+[node name="FootstepPlayer" type="AudioStreamPlayer3D" parent="Components/SoundComponent" unique_id=1392197882]
+max_distance = 18.0
+
+[node name="ReloadPlayer" type="AudioStreamPlayer3D" parent="Components/SoundComponent" unique_id=1264598205]
+max_distance = 25.0
+max_polyphony = 2
+
+[node name="GunshotPlayer" type="AudioStreamPlayer3D" parent="Components/SoundComponent" unique_id=1031082550]
+max_distance = 45.0
+max_polyphony = 4
+
 [node name="WeaponComponent" type="Node" parent="Components" unique_id=1354118472]
 script = ExtResource("14_weapon")
 pistol_definition = ExtResource("24_pistol")
@@ -245,6 +267,9 @@ script = ExtResource("19_solicitation")
 [node name="MenuController" type="Node" parent="Components" unique_id=2023999141]
 script = ExtResource("20_menu_controller")
 
+[node name="AppearanceComponent" type="Node" parent="Components"]
+script = ExtResource("27_appearance")
+
 [node name="PlayerHUD" parent="." unique_id=1245845484 instance=ExtResource("9_hud")]
 
 [node name="PlayerStatsMenu" parent="." unique_id=1165805739 instance=ExtResource("13_stats_menu")]
@@ -252,5 +277,8 @@ script = ExtResource("20_menu_controller")
 [node name="PlayerInventoryMenu" parent="." unique_id=1453711422 instance=ExtResource("21_inventory_menu")]
 
 [node name="DealerShopMenu" parent="." unique_id=931469992 instance=ExtResource("22_shop_menu")]
+
+[node name="PlayerAppearanceMenu" type="CanvasLayer" parent="."]
+script = ExtResource("28_appearance_menu")
 
 [editable path="Visual/PlayerTest2"]

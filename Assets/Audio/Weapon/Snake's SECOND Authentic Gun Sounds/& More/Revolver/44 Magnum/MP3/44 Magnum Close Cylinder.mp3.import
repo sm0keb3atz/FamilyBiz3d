@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://svrsgwvgp5ni"
+path="res://.godot/imported/44 Magnum Close Cylinder.mp3-f8cf252c39a4c1c913bd14df604b618e.mp3str"
+
+[deps]
+
+source_file="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Revolver/44 Magnum/MP3/44 Magnum Close Cylinder.mp3"
+dest_files=["res://.godot/imported/44 Magnum Close Cylinder.mp3-f8cf252c39a4c1c913bd14df604b618e.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -15,6 +15,10 @@ run/main_scene="uid://bgd17tl63bwxj"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
+[audio]
+
+buses/default_bus_layout="uid://bs2e1l3thj81w"
+
 [display]
 
 window/size/viewport_width=1920
@@ -26,9 +30,11 @@ window/stretch/aspect="expand"
 [file_customization]
 
 folder_colors={
+"res://Assets/Audio/": "orange",
 "res://Assets/BaseChracters/": "blue",
 "res://Assets/BaseChracters/Player/": "red",
 "res://Assets/MapStuff/": "green",
+"res://Assets/VFX/": "pink",
 "res://Scenes/": "purple",
 "res://Scripts/": "yellow",
 "res://docs/": "gray"

@@ -1,0 +1,272 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 2643,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 1,
+			"count": 1157,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-2.67448878,
+				-1.35822563e-06,
+				-2.58345723
+			],
+			"max": [
+				2.56817245,
+				13.0801048,
+				2.69141698
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 1157,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 1157,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 1157,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 1157,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 6,
+			"count": 1530,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 7,
+			"count": 1530,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-3.27818966,
+				3.43358612,
+				-3.40348053
+			],
+			"max": [
+				3.27784991,
+				13.7859325,
+				3.34282947
+			]
+		},
+		{
+			"bufferView": 8,
+			"count": 1530,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 9,
+			"count": 1530,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 10,
+			"count": 1530,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 11,
+			"count": 1530,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_tree_01.bin",
+			"byteLength": 158820
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 5286,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 13884,
+			"byteOffset": 5288,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 13884,
+			"byteOffset": 19172,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 18512,
+			"byteOffset": 33056,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 9256,
+			"byteOffset": 51568,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 9256,
+			"byteOffset": 60824,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 3060,
+			"byteOffset": 70080,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 18360,
+			"byteOffset": 73140,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 18360,
+			"byteOffset": 91500,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 24480,
+			"byteOffset": 109860,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 12240,
+			"byteOffset": 134340,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 12240,
+			"byteOffset": 146580,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "T_leaf_01a.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_matteBrown",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0.0850000009,
+					0.0463539995,
+					0.0169520006,
+					1
+				],
+				"metallicFactor": 0
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_Leaf_01a",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicFactor": 0
+			},
+			"alphaMode": "MASK",
+			"alphaCutoff": 0.333299994,
+			"doubleSided": true
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_tree_01",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 7,
+						"NORMAL": 8,
+						"TANGENT": 9,
+						"TEXCOORD_0": 10,
+						"TEXCOORD_1": 11
+					},
+					"indices": 6,
+					"material": 1
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "T_leaf_01a",
+			"sampler": 0,
+			"source": 0
+		}
+	]
+}

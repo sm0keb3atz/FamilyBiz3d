@@ -1,0 +1,173 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 108,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 1,
+			"count": 74,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-0.105512865,
+				-0.00126437901,
+				-0.114860162
+			],
+			"max": [
+				0.100631356,
+				0.0595679469,
+				0.114328898
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 74,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 74,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 74,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 74,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_rock_01_dirt.bin",
+			"byteLength": 4252
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 108,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 888,
+			"byteOffset": 108,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 888,
+			"byteOffset": 996,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1184,
+			"byteOffset": 1884,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 592,
+			"byteOffset": 3068,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 592,
+			"byteOffset": 3660,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_GroundTile_BaseColor.png"
+		},
+		{
+			"uri": "MI_GroundTile_MetallicRoughness.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_GroundTile",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 1
+				}
+			},
+			"doubleSided": true
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_rock_01_dirt",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "MI_GroundTile_BaseColor",
+			"sampler": 0,
+			"source": 0
+		},
+		{
+			"name": "MI_GroundTile_MetallicRoughness",
+			"sampler": 0,
+			"source": 1
+		}
+	]
+}

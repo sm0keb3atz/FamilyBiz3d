@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bwl5o76wss6jl"
+path="res://.godot/imported/9mm Double Tap Isolated.mp3-6e25c4844122ea9b5887a74de114ea82.mp3str"
+
+[deps]
+
+source_file="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/Isolated/9mm/MP3/9mm Double Tap Isolated.mp3"
+dest_files=["res://.godot/imported/9mm Double Tap Isolated.mp3-6e25c4844122ea9b5887a74de114ea82.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

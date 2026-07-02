@@ -1,0 +1,200 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 45456,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 1,
+			"count": 24238,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-0.194667965,
+				-0.0370214842,
+				-1.62212169
+			],
+			"max": [
+				1.07519901,
+				6.65718508,
+				1.53538179
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 24238,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 24238,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 24238,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 24238,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_motel_sign.bin",
+			"byteLength": 1448240
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 90912,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 290856,
+			"byteOffset": 90912,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 290856,
+			"byteOffset": 381768,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 387808,
+			"byteOffset": 672624,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 193904,
+			"byteOffset": 1060432,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 193904,
+			"byteOffset": 1254336,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_ColorPalette_GLOW_MetallicRoughness.png"
+		},
+		{
+			"uri": "MI_ColorPalette_GLOW_Emissive.png"
+		},
+		{
+			"uri": "T_colorPalette2048.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_ColorPalette_GLOW",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 1
+				}
+			},
+			"emissiveTexture":
+			{
+				"index": 2
+			},
+			"emissiveFactor": [
+				1,
+				1,
+				1
+			],
+			"doubleSided": true,
+			"extensions":
+			{
+				"KHR_materials_emissive_strength":
+				{
+					"emissiveStrength": 2
+				}
+			}
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_motel_sign",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "T_colorPalette2048",
+			"sampler": 0,
+			"source": 2
+		},
+		{
+			"name": "MI_ColorPalette_GLOW_MetallicRoughness",
+			"sampler": 0,
+			"source": 0
+		},
+		{
+			"name": "MI_ColorPalette_GLOW_Emissive",
+			"sampler": 0,
+			"source": 1
+		}
+	],
+	"extensionsUsed": [
+		"KHR_materials_emissive_strength"
+	]
+}

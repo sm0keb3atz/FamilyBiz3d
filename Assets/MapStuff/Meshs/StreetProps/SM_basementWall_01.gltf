@@ -1,0 +1,146 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 342,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 1,
+			"count": 228,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				0.149999991,
+				-4.89858106e-16,
+				-0
+			],
+			"max": [
+				0.299999982,
+				2.75000048,
+				3.99999738
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 228,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 228,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 228,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 228,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_basementWall_01.bin",
+			"byteLength": 13112
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 342,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2736,
+			"byteOffset": 344,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2736,
+			"byteOffset": 3080,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 3648,
+			"byteOffset": 5816,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1824,
+			"byteOffset": 9464,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1824,
+			"byteOffset": 11288,
+			"target": 34962
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_matteBrown",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0.0850000009,
+					0.0463539995,
+					0.0169520006,
+					1
+				],
+				"metallicFactor": 0
+			},
+			"doubleSided": true
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_basementWall_01",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	]
+}

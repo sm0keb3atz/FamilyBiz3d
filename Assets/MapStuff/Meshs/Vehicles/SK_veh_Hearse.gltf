@@ -1,0 +1,519 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 5,
+			"type": "MAT4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 1,
+			"count": 1047,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 2,
+			"count": 717,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-3.00457692,
+				0.300491542,
+				-1.11384785
+			],
+			"max": [
+				2.59971786,
+				1.68248308,
+				1.11384821
+			]
+		},
+		{
+			"bufferView": 3,
+			"count": 717,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 717,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 717,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 6,
+			"count": 717,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 7,
+			"count": 717,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		},
+		{
+			"bufferView": 8,
+			"count": 12453,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 9,
+			"count": 10513,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-3.12677169,
+				-0.000677871692,
+				-1.28756213
+			],
+			"max": [
+				2.74131608,
+				1.57190049,
+				1.28756273
+			]
+		},
+		{
+			"bufferView": 10,
+			"count": 10513,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 11,
+			"count": 10513,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 12,
+			"count": 10513,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 13,
+			"count": 10513,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 14,
+			"count": 10513,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		},
+		{
+			"bufferView": 15,
+			"count": 48,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 16,
+			"count": 42,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-2.93405628,
+				1.03164756,
+				-0.964864075
+			],
+			"max": [
+				0.879718363,
+				1.52684653,
+				0.964865029
+			]
+		},
+		{
+			"bufferView": 17,
+			"count": 42,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 18,
+			"count": 42,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 19,
+			"count": 42,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 20,
+			"count": 42,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 21,
+			"count": 42,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SK_veh_Hearse.bin",
+			"byteLength": 658604
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 320
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2094,
+			"byteOffset": 320,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 8604,
+			"byteOffset": 2416,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 8604,
+			"byteOffset": 11020,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 11472,
+			"byteOffset": 19624,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 5736,
+			"byteOffset": 31096,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2868,
+			"byteOffset": 36832,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2868,
+			"byteOffset": 39700,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 24906,
+			"byteOffset": 42568,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 126156,
+			"byteOffset": 67476,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 126156,
+			"byteOffset": 193632,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 168208,
+			"byteOffset": 319788,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 84104,
+			"byteOffset": 487996,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 42052,
+			"byteOffset": 572100,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 42052,
+			"byteOffset": 614152,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 48,
+			"byteOffset": 656204,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 504,
+			"byteOffset": 656252,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 504,
+			"byteOffset": 656756,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 672,
+			"byteOffset": 657260,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 336,
+			"byteOffset": 657932,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 168,
+			"byteOffset": 658268,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 168,
+			"byteOffset": 658436,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_ColorPalette_MetallicRoughness.png"
+		},
+		{
+			"uri": "T_colorPalette2048.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_glossyBlack",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0,
+					0,
+					0,
+					1
+				],
+				"metallicFactor": 0,
+				"roughnessFactor": 0.349999994
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_ColorPalette",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 1
+				}
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_GlassBasic",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0,
+					0,
+					0,
+					0.25
+				],
+				"metallicFactor": 0,
+				"roughnessFactor": 0
+			},
+			"alphaMode": "BLEND",
+			"doubleSided": true,
+			"extensions":
+			{
+				"KHR_materials_specular":
+				{
+					"specularFactor": 10
+				},
+				"KHR_materials_ior":
+				{
+					"ior": 1
+				}
+			}
+		}
+	],
+	"meshes": [
+		{
+			"name": "SK_veh_Hearse",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 2,
+						"NORMAL": 3,
+						"TANGENT": 4,
+						"TEXCOORD_0": 5,
+						"JOINTS_0": 6,
+						"WEIGHTS_0": 7
+					},
+					"indices": 1,
+					"material": 0
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 9,
+						"NORMAL": 10,
+						"TANGENT": 11,
+						"TEXCOORD_0": 12,
+						"JOINTS_0": 13,
+						"WEIGHTS_0": 14
+					},
+					"indices": 8,
+					"material": 1
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 16,
+						"NORMAL": 17,
+						"TANGENT": 18,
+						"TEXCOORD_0": 19,
+						"JOINTS_0": 20,
+						"WEIGHTS_0": 21
+					},
+					"indices": 15,
+					"material": 2
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"skin": 0,
+			"mesh": 0,
+			"children": [
+				1
+			]
+		},
+		{
+			"name": "carBody",
+			"children": [
+				2,
+				3,
+				4,
+				5
+			]
+		},
+		{
+			"name": "wheelRL",
+			"translation": [
+				-1.7917738,
+				0.398946494,
+				-0.874011457
+			]
+		},
+		{
+			"name": "wheelRR",
+			"translation": [
+				-1.79177308,
+				0.398946494,
+				0.874009967
+			]
+		},
+		{
+			"name": "wheelFR",
+			"translation": [
+				1.68834531,
+				0.398946494,
+				0.874009967
+			]
+		},
+		{
+			"name": "wheelFL",
+			"translation": [
+				1.68834472,
+				0.398946494,
+				-0.874011457
+			]
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"skins": [
+		{
+			"name": "SK_veh_Hearse",
+			"inverseBindMatrices": 0,
+			"skeleton": 0,
+			"joints": [
+				1,
+				2,
+				3,
+				4,
+				5
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "T_colorPalette2048",
+			"sampler": 0,
+			"source": 1
+		},
+		{
+			"name": "MI_ColorPalette_MetallicRoughness",
+			"sampler": 0,
+			"source": 0
+		}
+	],
+	"extensionsUsed": [
+		"KHR_materials_specular",
+		"KHR_materials_ior"
+	]
+}

@@ -1,0 +1,173 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 2022,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 1,
+			"count": 1311,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-0.900393784,
+				-5.66162635e-05,
+				-0.802866817
+			],
+			"max": [
+				0.572136998,
+				0.0413643792,
+				0.59978497
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 1311,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 1311,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 1311,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 1311,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_carton_flat_set.bin",
+			"byteLength": 77460
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 4044,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 15732,
+			"byteOffset": 4044,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 15732,
+			"byteOffset": 19776,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 20976,
+			"byteOffset": 35508,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 10488,
+			"byteOffset": 56484,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 10488,
+			"byteOffset": 66972,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_ColorPalette_MetallicRoughness.png"
+		},
+		{
+			"uri": "T_colorPalette2048.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_ColorPalette",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 1
+				}
+			},
+			"doubleSided": true
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_carton_flat_set",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "T_colorPalette2048",
+			"sampler": 0,
+			"source": 1
+		},
+		{
+			"name": "MI_ColorPalette_MetallicRoughness",
+			"sampler": 0,
+			"source": 0
+		}
+	]
+}

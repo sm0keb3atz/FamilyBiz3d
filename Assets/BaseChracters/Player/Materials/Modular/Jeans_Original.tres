@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://Assets/BaseChracters/Player/Textures/NewPlayerTest_jeans_1.glb_basecolor.jpg" id="1_albedo"]
+[ext_resource type="Texture2D" path="res://Assets/BaseChracters/Player/Textures/NewPlayerTest_jeans_1.glb_normal.jpg" id="2_normal"]
+[ext_resource type="Texture2D" path="res://Assets/BaseChracters/Player/Textures/NewPlayerTest_jeans_1.glb_rm.png" id="3_rm"]
+
+[resource]
+resource_name = "Jeans Original"
+cull_mode = 2
+albedo_texture = ExtResource("1_albedo")
+roughness_texture = ExtResource("3_rm")
+normal_enabled = true
+normal_texture = ExtResource("2_normal")

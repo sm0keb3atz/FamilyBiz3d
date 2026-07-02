@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ywg4qk1yl1k4"
+path="res://.godot/imported/Modded Mosin PolyMag Pack.mp3-68a59bf88ff3bca1f4578007bcb55f16.mp3str"
+
+[deps]
+
+source_file="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Mag Pack/MP3/Modded Mosin PolyMag Pack.mp3"
+dest_files=["res://.godot/imported/Modded Mosin PolyMag Pack.mp3-68a59bf88ff3bca1f4578007bcb55f16.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

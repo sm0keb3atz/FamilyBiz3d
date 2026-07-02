@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cgl6gwf7ltnfk"
+path="res://.godot/imported/PavementTiles_Mono_03.wav-1096d0c400b4b6561b98e98b37ad0370.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Footsteps/Footsteps Mini Sound Pack/PavementTiles_Mono_03.wav"
+dest_files=["res://.godot/imported/PavementTiles_Mono_03.wav-1096d0c400b4b6561b98e98b37ad0370.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

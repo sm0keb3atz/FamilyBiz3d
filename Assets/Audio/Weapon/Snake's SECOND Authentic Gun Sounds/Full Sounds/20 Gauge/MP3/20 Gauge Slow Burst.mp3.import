@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ndc12bgo10ap"
+path="res://.godot/imported/20 Gauge Slow Burst.mp3-c88aaf3b073313a7ee742ca7052a1182.mp3str"
+
+[deps]
+
+source_file="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/Full Sounds/20 Gauge/MP3/20 Gauge Slow Burst.mp3"
+dest_files=["res://.godot/imported/20 Gauge Slow Burst.mp3-c88aaf3b073313a7ee742ca7052a1182.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

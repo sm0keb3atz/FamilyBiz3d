@@ -1,0 +1,290 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 132,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 1,
+			"count": 84,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-0.0399999991,
+				-2.12115062e-18,
+				-4.00000477
+			],
+			"max": [
+				0.0399999991,
+				2.5,
+				0.0346410163
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 84,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 84,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 84,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 84,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 6,
+			"count": 132,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 7,
+			"count": 88,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-2.44415719e-06,
+				2.27222204,
+				-3.74836612
+			],
+			"max": [
+				-2.4386552e-06,
+				2.47852135,
+				-0.140077993
+			]
+		},
+		{
+			"bufferView": 8,
+			"count": 88,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 9,
+			"count": 88,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 10,
+			"count": 88,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 11,
+			"count": 88,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_fence_104gateFrame.bin",
+			"byteLength": 9896
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 132,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1008,
+			"byteOffset": 132,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1008,
+			"byteOffset": 1140,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1344,
+			"byteOffset": 2148,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 672,
+			"byteOffset": 3492,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 672,
+			"byteOffset": 4164,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 132,
+			"byteOffset": 4836,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1056,
+			"byteOffset": 4968,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1056,
+			"byteOffset": 6024,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1408,
+			"byteOffset": 7080,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 704,
+			"byteOffset": 8488,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 704,
+			"byteOffset": 9192,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_ColorPalette_MetallicRoughness.png"
+		},
+		{
+			"uri": "MI_FenceMetal_01_BaseColor.png"
+		},
+		{
+			"uri": "T_colorPalette2048.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_ColorPalette",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 1
+				}
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_FenceMetal_01",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 2
+				},
+				"metallicFactor": 0,
+				"roughnessFactor": 0.5
+			},
+			"alphaMode": "MASK",
+			"alphaCutoff": 0.333299994,
+			"doubleSided": true
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_fence_104gateFrame",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 7,
+						"NORMAL": 8,
+						"TANGENT": 9,
+						"TEXCOORD_0": 10,
+						"TEXCOORD_1": 11
+					},
+					"indices": 6,
+					"material": 1
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "T_colorPalette2048",
+			"sampler": 0,
+			"source": 2
+		},
+		{
+			"name": "MI_ColorPalette_MetallicRoughness",
+			"sampler": 0,
+			"source": 0
+		},
+		{
+			"name": "MI_FenceMetal_01_BaseColor",
+			"sampler": 0,
+			"source": 1
+		}
+	]
+}

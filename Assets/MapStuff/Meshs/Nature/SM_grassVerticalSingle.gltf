@@ -1,0 +1,289 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 36,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 1,
+			"count": 24,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-0.824792325,
+				-0.0994466916,
+				-0.813138247
+			],
+			"max": [
+				0.824792206,
+				0.900553346,
+				0.813138306
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 24,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 24,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 24,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 24,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 6,
+			"count": 18,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 7,
+			"count": 7,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-2.20036292,
+				-0.32018128,
+				-2.46554542
+			],
+			"max": [
+				2.7761302,
+				0.172220439,
+				2.32880473
+			]
+		},
+		{
+			"bufferView": 8,
+			"count": 7,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 9,
+			"count": 7,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 10,
+			"count": 7,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 11,
+			"count": 7,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_grassVerticalSingle.bin",
+			"byteLength": 1792
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 36,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 288,
+			"byteOffset": 36,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 288,
+			"byteOffset": 324,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 384,
+			"byteOffset": 612,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 192,
+			"byteOffset": 996,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 192,
+			"byteOffset": 1188,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 18,
+			"byteOffset": 1380,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 84,
+			"byteOffset": 1400,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 84,
+			"byteOffset": 1484,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 112,
+			"byteOffset": 1568,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 56,
+			"byteOffset": 1680,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 56,
+			"byteOffset": 1736,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_GroundTile_BaseColor.png"
+		},
+		{
+			"uri": "MI_GroundTile_MetallicRoughness.png"
+		},
+		{
+			"uri": "T_grassAlpha.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_GrassVertical",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicFactor": 0
+			},
+			"alphaMode": "MASK",
+			"alphaCutoff": 0.333299994,
+			"doubleSided": true
+		},
+		{
+			"name": "MI_GroundTile",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 1
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 2
+				}
+			},
+			"doubleSided": true
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_grassVerticalSingle",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 7,
+						"NORMAL": 8,
+						"TANGENT": 9,
+						"TEXCOORD_0": 10,
+						"TEXCOORD_1": 11
+					},
+					"indices": 6,
+					"material": 1
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "T_grassAlpha",
+			"sampler": 0,
+			"source": 2
+		},
+		{
+			"name": "MI_GroundTile_BaseColor",
+			"sampler": 0,
+			"source": 0
+		},
+		{
+			"name": "MI_GroundTile_MetallicRoughness",
+			"sampler": 0,
+			"source": 1
+		}
+	]
+}

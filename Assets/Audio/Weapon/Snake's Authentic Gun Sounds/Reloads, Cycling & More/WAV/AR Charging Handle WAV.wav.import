@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cfka7x72jy8v5"
+path="res://.godot/imported/AR Charging Handle WAV.wav-7c8ef66305d5bd4f978575783b103349.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Weapon/Snake's Authentic Gun Sounds/Reloads, Cycling & More/WAV/AR Charging Handle WAV.wav"
+dest_files=["res://.godot/imported/AR Charging Handle WAV.wav-7c8ef66305d5bd4f978575783b103349.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://psgevo12pg5p"
+path="res://.godot/imported/Plastic_002.wav-85c379dba13086a3c8f57c79da4ccede.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Footsteps/Footsteps Mini Sound Pack/Plastic_002.wav"
+dest_files=["res://.godot/imported/Plastic_002.wav-85c379dba13086a3c8f57c79da4ccede.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

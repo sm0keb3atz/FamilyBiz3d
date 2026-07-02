@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://7ko3au4wnn85"
+path="res://.godot/imported/Antons_Footsteps_FS_Wood_Walk_02.wav-818eca947c7b4f6b2af17eb6903970ac.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Footsteps/Anton Z's Footsteps Sound Pack/Antons_Footsteps_FS_Wood/Antons_Footsteps_FS_Wood_Walk_02.wav"
+dest_files=["res://.godot/imported/Antons_Footsteps_FS_Wood_Walk_02.wav-818eca947c7b4f6b2af17eb6903970ac.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

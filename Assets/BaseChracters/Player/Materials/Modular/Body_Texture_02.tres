@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://Assets/BaseChracters/Player/Textures/whiteguy.png" id="1_albedo"]
+[ext_resource type="Texture2D" path="res://Assets/BaseChracters/Player/Textures/whiteguyN.png" id="2_normal"]
+
+[resource]
+resource_name = "Body Texture 02"
+albedo_texture = ExtResource("1_albedo")
+normal_enabled = true
+normal_texture = ExtResource("2_normal")

@@ -17,6 +17,22 @@ const RAGDOLL_IMPULSE_BONES := [
 	&"Chest",
 	&"UpperChest",
 ]
+const VFX_ATTACHMENT_BONES := [
+	&"Hips",
+	&"Spine",
+	&"Chest",
+	&"UpperChest",
+	&"Neck",
+	&"Head",
+	&"LeftUpperArm",
+	&"LeftLowerArm",
+	&"RightUpperArm",
+	&"RightLowerArm",
+	&"LeftUpperLeg",
+	&"LeftLowerLeg",
+	&"RightUpperLeg",
+	&"RightLowerLeg",
+]
 
 @export_category("Movement")
 @export_range(0.1, 20.0, 0.1) var move_speed := 2.5
@@ -31,8 +47,11 @@ const RAGDOLL_IMPULSE_BONES := [
 @export_range(0.0, 1.0, 0.01) var hit_reaction_exit_blend_time := 0.35
 @export_range(0.0, 0.5, 0.01) var hit_reaction_exit_lead_time := 0.08
 @export_range(0.1, 2.0, 0.05) var hit_reaction_duration := 0.45
-@export_range(0.0, 5.0, 0.05) var ragdoll_impulse_strength := 2.25
-@export_range(0.0, 0.5, 0.01) var ragdoll_min_upward_direction := 0.08
+@export_range(0.0, 8.0, 0.05) var ragdoll_impulse_strength := 3.6
+@export_range(0.0, 0.5, 0.01) var ragdoll_min_upward_direction := 0.14
+
+@export_category("Body Cleanup")
+@export_range(0.0, 60.0, 0.5) var body_cleanup_delay := 7.0
 
 @onready var visual := $Visual as Node3D
 @onready var navigation_agent := $NavigationAgent3D as NavigationAgent3D
@@ -53,8 +72,9 @@ const RAGDOLL_IMPULSE_BONES := [
 var _gravity := ProjectSettings.get_setting("physics/3d/default_gravity") as float
 var _is_defeated := false
 var _hit_reaction_remaining := 0.0
-var _use_hit_reaction_exit_blend := false
 var _pending_ragdoll_direction := Vector3.ZERO
+var _defeated_elapsed := 0.0
+var _hit_reaction_player: AnimationPlayer
 
 
 func _enter_tree() -> void:
@@ -72,6 +92,7 @@ func _ready() -> void:
 	visual_model.scale = Vector3.ONE
 	armature.scale = Vector3.ONE * CHARACTER_SCALE
 	_configure_looping_animations()
+	_create_hit_reaction_layer()
 	_play_animation(&"Idle")
 	damageable.damaged.connect(_on_damaged)
 	damageable.depleted.connect(_on_defeated)
@@ -82,15 +103,28 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _is_defeated:
+		_update_body_cleanup(delta)
+		return
+
 	var was_reacting := _hit_reaction_remaining > 0.0
 	_hit_reaction_remaining = maxf(
 		_hit_reaction_remaining - delta,
 		0.0
 	)
 	if was_reacting and is_zero_approx(_hit_reaction_remaining):
-		_use_hit_reaction_exit_blend = true
-		if get_horizontal_speed() <= 0.1:
-			_play_animation(&"Idle")
+		if _hit_reaction_player != null:
+			_hit_reaction_player.stop()
+
+
+func _update_body_cleanup(delta: float) -> void:
+	_defeated_elapsed += delta
+	if _defeated_elapsed < body_cleanup_delay:
+		return
+	if simulator != null:
+		simulator.physical_bones_stop_simulation()
+		_set_physical_bone_collisions(simulator, false)
+	queue_free()
 
 
 func can_interact(_player: CharacterBody3D) -> bool:
@@ -157,6 +191,86 @@ func is_defeated() -> bool:
 	return _is_defeated
 
 
+func create_vfx_attachment(world_position: Vector3) -> Node3D:
+	if skeleton == null:
+		return self
+
+	var closest_bone := (
+		_find_closest_vfx_bone(world_position).name as StringName
+	)
+	var attachment := BoneAttachment3D.new()
+	attachment.name = "BloodMark_%s" % closest_bone
+	skeleton.add_child(attachment)
+	attachment.bone_name = closest_bone
+	var bone_index := skeleton.find_bone(closest_bone)
+	if bone_index >= 0:
+		attachment.transform = skeleton.get_bone_global_pose(bone_index)
+	return attachment
+
+
+func snap_vfx_position_to_body(world_position: Vector3) -> Vector3:
+	if skeleton == null:
+		return world_position
+	var closest := _find_closest_vfx_bone(world_position)
+	var bone_name := closest.name as StringName
+	var bone_position := closest.position as Vector3
+	var surface_radius := 0.16
+	if bone_name == &"Head" or bone_name == &"Neck":
+		surface_radius = 0.10
+	elif (
+		String(bone_name).contains("Arm")
+		or String(bone_name).contains("Leg")
+	):
+		surface_radius = 0.08
+	var offset := world_position - bone_position
+	if offset.length() <= surface_radius:
+		return world_position
+	return bone_position + offset.normalized() * surface_radius
+
+
+func get_vfx_pool_origin() -> Vector3:
+	if _is_defeated:
+		var hips := _find_physical_bone(&"Hips")
+		if hips != null:
+			return hips.global_position
+	return global_position + Vector3.UP * 0.5
+
+
+func get_vfx_collision_exclusions() -> Array[RID]:
+	var exclusions: Array[RID] = [get_rid()]
+	if simulator == null:
+		return exclusions
+	for child in simulator.get_children():
+		if child is CollisionObject3D:
+			exclusions.append((child as CollisionObject3D).get_rid())
+	return exclusions
+
+
+func _find_closest_vfx_bone(world_position: Vector3) -> Dictionary:
+	var closest_bone := &"Chest"
+	var closest_position := global_position + Vector3.UP
+	var closest_distance_squared := INF
+	for bone_name in VFX_ATTACHMENT_BONES:
+		var bone_index := skeleton.find_bone(bone_name)
+		if bone_index < 0:
+			continue
+		var bone_position := (
+			skeleton.global_transform
+			* skeleton.get_bone_global_pose(bone_index)
+		).origin
+		var distance_squared := bone_position.distance_squared_to(
+			world_position
+		)
+		if distance_squared < closest_distance_squared:
+			closest_distance_squared = distance_squared
+			closest_bone = bone_name
+			closest_position = bone_position
+	return {
+		"name": closest_bone,
+		"position": closest_position,
+	}
+
+
 func _apply_gravity(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
@@ -165,9 +279,6 @@ func _apply_gravity(delta: float) -> void:
 
 
 func _play_animation(animation_name: StringName) -> void:
-	if _hit_reaction_remaining > 0.0:
-		return
-
 	var playback_speed := (
 		walk_animation_speed_scale
 		if animation_name == &"Walk"
@@ -177,17 +288,23 @@ func _play_animation(animation_name: StringName) -> void:
 		animation_player.has_animation(animation_name)
 		and animation_player.current_animation != animation_name
 	):
-		var blend_time := (
-			hit_reaction_exit_blend_time
-			if _use_hit_reaction_exit_blend
-			else animation_blend_time
-		)
-		_use_hit_reaction_exit_blend = false
 		animation_player.play(
 			animation_name,
-			blend_time,
+			animation_blend_time,
 			playback_speed
 		)
+
+
+func _create_hit_reaction_layer() -> void:
+	var runtime_library := animation_player.get_animation_library(&"")
+	if runtime_library == null:
+		return
+
+	_hit_reaction_player = AnimationPlayer.new()
+	_hit_reaction_player.name = "HitReactionAnimationPlayer"
+	animation_player.get_parent().add_child(_hit_reaction_player)
+	_hit_reaction_player.root_node = animation_player.root_node
+	_hit_reaction_player.add_animation_library(&"", runtime_library)
 
 
 func _configure_looping_animations() -> void:
@@ -269,12 +386,13 @@ func _on_damaged(
 			0.05
 		)
 	)
-	_use_hit_reaction_exit_blend = false
-	animation_player.play(
+	if _hit_reaction_player == null:
+		return
+	_hit_reaction_player.play(
 		reaction_animation,
 		hit_reaction_blend_time
 	)
-	animation_player.seek(0.0, true)
+	_hit_reaction_player.seek(0.0, true)
 
 
 func _on_defeated(
@@ -292,6 +410,8 @@ func _on_defeated(
 	remove_from_group("interactable_npc")
 	remove_from_group("customer_npc")
 	animation_player.stop()
+	if _hit_reaction_player != null:
+		_hit_reaction_player.stop()
 	body_collision.set_deferred("disabled", true)
 	if simulator != null:
 		_set_physical_bone_collisions(simulator, true)

@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://dr3oh2pyyibn5"]
+
+[ext_resource type="ArrayMesh" uid="uid://ci4i6klxu7bk6" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_00.glb" id="1_v2iec"]
+[ext_resource type="ArrayMesh" uid="uid://rx4v88ha1ltc" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_corner.glb" id="2_fwrh2"]
+[ext_resource type="ArrayMesh" uid="uid://ciqwe8yur35ny" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_04_quarter.glb" id="3_yx7sq"]
+[ext_resource type="ArrayMesh" uid="uid://bskyinaat4ttr" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01.glb" id="4_kq6g6"]
+
+[node name="Intersection" type="Node3D" unique_id=1070683106]
+
+[node name="SmRoad00" type="MeshInstance3D" parent="." unique_id=658026147]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 16, 0, 0)
+mesh = ExtResource("1_v2iec")
+
+[node name="SmSidewalk01Corner" type="MeshInstance3D" parent="." unique_id=2135479966]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 20, 0, -20)
+mesh = ExtResource("2_fwrh2")
+
+[node name="SmSidewalk01Corner2" type="MeshInstance3D" parent="." unique_id=1332151691]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -20)
+mesh = ExtResource("2_fwrh2")
+
+[node name="SmRoad04Quarter" type="MeshInstance3D" parent="." unique_id=1746827692]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 16, 0, -16)
+mesh = ExtResource("3_yx7sq")
+
+[node name="SmRoad04Quarter4" type="MeshInstance3D" parent="." unique_id=101431248]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 20, 0, -16)
+mesh = ExtResource("3_yx7sq")
+
+[node name="SmRoad04Quarter5" type="MeshInstance3D" parent="." unique_id=1561146738]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -16)
+mesh = ExtResource("3_yx7sq")
+
+[node name="SmSidewalk06" type="MeshInstance3D" parent="." unique_id=27022844]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 4, 0, 4)
+mesh = ExtResource("4_kq6g6")
+
+[node name="SmSidewalk11" type="MeshInstance3D" parent="." unique_id=82737049]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 4)
+mesh = ExtResource("4_kq6g6")
+
+[node name="SmSidewalk07" type="MeshInstance3D" parent="." unique_id=1371151399]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 8, 0, 4)
+mesh = ExtResource("4_kq6g6")
+
+[node name="SmSidewalk08" type="MeshInstance3D" parent="." unique_id=14379177]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 12, 0, 4)
+mesh = ExtResource("4_kq6g6")
+
+[node name="SmSidewalk09" type="MeshInstance3D" parent="." unique_id=405834997]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 16, 0, 4)
+mesh = ExtResource("4_kq6g6")
+
+[node name="SmSidewalk10" type="MeshInstance3D" parent="." unique_id=1184791767]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 20, 0, 4)
+mesh = ExtResource("4_kq6g6")

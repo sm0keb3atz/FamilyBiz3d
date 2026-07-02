@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cycgnh6bthklj"
+path="res://.godot/imported/Antons_Footsteps_FS_Sand_Walk_04.wav-dd2659c96425af2c0a1c96485b624d68.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Footsteps/Anton Z's Footsteps Sound Pack/Antons_Footsteps_FS_Sand/Antons_Footsteps_FS_Sand_Walk_04.wav"
+dest_files=["res://.godot/imported/Antons_Footsteps_FS_Sand_Walk_04.wav-dd2659c96425af2c0a1c96485b624d68.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -1,0 +1,525 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 5,
+			"type": "MAT4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 1,
+			"count": 942,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 2,
+			"count": 474,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-2.49115515,
+				0.295365632,
+				-1.01078522
+			],
+			"max": [
+				2.53515339,
+				1.42565405,
+				1.01078522
+			]
+		},
+		{
+			"bufferView": 3,
+			"count": 474,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 474,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 474,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 6,
+			"count": 474,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 7,
+			"count": 474,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		},
+		{
+			"bufferView": 8,
+			"count": 9084,
+			"type": "SCALAR",
+			"componentType": 5123
+		},
+		{
+			"bufferView": 9,
+			"count": 7013,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-2.66194057,
+				0.00149663782,
+				-1.25939512
+			],
+			"max": [
+				2.76899171,
+				1.91681123,
+				1.25939512
+			]
+		},
+		{
+			"bufferView": 10,
+			"count": 7013,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 11,
+			"count": 7013,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 12,
+			"count": 7013,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 13,
+			"count": 7013,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 14,
+			"count": 7013,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		},
+		{
+			"bufferView": 15,
+			"count": 48,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 16,
+			"count": 38,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-1.29879069,
+				0.974666715,
+				-0.954891741
+			],
+			"max": [
+				0.994333625,
+				1.4029237,
+				0.954891622
+			]
+		},
+		{
+			"bufferView": 17,
+			"count": 38,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 18,
+			"count": 38,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 19,
+			"count": 38,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 20,
+			"count": 38,
+			"type": "VEC4",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 21,
+			"count": 38,
+			"type": "VEC4",
+			"componentType": 5121,
+			"normalized": true
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SK_veh_PoliceCarSedan_01.bin",
+			"byteLength": 441820
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 320
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1884,
+			"byteOffset": 320,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 5688,
+			"byteOffset": 2204,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 5688,
+			"byteOffset": 7892,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 7584,
+			"byteOffset": 13580,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 3792,
+			"byteOffset": 21164,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1896,
+			"byteOffset": 24956,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1896,
+			"byteOffset": 26852,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 18168,
+			"byteOffset": 28748,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 84156,
+			"byteOffset": 46916,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 84156,
+			"byteOffset": 131072,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 112208,
+			"byteOffset": 215228,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 56104,
+			"byteOffset": 327436,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 28052,
+			"byteOffset": 383540,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 28052,
+			"byteOffset": 411592,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 48,
+			"byteOffset": 439644,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 456,
+			"byteOffset": 439692,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 456,
+			"byteOffset": 440148,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 608,
+			"byteOffset": 440604,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 304,
+			"byteOffset": 441212,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 152,
+			"byteOffset": 441516,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 152,
+			"byteOffset": 441668,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_PoliceCar_01_BaseColor.png"
+		},
+		{
+			"uri": "MI_ColorPalette_MetallicRoughness.png"
+		},
+		{
+			"uri": "T_colorPalette2048.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_PoliceCar_01",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 0
+				},
+				"metallicFactor": 0,
+				"roughnessFactor": 0.349019617
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_ColorPalette",
+			"pbrMetallicRoughness":
+			{
+				"baseColorTexture":
+				{
+					"index": 1
+				},
+				"metallicRoughnessTexture":
+				{
+					"index": 2
+				}
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_GlassBasic",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0,
+					0,
+					0,
+					0.25
+				],
+				"metallicFactor": 0,
+				"roughnessFactor": 0
+			},
+			"alphaMode": "BLEND",
+			"doubleSided": true,
+			"extensions":
+			{
+				"KHR_materials_specular":
+				{
+					"specularFactor": 10
+				},
+				"KHR_materials_ior":
+				{
+					"ior": 1
+				}
+			}
+		}
+	],
+	"meshes": [
+		{
+			"name": "SK_veh_PoliceCarSedan_01",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 2,
+						"NORMAL": 3,
+						"TANGENT": 4,
+						"TEXCOORD_0": 5,
+						"JOINTS_0": 6,
+						"WEIGHTS_0": 7
+					},
+					"indices": 1,
+					"material": 0
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 9,
+						"NORMAL": 10,
+						"TANGENT": 11,
+						"TEXCOORD_0": 12,
+						"JOINTS_0": 13,
+						"WEIGHTS_0": 14
+					},
+					"indices": 8,
+					"material": 1
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 16,
+						"NORMAL": 17,
+						"TANGENT": 18,
+						"TEXCOORD_0": 19,
+						"JOINTS_0": 20,
+						"WEIGHTS_0": 21
+					},
+					"indices": 15,
+					"material": 2
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"skin": 0,
+			"mesh": 0,
+			"children": [
+				1
+			]
+		},
+		{
+			"name": "carBody",
+			"children": [
+				2,
+				3,
+				4,
+				5
+			]
+		},
+		{
+			"name": "wheelRL",
+			"translation": [
+				-1.32113039,
+				0.348836422,
+				-0.886378467
+			]
+		},
+		{
+			"name": "wheelFR",
+			"translation": [
+				1.63141596,
+				0.348836422,
+				0.887247324
+			]
+		},
+		{
+			"name": "wheelFL",
+			"translation": [
+				1.63141596,
+				0.348836422,
+				-0.886378467
+			]
+		},
+		{
+			"name": "wheelRR",
+			"translation": [
+				-1.32113051,
+				0.348836422,
+				0.887247145
+			]
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"skins": [
+		{
+			"name": "SK_veh_PoliceCarSedan_01",
+			"inverseBindMatrices": 0,
+			"skeleton": 0,
+			"joints": [
+				1,
+				2,
+				3,
+				4,
+				5
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "MI_PoliceCar_01_BaseColor",
+			"sampler": 0,
+			"source": 0
+		},
+		{
+			"name": "T_colorPalette2048",
+			"sampler": 0,
+			"source": 2
+		},
+		{
+			"name": "MI_ColorPalette_MetallicRoughness",
+			"sampler": 0,
+			"source": 1
+		}
+	],
+	"extensionsUsed": [
+		"KHR_materials_specular",
+		"KHR_materials_ior"
+	]
+}

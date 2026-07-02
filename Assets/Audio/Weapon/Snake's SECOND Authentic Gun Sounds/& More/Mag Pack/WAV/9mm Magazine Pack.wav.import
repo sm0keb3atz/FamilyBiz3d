@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://c05vveafwali2"
+path="res://.godot/imported/9mm Magazine Pack.wav-38b37859a8277e6dc7a5c138e83bd640.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Mag Pack/WAV/9mm Magazine Pack.wav"
+dest_files=["res://.godot/imported/9mm Magazine Pack.wav-38b37859a8277e6dc7a5c138e83bd640.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://blxq01rq0vyuj"
+path="res://.godot/imported/Shield Wood Impact 2-1.wav-4e9216fc5d535f9de43bb6303b31f2de.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/Free Sounds Pack/Shield Wood Impact 2-1.wav"
+dest_files=["res://.godot/imported/Shield Wood Impact 2-1.wav-4e9216fc5d535f9de43bb6303b31f2de.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

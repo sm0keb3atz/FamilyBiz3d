@@ -1,0 +1,295 @@
+{
+	"asset":
+	{
+		"version": "2.0",
+		"generator": "Unreal Engine 5.8.0"
+	},
+	"scene": 0,
+	"accessors": [
+		{
+			"bufferView": 0,
+			"count": 201,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 1,
+			"count": 183,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-0.535257876,
+				-1.55630124e-18,
+				-0.344053805
+			],
+			"max": [
+				0.410032034,
+				2,
+				0.307477862
+			]
+		},
+		{
+			"bufferView": 2,
+			"count": 183,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 3,
+			"count": 183,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 4,
+			"count": 183,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 5,
+			"count": 183,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 6,
+			"count": 36,
+			"type": "SCALAR",
+			"componentType": 5121
+		},
+		{
+			"bufferView": 7,
+			"count": 24,
+			"type": "VEC3",
+			"componentType": 5126,
+			"min": [
+				-0.144903332,
+				1.96284902,
+				-0.137435123
+			],
+			"max": [
+				0.101249814,
+				2.21912479,
+				0.170296833
+			]
+		},
+		{
+			"bufferView": 8,
+			"count": 24,
+			"type": "VEC3",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 9,
+			"count": 24,
+			"type": "VEC4",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 10,
+			"count": 24,
+			"type": "VEC2",
+			"componentType": 5126
+		},
+		{
+			"bufferView": 11,
+			"count": 24,
+			"type": "VEC2",
+			"componentType": 5126
+		}
+	],
+	"buffers": [
+		{
+			"uri": "SM_cornPlant.bin",
+			"byteLength": 11832
+		}
+	],
+	"bufferViews": [
+		{
+			"buffer": 0,
+			"byteLength": 201,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2196,
+			"byteOffset": 204,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2196,
+			"byteOffset": 2400,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 2928,
+			"byteOffset": 4596,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1464,
+			"byteOffset": 7524,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 1464,
+			"byteOffset": 8988,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 36,
+			"byteOffset": 10452,
+			"target": 34963
+		},
+		{
+			"buffer": 0,
+			"byteLength": 288,
+			"byteOffset": 10488,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 288,
+			"byteOffset": 10776,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 384,
+			"byteOffset": 11064,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 192,
+			"byteOffset": 11448,
+			"target": 34962
+		},
+		{
+			"buffer": 0,
+			"byteLength": 192,
+			"byteOffset": 11640,
+			"target": 34962
+		}
+	],
+	"images": [
+		{
+			"uri": "MI_SubSurface_Green_SM_cornPlant_Normal.png"
+		}
+	],
+	"materials": [
+		{
+			"name": "MI_SubSurface_Green_SM_cornPlant",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0.066666998,
+					0.0823530033,
+					0.00784299988,
+					1
+				],
+				"metallicFactor": 0,
+				"roughnessFactor": 0.5
+			},
+			"normalTexture":
+			{
+				"index": 0,
+				"texCoord": 1,
+				"extensions":
+				{
+					"KHR_texture_transform":
+					{
+						"offset": [
+							-0.00851063803,
+							-0.00800400227
+						],
+						"scale": [
+							1.08936167,
+							1.02451229
+						]
+					}
+				}
+			},
+			"doubleSided": true
+		},
+		{
+			"name": "MI_matteYellow",
+			"pbrMetallicRoughness":
+			{
+				"baseColorFactor": [
+					0.49000001,
+					0.367168993,
+					0.108779997,
+					1
+				],
+				"metallicFactor": 0
+			},
+			"doubleSided": true
+		}
+	],
+	"meshes": [
+		{
+			"name": "SM_cornPlant",
+			"primitives": [
+				{
+					"attributes":
+					{
+						"POSITION": 1,
+						"NORMAL": 2,
+						"TANGENT": 3,
+						"TEXCOORD_0": 4,
+						"TEXCOORD_1": 5
+					},
+					"indices": 0,
+					"material": 0
+				},
+				{
+					"attributes":
+					{
+						"POSITION": 7,
+						"NORMAL": 8,
+						"TANGENT": 9,
+						"TEXCOORD_0": 10,
+						"TEXCOORD_1": 11
+					},
+					"indices": 6,
+					"material": 1
+				}
+			]
+		}
+	],
+	"nodes": [
+		{
+			"mesh": 0
+		}
+	],
+	"samplers": [
+		{
+			"minFilter": 9987,
+			"magFilter": 9729
+		}
+	],
+	"scenes": [
+		{
+			"nodes": [
+				0
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "MI_SubSurface_Green_SM_cornPlant_Normal",
+			"sampler": 0,
+			"source": 0
+		}
+	],
+	"extensionsUsed": [
+		"KHR_texture_transform"
+	]
+}
