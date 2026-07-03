@@ -8,9 +8,15 @@
 [ext_resource type="ArrayMesh" uid="uid://l4lon2ffssug" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01.glb" id="7_rbh2x"]
 [ext_resource type="ArrayMesh" uid="uid://t8oac28wc7b4" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01_corner.glb" id="8_c0qdo"]
 [ext_resource type="ArrayMesh" uid="uid://dt4uhxypni1" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_grass_00.glb" id="9_lcq4g"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/territory_stats_component.gd" id="10_stats"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/territory_boundary.gd" id="11_boundary"]
+[ext_resource type="Script" path="res://Scripts/World/static_multimesh_batcher.gd" id="12_batcher"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lcq4g"]
 size = Vector3(146, 0.001, 253)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_territory"]
+size = Vector3(146, 20, 253)
 
 [node name="HoodEast" type="Node3D" unique_id=1815818858]
 
@@ -1195,3 +1201,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0, 92)
 mesh = ExtResource("9_lcq4g")
 
 [node name="Buildings" type="Node3D" parent="." unique_id=2107272074]
+
+[node name="StaticMeshBatches" type="Node3D" parent="."]
+script = ExtResource("12_batcher")
+
+[node name="TerritoryStats" type="Node" parent="."]
+script = ExtResource("10_stats")
+territory_id = &"hood_east"
+
+[node name="TerritoryBoundary" type="Area3D" parent="."]
+script = ExtResource("11_boundary")
+territory_id = &"hood_east"
+display_name = "Hood East"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TerritoryBoundary"]
+position = Vector3(64, 0, 0)
+shape = SubResource("BoxShape3D_territory")

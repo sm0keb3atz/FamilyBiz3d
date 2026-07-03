@@ -230,6 +230,16 @@ func get_reserve_ammo() -> int:
 	return _reserve_ammo.get(definition.weapon_id, 0)
 
 
+func get_aim_target_position() -> Vector3:
+	var definition := get_equipped_weapon()
+	var max_range := definition.max_range if definition != null else 50.0
+	var query := _create_aim_query(max_range)
+	var hit := body.get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty():
+		return query.to
+	return hit.position as Vector3
+
+
 func _apply_equipped_weapon() -> void:
 	var definition := get_equipped_weapon()
 	weapon_model.visible = definition != null
@@ -255,18 +265,11 @@ func _finish_reload() -> void:
 
 
 func _fire_hitscan(definition: WeaponDefinition) -> Vector3:
-	var screen_center := camera.get_viewport().get_visible_rect().size * 0.5
-	var ray_origin := camera.project_ray_origin(screen_center)
-	var ray_direction := camera.project_ray_normal(screen_center)
-	var ray_end := (
-		ray_origin
-		+ ray_direction * definition.max_range
-	)
-	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
-	query.exclude = [body.get_rid()]
+	var query := _create_aim_query(definition.max_range)
+	var ray_direction := (query.to - query.from).normalized()
 	var hit := body.get_world_3d().direct_space_state.intersect_ray(query)
 	if hit.is_empty():
-		return ray_end
+		return query.to
 
 	var hit_position := hit.position as Vector3
 	var hit_normal := hit.normal as Vector3
@@ -296,6 +299,16 @@ func _fire_hitscan(definition: WeaponDefinition) -> Vector3:
 			collider as Node3D
 		)
 	return hit_position
+
+
+func _create_aim_query(max_range: float) -> PhysicsRayQueryParameters3D:
+	var screen_center := camera.get_viewport().get_visible_rect().size * 0.5
+	var ray_origin := camera.project_ray_origin(screen_center)
+	var ray_direction := camera.project_ray_normal(screen_center)
+	var ray_end := ray_origin + ray_direction * max_range
+	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
+	query.exclude = [body.get_rid()]
+	return query
 
 
 func _play_gunshot() -> void:

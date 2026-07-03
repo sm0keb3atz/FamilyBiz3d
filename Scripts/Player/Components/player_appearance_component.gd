@@ -186,14 +186,10 @@ func get_material_name(slot: StringName) -> String:
 	return str(materials[int(_selected_material[slot])]["name"])
 
 
-func set_ragdoll_visibility(active: bool) -> void:
+func set_ragdoll_visibility(_active: bool) -> void:
 	if _skeleton == null:
 		return
-	if active:
-		_set_mesh_visible(&"BODY_Torso", false)
-		_set_mesh_visible(&"BODY_Legs", false)
-	else:
-		_apply_body_visibility()
+	_apply_body_visibility()
 
 
 func _apply_slot(slot: StringName) -> void:

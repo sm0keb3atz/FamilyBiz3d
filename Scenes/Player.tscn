@@ -31,12 +31,14 @@
 [ext_resource type="Script" uid="uid://bjqk3lymu6fn0" path="res://Scripts/Player/Components/player_sound_component.gd" id="26_sound"]
 [ext_resource type="Script" path="res://Scripts/Player/Components/player_appearance_component.gd" id="27_appearance"]
 [ext_resource type="Script" path="res://Scripts/UI/player_appearance_menu.gd" id="28_appearance_menu"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/trade_service.gd" id="30_trade"]
 [ext_resource type="AudioStream" uid="uid://dkocn7g7w2ix0" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Reload 1.wav" id="28_reload_1"]
 [ext_resource type="AudioStream" uid="uid://bec60i8tm0p8b" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Reload 2.wav" id="29_reload_2"]
 [ext_resource type="AudioStream" uid="uid://b4nn0vdqabdqo" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/Full Sounds/9mm/MP3/9mm Single.mp3" id="32_gunshot"]
 [ext_resource type="AudioStream" uid="uid://bei7tra2j61vs" path="res://Assets/Audio/Weapon/BulletImpacts/BulletImpact1.ogg" id="33_impact_1"]
 [ext_resource type="AudioStream" uid="uid://cmgxkpdp6kvf1" path="res://Assets/Audio/Weapon/BulletImpacts/BulletImpact2.ogg" id="34_impact_2"]
 [ext_resource type="AudioStream" uid="uid://bycu5qf0p41da" path="res://Assets/Audio/Weapon/BulletImpacts/BulletImpact3.ogg" id="35_impact_3"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_vehicle_component.gd" id="36_vehicle"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
 radius = 0.4
@@ -209,7 +211,7 @@ script = ExtResource("5_animation")
 [node name="MovementComponent" type="Node" parent="Components" unique_id=1361433278]
 script = ExtResource("6_movement")
 walk_speed = 2.5
-aim_facing_offset_degrees = 5.0
+aim_facing_offset_degrees = -7.5
 
 [node name="StatsComponent" type="Node" parent="Components" unique_id=108249701]
 script = ExtResource("7_stats")
@@ -258,6 +260,9 @@ script = ExtResource("15_wallet")
 script = ExtResource("16_inventory")
 known_products = Array[ExtResource("19_c43xd")]([ExtResource("17_product")])
 
+[node name="TradeService" type="Node" parent="Components"]
+script = ExtResource("30_trade")
+
 [node name="InteractionComponent" type="Node" parent="Components" unique_id=324301799]
 script = ExtResource("18_interaction")
 
@@ -266,6 +271,9 @@ script = ExtResource("19_solicitation")
 
 [node name="MenuController" type="Node" parent="Components" unique_id=2023999141]
 script = ExtResource("20_menu_controller")
+
+[node name="VehicleComponent" type="Node" parent="Components"]
+script = ExtResource("36_vehicle")
 
 [node name="AppearanceComponent" type="Node" parent="Components"]
 script = ExtResource("27_appearance")

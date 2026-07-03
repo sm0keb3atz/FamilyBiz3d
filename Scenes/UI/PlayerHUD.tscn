@@ -35,8 +35,132 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_reputation_fill"]
+bg_color = Color(0.22, 0.56, 0.95, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_heat_fill"]
+bg_color = Color(0.95, 0.28, 0.12, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [node name="PlayerHUD" type="CanvasLayer" unique_id=1330545521]
 script = ExtResource("1_hud")
+
+[node name="ReputationPanel" type="PanelContainer" parent="."]
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -180.0
+offset_top = 20.0
+offset_right = 180.0
+offset_bottom = 92.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="ReputationPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="Content" type="VBoxContainer" parent="ReputationPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="ReputationTitle" type="Label" parent="ReputationPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.82, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "HOOD EAST — REPUTATION"
+horizontal_alignment = 1
+
+[node name="ReputationBar" type="ProgressBar" parent="ReputationPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(332, 24)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_background")
+theme_override_styles/fill = SubResource("StyleBoxFlat_reputation_fill")
+show_percentage = false
+
+[node name="ReputationValue" type="Label" parent="ReputationPanel/Margin/Content/ReputationBar"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 13
+text = "0 / 100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HeatPanel" type="PanelContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -380.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 92.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="HeatPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="Content" type="VBoxContainer" parent="HeatPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="HeatTitle" type="Label" parent="HeatPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.56, 0.38, 1)
+theme_override_font_sizes/font_size = 15
+text = "HOOD EAST — HEAT"
+horizontal_alignment = 1
+
+[node name="HeatBar" type="ProgressBar" parent="HeatPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(332, 24)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_background")
+theme_override_styles/fill = SubResource("StyleBoxFlat_heat_fill")
+show_percentage = false
+
+[node name="HeatValue" type="Label" parent="HeatPanel/Margin/Content/HeatBar"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 13
+text = "0 / 100"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="StatsPanel" type="PanelContainer" parent="." unique_id=1593991639]
 anchors_preset = 0

@@ -47,3 +47,14 @@ Reputation dictates the player's economic leverage and control over a neighborho
 ### 2. Empire Management & Automation
 * **Hiring Street Runners**: To automate dealing, the player can hire NPC runners to sell product. However, runners can only be assigned to a territory if the player has at least **30% Reputation** in that zone.
 * **Territory Defense**: Rival dealers will occasionally try to set up shop in your turf. If left unchecked, they will bleed your Reputation down. Confronting them (or sending hired muscle) restores control.
+
+---
+
+## Initial Prototype Rules
+
+* Hood East and Hood West track Heat and Reputation independently.
+* A successful sale adds the product's configured Heat and Reputation rewards
+  to the territory where the customer is standing.
+* Heat decays automatically over time.
+* Customers refuse sales when their territory reaches `76` Heat.
+* Territory state is saved using the permanent `hood_east` and `hood_west` IDs.

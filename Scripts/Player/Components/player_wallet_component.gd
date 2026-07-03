@@ -54,3 +54,13 @@ func add_clean(amount: int) -> bool:
 	_clean_cash += amount
 	money_changed.emit(_dirty_cash, _clean_cash)
 	return true
+
+
+func export_save_data() -> Dictionary:
+	return {"dirty_cash": _dirty_cash, "clean_cash": _clean_cash}
+
+
+func import_save_data(data: Dictionary) -> void:
+	_dirty_cash = maxi(int(data.get("dirty_cash", starting_dirty_cash)), 0)
+	_clean_cash = maxi(int(data.get("clean_cash", starting_clean_cash)), 0)
+	money_changed.emit(_dirty_cash, _clean_cash)

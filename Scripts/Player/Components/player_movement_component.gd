@@ -169,10 +169,16 @@ func _update_facing(delta: float, move_direction: Vector3) -> void:
 	var rotation_speed: float
 
 	if _is_aiming:
+		var aim_direction := (
+			weapon_component.get_aim_target_position()
+			- visual.global_position
+		)
+		aim_direction.y = 0.0
 		target_angle = (
-			camera_component.get_yaw()
-			+ PI
+			atan2(aim_direction.x, aim_direction.z)
 			+ deg_to_rad(aim_facing_offset_degrees)
+			if not aim_direction.is_zero_approx()
+			else camera_component.get_yaw() + PI
 		)
 		rotation_speed = aim_body_turn_speed
 	elif move_direction != Vector3.ZERO:

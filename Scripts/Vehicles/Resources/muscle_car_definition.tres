@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="VehicleDefinition" format=3 uid="uid://bqbwuivnubdi2"]
+
+[ext_resource type="Script" uid="uid://dcdhotd31ct7w" path="res://Scripts/Vehicles/vehicle_definition.gd" id="1_definition"]
+[ext_resource type="PackedScene" uid="uid://e4b44vss631q" path="res://Assets/MapStuff/Meshs/Vehicles/SK_veh_Muscle_01.gltf" id="2_model"]
+[ext_resource type="AudioStream" uid="uid://cyalt6mjn4iok" path="res://Assets/Audio/Vehicles/CarDoorOpen-Close.wav" id="3_door"]
+[ext_resource type="AudioStream" uid="uid://fhdt5qp6kldf" path="res://Assets/Audio/Vehicles/CarStart.wav" id="4_start"]
+[ext_resource type="AudioStream" uid="uid://boe71t765fhvg" path="res://Assets/Audio/Vehicles/CorvetteIdle.wav" id="5_engine"]
+[ext_resource type="AudioStream" uid="uid://boefdxidl04qw" path="res://Assets/Audio/Vehicles/CarOff.wav" id="6_stop"]
+
+[resource]
+script = ExtResource("1_definition")
+display_name = "Muscle Car"
+visual_scene = ExtResource("2_model")
+engine_force = 8500.0
+max_forward_speed = 50.0
+door_stream = ExtResource("3_door")
+start_stream = ExtResource("4_start")
+engine_stream = ExtResource("5_engine")
+stop_stream = ExtResource("6_stop")

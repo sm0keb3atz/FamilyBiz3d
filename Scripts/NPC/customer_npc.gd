@@ -10,7 +10,6 @@ enum State {
 }
 
 @export var product_wanted: ProductDefinition
-@export var territory_stats_path := NodePath("../TerritoryStats")
 @export_range(0.5, 5.0, 0.1) var player_stop_distance := 1.6
 @export_range(0.5, 10.0, 0.1) var home_stop_distance := 0.6
 @export_range(0.0, 60.0, 0.5) var cooldown_duration := 5.0
@@ -26,6 +25,7 @@ func _ready() -> void:
 	_home_position = global_position
 	add_to_group("customer_npc")
 	add_to_group("interactable_npc")
+	add_to_group("interactable")
 	navigation_agent.path_desired_distance = 0.3
 	navigation_agent.target_desired_distance = player_stop_distance
 
@@ -42,8 +42,7 @@ func _physics_process(delta: float) -> void:
 				stop_moving(delta)
 			else:
 				move_toward_navigation_target(
-					_target_player.global_position,
-					delta
+					_target_player.global_position, delta
 				)
 		State.WAITING:
 			stop_moving(delta)
@@ -77,7 +76,6 @@ func can_respond_to_solicitation() -> bool:
 func respond_to_solicitation(player: CharacterBody3D) -> bool:
 	if not can_respond_to_solicitation():
 		return false
-
 	_target_player = player
 	_state = State.APPROACHING
 	navigation_agent.target_desired_distance = player_stop_distance
@@ -100,44 +98,12 @@ func get_interaction_prompt(_player: CharacterBody3D) -> String:
 func interact(player: CharacterBody3D) -> void:
 	if not can_interact(player):
 		return
-
-	var inventory := player.get_node(
-		"Components/InventoryComponent"
-	) as PlayerInventoryComponent
-	var wallet := player.get_node(
-		"Components/WalletComponent"
-	) as PlayerWalletComponent
-	var stats := player.get_node(
-		"Components/StatsComponent"
-	) as PlayerStatsComponent
 	var hud := player.get_node("PlayerHUD") as PlayerHUD
-	var territory := get_node_or_null(
-		territory_stats_path
-	) as TerritoryStatsComponent
-
-	if not inventory.has_product(product_wanted, 1):
-		hud.show_feedback("You have no %s to sell." % product_wanted.display_name)
-		_begin_returning()
-		return
-
-	if not inventory.remove_product(product_wanted, 1):
-		hud.show_feedback("Sale failed.")
-		return
-
-	wallet.add_dirty(product_wanted.sale_price)
-	stats.add_experience(product_wanted.experience_reward)
-	if territory != null:
-		territory.add_reputation(product_wanted.reputation_reward)
-
-	hud.show_feedback(
-		"Sold 1 %s for $%d  •  +%d EXP  •  +%.0f Rep"
-		% [
-			product_wanted.display_name,
-			product_wanted.sale_price,
-			roundi(product_wanted.experience_reward),
-			product_wanted.reputation_reward,
-		]
-	)
+	var trade_service := player.get_node(
+		"Components/TradeService"
+	) as TradeService
+	var result := trade_service.sell_product(product_wanted, global_position)
+	hud.show_feedback(result.message)
 	_begin_returning()
 
 

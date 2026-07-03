@@ -1,6 +1,10 @@
 class_name PlayerRagdollComponent
 extends Node
 
+const NPC_RAGDOLL_TEMPLATE := preload(
+	"res://Scenes/PlayerVisual.scn"
+)
+
 @export_category("Scene References")
 @export var health_component_path := NodePath("../HealthComponent")
 @export var movement_component_path := NodePath("../MovementComponent")
@@ -51,6 +55,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	_replace_simulator_with_npc_rig()
 	health_component.downed.connect(activate_ragdoll)
 	health_component.respawn_started.connect(_prepare_respawn)
 	health_component.respawn_completed.connect(_finish_respawn)
@@ -61,6 +66,35 @@ func _ready() -> void:
 	_set_physical_bone_collisions(simulator, false)
 
 
+func _replace_simulator_with_npc_rig() -> void:
+	if skeleton == null or simulator == null:
+		return
+
+	var template_visual := NPC_RAGDOLL_TEMPLATE.instantiate() as Node3D
+	var template_skeleton := template_visual.get_node_or_null(
+		"Armature/GeneralSkeleton"
+	) as Skeleton3D
+	if template_skeleton == null:
+		template_visual.free()
+		return
+
+	var template_simulator := template_skeleton.get_node_or_null(
+		"PhysicalBoneSimulator3D"
+	) as PhysicalBoneSimulator3D
+	if template_simulator == null:
+		template_visual.free()
+		return
+
+	template_simulator.active = false
+	template_simulator.physical_bones_stop_simulation()
+	template_skeleton.remove_child(template_simulator)
+	simulator.free()
+	skeleton.add_child(template_simulator)
+	template_simulator.name = "PhysicalBoneSimulator3D"
+	simulator = template_simulator
+	template_visual.free()
+
+
 func activate_ragdoll() -> void:
 	if _is_ragdoll_active or simulator == null:
 		return
@@ -68,6 +102,7 @@ func activate_ragdoll() -> void:
 	_is_ragdoll_active = true
 	movement_component.set_physics_process(false)
 	body.velocity = Vector3.ZERO
+	animation_tree.active = false
 	if appearance_component != null:
 		appearance_component.set_ragdoll_visibility(true)
 	body_collision.set_deferred("disabled", true)

@@ -9,7 +9,7 @@ extends Node
 @onready var player := get_node(player_path) as CharacterBody3D
 @onready var hud := get_node(hud_path) as PlayerHUD
 
-var _current_target: BaseNPC
+var _current_target: Node3D
 var _gameplay_enabled := true
 
 
@@ -19,7 +19,7 @@ func _process(_delta: float) -> void:
 
 	_current_target = _find_nearest_interactable()
 	hud.set_interaction_prompt(
-		_current_target.get_interaction_prompt(player)
+		String(_current_target.call("get_interaction_prompt", player))
 		if _current_target != null
 		else ""
 	)
@@ -31,7 +31,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		and event.is_action_pressed(interact_action)
 		and _current_target != null
 	):
-		_current_target.interact(player)
+		_current_target.call("interact", player)
 		get_viewport().set_input_as_handled()
 
 
@@ -44,17 +44,25 @@ func set_gameplay_enabled(enabled: bool) -> void:
 		hud.set_interaction_prompt("")
 
 
-func _find_nearest_interactable() -> BaseNPC:
-	var nearest: BaseNPC
+func _find_nearest_interactable() -> Node3D:
+	var nearest: Node3D
 	var nearest_distance := interaction_radius
 
-	for node in get_tree().get_nodes_in_group("interactable_npc"):
-		var npc := node as BaseNPC
-		if npc == null or not npc.can_interact(player):
+	for node in get_tree().get_nodes_in_group("interactable"):
+		var target := node as Node3D
+		if (
+			target == null
+			or not target.has_method("can_interact")
+			or not target.has_method("get_interaction_prompt")
+			or not target.has_method("interact")
+			or not bool(target.call("can_interact", player))
+		):
 			continue
-		var distance := player.global_position.distance_to(npc.global_position)
+		var distance := player.global_position.distance_to(
+			target.global_position
+		)
 		if distance <= nearest_distance:
-			nearest = npc
+			nearest = target
 			nearest_distance = distance
 
 	return nearest

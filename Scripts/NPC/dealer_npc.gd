@@ -7,6 +7,7 @@ extends BaseNPC
 func _ready() -> void:
 	super()
 	add_to_group("interactable_npc")
+	add_to_group("interactable")
 
 
 func can_interact(_player: CharacterBody3D) -> bool:
@@ -24,23 +25,7 @@ func interact(player: CharacterBody3D) -> void:
 
 
 func try_purchase(player: CharacterBody3D) -> String:
-	if product == null:
-		return "This dealer has nothing for sale."
-
-	var wallet := player.get_node(
-		"Components/WalletComponent"
-	) as PlayerWalletComponent
-	var inventory := player.get_node(
-		"Components/InventoryComponent"
-	) as PlayerInventoryComponent
-
-	if not wallet.can_spend_dirty(product.dealer_price):
-		return "Not enough Dirty Cash."
-
-	if not wallet.spend_dirty(product.dealer_price):
-		return "Purchase failed."
-	if not inventory.add_product(product, 1):
-		wallet.add_dirty(product.dealer_price)
-		return "Purchase failed."
-
-	return "Purchased 1 %s." % product.display_name
+	var trade_service := player.get_node(
+		"Components/TradeService"
+	) as TradeService
+	return trade_service.buy_product(product).message

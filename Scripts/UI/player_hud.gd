@@ -24,6 +24,12 @@ extends CanvasLayer
 @onready var weapon_name_label := %WeaponNameLabel as Label
 @onready var ammo_label := %AmmoLabel as Label
 @onready var reload_label := %ReloadLabel as Label
+@onready var reputation_title := %ReputationTitle as Label
+@onready var reputation_bar := %ReputationBar as ProgressBar
+@onready var reputation_value := %ReputationValue as Label
+@onready var heat_title := %HeatTitle as Label
+@onready var heat_bar := %HeatBar as ProgressBar
+@onready var heat_value := %HeatValue as Label
 @onready var stats := get_node(stats_component_path) as PlayerStatsComponent
 @onready var wallet := (
 	get_node(wallet_component_path) as PlayerWalletComponent
@@ -36,6 +42,8 @@ var _hit_marker_remaining := 0.0
 
 
 func _ready() -> void:
+	reputation_bar.max_value = 100.0
+	heat_bar.max_value = 100.0
 	stats.health_changed.connect(_on_health_changed)
 	stats.stamina_changed.connect(_on_stamina_changed)
 	stats.experience_changed.connect(_on_experience_changed)
@@ -52,6 +60,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_refresh_territory()
 	crosshair.visible = (
 		weapon.is_aiming()
 		and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
@@ -62,6 +71,27 @@ func _process(delta: float) -> void:
 	hit_marker.modulate.a = _hit_marker_remaining / hit_marker_duration
 	if is_zero_approx(_hit_marker_remaining):
 		hit_marker.visible = false
+
+
+func _refresh_territory() -> void:
+	var player := get_parent() as CharacterBody3D
+	var boundary := TerritoryBoundary.find_at_position(
+		get_tree(), player.global_position
+	)
+	if boundary == null or boundary.stats == null:
+		reputation_title.text = "OUTSIDE TERRITORY — REPUTATION"
+		heat_title.text = "OUTSIDE TERRITORY — HEAT"
+		reputation_bar.value = 0.0
+		heat_bar.value = 0.0
+		reputation_value.text = "—"
+		heat_value.text = "—"
+		return
+	reputation_title.text = "%s — REPUTATION" % boundary.display_name.to_upper()
+	heat_title.text = "%s — HEAT" % boundary.display_name.to_upper()
+	reputation_bar.value = boundary.stats.reputation
+	heat_bar.value = boundary.stats.heat
+	reputation_value.text = "%d / 100" % roundi(boundary.stats.reputation)
+	heat_value.text = "%d / 100" % roundi(boundary.stats.heat)
 
 
 func _unhandled_input(event: InputEvent) -> void:

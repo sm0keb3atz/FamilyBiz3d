@@ -114,6 +114,11 @@ func stop_reload() -> void:
 	reload_player.stop()
 
 
+func stop_footsteps() -> void:
+	_footstep_playback_id += 1
+	footstep_player.stop()
+
+
 func play_equip_sound() -> void:
 	if equip_sound_index < 0 or equip_sound_index >= reload_sounds.size():
 		return

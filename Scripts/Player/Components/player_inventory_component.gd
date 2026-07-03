@@ -49,3 +49,20 @@ func remove_product(product: ProductDefinition, amount := 1) -> bool:
 
 func get_known_products() -> Array[ProductDefinition]:
 	return known_products.duplicate()
+
+
+func export_save_data() -> Dictionary:
+	var data := {}
+	for product in known_products:
+		if product != null:
+			data[String(product.product_id)] = get_quantity(product)
+	return data
+
+
+func import_save_data(data: Dictionary) -> void:
+	for product in known_products:
+		if product == null:
+			continue
+		var quantity := maxi(int(data.get(String(product.product_id), 0)), 0)
+		_quantities[product.product_id] = quantity
+		quantity_changed.emit(product, quantity)

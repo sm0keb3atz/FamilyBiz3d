@@ -51,7 +51,7 @@ graph TD
 ### The Three Phases of Gameplay
 
 1. **The Street Phase (The Hustler)**:
-   * Focus: Manual transaction, physical survival, avoiding police using GASP traversal (vaulting, sliding, climbing).
+   * Focus: Manual transactions, physical survival, and avoiding police using the Godot third-person movement system.
    * Goal: Gather enough dirty cash to buy your first stash house and secure product streams.
 
 2. **The Business Phase (The Operator)**:

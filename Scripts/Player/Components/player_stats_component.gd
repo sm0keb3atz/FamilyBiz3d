@@ -150,6 +150,32 @@ func get_max_stamina() -> float:
 	)
 
 
+func export_save_data() -> Dictionary:
+	return {
+		"health": _health,
+		"stamina": _stamina,
+		"experience": _experience,
+		"level": _level,
+		"skill_points": _skill_points,
+		"strength": _strength,
+	}
+
+
+func import_save_data(data: Dictionary) -> void:
+	_level = maxi(int(data.get("level", config.starting_level)), 1)
+	_strength = maxi(int(data.get("strength", config.starting_strength)), 1)
+	_skill_points = maxi(int(data.get("skill_points", 0)), 0)
+	_experience = maxf(float(data.get("experience", 0.0)), 0.0)
+	_health = clampf(
+		float(data.get("health", get_max_health())), 0.0, get_max_health()
+	)
+	_stamina = clampf(
+		float(data.get("stamina", get_max_stamina())), 0.0, get_max_stamina()
+	)
+	_time_since_damage = config.health_regen_delay
+	_emit_all_stats()
+
+
 func _process_level_ups() -> void:
 	while _experience >= get_experience_required_for_next_level():
 		var previous_max_health := get_max_health()

@@ -35,7 +35,6 @@ normal_texture = ExtResource("11_cqs1t")
 [node name="CustomerNPC" unique_id=894363411 instance=ExtResource("1_base")]
 script = ExtResource("2_customer")
 product_wanted = ExtResource("3_product")
-territory_stats_path = NodePath("../TerritoryStats")
 player_stop_distance = 1.6
 home_stop_distance = 0.6
 cooldown_duration = 5.0
