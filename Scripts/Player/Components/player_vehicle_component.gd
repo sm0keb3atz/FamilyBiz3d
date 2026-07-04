@@ -59,7 +59,7 @@ func enter_vehicle(vehicle: Variant) -> bool:
 	if not vehicle.enter_driver(body):
 		return false
 	_current_vehicle = vehicle
-	sound_component.stop_footsteps()
+	sound_component.set_footsteps_enabled(false)
 	body.add_collision_exception_with(vehicle)
 	_current_vehicle.exit_denied.connect(_on_exit_denied)
 	body.velocity = Vector3.ZERO
@@ -90,6 +90,7 @@ func exit_vehicle(force := false) -> bool:
 	body_collision.set_deferred("disabled", false)
 	menu_controller.set_gameplay_locked(false)
 	_set_on_foot_gameplay_enabled(true)
+	sound_component.set_footsteps_enabled(true)
 	_schedule_vehicle_collision_restore(vehicle)
 	vehicle_exited.emit(vehicle)
 	return true
@@ -123,6 +124,7 @@ func prepare_for_load() -> void:
 	body_collision.set_deferred("disabled", false)
 	menu_controller.set_gameplay_locked(false)
 	_set_on_foot_gameplay_enabled(true)
+	sound_component.set_footsteps_enabled(true)
 	_schedule_vehicle_collision_restore(vehicle)
 	vehicle_exited.emit(vehicle)
 

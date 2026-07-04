@@ -63,6 +63,13 @@ extends Resource
 @export_range(0.1, 20.0, 0.1) var traction_recovery_speed := 4.5
 @export_range(0.1, 20.0, 0.1) var drift_engagement_speed := 5.0
 @export_range(0.1, 20.0, 0.1) var drift_release_speed := 2.5
+@export_range(0.1, 5.0, 0.1) var burnout_start_max_speed := 2.5
+@export_range(0.0, 1.0, 0.05) var burnout_throttle_threshold := 0.65
+@export_range(0.1, 20.0, 0.1) var burnout_engagement_speed := 7.0
+@export_range(0.05, 5.0, 0.05) var burnout_grip_recovery_speed := 0.25
+@export_range(0.1, 10.0, 0.1) var burnout_traction_slip_speed := 1.5
+@export_range(0.1, 20.0, 0.05) var burnout_rear_friction_slip := 0.35
+@export_range(1.0, 400.0, 1.0) var burnout_front_brake_force := 180.0
 @export_range(0.0, 1.0, 0.01) var wheel_roll_influence := 0.05
 
 @export_category("Stability")
@@ -98,8 +105,10 @@ extends Resource
 @export var start_stream: AudioStream
 @export var engine_stream: AudioStream
 @export var stop_stream: AudioStream
+@export var tire_screech_stream: AudioStream
 @export_range(-40.0, 6.0, 0.5) var entry_door_volume_db := 0.0
 @export_range(-40.0, 6.0, 0.5) var exit_door_volume_db := -12.0
+@export_range(-40.0, 6.0, 0.5) var tire_screech_volume_db := -5.0
 @export_range(0.1, 2.0, 0.05) var idle_pitch := 0.75
 @export_range(0.5, 3.0, 0.05) var maximum_pitch := 1.75
 @export_range(0.0, 2.0, 0.05) var door_to_ignition_delay := 0.3

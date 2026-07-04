@@ -1,0 +1,167 @@
+[gd_scene format=3 uid="uid://b5hevxt2pn7d8"]
+
+[ext_resource type="Script" uid="uid://cfqgy50ra8yu6" path="res://Scripts/NPC/AI/pedestrian_network_3d.gd" id="1_network"]
+[ext_resource type="Script" uid="uid://dfsxtix1nr08a" path="res://Scripts/NPC/AI/pedestrian_waypoint_3d.gd" id="2_waypoint"]
+
+[node name="HoodEastPedestrianNetwork" type="Node3D" unique_id=1623421427]
+script = ExtResource("1_network")
+
+[node name="SouthNorthWest" type="Marker3D" parent="." unique_id=353235692]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, -19)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthNorth1"), NodePath("../NorthSouthWest")])
+
+[node name="SouthNorth1" type="Marker3D" parent="." unique_id=485471169]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0.1, -19)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthNorth2")])
+
+[node name="SouthNorth2" type="Marker3D" parent="." unique_id=152677756]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0.1, -19)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthNorth3")])
+
+[node name="SouthNorth3" type="Marker3D" parent="." unique_id=462501915]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 0.1, -19)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthNorthEast")])
+
+[node name="SouthNorthEast" type="Marker3D" parent="." unique_id=2131158555]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, -19)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthEast1"), NodePath("../NorthSouthEast")])
+
+[node name="SouthEast1" type="Marker3D" parent="." unique_id=38855620]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, -46)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthEast2")])
+
+[node name="SouthEast2" type="Marker3D" parent="." unique_id=1323090636]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, -69)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthEast3")])
+
+[node name="SouthEast3" type="Marker3D" parent="." unique_id=670554831]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, -92)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthSouthEast")])
+
+[node name="SouthSouthEast" type="Marker3D" parent="." unique_id=1470415773]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, -115)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthSouth3")])
+
+[node name="SouthSouth3" type="Marker3D" parent="." unique_id=565207872]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 0.1, -115)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthSouth2")])
+
+[node name="SouthSouth2" type="Marker3D" parent="." unique_id=990024172]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0.1, -115)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthSouth1")])
+
+[node name="SouthSouth1" type="Marker3D" parent="." unique_id=953659579]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0.1, -115)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthSouthWest")])
+
+[node name="SouthSouthWest" type="Marker3D" parent="." unique_id=732870581]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, -115)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthWest3")])
+
+[node name="SouthWest3" type="Marker3D" parent="." unique_id=1156347669]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, -92)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthWest2")])
+
+[node name="SouthWest2" type="Marker3D" parent="." unique_id=494986267]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, -69)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthWest1")])
+
+[node name="SouthWest1" type="Marker3D" parent="." unique_id=560283720]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, -46)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../SouthNorthWest")])
+
+[node name="NorthSouthWest" type="Marker3D" parent="." unique_id=27439746]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, 5)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthSouth1")])
+
+[node name="NorthSouth1" type="Marker3D" parent="." unique_id=564965644]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0.1, 5)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthSouth2")])
+
+[node name="NorthSouth2" type="Marker3D" parent="." unique_id=1880348662]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0.1, 5)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthSouth3")])
+
+[node name="NorthSouth3" type="Marker3D" parent="." unique_id=2105389248]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 0.1, 5)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthSouthEast")])
+
+[node name="NorthSouthEast" type="Marker3D" parent="." unique_id=1544453910]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, 5)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthEast1")])
+
+[node name="NorthEast1" type="Marker3D" parent="." unique_id=1920685824]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, 28)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthEast2")])
+
+[node name="NorthEast2" type="Marker3D" parent="." unique_id=921852249]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, 51)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthEast3")])
+
+[node name="NorthEast3" type="Marker3D" parent="." unique_id=21143117]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, 74)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthNorthEast")])
+
+[node name="NorthNorthEast" type="Marker3D" parent="." unique_id=451976731]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, 97)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthNorth3")])
+
+[node name="NorthNorth3" type="Marker3D" parent="." unique_id=742747269]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 0.1, 97)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthNorth2")])
+
+[node name="NorthNorth2" type="Marker3D" parent="." unique_id=894461853]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0.1, 97)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthNorth1")])
+
+[node name="NorthNorth1" type="Marker3D" parent="." unique_id=148941826]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0.1, 97)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthNorthWest")])
+
+[node name="NorthNorthWest" type="Marker3D" parent="." unique_id=1877328540]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, 97)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthWest3")])
+
+[node name="NorthWest3" type="Marker3D" parent="." unique_id=555166570]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, 74)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthWest2")])
+
+[node name="NorthWest2" type="Marker3D" parent="." unique_id=938270469]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, 51)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthWest1")])
+
+[node name="NorthWest1" type="Marker3D" parent="." unique_id=542000516]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, 28)
+script = ExtResource("2_waypoint")
+connections = Array[NodePath]([NodePath("../NorthSouthWest")])

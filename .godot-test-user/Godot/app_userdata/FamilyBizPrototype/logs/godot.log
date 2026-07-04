@@ -1,0 +1,9 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+WARNING: Adding 'PhysicalBoneSimulator3D' as child to 'GeneralSkeleton' will make owner 'PlayerTest2' inconsistent. Consider unsetting the owner beforehand.
+   at: add_child (scene/main/node.cpp:1728)
+   GDScript backtrace (most recent call first):
+       [0] _replace_simulator_with_npc_rig (res://Scripts/Player/Components/player_ragdoll_component.gd:92)
+       [1] _ready (res://Scripts/Player/Components/player_ragdoll_component.gd:58)
+       [2] _run (res://Tests/vehicle_smoke_test.gd:14)
+VEHICLE_SMOKE_TEST_PASS

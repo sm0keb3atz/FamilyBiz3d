@@ -1,12 +1,15 @@
-[gd_scene load_steps=13 format=3 uid="uid://bu34jrbyqy8ge"]
+[gd_scene format=3 uid="uid://bu34jrbyqy8ge"]
 
 [ext_resource type="PackedScene" uid="uid://chfupylvwjkco" path="res://Scenes/Maps/Territorys/HoodEast.tscn" id="1_east"]
 [ext_resource type="PackedScene" uid="uid://blrfy38pd5dw2" path="res://Scenes/Maps/Territorys/HoodWest.tscn" id="2_west"]
 [ext_resource type="PackedScene" uid="uid://b7lu430qitjcu" path="res://Scenes/Player.tscn" id="3_player"]
 [ext_resource type="PackedScene" uid="uid://b0tcbblin3k4b" path="res://Scenes/NPC/DealerNPC.tscn" id="4_dealer"]
 [ext_resource type="PackedScene" uid="uid://lbnphh8gm20q" path="res://Scenes/NPC/CustomerNPC.tscn" id="5_customer"]
-[ext_resource type="Script" path="res://Scripts/Gameplay/world_controller.gd" id="6_controller"]
-[ext_resource type="PackedScene" path="res://Scenes/Vehicles/MuscleCar.tscn" id="7_muscle_car"]
+[ext_resource type="Script" uid="uid://drakbifufadbe" path="res://Scripts/Gameplay/world_controller.gd" id="6_controller"]
+[ext_resource type="PackedScene" uid="uid://cmyoinaojjcgt" path="res://Scenes/Vehicles/MuscleCar.tscn" id="7_muscle_car"]
+[ext_resource type="PackedScene" uid="uid://b5hevxt2pn7d8" path="res://Scenes/NPC/HoodEastPedestrianNetwork.tscn" id="8_pedestrian_network"]
+[ext_resource type="Script" uid="uid://bxw71y4t6qpfj" path="res://Scripts/NPC/civilian_population_manager.gd" id="9_population"]
+[ext_resource type="PackedScene" path="res://Scenes/NPC/PoliceNPC.tscn" id="10_police"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
 sky_horizon_color = Color(0.66, 0.67, 0.69, 1)
@@ -32,69 +35,79 @@ polygons = [PackedInt32Array(0, 1, 2), PackedInt32Array(0, 2, 3)]
 agent_height = 1.8
 agent_radius = 0.45
 
-[node name="World" type="Node3D"]
+[node name="World" type="Node3D" unique_id=285916361]
 
-[node name="Environment" type="Node3D" parent="."]
+[node name="Environment" type="Node3D" parent="." unique_id=2006113920]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment" unique_id=1425081798]
 environment = SubResource("Environment")
 
-[node name="Sun" type="DirectionalLight3D" parent="Environment"]
-rotation_degrees = Vector3(-60, -30, 0)
+[node name="Sun" type="DirectionalLight3D" parent="Environment" unique_id=2092839663]
+transform = Transform3D(0.8660254, 0.43301272, -0.24999999, 0, 0.49999997, 0.86602545, 0.5, -0.75, 0.43301266, 0, 0, 0)
 shadow_enabled = true
 
-[node name="Territories" type="Node3D" parent="."]
+[node name="Territories" type="Node3D" parent="." unique_id=271447831]
 
-[node name="HoodEast" parent="Territories" instance=ExtResource("1_east")]
+[node name="HoodEast" parent="Territories" unique_id=1793017662 instance=ExtResource("1_east")]
 
-[node name="HoodWest" parent="Territories" instance=ExtResource("2_west")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 128, 0, -256)
+[node name="HoodWest" parent="Territories" unique_id=246270160 instance=ExtResource("2_west")]
+transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, 2, 0, -252)
 
-[node name="Navigation" type="Node3D" parent="."]
+[node name="Navigation" type="Node3D" parent="." unique_id=417562799]
 
-[node name="HoodEastNavigation" type="NavigationRegion3D" parent="Navigation"]
+[node name="HoodEastNavigation" type="NavigationRegion3D" parent="Navigation" unique_id=1102928548]
 navigation_mesh = SubResource("EastNavigation")
 
-[node name="HoodWestNavigation" type="NavigationRegion3D" parent="Navigation"]
+[node name="HoodWestNavigation" type="NavigationRegion3D" parent="Navigation" unique_id=893856441]
 navigation_mesh = SubResource("WestNavigation")
 
-[node name="SpawnPoints" type="Node3D" parent="."]
+[node name="HoodEastPedestrianNetwork" parent="Navigation" unique_id=1230090308 instance=ExtResource("8_pedestrian_network")]
 
-[node name="PlayerSpawn" type="Marker3D" parent="SpawnPoints"]
-position = Vector3(64, 0.1, 0)
+[node name="HoodWestPedestrianNetwork" parent="Navigation" instance=ExtResource("8_pedestrian_network")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -252)
 
-[node name="EastDealerSpawn" type="Marker3D" parent="SpawnPoints"]
-position = Vector3(68, 0.1, 0)
+[node name="SpawnPoints" type="Node3D" parent="." unique_id=1801510180]
 
-[node name="WestDealerSpawn" type="Marker3D" parent="SpawnPoints"]
-position = Vector3(68, 0.1, -256)
+[node name="PlayerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=769164811]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0.1, 0)
 
-[node name="Gameplay" type="Node3D" parent="."]
+[node name="EastDealerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=881174143]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0.1, 0)
 
-[node name="Player" parent="Gameplay" instance=ExtResource("3_player")]
-position = Vector3(64, 0.1, 0)
+[node name="WestDealerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=624407290]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0.1, -256)
 
-[node name="MuscleCar" parent="Gameplay" instance=ExtResource("7_muscle_car")]
-position = Vector3(60, 1, 6)
-rotation = Vector3(0, 1.570796, 0)
+[node name="Gameplay" type="Node3D" parent="." unique_id=319354138]
 
-[node name="EastDealer" parent="Gameplay" instance=ExtResource("4_dealer")]
-position = Vector3(68, 0.1, 0)
+[node name="Civilians" type="Node3D" parent="Gameplay" unique_id=2143072019]
 
-[node name="EastCustomerA" parent="Gameplay" instance=ExtResource("5_customer")]
-position = Vector3(56, 0.1, -4)
+[node name="Player" parent="Gameplay" unique_id=1309725601 instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0.1, 0)
 
-[node name="EastCustomerB" parent="Gameplay" instance=ExtResource("5_customer")]
-position = Vector3(72, 0.1, -8)
+[node name="MuscleCar" parent="Gameplay" unique_id=228912320 instance=ExtResource("7_muscle_car")]
+transform = Transform3D(3.1391647e-07, 0, 1, 0, 1, 0, -1, 0, 3.1391647e-07, 60, 1, -5)
 
-[node name="WestDealer" parent="Gameplay" instance=ExtResource("4_dealer")]
-position = Vector3(68, 0.1, -256)
+[node name="EastDealer" parent="Gameplay" unique_id=1005234741 instance=ExtResource("4_dealer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0.1, 0)
 
-[node name="WestCustomerA" parent="Gameplay" instance=ExtResource("5_customer")]
-position = Vector3(56, 0.1, -252)
+[node name="WestDealer" parent="Gameplay" unique_id=39738472 instance=ExtResource("4_dealer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0.1, -256)
 
-[node name="WestCustomerB" parent="Gameplay" instance=ExtResource("5_customer")]
-position = Vector3(72, 0.1, -260)
-
-[node name="WorldController" type="Node" parent="."]
+[node name="WorldController" type="Node" parent="." unique_id=185472791]
 script = ExtResource("6_controller")
+
+[node name="CivilianPopulationManager" type="Node3D" parent="." unique_id=872426728]
+script = ExtResource("9_population")
+customer_scene = ExtResource("5_customer")
+police_scene = ExtResource("10_police")
+network_path = NodePath("../Navigation/HoodEastPedestrianNetwork")
+player_path = NodePath("../Gameplay/Player")
+npc_container_path = NodePath("../Gameplay/Civilians")
+
+[node name="WestPopulationManager" type="Node3D" parent="."]
+script = ExtResource("9_population")
+customer_scene = ExtResource("5_customer")
+police_scene = ExtResource("10_police")
+network_path = NodePath("../Navigation/HoodWestPedestrianNetwork")
+player_path = NodePath("../Gameplay/Player")
+npc_container_path = NodePath("../Gameplay/Civilians")

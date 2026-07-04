@@ -35,3 +35,12 @@ func respawn() -> bool:
 	body.velocity = Vector3.ZERO
 	health_component.complete_respawn()
 	return true
+
+
+func respawn_after_arrest() -> bool:
+	if not health_component.begin_forced_respawn():
+		return false
+	body.global_transform = _spawn_transform
+	body.velocity = Vector3.ZERO
+	health_component.complete_respawn()
+	return true

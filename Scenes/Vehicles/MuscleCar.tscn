@@ -2,12 +2,16 @@
 
 [ext_resource type="PackedScene" path="res://Scenes/Vehicles/BaseVehicle.tscn" id="1_base"]
 [ext_resource type="Resource" uid="uid://bqbwuivnubdi2" path="res://Scripts/Vehicles/Resources/muscle_car_definition.tres" id="2_definition"]
+[ext_resource type="PackedScene" uid="uid://e4b44vss631q" path="res://Assets/MapStuff/Meshs/Vehicles/SK_veh_Muscle_01.gltf" id="3_model"]
 
 [node name="MuscleCar" unique_id=725778669 instance=ExtResource("1_base")]
 definition = ExtResource("2_definition")
 
 [node name="CollisionShape3D" parent="." index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.83, 0)
+
+[node name="VehicleModel" parent="VisualRoot" index="0" unique_id=637540557 instance=ExtResource("3_model")]
+transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, 0, 0, 0)
 
 [node name="WheelFL" parent="." index="2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.806, 0.48, 1.517)
@@ -32,3 +36,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0.05, 0.25)
 
 [node name="CameraPivot" parent="." index="9"]
 transform = Transform3D(1, 0, 0, 0, 0.9848077, 0.17364825, 0, -0.17364825, 0.9848077, 0, 1.8, 0)
+
+[node name="TailpipeExhaust" parent="." index="11"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.48, -2.6539216)
+
+[node name="TailpipeExhaust2" type="Marker3D" parent="." index="12" unique_id=1955036793]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5842225, 0.48, -2.6539216)

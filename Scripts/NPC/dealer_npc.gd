@@ -1,31 +1,43 @@
 class_name DealerNPC
 extends BaseNPC
 
-@export var product: ProductDefinition
+## Dealer composition root. Shop behavior belongs to DealerRoleComponent.
+
+@onready var role_component := (
+	$Components/RoleComponent as DealerRoleComponent
+)
+
+var product: ProductDefinition:
+	get:
+		return role_component.product
 
 
 func _ready() -> void:
 	super()
-	add_to_group("interactable_npc")
-	add_to_group("interactable")
+	role_component.initialize(self)
+	role_component.activate()
 
 
-func can_interact(_player: CharacterBody3D) -> bool:
-	return not is_defeated() and product != null
+func can_interact(player: CharacterBody3D) -> bool:
+	return role_component.can_interact(player)
 
 
-func get_interaction_prompt(_player: CharacterBody3D) -> String:
-	return "E — Shop"
+func get_interaction_prompt(player: CharacterBody3D) -> String:
+	return role_component.get_interaction_prompt(player)
 
 
 func interact(player: CharacterBody3D) -> void:
-	var shop_menu := player.get_node_or_null("DealerShopMenu") as DealerShopMenu
-	if shop_menu != null:
-		shop_menu.open_for(self)
+	role_component.interact(player)
 
 
 func try_purchase(player: CharacterBody3D) -> String:
-	var trade_service := player.get_node(
-		"Components/TradeService"
-	) as TradeService
-	return trade_service.buy_product(product).message
+	return role_component.try_purchase(player)
+
+
+func _on_defeated(
+	source: Node,
+	hit_position: Vector3,
+	hit_direction: Vector3
+) -> void:
+	role_component.deactivate()
+	super(source, hit_position, hit_direction)

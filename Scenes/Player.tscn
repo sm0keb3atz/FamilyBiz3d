@@ -39,6 +39,9 @@
 [ext_resource type="AudioStream" uid="uid://cmgxkpdp6kvf1" path="res://Assets/Audio/Weapon/BulletImpacts/BulletImpact2.ogg" id="34_impact_2"]
 [ext_resource type="AudioStream" uid="uid://bycu5qf0p41da" path="res://Assets/Audio/Weapon/BulletImpacts/BulletImpact3.ogg" id="35_impact_3"]
 [ext_resource type="Script" path="res://Scripts/Player/Components/player_vehicle_component.gd" id="36_vehicle"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_wanted_component.gd" id="37_wanted"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_arrest_component.gd" id="38_arrest"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_damage_feedback_component.gd" id="39_damage_feedback"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
 radius = 0.4
@@ -149,6 +152,7 @@ height = 0.02
 
 [node name="Player" type="CharacterBody3D" unique_id=1713473279]
 floor_snap_length = 0.3
+collision_mask = 3
 script = ExtResource("1_script")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=305279240]
@@ -274,6 +278,15 @@ script = ExtResource("20_menu_controller")
 
 [node name="VehicleComponent" type="Node" parent="Components"]
 script = ExtResource("36_vehicle")
+
+[node name="WantedComponent" type="Node" parent="Components"]
+script = ExtResource("37_wanted")
+
+[node name="ArrestComponent" type="Node" parent="Components"]
+script = ExtResource("38_arrest")
+
+[node name="DamageFeedbackComponent" type="Node" parent="Components"]
+script = ExtResource("39_damage_feedback")
 
 [node name="AppearanceComponent" type="Node" parent="Components"]
 script = ExtResource("27_appearance")

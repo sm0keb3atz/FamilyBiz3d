@@ -52,6 +52,14 @@ func begin_respawn() -> bool:
 	return true
 
 
+func begin_forced_respawn() -> bool:
+	if _state == State.RESPAWNING:
+		return false
+	_set_state(State.RESPAWNING)
+	respawn_started.emit()
+	return true
+
+
 func complete_respawn() -> bool:
 	if _state != State.RESPAWNING:
 		return false

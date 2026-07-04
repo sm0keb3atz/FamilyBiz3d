@@ -1,16 +1,62 @@
-[gd_scene load_steps=5 format=3 uid="uid://dgvjydxleghlo"]
+[gd_scene load_steps=19 format=3 uid="uid://dgvjydxleghlo"]
 
 [ext_resource type="Script" uid="uid://bvn1m8v758ycv" path="res://Scripts/NPC/base_npc.gd" id="1_base"]
-[ext_resource type="PackedScene" uid="uid://cied5oejbgi81" path="res://Scenes/PlayerVisual.scn" id="2_visual"]
+[ext_resource type="PackedScene" uid="uid://bh4hb5ftlxgdl" path="res://Scenes/PlayerVisualModular.tscn" id="2_visual"]
 [ext_resource type="Script" path="res://Scripts/Shared/character_visual_scale.gd" id="3_visual_scale"]
 [ext_resource type="Script" path="res://Scripts/Gameplay/Combat/damageable_component.gd" id="4_damageable"]
+[ext_resource type="AnimationLibrary" uid="uid://nfmqp5qfafvr" path="res://Assets/Animations/MainAnimationLibary.res" id="5_animation_library"]
+[ext_resource type="AnimationNodeBlendSpace1D" uid="uid://btyinpafsjvni" path="res://Assets/Animations/Blendpsaces/Unarmed.tres" id="6_locomotion"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_appearance_component.gd" id="7_appearance"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/npc_movement_component.gd" id="8_movement"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/npc_animation_component.gd" id="9_animation"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/npc_health_component.gd" id="10_health"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_npc"]
 radius = 0.4
 height = 1.8
 
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_base"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim"]
+animation = &"PistolAim"
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_aim"]
+filter_enabled = true
+filters = ["%GeneralSkeleton:Chest", "%GeneralSkeleton:Head", "%GeneralSkeleton:LeftHand", "%GeneralSkeleton:LeftLowerArm", "%GeneralSkeleton:LeftShoulder", "%GeneralSkeleton:LeftUpperArm", "%GeneralSkeleton:Neck", "%GeneralSkeleton:RightHand", "%GeneralSkeleton:RightLowerArm", "%GeneralSkeleton:RightShoulder", "%GeneralSkeleton:RightUpperArm", "%GeneralSkeleton:Spine", "%GeneralSkeleton:UpperChest"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_reload"]
+animation = &"Pistol_Reload"
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_reload"]
+
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_reload"]
+filter_enabled = true
+filters = ["%GeneralSkeleton:Chest", "%GeneralSkeleton:Head", "%GeneralSkeleton:LeftHand", "%GeneralSkeleton:LeftLowerArm", "%GeneralSkeleton:LeftShoulder", "%GeneralSkeleton:LeftUpperArm", "%GeneralSkeleton:Neck", "%GeneralSkeleton:RightHand", "%GeneralSkeleton:RightLowerArm", "%GeneralSkeleton:RightShoulder", "%GeneralSkeleton:RightUpperArm", "%GeneralSkeleton:Spine", "%GeneralSkeleton:UpperChest"]
+fadein_time = 0.12
+fadeout_time = 0.18
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_npc"]
+nodes/output/position = Vector2(620, 80)
+nodes/BaseLocomotion/node = ExtResource("6_locomotion")
+nodes/BaseLocomotion/position = Vector2(-300, 40)
+nodes/BaseLocomotionSpeed/node = SubResource("AnimationNodeTimeScale_base")
+nodes/BaseLocomotionSpeed/position = Vector2(-100, 40)
+nodes/AimPose/node = SubResource("AnimationNodeAnimation_aim")
+nodes/AimPose/position = Vector2(-100, 180)
+nodes/AimBlend/node = SubResource("AnimationNodeBlend2_aim")
+nodes/AimBlend/position = Vector2(120, 80)
+nodes/ReloadAnimation/node = SubResource("AnimationNodeAnimation_reload")
+nodes/ReloadAnimation/position = Vector2(120, 220)
+nodes/ReloadSpeed/node = SubResource("AnimationNodeTimeScale_reload")
+nodes/ReloadSpeed/position = Vector2(330, 220)
+nodes/ReloadOneShot/node = SubResource("AnimationNodeOneShot_reload")
+nodes/ReloadOneShot/position = Vector2(420, 80)
+node_connections = [&"output", 0, &"ReloadOneShot", &"BaseLocomotionSpeed", 0, &"BaseLocomotion", &"AimBlend", 0, &"BaseLocomotionSpeed", &"AimBlend", 1, &"AimPose", &"ReloadSpeed", 0, &"ReloadAnimation", &"ReloadOneShot", 0, &"AimBlend", &"ReloadOneShot", 1, &"ReloadSpeed"]
+
 [node name="BaseNPC" type="CharacterBody3D" unique_id=673464585]
 floor_snap_length = 0.3
+collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_base")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1116200965]
@@ -22,6 +68,12 @@ script = ExtResource("3_visual_scale")
 
 [node name="PlayerTest2" parent="Visual" instance=ExtResource("2_visual")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Visual/PlayerTest2"]
+libraries/ = ExtResource("5_animation_library")
+
+[node name="EquippedWeapon" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/WeaponSocket" index="0"]
+visible = false
 
 [node name="RoleLabel" type="Label3D" parent="." unique_id=1275312916]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
@@ -35,7 +87,37 @@ target_desired_distance = 0.6
 height = 1.8
 radius = 0.45
 
+[node name="AnimationTree" type="AnimationTree" parent="."]
+active = false
+root_node = NodePath("../Visual/PlayerTest2")
+tree_root = SubResource("AnimationNodeBlendTree_npc")
+anim_player = NodePath("../Visual/PlayerTest2/AnimationPlayer")
+parameters/BaseLocomotion/blend_position = -1.0
+parameters/BaseLocomotionSpeed/scale = 1.0
+parameters/AimBlend/blend_amount = 0.0
+parameters/ReloadSpeed/scale = 1.0
+parameters/ReloadOneShot/active = false
+parameters/ReloadOneShot/request = 0
+
 [node name="DamageableComponent" type="Node" parent="."]
 script = ExtResource("4_damageable")
+
+[node name="AppearanceComponent" type="Node" parent="."]
+script = ExtResource("7_appearance")
+skeleton_path = NodePath("../Visual/PlayerTest2/Armature/GeneralSkeleton")
+
+[node name="Components" type="Node" parent="."]
+
+[node name="MovementComponent" type="Node" parent="Components"]
+script = ExtResource("8_movement")
+
+[node name="AnimationComponent" type="Node" parent="Components"]
+script = ExtResource("9_animation")
+
+[node name="HealthComponent" type="Node" parent="Components"]
+script = ExtResource("10_health")
+
+[node name="VisibilityNotifier3D" type="VisibleOnScreenNotifier3D" parent="."]
+aabb = AABB(-1.5, -0.2, -1.5, 3, 4, 3)
 
 [editable path="Visual/PlayerTest2"]

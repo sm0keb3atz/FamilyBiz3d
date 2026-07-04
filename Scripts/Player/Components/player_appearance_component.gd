@@ -61,14 +61,17 @@ var _options := {
 	SLOT_TOP: [
 		{"node": &"TOP_01_Hoodie", "name": "Hoodie"},
 		{"node": &"TOP_02_TShirt", "name": "T-Shirt"},
+		{"node": &"TOP_03_PoliceShirt", "name": "Police Shirt"},
 	],
 	SLOT_BOTTOM: [
 		{"node": &"BOTTOM_01_Jeans", "name": "Jeans"},
 		{"node": &"BOTTOM_02_Sweatpants", "name": "Sweatpants"},
+		{"node": &"BOTTOM_03_PolicePants", "name": "Police Pants"},
 	],
 	SLOT_SHOES: [
 		{"node": &"SHOES_01_Sneakers", "name": "Sneakers"},
 		{"node": &"SHOES_02_Boots", "name": "Boots"},
+		{"node": &"SHOES_03_PoliceBoots", "name": "Police Boots"},
 	],
 }
 var _selected := {
@@ -133,7 +136,7 @@ func get_option_name(slot: StringName) -> String:
 	return str(option["name"])
 
 
-func randomize_appearance() -> void:
+func randomize_appearance(profile := &"all") -> void:
 	var body_materials := _get_material_options(SLOT_BODY)
 	_selected_material[SLOT_BODY] = randi_range(
 		0,
@@ -143,7 +146,12 @@ func randomize_appearance() -> void:
 	for slot in _options:
 		var options: Array = _options[slot]
 		if not options.is_empty():
-			_selected[slot] = randi_range(0, options.size() - 1)
+			var maximum_index := (
+				mini(1, options.size() - 1)
+				if profile == &"civilian"
+				else options.size() - 1
+			)
+			_selected[slot] = randi_range(0, maximum_index)
 			var materials := _get_material_options(slot)
 			_selected_material[slot] = randi_range(
 				0,
@@ -151,6 +159,17 @@ func randomize_appearance() -> void:
 			)
 			_apply_slot(slot)
 			_apply_material(slot)
+
+
+func apply_police_uniform() -> void:
+	for slot in _options:
+		var options: Array = _options[slot]
+		if options.size() < 3:
+			continue
+		_selected[slot] = 2
+		_selected_material[slot] = 0
+		_apply_slot(slot)
+		_apply_material(slot)
 
 
 func reset_appearance() -> void:
@@ -279,6 +298,18 @@ func _get_material_options(slot: StringName) -> Array:
 		&"SHOES_02_Boots":
 			materials = [
 				{"name": "Original", "material": BOOTS_ORIGINAL},
+			]
+		&"TOP_03_PoliceShirt":
+			materials = [
+				{"name": "Original", "material": null},
+			]
+		&"BOTTOM_03_PolicePants":
+			materials = [
+				{"name": "Original", "material": null},
+			]
+		&"SHOES_03_PoliceBoots":
+			materials = [
+				{"name": "Original", "material": null},
 			]
 	return materials
 

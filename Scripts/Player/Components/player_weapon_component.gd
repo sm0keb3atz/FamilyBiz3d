@@ -8,6 +8,7 @@ const BLOOD_IMPACT_VFX := preload(
 signal weapon_changed(definition: WeaponDefinition)
 signal ammo_changed(magazine: int, reserve: int)
 signal fired(hit_position: Vector3)
+signal shot_resolved(target: Node, fatal: bool, hit_position: Vector3)
 signal hit_confirmed(fatal_hit: bool)
 signal reload_started
 signal reload_completed
@@ -35,6 +36,9 @@ signal reload_completed
 @export var reload_action := &"reload"
 @export var next_weapon_action := &"weapon_next"
 @export var previous_weapon_action := &"weapon_previous"
+
+@export_category("World Response")
+@export_range(1.0, 200.0, 1.0) var gunshot_alert_radius := 45.0
 
 @onready var animation_component := (
 	get_node(animation_component_path) as PlayerAnimationComponent
@@ -165,6 +169,7 @@ func try_fire() -> bool:
 	_cooldown_remaining = definition.fire_interval
 	animation_component.trigger_recoil()
 	_play_gunshot()
+	_broadcast_gunshot()
 	_play_muzzle_flash()
 	var hit_position := _fire_hitscan(definition)
 	ammo_changed.emit(get_magazine_ammo(), get_reserve_ammo())
@@ -236,6 +241,7 @@ func get_aim_target_position() -> Vector3:
 	var query := _create_aim_query(max_range)
 	var hit := body.get_world_3d().direct_space_state.intersect_ray(query)
 	if hit.is_empty():
+		shot_resolved.emit(null, false, query.to)
 		return query.to
 	return hit.position as Vector3
 
@@ -284,6 +290,11 @@ func _fire_hitscan(definition: WeaponDefinition) -> Vector3:
 		)
 		var fatal_hit := damageable.is_depleted()
 		hit_confirmed.emit(fatal_hit)
+		shot_resolved.emit(
+			damageable.get_parent(),
+			fatal_hit,
+			hit_position
+		)
 		_play_npc_impact(hit_position)
 		_spawn_blood_impact(
 			hit_position,
@@ -293,6 +304,7 @@ func _fire_hitscan(definition: WeaponDefinition) -> Vector3:
 			fatal_hit
 		)
 	else:
+		shot_resolved.emit(null, false, hit_position)
 		_spawn_surface_impact(
 			hit_position,
 			hit_normal,
@@ -313,6 +325,15 @@ func _create_aim_query(max_range: float) -> PhysicsRayQueryParameters3D:
 
 func _play_gunshot() -> void:
 	sound_component.play_gunshot(weapon_model.global_position)
+
+
+func _broadcast_gunshot() -> void:
+	get_tree().call_group(
+		&"gunshot_listener",
+		&"hear_gunshot",
+		weapon_model.global_position,
+		gunshot_alert_radius
+	)
 
 
 func _play_muzzle_flash() -> void:

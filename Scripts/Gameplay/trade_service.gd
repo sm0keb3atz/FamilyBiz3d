@@ -13,6 +13,9 @@ extends Node
 @onready var stats := player.get_node(
 	"Components/StatsComponent"
 ) as PlayerStatsComponent
+@onready var wanted := player.get_node(
+	"Components/WantedComponent"
+) as PlayerWantedComponent
 
 
 func buy_product(product: ProductDefinition) -> TradeResult:
@@ -67,6 +70,7 @@ func sell_product(
 		product.reputation_reward,
 		product.heat_reward
 	)
+	wanted.report_sale(world_position)
 
 	var result := TradeResult.new()
 	result.success = true
@@ -86,4 +90,3 @@ func sell_product(
 		]
 	)
 	return result
-

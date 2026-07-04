@@ -1,0 +1,36 @@
+{
+	"player": {
+		"inventory": {
+			"test_product": 0
+		},
+		"position": [
+			60.0,
+			0.632528483867645,
+			-5.0
+		],
+		"rotation_y": 0.0,
+		"stats": {
+			"experience": 0.0,
+			"health": 100.0,
+			"level": 1,
+			"skill_points": 0,
+			"stamina": 100.0,
+			"strength": 1
+		},
+		"wallet": {
+			"clean_cash": 0,
+			"dirty_cash": 100
+		}
+	},
+	"territories": {
+		"hood_east": {
+			"heat": 0.0,
+			"reputation": 0.0
+		},
+		"hood_west": {
+			"heat": 0.0,
+			"reputation": 0.0
+		}
+	},
+	"version": 1
+}

@@ -56,3 +56,8 @@ func apply_damage(
 
 func is_depleted() -> bool:
 	return is_zero_approx(_health)
+
+
+func restore_full_health() -> void:
+	_health = maximum_health
+	health_changed.emit(_health, maximum_health)

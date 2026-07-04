@@ -36,6 +36,7 @@ signal footstep_played(is_sprinting: bool)
 var _last_footstep_time_ms := -1000
 var _footstep_playback_id := 0
 var _reload_playback_id := 0
+var _footsteps_enabled := true
 
 
 func play_footstep(
@@ -44,6 +45,8 @@ func play_footstep(
 	start_offset := 0.0,
 	end_offset := 0.0
 ) -> void:
+	if not _footsteps_enabled:
+		return
 	if clip_index < 0 or clip_index >= footstep_sounds.size():
 		return
 
@@ -117,6 +120,16 @@ func stop_reload() -> void:
 func stop_footsteps() -> void:
 	_footstep_playback_id += 1
 	footstep_player.stop()
+
+
+func set_footsteps_enabled(enabled: bool) -> void:
+	_footsteps_enabled = enabled
+	if not enabled:
+		stop_footsteps()
+
+
+func are_footsteps_enabled() -> bool:
+	return _footsteps_enabled
 
 
 func play_equip_sound() -> void:

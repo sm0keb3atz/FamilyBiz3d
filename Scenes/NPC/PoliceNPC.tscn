@@ -1,0 +1,53 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/NPC/BaseNPC.tscn" id="1_base"]
+[ext_resource type="Script" path="res://Scripts/NPC/police_npc.gd" id="2_police"]
+[ext_resource type="Script" path="res://Scripts/NPC/Roles/police_role_component.gd" id="3_role"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/pedestrian_patrol_component.gd" id="4_patrol"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/police_perception_component.gd" id="5_perception"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/npc_combat_component.gd" id="6_combat"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/police_ai_component.gd" id="7_ai"]
+[ext_resource type="BehaviorTree" path="res://Scripts/NPC/AI/police_behavior_tree.tres" id="8_tree"]
+[ext_resource type="Resource" path="res://Scripts/Gameplay/Weapons/pistol_definition.tres" id="9_pistol"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/Full Sounds/9mm/MP3/9mm Single.mp3" id="10_gunshot"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Reload 1.wav" id="11_reload"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_police"]
+
+[node name="PoliceNPC" instance=ExtResource("1_base")]
+script = ExtResource("2_police")
+
+[node name="RoleComponent" type="Node" parent="Components" index="3"]
+script = ExtResource("3_role")
+
+[node name="PatrolComponent" type="Node" parent="Components" index="4"]
+script = ExtResource("4_patrol")
+
+[node name="PerceptionComponent" type="Node" parent="Components" index="5"]
+script = ExtResource("5_perception")
+
+[node name="CombatComponent" type="Node" parent="Components" index="6"]
+script = ExtResource("6_combat")
+weapon_definition = ExtResource("9_pistol")
+gunshot_sound = ExtResource("10_gunshot")
+reload_sound = ExtResource("11_reload")
+
+[node name="AIComponent" type="Node" parent="Components" index="7"]
+script = ExtResource("7_ai")
+
+[node name="BTPlayer" type="BTPlayer" parent="."]
+behavior_tree = ExtResource("8_tree")
+blackboard_plan = SubResource("BlackboardPlan_police")
+
+[node name="RoleLabel" parent="." index="2"]
+modulate = Color(0.2, 0.45, 1, 1)
+text = "POLICE"
+
+[node name="NavigationAgent3D" parent="." index="3"]
+neighbor_distance = 6.0
+max_neighbors = 12
+time_horizon_agents = 1.5
+time_horizon_obstacles = 1.0
+radius = 0.5
+
+[editable path="Visual/PlayerTest2"]

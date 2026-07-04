@@ -28,16 +28,43 @@ func _run() -> void:
 	var on_foot_camera := player.get_node(
 		"CameraPivot/SpringArm3D/Camera3D"
 	) as Camera3D
+	var sound_component := player.get_node(
+		"Components/SoundComponent"
+	) as PlayerSoundComponent
 
 	assert(vehicle.get_node("WheelFL") is VehicleWheel3D)
 	assert(vehicle.get_node("WheelFR") is VehicleWheel3D)
 	assert(vehicle.get_node("WheelRL") is VehicleWheel3D)
 	assert(vehicle.get_node("WheelRR") is VehicleWheel3D)
+	assert(vehicle.get_node("Components/TireComponent") is VehicleTireComponent)
+	assert(vehicle.get_node("Components/DriveComponent") is VehicleDriveComponent)
+	assert(
+		vehicle.get_node("Components/PowertrainComponent")
+		is VehiclePowertrainComponent
+	)
+	assert(vehicle.get_node("Components/AudioComponent") is VehicleAudioComponent)
+	assert(
+		vehicle.get_node("Components/EffectsComponent")
+		is VehicleEffectsComponent
+	)
+	assert(
+		vehicle.get_node("Components/CameraComponent")
+		is VehicleCameraComponent
+	)
+	assert(
+		vehicle.get_node("Components/InteractionComponent")
+		is VehicleInteractionComponent
+	)
+	assert(
+		vehicle.get_node("Components/ImpactComponent")
+		is VehicleImpactComponent
+	)
 	assert(vehicle.has_valid_wheel_bones())
 	assert(vehicle_component.enter_vehicle(vehicle))
 	await process_frame
 	assert(vehicle_component.is_driving())
 	assert(vehicle.has_driver())
+	assert(not sound_component.are_footsteps_enabled())
 	assert(not player_visual.visible)
 	assert(not on_foot_camera.current)
 
@@ -46,6 +73,7 @@ func _run() -> void:
 	await process_frame
 	assert(not vehicle_component.is_driving())
 	assert(not vehicle.has_driver())
+	assert(sound_component.are_footsteps_enabled())
 	assert(player_visual.visible)
 	assert(not player_collision.disabled)
 	assert(on_foot_camera.current)
@@ -56,8 +84,18 @@ func _run() -> void:
 	controller.load_game()
 	await process_frame
 	assert(not vehicle_component.is_driving())
+	assert(sound_component.are_footsteps_enabled())
 	assert(player_visual.visible)
 	assert(on_foot_camera.current)
+
+	var npc := world.get_node("Gameplay/EastDealer") as BaseNPC
+	assert(
+		(npc as DealerNPC).role_component is DealerRoleComponent
+	)
+	vehicle.linear_velocity = Vector3.FORWARD * 8.0
+	vehicle._on_body_entered(npc)
+	assert(npc.damageable.is_depleted())
+	assert(npc.is_defeated())
 
 	print("VEHICLE_SMOKE_TEST_PASS")
 	quit(0)

@@ -4,6 +4,8 @@ extends CanvasLayer
 @export var stats_component_path := NodePath("../Components/StatsComponent")
 @export var wallet_component_path := NodePath("../Components/WalletComponent")
 @export var weapon_component_path := NodePath("../Components/WeaponComponent")
+@export var wanted_component_path := NodePath("../Components/WantedComponent")
+@export var arrest_component_path := NodePath("../Components/ArrestComponent")
 @export_range(0.0, 1000.0, 1.0) var debug_damage_amount := 25.0
 @export_range(0.05, 1.0, 0.01) var hit_marker_duration := 0.18
 
@@ -30,12 +32,21 @@ extends CanvasLayer
 @onready var heat_title := %HeatTitle as Label
 @onready var heat_bar := %HeatBar as ProgressBar
 @onready var heat_value := %HeatValue as Label
+@onready var wanted_stars := %WantedStars as Label
+@onready var arrest_panel := %ArrestPanel as PanelContainer
+@onready var arrest_bar := %ArrestBar as ProgressBar
 @onready var stats := get_node(stats_component_path) as PlayerStatsComponent
 @onready var wallet := (
 	get_node(wallet_component_path) as PlayerWalletComponent
 )
 @onready var weapon := (
 	get_node(weapon_component_path) as PlayerWeaponComponent
+)
+@onready var wanted := (
+	get_node(wanted_component_path) as PlayerWantedComponent
+)
+@onready var arrest := (
+	get_node(arrest_component_path) as PlayerArrestComponent
 )
 
 var _hit_marker_remaining := 0.0
@@ -55,6 +66,9 @@ func _ready() -> void:
 	weapon.hit_confirmed.connect(_on_hit_confirmed)
 	weapon.reload_started.connect(_on_reload_started)
 	weapon.reload_completed.connect(_on_reload_completed)
+	wanted.wanted_level_changed.connect(_on_wanted_level_changed)
+	arrest.arrest_progress_changed.connect(_on_arrest_progress_changed)
+	arrest.arrested.connect(_on_arrested)
 	feedback_timer.timeout.connect(_on_feedback_timeout)
 	_refresh_all()
 
@@ -119,6 +133,8 @@ func _refresh_all() -> void:
 	feedback_label.visible = false
 	hit_marker.visible = false
 	_on_weapon_changed(weapon.get_equipped_weapon())
+	_on_wanted_level_changed(0, wanted.wanted_level)
+	_on_arrest_progress_changed(arrest.progress)
 
 
 func _on_health_changed(current: float, maximum: float) -> void:
@@ -204,3 +220,22 @@ func _on_hit_confirmed(fatal_hit: bool) -> void:
 		else Color.WHITE
 	)
 	hit_marker.visible = true
+
+
+func _on_wanted_level_changed(_previous: int, current: int) -> void:
+	var display := ""
+	for index in PlayerWantedComponent.MAX_WANTED_LEVEL:
+		display += "★" if index < current else "☆"
+	wanted_stars.text = display
+	wanted_stars.visible = current > 0
+	if current != 1:
+		arrest_panel.visible = false
+
+
+func _on_arrest_progress_changed(progress: float) -> void:
+	arrest_bar.value = clampf(progress, 0.0, 1.0)
+	arrest_panel.visible = progress > 0.0 and wanted.wanted_level == 1
+
+
+func _on_arrested() -> void:
+	show_feedback("ARRESTED", 2.0)

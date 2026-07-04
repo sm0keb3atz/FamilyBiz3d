@@ -16,6 +16,9 @@ const SAVE_PATH := "user://family_business_save.json"
 @onready var stats := player.get_node(
 	"Components/StatsComponent"
 ) as PlayerStatsComponent
+@onready var wanted := player.get_node(
+	"Components/WantedComponent"
+) as PlayerWantedComponent
 @onready var vehicle_component: Variant = player.get_node(
 	"Components/VehicleComponent"
 )
@@ -52,6 +55,7 @@ func save_game() -> bool:
 			"wallet": wallet.export_save_data(),
 			"inventory": inventory.export_save_data(),
 			"stats": stats.export_save_data(),
+			"wanted": wanted.export_save_data(),
 		},
 		"territories": territories,
 	}
@@ -83,6 +87,9 @@ func load_game() -> bool:
 	wallet.import_save_data(player_data.get("wallet", {}) as Dictionary)
 	inventory.import_save_data(player_data.get("inventory", {}) as Dictionary)
 	stats.import_save_data(player_data.get("stats", {}) as Dictionary)
+	wanted.import_save_data(
+		player_data.get("wanted", {}) as Dictionary
+	)
 	var position_data := player_data.get("position", []) as Array
 	if position_data.size() == 3:
 		player.global_position = Vector3(

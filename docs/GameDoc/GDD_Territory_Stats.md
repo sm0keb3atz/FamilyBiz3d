@@ -57,4 +57,17 @@ Reputation dictates the player's economic leverage and control over a neighborho
   to the territory where the customer is standing.
 * Heat decays automatically over time.
 * Customers refuse sales when their territory reaches `76` Heat.
+
+## Current Wanted Response
+
+- Reaching `100` Heat in a territory starts a global one-star pursuit.
+- One star is arrest-only. An officer must remain within `1.8m` with line of
+  sight for three seconds.
+- A witnessed gunshot or shooting an NPC raises the response to at least two
+  stars and authorizes lethal force.
+- Killing an NPC raises the response to three stars.
+- Arrest or respawn clears wanted status and lowers the triggering territory
+  to `25` Heat.
+- Police share the pedestrian population system at roughly five officers per
+  fifteen active civilians.
 * Territory state is saved using the permanent `hood_east` and `hood_west` IDs.

@@ -49,6 +49,13 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_arrest_fill"]
+bg_color = Color(0.22, 0.48, 0.95, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [node name="PlayerHUD" type="CanvasLayer" unique_id=1330545521]
 script = ExtResource("1_hud")
 
@@ -161,6 +168,69 @@ theme_override_font_sizes/font_size = 13
 text = "0 / 100"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="WantedStars" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -120.0
+offset_top = 100.0
+offset_right = 120.0
+offset_bottom = 142.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.75, 0.12, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 30
+text = "★☆☆"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ArrestPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = 58.0
+offset_right = 170.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="ArrestPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="Content" type="VBoxContainer" parent="ArrestPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Label" type="Label" parent="ArrestPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.84, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "ARRESTING"
+horizontal_alignment = 1
+
+[node name="ArrestBar" type="ProgressBar" parent="ArrestPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(316, 20)
+layout_mode = 2
+max_value = 1.0
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_background")
+theme_override_styles/fill = SubResource("StyleBoxFlat_arrest_fill")
+show_percentage = false
 
 [node name="StatsPanel" type="PanelContainer" parent="." unique_id=1593991639]
 anchors_preset = 0

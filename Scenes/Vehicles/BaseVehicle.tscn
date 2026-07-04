@@ -1,6 +1,16 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://cyreq2x33fsli"]
 
-[ext_resource type="Script" path="res://Scripts/Vehicles/base_vehicle.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://bio5id5mf31fe" path="res://Scripts/Vehicles/base_vehicle.gd" id="1_script"]
+[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_tire_component.gd" id="2_tires"]
+[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_camera_component.gd" id="3_camera"]
+[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_wheel_visual_component.gd" id="4_wheels"]
+[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_impact_component.gd" id="5_impact"]
+[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_audio_component.gd" id="6_audio"]
+[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_interaction_component.gd" id="7_interaction"]
+[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_effects_component.gd" id="8_effects"]
+[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_powertrain_component.gd" id="9_powertrain"]
+[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_stability_component.gd" id="10_stability"]
+[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_drive_component.gd" id="11_drive"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_body"]
 size = Vector3(1.9, 0.8, 4.7)
@@ -8,86 +18,124 @@ size = Vector3(1.9, 0.8, 4.7)
 [sub_resource type="BoxShape3D" id="BoxShape3D_spring_arm"]
 size = Vector3(0.25, 0.25, 0.25)
 
-[node name="BaseVehicle" type="VehicleBody3D"]
+[node name="BaseVehicle" type="VehicleBody3D" unique_id=2020674021]
+collision_mask = 3
 mass = 1250.0
 continuous_cd = true
 contact_monitor = true
 max_contacts_reported = 8
 script = ExtResource("1_script")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.83, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1771847138]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.83, 0)
 shape = SubResource("BoxShape3D_body")
 
-[node name="VisualRoot" type="Node3D" parent="."]
+[node name="VisualRoot" type="Node3D" parent="." unique_id=200744293]
 
-[node name="WheelFL" type="VehicleWheel3D" parent="."]
-position = Vector3(0.806, 0.48, 1.517)
+[node name="WheelFL" type="VehicleWheel3D" parent="." unique_id=2126514447]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.806, 0.48, 1.517)
 use_as_steering = true
 wheel_radius = 0.38
 wheel_rest_length = 0.22
 suspension_travel = 0.18
 
-[node name="WheelFR" type="VehicleWheel3D" parent="."]
-position = Vector3(-0.806, 0.48, 1.517)
+[node name="WheelFR" type="VehicleWheel3D" parent="." unique_id=440430650]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.806, 0.48, 1.517)
 use_as_steering = true
 wheel_radius = 0.38
 wheel_rest_length = 0.22
 suspension_travel = 0.18
 
-[node name="WheelRL" type="VehicleWheel3D" parent="."]
-position = Vector3(0.806, 0.48, -1.523)
+[node name="WheelRL" type="VehicleWheel3D" parent="." unique_id=2029128597]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.806, 0.48, -1.523)
 use_as_traction = true
 wheel_radius = 0.38
 wheel_rest_length = 0.22
 suspension_travel = 0.18
 
-[node name="WheelRR" type="VehicleWheel3D" parent="."]
-position = Vector3(-0.806, 0.48, -1.523)
+[node name="WheelRR" type="VehicleWheel3D" parent="." unique_id=1752421137]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.806, 0.48, -1.523)
 use_as_traction = true
 wheel_radius = 0.38
 wheel_rest_length = 0.22
 suspension_travel = 0.18
 
-[node name="DriverMarker" type="Marker3D" parent="."]
-position = Vector3(0.38, 0.72, 0.35)
+[node name="DriverMarker" type="Marker3D" parent="." unique_id=1345177452]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.72, 0.35)
 
-[node name="ExitLeft" type="Marker3D" parent="."]
-position = Vector3(2.5, 0.05, 0.25)
+[node name="ExitLeft" type="Marker3D" parent="." unique_id=370190019]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.05, 0.25)
 
-[node name="ExitRight" type="Marker3D" parent="."]
-position = Vector3(-2.5, 0.05, 0.25)
+[node name="ExitRight" type="Marker3D" parent="." unique_id=1169218335]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0.05, 0.25)
 
-[node name="CameraPivot" type="Node3D" parent="."]
-position = Vector3(0, 1.8, 0)
-rotation = Vector3(-0.174533, 0, 0)
+[node name="CameraPivot" type="Node3D" parent="." unique_id=1591648802]
+transform = Transform3D(1, 0, 0, 0, 0.9848077, 0.17364825, 0, -0.17364825, 0.9848077, 0, 1.8, 0)
 
-[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot" unique_id=1515519509]
+shape = SubResource("BoxShape3D_spring_arm")
 spring_length = 6.5
 margin = 0.2
-shape = SubResource("BoxShape3D_spring_arm")
 
-[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
-current = false
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D" unique_id=1212849690]
 fov = 72.0
 
-[node name="Audio" type="Node3D" parent="."]
+[node name="Audio" type="Node3D" parent="." unique_id=2045387819]
 
-[node name="DoorPlayer" type="AudioStreamPlayer3D" parent="Audio"]
+[node name="DoorPlayer" type="AudioStreamPlayer3D" parent="Audio" unique_id=1160928512]
 unit_size = 4.0
 max_distance = 35.0
 
-[node name="StartPlayer" type="AudioStreamPlayer3D" parent="Audio"]
+[node name="StartPlayer" type="AudioStreamPlayer3D" parent="Audio" unique_id=44636119]
+volume_db = -5.0
 unit_size = 5.0
 max_distance = 45.0
-volume_db = -5.0
 
-[node name="EnginePlayer" type="AudioStreamPlayer3D" parent="Audio"]
+[node name="EnginePlayer" type="AudioStreamPlayer3D" parent="Audio" unique_id=1420779033]
 unit_size = 15.0
 max_distance = 60.0
-volume_db = 0.0
 
-[node name="StopPlayer" type="AudioStreamPlayer3D" parent="Audio"]
+[node name="StopPlayer" type="AudioStreamPlayer3D" parent="Audio" unique_id=1950381880]
+volume_db = -12.0
 unit_size = 5.0
 max_distance = 45.0
-volume_db = -12.0
+
+[node name="TireScreechPlayer" type="AudioStreamPlayer3D" parent="Audio"]
+volume_db = -40.0
+unit_size = 8.0
+max_distance = 55.0
+
+[node name="TailpipeExhaust" type="Marker3D" parent="." unique_id=975660813]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.48, -2.3)
+
+[node name="Components" type="Node" parent="."]
+
+[node name="TireComponent" type="Node" parent="Components"]
+script = ExtResource("2_tires")
+
+[node name="CameraComponent" type="Node" parent="Components"]
+script = ExtResource("3_camera")
+
+[node name="WheelVisualComponent" type="Node" parent="Components"]
+script = ExtResource("4_wheels")
+
+[node name="ImpactComponent" type="Node" parent="Components"]
+script = ExtResource("5_impact")
+
+[node name="AudioComponent" type="Node" parent="Components"]
+script = ExtResource("6_audio")
+
+[node name="InteractionComponent" type="Node" parent="Components"]
+script = ExtResource("7_interaction")
+
+[node name="EffectsComponent" type="Node" parent="Components"]
+script = ExtResource("8_effects")
+
+[node name="PowertrainComponent" type="Node" parent="Components"]
+script = ExtResource("9_powertrain")
+
+[node name="StabilityComponent" type="Node" parent="Components"]
+script = ExtResource("10_stability")
+
+[node name="DriveComponent" type="Node" parent="Components"]
+script = ExtResource("11_drive")
