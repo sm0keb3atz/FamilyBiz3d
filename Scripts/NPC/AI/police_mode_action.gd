@@ -6,6 +6,8 @@ enum Mode {
 	PATROL,
 	ARREST,
 	COMBAT,
+	SEARCH_ARREST,
+	SEARCH_COMBAT,
 }
 
 @export var mode := Mode.PATROL

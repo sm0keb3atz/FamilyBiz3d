@@ -56,6 +56,13 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_escape_fill"]
+bg_color = Color(1, 0.66, 0.12, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [node name="PlayerHUD" type="CanvasLayer" unique_id=1330545521]
 script = ExtResource("1_hud")
 
@@ -188,6 +195,47 @@ theme_override_font_sizes/font_size = 30
 text = "★☆☆"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="EscapePanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -170.0
+offset_top = 142.0
+offset_right = 170.0
+offset_bottom = 202.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="EscapePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 9
+
+[node name="Content" type="VBoxContainer" parent="EscapePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Label" type="Label" parent="EscapePanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.78, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+text = "ESCAPING POLICE"
+horizontal_alignment = 1
+
+[node name="EscapeBar" type="ProgressBar" parent="EscapePanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(316, 18)
+layout_mode = 2
+max_value = 1.0
+value = 1.0
+theme_override_styles/background = SubResource("StyleBoxFlat_bar_background")
+theme_override_styles/fill = SubResource("StyleBoxFlat_escape_fill")
+show_percentage = false
 
 [node name="ArrestPanel" type="PanelContainer" parent="."]
 unique_name_in_owner = true

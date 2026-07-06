@@ -33,6 +33,8 @@ extends CanvasLayer
 @onready var heat_bar := %HeatBar as ProgressBar
 @onready var heat_value := %HeatValue as Label
 @onready var wanted_stars := %WantedStars as Label
+@onready var escape_panel := %EscapePanel as PanelContainer
+@onready var escape_bar := %EscapeBar as ProgressBar
 @onready var arrest_panel := %ArrestPanel as PanelContainer
 @onready var arrest_bar := %ArrestBar as ProgressBar
 @onready var stats := get_node(stats_component_path) as PlayerStatsComponent
@@ -50,6 +52,7 @@ extends CanvasLayer
 )
 
 var _hit_marker_remaining := 0.0
+var _detection_debug_visible := false
 
 
 func _ready() -> void:
@@ -67,6 +70,7 @@ func _ready() -> void:
 	weapon.reload_started.connect(_on_reload_started)
 	weapon.reload_completed.connect(_on_reload_completed)
 	wanted.wanted_level_changed.connect(_on_wanted_level_changed)
+	wanted.escape_progress_changed.connect(_on_escape_progress_changed)
 	arrest.arrest_progress_changed.connect(_on_arrest_progress_changed)
 	arrest.arrested.connect(_on_arrested)
 	feedback_timer.timeout.connect(_on_feedback_timeout)
@@ -113,10 +117,26 @@ func _unhandled_input(event: InputEvent) -> void:
 		event is InputEventKey
 		and event.pressed
 		and not event.echo
-		and event.physical_keycode == KEY_1
 	):
-		stats.take_damage(debug_damage_amount)
-		get_viewport().set_input_as_handled()
+		if event.physical_keycode == KEY_0:
+			_detection_debug_visible = not _detection_debug_visible
+			PolicePerceptionComponent.debug_draw_enabled = (
+				_detection_debug_visible
+			)
+			get_tree().call_group(
+				&"police_npc",
+				&"set_detection_debug_visible",
+				_detection_debug_visible
+			)
+			show_feedback(
+				"POLICE DETECTION DEBUG: %s"
+				% ("ON" if _detection_debug_visible else "OFF"),
+				1.5
+			)
+			get_viewport().set_input_as_handled()
+		elif event.physical_keycode == KEY_1:
+			stats.take_damage(debug_damage_amount)
+			get_viewport().set_input_as_handled()
 
 
 func _refresh_all() -> void:
@@ -134,6 +154,10 @@ func _refresh_all() -> void:
 	hit_marker.visible = false
 	_on_weapon_changed(weapon.get_equipped_weapon())
 	_on_wanted_level_changed(0, wanted.wanted_level)
+	_on_escape_progress_changed(
+		wanted.escape_progress,
+		wanted.is_escaping
+	)
 	_on_arrest_progress_changed(arrest.progress)
 
 
@@ -230,6 +254,16 @@ func _on_wanted_level_changed(_previous: int, current: int) -> void:
 	wanted_stars.visible = current > 0
 	if current != 1:
 		arrest_panel.visible = false
+	if current == 0:
+		escape_panel.visible = false
+
+
+func _on_escape_progress_changed(
+	progress: float,
+	escaping: bool
+) -> void:
+	escape_bar.value = clampf(progress, 0.0, 1.0)
+	escape_panel.visible = escaping and wanted.wanted_level > 0
 
 
 func _on_arrest_progress_changed(progress: float) -> void:

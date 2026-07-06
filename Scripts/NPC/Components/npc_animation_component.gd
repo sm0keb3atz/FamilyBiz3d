@@ -3,7 +3,9 @@ extends Node
 
 static var _shared_runtime_animation_library: AnimationLibrary
 
-const LOOPING_ANIMATIONS := [&"Idle", &"Walk", &"Sprint", &"PistolAim"]
+const LOOPING_ANIMATIONS := [
+	&"Idle", &"Walk", &"Sprint", &"LeftStrafe", &"RightStrafe", &"PistolAim",
+]
 const HIT_REACTION_ANIMATIONS := [&"Hit_Head", &"Hit_Chest"]
 const HIT_REACTION_INCLUDED_BONES := [
 	&"Spine", &"Chest", &"UpperChest", &"Neck", &"Head",
@@ -25,6 +27,8 @@ const LOWER_BODY_BONES := [
 const COMBAT_AIM_BONES := [&"Spine", &"Chest", &"UpperChest"]
 const HIPS_TRACK := NodePath("%GeneralSkeleton:Hips")
 const SPINE_TRACK := NodePath("%GeneralSkeleton:Spine")
+const LEFT_UP_LEG_TRACK := NodePath("%GeneralSkeleton:LeftUpperLeg")
+const RIGHT_UP_LEG_TRACK := NodePath("%GeneralSkeleton:RightUpperLeg")
 
 @export_category("Locomotion")
 @export var locomotion_blend_parameter := (
@@ -33,9 +37,20 @@ const SPINE_TRACK := NodePath("%GeneralSkeleton:Spine")
 @export var locomotion_speed_parameter := (
 	"parameters/BaseLocomotionSpeed/scale"
 )
+@export var aim_movement_blend_parameter := (
+	"parameters/MovementModeBlend/blend_amount"
+)
+@export var aim_direction_parameter := (
+	"parameters/AimMovement/blend_position"
+)
+@export var aim_movement_speed_parameter := (
+	"parameters/AimMovementSpeed/scale"
+)
 @export_range(0.1, 3.0, 0.05) var walk_animation_speed_scale := 2.0
 @export_range(0.1, 10.0, 0.1) var animation_walk_reference_speed := 2.5
 @export_range(0.2, 15.0, 0.1) var animation_sprint_reference_speed := 6.5
+@export_range(0.1, 3.0, 0.05) var aim_movement_animation_speed_scale := 1.35
+@export_range(0.1, 30.0, 0.1) var aim_direction_blend_speed := 8.0
 
 @export_category("Damage Reactions")
 @export_range(0.5, 3.0, 0.05) var head_hit_height := 1.45
@@ -65,6 +80,8 @@ var _combat_aim_pitch := 0.0
 var _combat_recoil_pitch := 0.0
 var _combat_reload_remaining := 0.0
 var _combat_aim_bone_ids: Array[int] = []
+var _target_aim_direction := Vector2.ZERO
+var _current_aim_direction := Vector2.ZERO
 
 
 func initialize(owner_npc: CharacterBody3D) -> void:
@@ -104,6 +121,14 @@ func _process(delta: float) -> void:
 	_combat_reload_remaining = maxf(
 		_combat_reload_remaining - delta,
 		0.0
+	)
+	_current_aim_direction = _current_aim_direction.move_toward(
+		_target_aim_direction,
+		aim_direction_blend_speed * delta
+	)
+	npc.animation_tree.set(
+		aim_direction_parameter,
+		_current_aim_direction
 	)
 	if (
 		is_zero_approx(_combat_reload_remaining)
@@ -178,6 +203,22 @@ func update_locomotion_animation() -> void:
 			npc.locomotion_speed_parameter, playback_scale
 		)
 		_last_locomotion_scale = playback_scale
+	if _combat_aiming:
+		var local_velocity: Vector3 = (
+			npc.visual.global_basis.inverse()
+			* Vector3(npc.velocity.x, 0.0, npc.velocity.z)
+		)
+		var reference_speed: float = maxf(npc.move_speed, 0.01)
+		_target_aim_direction = Vector2(
+			local_velocity.x / reference_speed,
+			local_velocity.z / reference_speed
+		).limit_length(1.0)
+		npc.animation_tree.set(
+			aim_movement_speed_parameter,
+			aim_movement_animation_speed_scale
+			if horizontal_speed > 0.01
+			else 1.0
+		)
 
 
 func handle_damaged(
@@ -236,7 +277,11 @@ func reset_for_reuse() -> void:
 	_combat_aim_pitch = 0.0
 	_combat_recoil_pitch = 0.0
 	_combat_reload_remaining = 0.0
+	_target_aim_direction = Vector2.ZERO
+	_current_aim_direction = Vector2.ZERO
 	npc.animation_tree.set(combat_aim_blend_parameter, 0.0)
+	npc.animation_tree.set(aim_movement_blend_parameter, 0.0)
+	npc.animation_tree.set(aim_direction_parameter, Vector2.ZERO)
 	npc.animation_tree.set(
 		combat_reload_request_parameter,
 		AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT
@@ -317,6 +362,14 @@ func set_combat_aiming(enabled: bool) -> void:
 		combat_aim_blend_parameter,
 		1.0 if enabled else 0.0
 	)
+	npc.animation_tree.set(
+		aim_movement_blend_parameter,
+		1.0 if enabled else 0.0
+	)
+	if not enabled:
+		_target_aim_direction = Vector2.ZERO
+		_current_aim_direction = Vector2.ZERO
+		npc.animation_tree.set(aim_direction_parameter, Vector2.ZERO)
 
 
 func set_combat_aim_target(world_position: Vector3) -> void:
@@ -423,8 +476,18 @@ func _configure_looping_animations() -> void:
 		for animation_name in LOOPING_ANIMATIONS:
 			if not source_library.has_animation(animation_name):
 				continue
-			var animation := (
-				_create_forward_facing_aim(
+			var animation: Animation
+			if (
+				animation_name in [&"LeftStrafe", &"RightStrafe"]
+				and source_library.has_animation(&"Idle")
+			):
+				animation = _create_forward_facing_strafe(
+					source_library.get_animation(animation_name),
+					source_library.get_animation(&"Idle")
+				)
+			else:
+				animation = (
+					_create_forward_facing_aim(
 					source_library.get_animation(animation_name),
 					source_library.get_animation(&"Idle")
 				)
@@ -433,7 +496,7 @@ func _configure_looping_animations() -> void:
 				else source_library.get_animation(
 					animation_name
 				).duplicate(true) as Animation
-			)
+				)
 			animation.loop_mode = Animation.LOOP_LINEAR
 			_remove_armature_scale_tracks(animation)
 			runtime_library.remove_animation(animation_name)
@@ -509,6 +572,90 @@ func _create_forward_facing_aim(
 			(hips_correction * aim_spine_rotation).normalized()
 		)
 	return aligned_aim
+
+
+func _create_forward_facing_strafe(
+	source_animation: Animation,
+	idle_animation: Animation
+) -> Animation:
+	var aligned_strafe := source_animation.duplicate(true) as Animation
+	var hips_track := source_animation.find_track(
+		HIPS_TRACK,
+		Animation.TYPE_ROTATION_3D
+	)
+	var idle_hips_track := idle_animation.find_track(
+		HIPS_TRACK,
+		Animation.TYPE_ROTATION_3D
+	)
+	if hips_track < 0 or idle_hips_track < 0:
+		return aligned_strafe
+	var base_hips_rotation := idle_animation.rotation_track_interpolate(
+		idle_hips_track,
+		0.0
+	)
+	var hips_position_track := source_animation.find_track(
+		HIPS_TRACK,
+		Animation.TYPE_POSITION_3D
+	)
+	for leg_path in [LEFT_UP_LEG_TRACK, RIGHT_UP_LEG_TRACK]:
+		var leg_track := source_animation.find_track(
+			leg_path,
+			Animation.TYPE_ROTATION_3D
+		)
+		if leg_track < 0:
+			continue
+		for key_index in aligned_strafe.track_get_key_count(leg_track):
+			var key_time := aligned_strafe.track_get_key_time(
+				leg_track,
+				key_index
+			)
+			var hips_rotation := source_animation.rotation_track_interpolate(
+				hips_track,
+				key_time
+			)
+			var leg_rotation := source_animation.rotation_track_interpolate(
+				leg_track,
+				key_time
+			)
+			aligned_strafe.track_set_key_value(
+				leg_track,
+				key_index,
+				(
+					base_hips_rotation.inverse()
+					* hips_rotation
+					* leg_rotation
+				).normalized()
+			)
+	for key_index in aligned_strafe.track_get_key_count(hips_track):
+		aligned_strafe.track_set_key_value(
+			hips_track,
+			key_index,
+			base_hips_rotation
+		)
+	if hips_position_track >= 0:
+		var starting_position := source_animation.position_track_interpolate(
+			hips_position_track,
+			0.0
+		)
+		for key_index in aligned_strafe.track_get_key_count(
+			hips_position_track
+		):
+			var key_time := aligned_strafe.track_get_key_time(
+				hips_position_track,
+				key_index
+			)
+			var hips_position := source_animation.position_track_interpolate(
+				hips_position_track,
+				key_time
+			)
+			hips_position.x = starting_position.x
+			hips_position.z = starting_position.z
+			aligned_strafe.track_set_key_value(
+				hips_position_track,
+				key_index,
+				hips_position
+			)
+	return aligned_strafe
 
 
 func _create_upper_body_hit_reaction(

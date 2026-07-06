@@ -14,29 +14,43 @@ const HIT_REACTION_BONES := [
 
 @export var body_path := NodePath("../..")
 @export var stats_component_path := NodePath("../StatsComponent")
+@export var health_component_path := NodePath("../HealthComponent")
 @export var animation_player_path := NodePath(
 	"../../Visual/PlayerTest2/AnimationPlayer"
 )
 @export var skeleton_path := NodePath(
 	"../../Visual/PlayerTest2/Armature/GeneralSkeleton"
 )
+@export var bullet_impact_sounds: Array[AudioStream] = []
 @export_range(0.5, 3.0, 0.05) var head_hit_height := 1.45
 @export_range(0.0, 0.5, 0.01) var reaction_blend_time := 0.08
+@export_range(-12.0, 6.0, 0.5) var bullet_impact_volume_db := 1.0
+@export_range(0.0, 0.25, 0.01) var bullet_impact_pitch_variation := 0.08
 
 @onready var body := get_node(body_path) as CharacterBody3D
 @onready var stats := get_node(
 	stats_component_path
 ) as PlayerStatsComponent
+@onready var health := get_node(
+	health_component_path
+) as PlayerHealthComponent
 @onready var animation_player := get_node(
 	animation_player_path
 ) as AnimationPlayer
 @onready var skeleton := get_node(skeleton_path) as Skeleton3D
 
 var _reaction_player: AnimationPlayer
+var _impact_player: AudioStreamPlayer
+var _active_blood_effects: Array[BloodImpactVFX] = []
 
 
 func _ready() -> void:
 	_create_reaction_player()
+	health.respawn_started.connect(_clear_player_hit_marks)
+	_impact_player = AudioStreamPlayer.new()
+	_impact_player.name = "IncomingBulletImpactPlayer"
+	_impact_player.max_polyphony = 4
+	add_child(_impact_player)
 
 
 func receive_hit(
@@ -51,6 +65,7 @@ func receive_hit(
 	var fatal := is_zero_approx(stats.health)
 	if not fatal:
 		_play_hit_reaction(hit_position)
+	_play_bullet_impact()
 	_spawn_blood(hit_position, hit_direction, fatal)
 
 
@@ -78,6 +93,10 @@ func _spawn_blood(
 		direction = Vector3.FORWARD
 	var effect := BLOOD_IMPACT_VFX.instantiate() as BloodImpactVFX
 	get_tree().current_scene.add_child(effect)
+	_active_blood_effects.append(effect)
+	effect.tree_exited.connect(
+		_on_blood_effect_exited.bind(effect)
+	)
 	effect.setup_blood_hit(
 		hit_position,
 		-direction,
@@ -85,6 +104,31 @@ func _spawn_blood(
 		body,
 		fatal
 	)
+
+
+func _clear_player_hit_marks() -> void:
+	for effect in _active_blood_effects.duplicate():
+		if is_instance_valid(effect):
+			effect.clear_marks_attached_to(body)
+
+
+func _on_blood_effect_exited(effect: BloodImpactVFX) -> void:
+	_active_blood_effects.erase(effect)
+
+
+func _play_bullet_impact() -> void:
+	if _impact_player == null or bullet_impact_sounds.is_empty():
+		return
+	var sound := bullet_impact_sounds.pick_random() as AudioStream
+	if sound == null:
+		return
+	_impact_player.stream = sound
+	_impact_player.volume_db = bullet_impact_volume_db
+	_impact_player.pitch_scale = randf_range(
+		1.0 - bullet_impact_pitch_variation,
+		1.0 + bullet_impact_pitch_variation
+	)
+	_impact_player.play()
 
 
 func _create_reaction_player() -> void:

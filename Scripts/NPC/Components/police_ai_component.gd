@@ -4,15 +4,24 @@ extends Node
 const MODE_PATROL := 0
 const MODE_ARREST := 1
 const MODE_COMBAT := 2
+const MODE_SEARCH_ARREST := 3
+const MODE_SEARCH_COMBAT := 4
 
 @export_range(1.0, 12.0, 0.1) var patrol_speed := 2.5
 @export_range(1.0, 12.0, 0.1) var pursuit_speed := 5.5
 @export_range(0.5, 5.0, 0.1) var arrest_distance := 1.8
-@export_range(2.0, 30.0, 0.5) var preferred_combat_distance := 16.0
-@export_range(1.0, 20.0, 0.5) var minimum_combat_distance := 7.0
-@export_range(1.0, 20.0, 0.5) var reposition_min_distance := 5.0
-@export_range(1.0, 20.0, 0.5) var reposition_max_distance := 10.0
-@export_range(0.0, 10.0, 0.1) var search_duration := 8.0
+@export_range(2.0, 30.0, 0.5) var preferred_combat_distance := 11.0
+@export_range(1.0, 20.0, 0.5) var minimum_combat_distance := 3.0
+@export_range(1.0, 20.0, 0.5) var retreat_target_distance := 5.0
+@export_range(1.0, 20.0, 0.5) var reposition_min_distance := 3.0
+@export_range(1.0, 20.0, 0.5) var reposition_max_distance := 6.0
+@export_range(0.1, 10.0, 0.1) var retreat_cooldown := 2.5
+@export_range(0.1, 5.0, 0.1) var movement_decision_minimum := 0.8
+@export_range(0.1, 5.0, 0.1) var movement_decision_maximum := 1.6
+@export_range(1.0, 20.0, 0.5) var search_inner_radius := 2.5
+@export_range(1.0, 30.0, 0.5) var search_outer_radius := 9.0
+@export_range(0.0, 5.0, 0.1) var search_pause_minimum := 0.45
+@export_range(0.0, 5.0, 0.1) var search_pause_maximum := 1.2
 @export_range(0.0, 10.0, 0.1) var minimum_burst_pause := 0.8
 @export_range(0.0, 10.0, 0.1) var maximum_burst_pause := 1.6
 @export_range(0.05, 1.0, 0.01) var minimum_shot_interval := 0.18
@@ -29,7 +38,6 @@ var perception: PolicePerceptionComponent
 var combat: NPCCombatComponent
 var _random := RandomNumberGenerator.new()
 var _last_known_position := Vector3.ZERO
-var _search_remaining := 0.0
 var _burst_remaining := 0
 var _shot_remaining := 0.0
 var _pause_remaining := 0.0
@@ -37,6 +45,14 @@ var _reposition_target := Vector3.ZERO
 var _has_reposition_target := false
 var _last_mode := -1
 var _reaction_remaining := 0.0
+var _movement_decision_remaining := 0.0
+var _retreat_cooldown_remaining := 0.0
+var _search_center := Vector3.ZERO
+var _has_search_center := false
+var _has_search_destination := false
+var _last_search_revision := -1
+var _search_pause_remaining := 0.0
+var _search_pause_pending := false
 
 
 func initialize(owner_npc: BaseNPC, target_player: CharacterBody3D) -> void:
@@ -76,22 +92,33 @@ func tick_mode(mode: int, delta: float) -> void:
 			_tick_arrest(delta)
 		MODE_COMBAT:
 			_tick_combat(delta)
+		MODE_SEARCH_ARREST:
+			_tick_search(delta, false)
+		MODE_SEARCH_COMBAT:
+			_tick_search(delta, true)
 
 
 func note_incident(world_position: Vector3) -> void:
-	_last_known_position = world_position
-	_search_remaining = search_duration
+	wanted.report_police_incident(world_position)
+	_sync_search_dispatch(true)
 
 
 func reset_for_reuse() -> void:
 	_last_known_position = Vector3.ZERO
-	_search_remaining = 0.0
 	_burst_remaining = 0
 	_shot_remaining = 0.0
 	_pause_remaining = 0.0
 	_has_reposition_target = false
 	_last_mode = -1
 	_reaction_remaining = 0.0
+	_movement_decision_remaining = 0.0
+	_retreat_cooldown_remaining = 0.0
+	_search_center = Vector3.ZERO
+	_has_search_center = false
+	_has_search_destination = false
+	_last_search_revision = -1
+	_search_pause_remaining = 0.0
+	_search_pause_pending = false
 
 
 func _enter_mode(mode: int) -> void:
@@ -100,10 +127,12 @@ func _enter_mode(mode: int) -> void:
 	_has_reposition_target = false
 	_burst_remaining = 0
 	_pause_remaining = 0.0
-	if mode == MODE_ARREST or mode == MODE_COMBAT:
-		_last_known_position = player.global_position
-		_search_remaining = search_duration
-	if mode == MODE_COMBAT:
+	_movement_decision_remaining = 0.0
+	if mode != MODE_PATROL:
+		_sync_search_dispatch(true)
+		if perception.can_see_player():
+			_last_known_position = player.global_position
+	if mode == MODE_COMBAT or mode == MODE_SEARCH_COMBAT:
 		_reaction_remaining = _random.randf_range(0.35, 0.8)
 		combat.set_equipped(true)
 	else:
@@ -126,7 +155,10 @@ func _tick_arrest(delta: float) -> void:
 	var sees_player: bool = perception.can_see_player()
 	if sees_player:
 		_last_known_position = player.global_position
-		_search_remaining = search_duration
+		wanted.report_police_visual_contact(player.global_position)
+	else:
+		_tick_search(delta, false)
+		return
 	var distance_squared: float = npc.global_position.distance_squared_to(
 		player.global_position
 	)
@@ -161,34 +193,24 @@ func _tick_combat(delta: float) -> void:
 	var sees_player: bool = perception.can_see_player()
 	if sees_player:
 		_last_known_position = player.global_position
-		_search_remaining = search_duration
+		wanted.report_police_visual_contact(player.global_position)
 	else:
-		_search_remaining = maxf(_search_remaining - delta, 0.0)
-		_chase_last_known(delta)
+		_tick_search(delta, true)
 		return
 	var combat_distance: float = npc.global_position.distance_to(
 		player.global_position
 	)
 	_reaction_remaining = maxf(_reaction_remaining - delta, 0.0)
-	if combat_distance > preferred_combat_distance * 1.35:
-		combat.set_aim_target(target_position)
-		npc.set_navigation_target(player.global_position)
-		npc.advance_navigation(delta)
-		return
-	if combat_distance < minimum_combat_distance and not _has_reposition_target:
-		_choose_retreat_position()
-	if _has_reposition_target:
-		if (
-			npc.global_position.distance_squared_to(_reposition_target)
-			> 1.0
-		):
-			npc.set_facing_override(target_position)
-			npc.set_navigation_target(_reposition_target)
-			npc.advance_navigation(delta)
-			return
-		_has_reposition_target = false
-	npc.stop_moving(delta)
 	combat.set_aim_target(target_position)
+	_movement_decision_remaining = maxf(
+		_movement_decision_remaining - delta,
+		0.0
+	)
+	_retreat_cooldown_remaining = maxf(
+		_retreat_cooldown_remaining - delta,
+		0.0
+	)
+	_update_combat_movement(combat_distance, target_position, delta)
 	_pause_remaining = maxf(_pause_remaining - delta, 0.0)
 	_shot_remaining = maxf(_shot_remaining - delta, 0.0)
 	if combat.is_reloading() or _pause_remaining > 0.0:
@@ -200,7 +222,8 @@ func _tick_combat(delta: float) -> void:
 	if _shot_remaining > 0.0:
 		return
 	if not combat.has_line_of_fire(player, target_position):
-		_choose_reposition()
+		if not _has_reposition_target:
+			_choose_reposition()
 		return
 	if combat.try_fire_at(target_position, shot_spread_degrees):
 		_burst_remaining -= 1
@@ -213,12 +236,94 @@ func _tick_combat(delta: float) -> void:
 			minimum_burst_pause,
 			maximum_burst_pause
 		)
+		if not _has_reposition_target:
+			_choose_reposition()
+
+
+func _update_combat_movement(
+	combat_distance: float,
+	target_position: Vector3,
+	delta: float
+) -> void:
+	var advance_threshold := preferred_combat_distance * 1.25
+	if combat_distance > advance_threshold:
+		_has_reposition_target = false
+		npc.set_navigation_target(player.global_position)
+		npc.set_facing_override(target_position)
+		npc.advance_navigation(delta)
+		return
+	if (
+		combat_distance < minimum_combat_distance
+		and _retreat_cooldown_remaining <= 0.0
+	):
+		_choose_retreat_position(combat_distance)
+		_retreat_cooldown_remaining = retreat_cooldown
+	if (
+		not _has_reposition_target
+		and _movement_decision_remaining <= 0.0
+	):
+		_choose_aggressive_reposition(combat_distance)
+	if _has_reposition_target:
+		if (
+			npc.global_position.distance_squared_to(_reposition_target)
+			> 0.8
+			and _movement_decision_remaining > 0.0
+		):
+			npc.set_facing_override(target_position)
+			npc.set_navigation_target(_reposition_target)
+			npc.advance_navigation(delta)
+			return
+		_has_reposition_target = false
+	npc.stop_moving(delta)
+
+
+func _choose_aggressive_reposition(combat_distance: float) -> void:
+	_movement_decision_remaining = _random.randf_range(
+		movement_decision_minimum,
+		movement_decision_maximum
+	)
+	var roll := _random.randf()
+	if combat_distance > preferred_combat_distance or roll < 0.35:
+		var toward: Vector3 = player.global_position - npc.global_position
+		toward.y = 0.0
+		if toward.is_zero_approx():
+			return
+		var side: Vector3 = toward.normalized().rotated(
+			Vector3.UP,
+			PI * 0.5 * (-1.0 if _random.randf() < 0.5 else 1.0)
+		)
+		var candidate: Vector3 = (
+			npc.global_position
+			+ toward.normalized() * _random.randf_range(2.0, 4.0)
+			+ side * _random.randf_range(1.0, 2.5)
+		)
+		_set_reachable_reposition(candidate)
+	elif roll < 0.85:
 		_choose_reposition()
+
+
+func _tick_search(delta: float, armed: bool) -> void:
+	npc.move_speed = pursuit_speed
+	combat.set_equipped(armed)
+	if not player_health.is_alive():
+		combat.clear_aim()
+		npc.stop_moving(delta)
+		return
+	if perception.can_see_player():
+		wanted.report_police_visual_contact(player.global_position)
+		if armed:
+			_tick_combat(delta)
+		else:
+			_tick_arrest(delta)
+		return
+	_sync_search_dispatch()
+	_chase_last_known(delta)
 
 
 func _chase_last_known(delta: float) -> void:
 	combat.clear_aim()
-	if _last_known_position.is_zero_approx():
+	_sync_search_dispatch()
+	if not _has_search_destination:
 		npc.stop_moving(delta)
 		return
 	if (
@@ -227,9 +332,22 @@ func _chase_last_known(delta: float) -> void:
 	):
 		npc.set_navigation_target(_last_known_position)
 		npc.advance_navigation(delta)
-	elif _search_remaining <= 0.0:
-		npc.stop_moving(delta)
 	else:
+		npc.stop_moving(delta)
+		if _has_search_center:
+			npc.set_facing_override(_search_center)
+		if _search_pause_pending:
+			_search_pause_remaining = _random.randf_range(
+				search_pause_minimum,
+				search_pause_maximum
+			)
+			_search_pause_pending = false
+		if _search_pause_remaining > 0.0:
+			_search_pause_remaining = maxf(
+				_search_pause_remaining - delta,
+				0.0
+			)
+			return
 		_choose_search_position()
 
 
@@ -247,30 +365,74 @@ func _choose_reposition() -> void:
 		reposition_max_distance
 	)
 	_set_reachable_reposition(candidate)
+	_movement_decision_remaining = _random.randf_range(
+		movement_decision_minimum,
+		movement_decision_maximum
+	)
 
 
-func _choose_retreat_position() -> void:
+func _choose_retreat_position(combat_distance: float) -> void:
 	var away: Vector3 = npc.global_position - player.global_position
 	away.y = 0.0
 	if away.is_zero_approx():
 		away = Vector3.FORWARD
 	var candidate: Vector3 = (
 		npc.global_position
-		+ away.normalized() * reposition_max_distance
+		+ away.normalized()
+		* maxf(retreat_target_distance - combat_distance, 1.5)
 	)
 	_set_reachable_reposition(candidate)
+	_movement_decision_remaining = minf(
+		1.0,
+		movement_decision_maximum
+	)
 
 
 func _choose_search_position() -> void:
+	if not _has_search_center:
+		return
 	var angle := _random.randf_range(-PI, PI)
-	var candidate := _last_known_position + Vector3(
+	var candidate := _search_center + Vector3(
 		cos(angle),
 		0.0,
 		sin(angle)
-	) * _random.randf_range(3.0, 7.0)
-	_set_reachable_reposition(candidate)
-	if _has_reposition_target:
-		_last_known_position = _reposition_target
+	) * _random.randf_range(search_inner_radius, search_outer_radius)
+	_set_search_destination(candidate)
+
+
+func _sync_search_dispatch(force := false) -> void:
+	if wanted == null or not wanted.has_police_search_position:
+		return
+	if (
+		not force
+		and _last_search_revision == wanted.police_search_revision
+	):
+		return
+	_last_search_revision = wanted.police_search_revision
+	_search_center = wanted.police_search_position
+	_has_search_center = true
+	var angle := _random.randf_range(-PI, PI)
+	var radius := _random.randf_range(0.0, search_outer_radius * 0.75)
+	var assignment := _search_center + Vector3(
+		cos(angle),
+		0.0,
+		sin(angle)
+	) * radius
+	_set_search_destination(assignment)
+
+
+func _set_search_destination(candidate: Vector3) -> void:
+	var navigation_map: RID = npc.navigation_agent.get_navigation_map()
+	if not navigation_map.is_valid():
+		return
+	var reachable := NavigationServer3D.map_get_closest_point(
+		navigation_map,
+		candidate
+	)
+	_last_known_position = reachable
+	_has_search_destination = true
+	_search_pause_remaining = 0.0
+	_search_pause_pending = true
 
 
 func _set_reachable_reposition(candidate: Vector3) -> void:

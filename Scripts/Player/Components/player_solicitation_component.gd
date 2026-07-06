@@ -4,6 +4,7 @@ extends Node
 @export var player_path := NodePath("../..")
 @export var hud_path := NodePath("../../PlayerHUD")
 @export var pulse_mesh_path := NodePath("../../SolicitationPulse")
+@export var wanted_component_path := NodePath("../WantedComponent")
 @export_range(1.0, 30.0, 0.5) var solicitation_radius := 8.0
 @export_range(0.1, 10.0, 0.1) var pulse_duration := 0.65
 @export var solicit_action: StringName = &"solicit"
@@ -11,6 +12,9 @@ extends Node
 @onready var player := get_node(player_path) as CharacterBody3D
 @onready var hud := get_node(hud_path) as PlayerHUD
 @onready var pulse_mesh := get_node(pulse_mesh_path) as MeshInstance3D
+@onready var wanted := get_node(
+	wanted_component_path
+) as PlayerWantedComponent
 
 var _gameplay_enabled := true
 var _pulse_tween: Tween
@@ -33,6 +37,10 @@ func set_gameplay_enabled(enabled: bool) -> void:
 
 func solicit() -> void:
 	_play_pulse()
+	wanted.report_solicitation(
+		player.global_position,
+		solicitation_radius
+	)
 	var customer := _select_customer()
 	if customer == null:
 		hud.show_feedback("No available customers nearby.")

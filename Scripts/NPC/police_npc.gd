@@ -77,7 +77,6 @@ func can_be_recycled() -> bool:
 	return (
 		_pool_active
 		and not is_defeated()
-		and (_wanted == null or _wanted.wanted_level == 0)
 	)
 
 
@@ -96,6 +95,15 @@ func set_role_label_visible(enabled: bool) -> void:
 
 func get_wanted_level() -> int:
 	return _wanted.wanted_level if _wanted != null else 0
+
+
+func can_see_wanted_player() -> bool:
+	return (
+		_pool_active
+		and _wanted != null
+		and _wanted.wanted_level > 0
+		and perception_component.can_see_player()
+	)
 
 
 func tick_ai_mode(mode: int, delta: float) -> void:
@@ -117,11 +125,19 @@ func can_hear_position(world_position: Vector3) -> bool:
 	)
 
 
+func set_detection_debug_visible(enabled: bool) -> void:
+	perception_component.set_debug_draw_visible(enabled)
+
+
 func hear_gunshot(source_position: Vector3, hearing_radius: float) -> void:
+	var effective_radius := minf(
+		hearing_radius,
+		perception_component.hearing_range
+	)
 	if (
 		_pool_active
 		and global_position.distance_squared_to(source_position)
-		<= hearing_radius * hearing_radius
+		<= effective_radius * effective_radius
 	):
 		ai_component.note_incident(source_position)
 

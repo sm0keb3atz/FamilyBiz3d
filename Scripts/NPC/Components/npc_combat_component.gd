@@ -15,7 +15,7 @@ signal reload_completed
 )
 @export var gunshot_sound: AudioStream
 @export var reload_sound: AudioStream
-@export_range(-30.0, 6.0, 0.5) var gunshot_volume_db := -10.0
+@export_range(-30.0, 6.0, 0.5) var gunshot_volume_db := 0.0
 @export_range(-30.0, 6.0, 0.5) var reload_volume_db := -14.0
 
 var npc
@@ -38,7 +38,9 @@ func initialize(owner_npc: BaseNPC) -> void:
 	) as GPUParticles3D
 	_gunshot_player = AudioStreamPlayer3D.new()
 	_gunshot_player.name = "PoliceGunshotPlayer"
-	_gunshot_player.max_distance = 55.0
+	_gunshot_player.bus = &"Gunshots"
+	_gunshot_player.max_distance = 90.0
+	_gunshot_player.max_polyphony = 4
 	add_child(_gunshot_player)
 	_reload_player = AudioStreamPlayer3D.new()
 	_reload_player.name = "PoliceReloadPlayer"

@@ -19,11 +19,11 @@ extends Node3D
 @export_range(0.5, 10.0, 0.1) var spawn_separation := 2.5
 @export_range(5.0, 200.0, 1.0) var high_detail_distance := 35.0
 @export var show_managed_role_labels := false
-@export_range(1, 100, 1) var civilians_per_police := 3
+@export_range(1, 100, 1) var civilians_per_police := 12
 @export_range(0.0, 120.0, 1.0) var police_replacement_delay := 20.0
-@export_range(0, 20, 1) var one_star_police_minimum := 5
-@export_range(0, 20, 1) var two_star_police_minimum := 6
-@export_range(0, 20, 1) var three_star_police_minimum := 8
+@export_range(0, 20, 1) var one_star_police_minimum := 2
+@export_range(0, 20, 1) var two_star_police_minimum := 3
+@export_range(0, 20, 1) var three_star_police_minimum := 4
 
 @onready var network := get_node(network_path) as PedestrianNetwork3D
 @onready var player := get_node(player_path) as CharacterBody3D
@@ -82,6 +82,7 @@ func update_population() -> void:
 			break
 		activation_count += 1
 	var police_target: int = _get_police_target()
+	_recycle_excess_police(police_target)
 	if (
 		_active_police.size() < police_target
 		and is_zero_approx(_police_replacement_remaining)
@@ -312,6 +313,24 @@ func _recycle_distant_police() -> void:
 		)
 		if police.can_be_recycled() and distance_squared > recycle_distance_squared:
 			_recycle_police(police)
+
+
+func _recycle_excess_police(target_count: int) -> void:
+	while _active_police.size() > target_count:
+		var farthest: PoliceNPC
+		var farthest_distance_squared := -1.0
+		for police in _active_police:
+			if not is_instance_valid(police) or police.is_defeated():
+				continue
+			var distance_squared := police.global_position.distance_squared_to(
+				player.global_position
+			)
+			if distance_squared > farthest_distance_squared:
+				farthest = police
+				farthest_distance_squared = distance_squared
+		if farthest == null:
+			return
+		_recycle_police(farthest)
 
 
 func _recycle_customer(customer: CustomerNPC) -> void:

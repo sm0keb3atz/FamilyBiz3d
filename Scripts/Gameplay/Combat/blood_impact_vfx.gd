@@ -153,6 +153,27 @@ func setup_surface_hit(
 	_create_bullet_hole(hit_position, hit_normal, hit_collider, 0.13)
 
 
+func clear_marks_attached_to(owner: Node3D) -> void:
+	if owner == null:
+		return
+	for index in range(_persistent_marks.size() - 1, -1, -1):
+		var mark := _persistent_marks[index]
+		if not is_instance_valid(mark):
+			_persistent_marks.remove_at(index)
+			continue
+		if mark == owner or owner.is_ancestor_of(mark):
+			mark.queue_free()
+			_persistent_marks.remove_at(index)
+	for index in range(_temporary_hosts.size() - 1, -1, -1):
+		var host := _temporary_hosts[index]
+		if not is_instance_valid(host):
+			_temporary_hosts.remove_at(index)
+			continue
+		if host == owner or owner.is_ancestor_of(host):
+			host.queue_free()
+			_temporary_hosts.remove_at(index)
+
+
 func _process(delta: float) -> void:
 	_life_elapsed += delta
 	_update_landing_splats()

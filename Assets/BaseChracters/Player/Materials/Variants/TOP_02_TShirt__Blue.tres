@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://ceultchk4k50u"]
+
+[ext_resource type="Texture2D" uid="uid://cch1p73jj2akd" path="res://Assets/BaseChracters/Player/Textures/Tshirt2.jpg" id="1_xcvld"]
+[ext_resource type="Texture2D" uid="uid://d0ghb1i88pyup" path="res://Assets/BaseChracters/Player/Textures/Tshirt2N.png" id="2_k5mc0"]
+
+[resource]
+resource_name = "T-Shirt White"
+cull_mode = 2
+albedo_color = Color(0, 0.5053756, 0.6770163, 1)
+albedo_texture = ExtResource("1_xcvld")
+roughness = 0.9
+normal_texture = ExtResource("2_k5mc0")

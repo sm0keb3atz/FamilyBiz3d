@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://dgvjydxleghlo"]
+[gd_scene load_steps=27 format=3 uid="uid://dgvjydxleghlo"]
 
 [ext_resource type="Script" uid="uid://bvn1m8v758ycv" path="res://Scripts/NPC/base_npc.gd" id="1_base"]
 [ext_resource type="PackedScene" uid="uid://bh4hb5ftlxgdl" path="res://Scenes/PlayerVisualModular.tscn" id="2_visual"]
@@ -16,6 +16,44 @@ radius = 0.4
 height = 1.8
 
 [sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_base"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim_idle"]
+animation = &"Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim_forward"]
+animation = &"Walk"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim_backward"]
+animation = &"Walk"
+play_mode = 1
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim_left"]
+animation = &"LeftStrafe"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim_right"]
+animation = &"RightStrafe"
+
+[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_aim_movement"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_aim_idle")
+blend_point_0/pos = Vector2(0, 0)
+blend_point_0/name = &"Idle"
+blend_point_1/node = SubResource("AnimationNodeAnimation_aim_forward")
+blend_point_1/pos = Vector2(0, 1)
+blend_point_1/name = &"Forward"
+blend_point_2/node = SubResource("AnimationNodeAnimation_aim_backward")
+blend_point_2/pos = Vector2(0, -1)
+blend_point_2/name = &"Backward"
+blend_point_3/node = SubResource("AnimationNodeAnimation_aim_left")
+blend_point_3/pos = Vector2(-1, 0)
+blend_point_3/name = &"Left"
+blend_point_4/node = SubResource("AnimationNodeAnimation_aim_right")
+blend_point_4/pos = Vector2(1, 0)
+blend_point_4/name = &"Right"
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_aim_movement"]
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_movement_mode"]
+sync = true
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_aim"]
 animation = &"PistolAim"
@@ -41,17 +79,23 @@ nodes/BaseLocomotion/node = ExtResource("6_locomotion")
 nodes/BaseLocomotion/position = Vector2(-300, 40)
 nodes/BaseLocomotionSpeed/node = SubResource("AnimationNodeTimeScale_base")
 nodes/BaseLocomotionSpeed/position = Vector2(-100, 40)
+nodes/AimMovement/node = SubResource("AnimationNodeBlendSpace2D_aim_movement")
+nodes/AimMovement/position = Vector2(-300, 150)
+nodes/AimMovementSpeed/node = SubResource("AnimationNodeTimeScale_aim_movement")
+nodes/AimMovementSpeed/position = Vector2(-100, 150)
+nodes/MovementModeBlend/node = SubResource("AnimationNodeBlend2_movement_mode")
+nodes/MovementModeBlend/position = Vector2(40, 80)
 nodes/AimPose/node = SubResource("AnimationNodeAnimation_aim")
-nodes/AimPose/position = Vector2(-100, 180)
+nodes/AimPose/position = Vector2(40, 210)
 nodes/AimBlend/node = SubResource("AnimationNodeBlend2_aim")
-nodes/AimBlend/position = Vector2(120, 80)
+nodes/AimBlend/position = Vector2(220, 80)
 nodes/ReloadAnimation/node = SubResource("AnimationNodeAnimation_reload")
-nodes/ReloadAnimation/position = Vector2(120, 220)
+nodes/ReloadAnimation/position = Vector2(220, 240)
 nodes/ReloadSpeed/node = SubResource("AnimationNodeTimeScale_reload")
-nodes/ReloadSpeed/position = Vector2(330, 220)
+nodes/ReloadSpeed/position = Vector2(390, 240)
 nodes/ReloadOneShot/node = SubResource("AnimationNodeOneShot_reload")
-nodes/ReloadOneShot/position = Vector2(420, 80)
-node_connections = [&"output", 0, &"ReloadOneShot", &"BaseLocomotionSpeed", 0, &"BaseLocomotion", &"AimBlend", 0, &"BaseLocomotionSpeed", &"AimBlend", 1, &"AimPose", &"ReloadSpeed", 0, &"ReloadAnimation", &"ReloadOneShot", 0, &"AimBlend", &"ReloadOneShot", 1, &"ReloadSpeed"]
+nodes/ReloadOneShot/position = Vector2(500, 80)
+node_connections = [&"output", 0, &"ReloadOneShot", &"BaseLocomotionSpeed", 0, &"BaseLocomotion", &"AimMovementSpeed", 0, &"AimMovement", &"MovementModeBlend", 0, &"BaseLocomotionSpeed", &"MovementModeBlend", 1, &"AimMovementSpeed", &"AimBlend", 0, &"MovementModeBlend", &"AimBlend", 1, &"AimPose", &"ReloadSpeed", 0, &"ReloadAnimation", &"ReloadOneShot", 0, &"AimBlend", &"ReloadOneShot", 1, &"ReloadSpeed"]
 
 [node name="BaseNPC" type="CharacterBody3D" unique_id=673464585]
 floor_snap_length = 0.3
@@ -94,6 +138,9 @@ tree_root = SubResource("AnimationNodeBlendTree_npc")
 anim_player = NodePath("../Visual/PlayerTest2/AnimationPlayer")
 parameters/BaseLocomotion/blend_position = -1.0
 parameters/BaseLocomotionSpeed/scale = 1.0
+parameters/AimMovement/blend_position = Vector2(0, 0)
+parameters/AimMovementSpeed/scale = 1.0
+parameters/MovementModeBlend/blend_amount = 0.0
 parameters/AimBlend/blend_amount = 0.0
 parameters/ReloadSpeed/scale = 1.0
 parameters/ReloadOneShot/active = false

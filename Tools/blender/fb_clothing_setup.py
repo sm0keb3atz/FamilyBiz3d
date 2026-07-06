@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Family Business Clothing Setup",
     "author": "Family Business",
-    "version": (1, 0, 0),
+    "version": (1, 1, 0),
     "blender": (4, 3, 0),
     "location": "3D View > Sidebar > FB Clothing",
     "description": "Prepare a sculpted garment for the modular character rig",
@@ -16,6 +16,17 @@ from bpy.props import EnumProperty, IntProperty, StringProperty
 
 
 RIG_NAME = "CHR_Armature"
+DEFAULT_EXPORT_PATH = (
+    "C:/Users/smo0o/OneDrive/Documents/family-biz-prototype/"
+    "Assets/BaseChracters/Player/Working/FB_Character_Working.glb"
+)
+BODY_EXPORT_NAMES = {
+    "BODY_Head",
+    "BODY_Hands",
+    "BODY_Torso",
+    "BODY_Legs",
+    "BODY_Feet",
+}
 SLOT_SETTINGS = {
     "TOP": {
         "collection": "02_TOPS",
@@ -184,6 +195,43 @@ def build_material(obj, material_name, base_path, normal_path, orm_path):
     return material
 
 
+def is_export_object(obj):
+    if obj.name == RIG_NAME:
+        return True
+    if obj.type != "MESH":
+        return False
+    return (
+        obj.name in BODY_EXPORT_NAMES
+        or obj.name.startswith("TOP_")
+        or obj.name.startswith("BOTTOM_")
+        or obj.name.startswith("SHOES_")
+    )
+
+
+def validate_export_objects(objects, rig):
+    errors = []
+    for obj in objects:
+        if obj.type != "MESH":
+            continue
+        armature_modifiers = [
+            modifier
+            for modifier in obj.modifiers
+            if modifier.type == "ARMATURE"
+        ]
+        if len(armature_modifiers) != 1:
+            errors.append(
+                "{} needs exactly one Armature modifier".format(obj.name)
+            )
+        elif armature_modifiers[0].object != rig:
+            errors.append(
+                "{} Armature modifier must target {}".format(
+                    obj.name,
+                    RIG_NAME,
+                )
+            )
+    return errors
+
+
 class FB_OT_setup_clothing(bpy.types.Operator):
     bl_idname = "fb.setup_clothing"
     bl_label = "Prepare Selected Garment"
@@ -269,6 +317,78 @@ class FB_OT_setup_clothing(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class FB_OT_export_working_glb(bpy.types.Operator):
+    bl_idname = "fb.export_working_glb"
+    bl_label = "Export Working GLB to Godot"
+    bl_description = "Export the rig, body zones, and every clothing option"
+
+    def execute(self, context):
+        scene = context.scene
+        rig = bpy.data.objects.get(RIG_NAME)
+        if rig is None or rig.type != "ARMATURE":
+            self.report({"ERROR"}, "CHR_Armature was not found")
+            return {"CANCELLED"}
+
+        export_objects = [
+            obj for obj in scene.objects if is_export_object(obj)
+        ]
+        errors = validate_export_objects(export_objects, rig)
+        if errors:
+            self.report({"ERROR"}, errors[0])
+            return {"CANCELLED"}
+        if not any(obj.type == "MESH" for obj in export_objects):
+            self.report({"ERROR"}, "No modular meshes were found")
+            return {"CANCELLED"}
+
+        export_path = bpy.path.abspath(scene.fb_working_glb_path)
+        if not export_path.lower().endswith(".glb"):
+            self.report({"ERROR"}, "Export path must end in .glb")
+            return {"CANCELLED"}
+        os.makedirs(os.path.dirname(export_path), exist_ok=True)
+
+        previous_active = context.view_layer.objects.active
+        previous_selection = list(context.selected_objects)
+        previous_pose_position = rig.data.pose_position
+
+        if context.object and context.object.mode != "OBJECT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+        for obj in export_objects:
+            obj.select_set(True)
+        context.view_layer.objects.active = rig
+        rig.data.pose_position = "REST"
+
+        try:
+            bpy.ops.export_scene.gltf(
+                filepath=export_path,
+                export_format="GLB",
+                use_selection=True,
+                export_animations=False,
+                export_cameras=False,
+                export_lights=False,
+                export_apply=True,
+            )
+        except Exception as error:
+            self.report({"ERROR"}, "GLB export failed: {}".format(error))
+            return {"CANCELLED"}
+        finally:
+            rig.data.pose_position = previous_pose_position
+            bpy.ops.object.select_all(action="DESELECT")
+            for obj in previous_selection:
+                if obj.name in bpy.data.objects:
+                    obj.select_set(True)
+            if previous_active and previous_active.name in bpy.data.objects:
+                context.view_layer.objects.active = previous_active
+
+        self.report(
+            {"INFO"},
+            "Exported {} meshes to Godot".format(
+                sum(obj.type == "MESH" for obj in export_objects)
+            ),
+        )
+        return {"FINISHED"}
+
+
 class FB_PT_clothing_setup(bpy.types.Panel):
     bl_label = "FB Clothing Setup"
     bl_idname = "FB_PT_clothing_setup"
@@ -303,9 +423,20 @@ class FB_PT_clothing_setup(bpy.types.Panel):
         )
         layout.label(text="Then test animations and weight paint.")
 
+        layout.separator()
+        export_box = layout.box()
+        export_box.label(text="Godot Quick Update")
+        export_box.prop(scene, "fb_working_glb_path")
+        export_box.operator(
+            FB_OT_export_working_glb.bl_idname,
+            icon="EXPORT",
+        )
+        export_box.label(text="Keep object names unchanged.")
+
 
 CLASSES = (
     FB_OT_setup_clothing,
+    FB_OT_export_working_glb,
     FB_PT_clothing_setup,
 )
 
@@ -345,9 +476,15 @@ def register():
         name="ORM",
         subtype="FILE_PATH",
     )
+    bpy.types.Scene.fb_working_glb_path = StringProperty(
+        name="Working GLB",
+        subtype="FILE_PATH",
+        default=DEFAULT_EXPORT_PATH,
+    )
 
 
 def unregister():
+    del bpy.types.Scene.fb_working_glb_path
     del bpy.types.Scene.fb_orm_path
     del bpy.types.Scene.fb_normal_path
     del bpy.types.Scene.fb_base_color_path

@@ -63,7 +63,7 @@ navigation_mesh = SubResource("WestNavigation")
 
 [node name="HoodEastPedestrianNetwork" parent="Navigation" unique_id=1230090308 instance=ExtResource("8_pedestrian_network")]
 
-[node name="HoodWestPedestrianNetwork" parent="Navigation" instance=ExtResource("8_pedestrian_network")]
+[node name="HoodWestPedestrianNetwork" parent="Navigation" unique_id=878643702 instance=ExtResource("8_pedestrian_network")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -252)
 
 [node name="SpawnPoints" type="Node3D" parent="." unique_id=1801510180]
@@ -88,7 +88,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0.1, 0)
 transform = Transform3D(3.1391647e-07, 0, 1, 0, 1, 0, -1, 0, 3.1391647e-07, 60, 1, -5)
 
 [node name="EastDealer" parent="Gameplay" unique_id=1005234741 instance=ExtResource("4_dealer")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0.1, 0)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 68, 0.1, -40)
 
 [node name="WestDealer" parent="Gameplay" unique_id=39738472 instance=ExtResource("4_dealer")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0.1, -256)
@@ -104,7 +104,7 @@ network_path = NodePath("../Navigation/HoodEastPedestrianNetwork")
 player_path = NodePath("../Gameplay/Player")
 npc_container_path = NodePath("../Gameplay/Civilians")
 
-[node name="WestPopulationManager" type="Node3D" parent="."]
+[node name="WestPopulationManager" type="Node3D" parent="." unique_id=878559388]
 script = ExtResource("9_population")
 customer_scene = ExtResource("5_customer")
 police_scene = ExtResource("10_police")

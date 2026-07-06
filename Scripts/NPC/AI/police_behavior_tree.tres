@@ -1,42 +1,72 @@
-[gd_resource type="BehaviorTree" load_steps=10 format=3]
+[gd_resource type="BehaviorTree" format=3 uid="uid://cfcj3ba68coy1"]
 
-[ext_resource type="Script" path="res://Scripts/NPC/AI/police_wanted_condition.gd" id="1_condition"]
-[ext_resource type="Script" path="res://Scripts/NPC/AI/police_mode_action.gd" id="2_action"]
+[ext_resource type="Script" uid="uid://bhv22bymegwe1" path="res://Scripts/NPC/AI/police_wanted_condition.gd" id="1_wanted"]
+[ext_resource type="Script" uid="uid://xe40xgwa3y0k" path="res://Scripts/NPC/AI/police_visual_contact_condition.gd" id="2_visual"]
+[ext_resource type="Script" uid="uid://bg2vtbbpn31sk" path="res://Scripts/NPC/AI/police_mode_action.gd" id="3_action"]
 
-[sub_resource type="BTCondition" id="BTCondition_combat"]
-script = ExtResource("1_condition")
+[sub_resource type="BTCondition" id="BTCondition_combat_wanted"]
+script = ExtResource("1_wanted")
 minimum_level = 2
-maximum_level = 3
+
+[sub_resource type="BTCondition" id="BTCondition_combat_visual"]
+script = ExtResource("2_visual")
 
 [sub_resource type="BTAction" id="BTAction_combat"]
-script = ExtResource("2_action")
+script = ExtResource("3_action")
 mode = 2
 
 [sub_resource type="BTSequence" id="BTSequence_combat"]
-custom_name = "Lethal combat"
-children = [SubResource("BTCondition_combat"), SubResource("BTAction_combat")]
+custom_name = "Engage armed suspect"
+children = [SubResource("BTCondition_combat_wanted"), SubResource("BTCondition_combat_visual"), SubResource("BTAction_combat")]
 
-[sub_resource type="BTCondition" id="BTCondition_arrest"]
-script = ExtResource("1_condition")
+[sub_resource type="BTCondition" id="BTCondition_combat_search_wanted"]
+script = ExtResource("1_wanted")
+minimum_level = 2
+
+[sub_resource type="BTAction" id="BTAction_combat_search"]
+script = ExtResource("3_action")
+mode = 4
+
+[sub_resource type="BTSequence" id="BTSequence_combat_search"]
+custom_name = "Search for armed suspect"
+children = [SubResource("BTCondition_combat_search_wanted"), SubResource("BTAction_combat_search")]
+
+[sub_resource type="BTCondition" id="BTCondition_arrest_wanted"]
+script = ExtResource("1_wanted")
 minimum_level = 1
 maximum_level = 1
 
+[sub_resource type="BTCondition" id="BTCondition_arrest_visual"]
+script = ExtResource("2_visual")
+
 [sub_resource type="BTAction" id="BTAction_arrest"]
-script = ExtResource("2_action")
+script = ExtResource("3_action")
 mode = 1
 
 [sub_resource type="BTSequence" id="BTSequence_arrest"]
-custom_name = "Arrest pursuit"
-children = [SubResource("BTCondition_arrest"), SubResource("BTAction_arrest")]
+custom_name = "Pursue visible suspect"
+children = [SubResource("BTCondition_arrest_wanted"), SubResource("BTCondition_arrest_visual"), SubResource("BTAction_arrest")]
+
+[sub_resource type="BTCondition" id="BTCondition_arrest_search_wanted"]
+script = ExtResource("1_wanted")
+minimum_level = 1
+maximum_level = 1
+
+[sub_resource type="BTAction" id="BTAction_arrest_search"]
+script = ExtResource("3_action")
+mode = 3
+
+[sub_resource type="BTSequence" id="BTSequence_arrest_search"]
+custom_name = "Search for suspect"
+children = [SubResource("BTCondition_arrest_search_wanted"), SubResource("BTAction_arrest_search")]
 
 [sub_resource type="BTAction" id="BTAction_patrol"]
-script = ExtResource("2_action")
-mode = 0
+script = ExtResource("3_action")
 
 [sub_resource type="BTSelector" id="BTSelector_root"]
-custom_name = "Police priority"
-children = [SubResource("BTSequence_combat"), SubResource("BTSequence_arrest"), SubResource("BTAction_patrol")]
+custom_name = "Police response priority"
+children = [SubResource("BTSequence_combat"), SubResource("BTSequence_combat_search"), SubResource("BTSequence_arrest"), SubResource("BTSequence_arrest_search"), SubResource("BTAction_patrol")]
 
 [resource]
-description = "Police priority: lethal combat, arrest pursuit, then pedestrian patrol."
+description = "Police engage visible suspects, coordinate searches after losing sight, and otherwise patrol."
 root_task = SubResource("BTSelector_root")
