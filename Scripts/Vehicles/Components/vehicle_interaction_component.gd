@@ -9,7 +9,11 @@ func setup(owner_vehicle: BaseVehicle) -> void:
 
 
 func can_interact(player: CharacterBody3D) -> bool:
-	if vehicle.has_driver() or vehicle.definition == null:
+	if (
+		vehicle.has_driver()
+		or vehicle.is_managed_traffic()
+		or vehicle.definition == null
+	):
 		return false
 	var health := player.get_node_or_null(
 		"Components/HealthComponent"

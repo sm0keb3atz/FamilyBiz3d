@@ -6,7 +6,7 @@
 [ext_resource type="AudioStream" uid="uid://fhdt5qp6kldf" path="res://Assets/Audio/Vehicles/CarStart.wav" id="4_start"]
 [ext_resource type="AudioStream" uid="uid://boe71t765fhvg" path="res://Assets/Audio/Vehicles/CorvetteIdle.wav" id="5_engine"]
 [ext_resource type="AudioStream" uid="uid://boefdxidl04qw" path="res://Assets/Audio/Vehicles/CarOff.wav" id="6_stop"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/tires_squal_loop.wav" id="7_tires"]
+[ext_resource type="AudioStream" uid="uid://dyhq3kph61g86" path="res://Assets/Audio/Vehicles/tires_squal_loop.wav" id="7_tires"]
 
 [resource]
 script = ExtResource("1_definition")
@@ -14,6 +14,8 @@ display_name = "Muscle Car"
 visual_scene = ExtResource("2_model")
 engine_force = 8500.0
 max_forward_speed = 50.0
+max_steering_degrees = 32.0
+steering_speed = 4.6
 door_stream = ExtResource("3_door")
 start_stream = ExtResource("4_start")
 engine_stream = ExtResource("5_engine")

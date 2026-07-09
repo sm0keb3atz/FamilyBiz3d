@@ -46,6 +46,8 @@
 [ext_resource type="PackedScene" uid="uid://8882wsntwlos" path="res://Assets/MapStuff/Meshs/StreetProps/SM_trash_bin_1b.gltf" id="29_d66v6"]
 [ext_resource type="PackedScene" uid="uid://d1npoce17t4lf" path="res://Assets/MapStuff/Meshs/StreetProps/SM_TireSet_01.gltf" id="30_avagh"]
 [ext_resource type="PackedScene" uid="uid://csva8ju0mk3ow" path="res://Assets/MapStuff/Meshs/StreetProps/SM_carton_box_tray.gltf" id="31_gnq75"]
+[ext_resource type="Script" uid="uid://bfeweuw4he37k" path="res://Scripts/Traffic/traffic_waypoint_3d.gd" id="32_traffic_waypoint"]
+[ext_resource type="Script" uid="uid://bh3mne6xa24vr" path="res://Scripts/Traffic/traffic_route_visualizer_3d.gd" id="33_traffic_visualizer"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sood0"]
 resource_name = "MI_ColorPalette"
@@ -2686,6 +2688,155 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96, 0, -96)
 
 [node name="Intersection4" parent="Roads" unique_id=463488859 instance=ExtResource("7_86gvs")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -24, 0, -112)
+
+[node name="TrafficRoutes" type="Node3D" parent="Roads" unique_id=2042955427]
+script = ExtResource("33_traffic_visualizer")
+
+[node name="OuterClockwise_NorthWest" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=1125378144]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5999985, 0.2, 18.8)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_NorthMid")])
+
+[node name="OuterClockwise_NorthMid" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=132502345]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.2, 19.4)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_NorthEast")])
+
+[node name="OuterClockwise_NorthEast" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=316599036]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91.5, 0.2, 19.5)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_EastNorth")])
+spawn_allowed = false
+
+[node name="OuterClockwise_EastNorth" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=12963288]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 106.90001, 0.2, 3.7000008)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_EastMid")])
+
+[node name="OuterClockwise_EastMid" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=312767055]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.100006, 0.2, -36)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_EastSouth")])
+
+[node name="OuterClockwise_EastSouth" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=87817037]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107, 0.2, -91.6)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_SouthEast")])
+spawn_allowed = false
+is_stop_line = true
+signal_group = &"north_south"
+signal_controller_path = NodePath("../../Intersection3/SignalController")
+
+[node name="OuterClockwise_SouthEast" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=1335096965]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91.7, 0.2, -106.3)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_SouthMid")])
+
+[node name="OuterClockwise_SouthMid" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=2007368881]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.2, -106.8)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_SouthWest")])
+
+[node name="OuterClockwise_SouthWest" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=184377173]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2999992, 0.2, -106.8)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_WestSouth")])
+spawn_allowed = false
+is_stop_line = true
+signal_group = &"east_west"
+signal_controller_path = NodePath("../../Intersection4/SignalController")
+
+[node name="OuterClockwise_WestSouth" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=1496623942]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.4, 0.2, -91.8)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_WestMid")])
+
+[node name="OuterClockwise_WestMid" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=1680377982]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.2, 0.2, -36)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_WestNorth")])
+
+[node name="OuterClockwise_WestNorth" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=897617050]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.2, 0.2, 3.1000004)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_NorthWest")])
+spawn_allowed = false
+is_stop_line = true
+signal_group = &"north_south"
+signal_controller_path = NodePath("../../Intersection7/SignalController")
+
+[node name="OuterCounterClockwise_NorthEast" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=562922432]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.2, 0.2, 13)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_NorthMid")])
+
+[node name="OuterCounterClockwise_NorthMid" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=20742815]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.2, 13.3)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_NorthWest")])
+
+[node name="OuterCounterClockwise_NorthWest" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=957235394]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.199999, 0.2, 12.799999)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_WestNorth")])
+spawn_allowed = false
+is_stop_line = true
+signal_group = &"east_west"
+signal_controller_path = NodePath("../../Intersection7/SignalController")
+
+[node name="OuterCounterClockwise_WestNorth" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=31304068]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.999999, 0.2, 3.6999989)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_WestMid")])
+
+[node name="OuterCounterClockwise_WestMid" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=515087305]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.4, 0.2, -36)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_WestSouth")])
+
+[node name="OuterCounterClockwise_WestSouth" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=848109570]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.4, 0.2, -91.5)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_SouthWest")])
+spawn_allowed = false
+is_stop_line = true
+signal_group = &"north_south"
+signal_controller_path = NodePath("../../Intersection4/SignalController")
+
+[node name="OuterCounterClockwise_SouthWest" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=408671307]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 0.2, -101.399994)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_SouthMid")])
+
+[node name="OuterCounterClockwise_SouthMid" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=1258508327]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.2, -101.399994)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_SouthEast")])
+
+[node name="OuterCounterClockwise_SouthEast" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=706052705]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91.2, 0.2, -101.399994)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_EastSouth")])
+spawn_allowed = false
+is_stop_line = true
+signal_group = &"east_west"
+signal_controller_path = NodePath("../../Intersection3/SignalController")
+
+[node name="OuterCounterClockwise_EastSouth" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=656378444]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 101.20001, 0.2, -91.1)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_EastMid")])
+
+[node name="OuterCounterClockwise_EastMid" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=2115070523]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 101.399994, 0.2, -36)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_EastNorth")])
+
+[node name="OuterCounterClockwise_EastNorth" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=553589572]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 101.5, 0.2, 3.8999996)
+script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_NorthEast")])
+spawn_allowed = false
 
 [editable path="Ground/Plot/Buildings/Building1"]
 [editable path="Ground/Plot/Buildings/Building5"]

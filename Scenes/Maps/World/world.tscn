@@ -10,6 +10,8 @@
 [ext_resource type="PackedScene" uid="uid://b5hevxt2pn7d8" path="res://Scenes/NPC/HoodEastPedestrianNetwork.tscn" id="8_pedestrian_network"]
 [ext_resource type="Script" uid="uid://bxw71y4t6qpfj" path="res://Scripts/NPC/civilian_population_manager.gd" id="9_population"]
 [ext_resource type="PackedScene" path="res://Scenes/NPC/PoliceNPC.tscn" id="10_police"]
+[ext_resource type="Script" uid="uid://4v6vf2ol38ey" path="res://Scripts/Traffic/traffic_network_3d.gd" id="11_traffic_network"]
+[ext_resource type="Script" uid="uid://eqf0y7pyekcp" path="res://Scripts/Traffic/traffic_population_manager.gd" id="12_traffic_population"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
 sky_horizon_color = Color(0.66, 0.67, 0.69, 1)
@@ -66,6 +68,15 @@ navigation_mesh = SubResource("WestNavigation")
 [node name="HoodWestPedestrianNetwork" parent="Navigation" unique_id=878643702 instance=ExtResource("8_pedestrian_network")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -240.04152)
 
+[node name="HoodEastTrafficNetwork" type="Node3D" parent="Navigation" unique_id=1996900601]
+script = ExtResource("11_traffic_network")
+scan_root_paths = Array[NodePath]([NodePath("../../Territories/HoodEast")])
+
+[node name="HoodWestTrafficNetwork" type="Node3D" parent="Navigation" unique_id=1232254990]
+script = ExtResource("11_traffic_network")
+debug_draw_in_editor = false
+scan_root_paths = Array[NodePath]([NodePath("../../Territories/HoodWest")])
+
 [node name="SpawnPoints" type="Node3D" parent="." unique_id=1801510180]
 
 [node name="PlayerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=769164811]
@@ -80,6 +91,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0.1, -256)
 [node name="Gameplay" type="Node3D" parent="." unique_id=319354138]
 
 [node name="Civilians" type="Node3D" parent="Gameplay" unique_id=2143072019]
+
+[node name="TrafficVehicles" type="Node3D" parent="Gameplay" unique_id=1523987167]
 
 [node name="Player" parent="Gameplay" unique_id=1309725601 instance=ExtResource("3_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0.1, 0)
@@ -111,3 +124,17 @@ police_scene = ExtResource("10_police")
 network_path = NodePath("../Navigation/HoodWestPedestrianNetwork")
 player_path = NodePath("../Gameplay/Player")
 npc_container_path = NodePath("../Gameplay/Civilians")
+
+[node name="TrafficPopulationManager" type="Node3D" parent="." unique_id=1691622919]
+script = ExtResource("12_traffic_population")
+vehicle_scene = ExtResource("7_muscle_car")
+network_path = NodePath("../Navigation/HoodEastTrafficNetwork")
+player_path = NodePath("../Gameplay/Player")
+vehicle_container_path = NodePath("../Gameplay/TrafficVehicles")
+
+[node name="WestTrafficPopulationManager" type="Node3D" parent="." unique_id=552145384]
+script = ExtResource("12_traffic_population")
+vehicle_scene = ExtResource("7_muscle_car")
+network_path = NodePath("../Navigation/HoodWestTrafficNetwork")
+player_path = NodePath("../Gameplay/Player")
+vehicle_container_path = NodePath("../Gameplay/TrafficVehicles")

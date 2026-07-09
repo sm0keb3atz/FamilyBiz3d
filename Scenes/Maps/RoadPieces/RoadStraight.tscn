@@ -2,7 +2,6 @@
 
 [ext_resource type="ArrayMesh" uid="uid://cdpm0qxroyvfk" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_01.glb" id="2_j8lbt"]
 [ext_resource type="ArrayMesh" uid="uid://bskyinaat4ttr" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01.glb" id="4_3i20k"]
-
 [node name="TestWorld" type="Node3D" unique_id=1815818858]
 
 [node name="SmRoad04" type="MeshInstance3D" parent="." unique_id=1443676131]

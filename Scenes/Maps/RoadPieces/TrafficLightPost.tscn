@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://dwkg45a13qkts"]
+
+[ext_resource type="PackedScene" uid="uid://1s0n01rsb67d" path="res://Assets/MapStuff/Meshs/StreetProps/SM_traffic_lights_1.gltf" id="1_model"]
+[ext_resource type="Script" uid="uid://0n3f58vkqg1r" path="res://Scripts/Traffic/traffic_signal_visual_3d.gd" id="2_visual"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_red"]
+albedo_color = Color(1, 0.04, 0.02, 1)
+emission_enabled = true
+emission = Color(1, 0.04, 0.02, 1)
+emission_energy_multiplier = 2.8
+
+[sub_resource type="SphereMesh" id="SphereMesh_lamp"]
+radius = 0.13
+height = 0.26
+radial_segments = 16
+rings = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yellow"]
+albedo_color = Color(1, 0.75, 0.05, 1)
+emission_enabled = true
+emission = Color(1, 0.75, 0.05, 1)
+emission_energy_multiplier = 2.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_green"]
+albedo_color = Color(0.1, 1, 0.25, 1)
+emission_enabled = true
+emission = Color(0.1, 1, 0.25, 1)
+emission_energy_multiplier = 2.4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_red_blocker"]
+size = Vector3(4.197754, 2.5, 0.8)
+
+[node name="TrafficLightPost" type="Node3D" unique_id=587318624]
+script = ExtResource("2_visual")
+
+[node name="SM_traffic_lights_1" parent="." unique_id=94273561 instance=ExtResource("1_model")]
+
+[node name="Lamps" type="Node3D" parent="." unique_id=136799430]
+
+[node name="RedLamp" type="MeshInstance3D" parent="Lamps" unique_id=941182144]
+transform = Transform3D(0.85, 0, 0, 0, 0.85, 0, 0, 0, 0.85, 0.2301758, 4.94172, 5.0151906)
+visible = false
+material_override = SubResource("StandardMaterial3D_red")
+mesh = SubResource("SphereMesh_lamp")
+
+[node name="YellowLamp" type="MeshInstance3D" parent="Lamps" unique_id=796008120]
+transform = Transform3D(0.85, 0, 0, 0, 0.85, 0, 0, 0, 0.85, 0.23109074, 4.5927205, 5.013662)
+visible = false
+material_override = SubResource("StandardMaterial3D_yellow")
+mesh = SubResource("SphereMesh_lamp")
+
+[node name="GreenLamp" type="MeshInstance3D" parent="Lamps" unique_id=1260882182]
+transform = Transform3D(0.85, 0, 0, 0, 0.85, 0, 0, 0, 0.85, 0.25565025, 4.2552648, 5.012342)
+visible = false
+material_override = SubResource("StandardMaterial3D_green")
+mesh = SubResource("SphereMesh_lamp")
+
+[node name="RedSignalBlocker" type="Area3D" parent="." unique_id=227291192 groups=["traffic_signal_blocker"]]
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RedSignalBlocker" unique_id=1085124558]
+transform = Transform3D(-0.023422288, 0, 0.99972564, 0, 1, 0, -0.99972564, 0, -0.023422288, -0.018317249, 1.25, 5.8360724)
+shape = SubResource("BoxShape3D_red_blocker")
+disabled = true

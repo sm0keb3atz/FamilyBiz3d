@@ -5,7 +5,6 @@
 [ext_resource type="ArrayMesh" uid="uid://ciqwe8yur35ny" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_04_quarter.glb" id="3_21fxs"]
 [ext_resource type="ArrayMesh" uid="uid://cjau7jq3foioe" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_cornerIn.glb" id="4_1v5va"]
 [ext_resource type="ArrayMesh" uid="uid://bskyinaat4ttr" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01.glb" id="5_gvxyq"]
-
 [node name="Intersection" type="Node3D" unique_id=1070683106]
 
 [node name="SmRoad00" type="MeshInstance3D" parent="." unique_id=658026147]

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c721hburp5xh5"
+path="res://.godot/imported/rubber_sound.mp3-ac3553cd63177385b97979f920051f25.mp3str"
+
+[deps]
+
+source_file="res://MAdvanced-Vehicle-Controller-46179c69f4c9f0af259a7634ed83cca3791d6669/addons/M.A.V.S/Vehicle/Modular Components/rubber_sound.mp3"
+dest_files=["res://.godot/imported/rubber_sound.mp3-ac3553cd63177385b97979f920051f25.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0.0
+bpm=0.0
+beat_count=0
+bar_beats=4

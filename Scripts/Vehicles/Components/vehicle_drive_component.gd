@@ -5,6 +5,11 @@ var vehicle: BaseVehicle
 var steering_input := 0.0
 var throttle_amount := 0.0
 var service_braking := false
+var _ai_control_enabled := false
+var _ai_throttle := 0.0
+var _ai_brake := 0.0
+var _ai_steering := 0.0
+var _ai_handbrake := 0.0
 
 
 func setup(owner_vehicle: BaseVehicle) -> void:
@@ -15,9 +20,17 @@ func reset() -> void:
 	steering_input = 0.0
 	throttle_amount = 0.0
 	service_braking = false
+	_ai_control_enabled = false
+	_ai_throttle = 0.0
+	_ai_brake = 0.0
+	_ai_steering = 0.0
+	_ai_handbrake = 0.0
 
 
 func update(delta: float) -> void:
+	if _ai_control_enabled and not vehicle.has_driver():
+		_update_ai(delta)
+		return
 	if not vehicle.has_driver():
 		_set_drive_force(0.0)
 		throttle_amount = 0.0
@@ -110,6 +123,81 @@ func stop() -> void:
 	_set_brakes(vehicle.definition.service_brake_force, 0.0)
 	vehicle.steering = 0.0
 	reset()
+
+
+func set_ai_control(
+	throttle: float,
+	brake: float,
+	steering: float,
+	handbrake := 0.0
+) -> void:
+	_ai_control_enabled = true
+	_ai_throttle = clampf(throttle, 0.0, 1.0)
+	_ai_brake = clampf(brake, 0.0, 1.0)
+	_ai_steering = clampf(
+		steering,
+		-deg_to_rad(vehicle.definition.max_steering_degrees),
+		deg_to_rad(vehicle.definition.max_steering_degrees)
+	)
+	_ai_handbrake = clampf(handbrake, 0.0, 1.0)
+
+
+func clear_ai_control() -> void:
+	_ai_control_enabled = false
+	_ai_throttle = 0.0
+	_ai_brake = 0.0
+	_ai_steering = 0.0
+	_ai_handbrake = 0.0
+	if vehicle != null and vehicle.definition != null:
+		_set_drive_force(0.0)
+		_set_brakes(vehicle.definition.service_brake_force, 0.0)
+
+
+func is_ai_control_enabled() -> bool:
+	return _ai_control_enabled
+
+
+func _update_ai(delta: float) -> void:
+	var forward_speed := vehicle.linear_velocity.dot(vehicle.global_basis.z)
+	var tires := vehicle.tire_component
+	tires.handbrake_amount = _ai_handbrake
+	tires.update_burnout(delta, _ai_throttle, forward_speed)
+	tires.update_drift(delta, _ai_throttle)
+	vehicle.powertrain_component.update_automatic(
+		delta,
+		forward_speed,
+		_ai_throttle,
+		0.0
+	)
+	steering_input = move_toward(
+		steering_input,
+		_ai_steering,
+		vehicle.definition.steering_speed * delta
+	)
+	vehicle.steering = steering_input
+	var drive_force := 0.0
+	throttle_amount = 0.0
+	service_braking = _ai_brake > 0.01
+	if (
+		_ai_throttle > 0.0
+		and _ai_brake <= 0.01
+		and forward_speed < vehicle.definition.max_forward_speed
+	):
+		drive_force = (
+			vehicle.definition.engine_force
+			* vehicle.powertrain_component.force_multiplier()
+			* _ai_throttle
+		)
+		throttle_amount = _ai_throttle
+	if vehicle.powertrain_component.shift_timer > 0.0:
+		drive_force = 0.0
+		throttle_amount = 0.0
+	_set_drive_force(drive_force)
+	tires.update_grip(delta, _ai_throttle, forward_speed)
+	_set_brakes(
+		vehicle.definition.service_brake_force * _ai_brake,
+		vehicle.definition.handbrake_force * _ai_handbrake
+	)
 
 
 func _set_drive_force(force: float) -> void:

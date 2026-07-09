@@ -16,6 +16,7 @@ var engine_target_volume_db := 0.0
 var start_target_volume_db := 0.0
 var engine_ready := false
 var engine_rpm := 850.0
+var traffic_detail_enabled := true
 
 
 func setup(owner_vehicle: BaseVehicle) -> void:
@@ -137,7 +138,18 @@ func _sequence_valid(id: int) -> bool:
 
 func update(delta: float) -> void:
 	update_tires(delta)
-	if not vehicle.has_driver() or not engine.playing:
+	var drive_audio_active := vehicle.has_driver() or vehicle.is_managed_traffic()
+	if not drive_audio_active:
+		return
+	if vehicle.is_managed_traffic() and not traffic_detail_enabled:
+		if engine.playing:
+			engine.stop()
+		engine_ready = false
+		return
+	if vehicle.is_managed_traffic() and engine.stream != null and not engine.playing:
+		engine.play()
+		engine_ready = true
+	if not engine.playing:
 		return
 	var forward_speed := vehicle.linear_velocity.dot(vehicle.global_basis.z)
 	var target_rpm := vehicle.powertrain_component.calculate_target_rpm(
@@ -211,6 +223,10 @@ func update(delta: float) -> void:
 func update_tires(delta: float) -> void:
 	if tires.stream == null:
 		return
+	if vehicle.is_managed_traffic() and not traffic_detail_enabled:
+		if tires.playing:
+			tires.stop()
+		return
 	var planar := Vector3(
 		vehicle.linear_velocity.x,
 		0.0,
@@ -246,7 +262,7 @@ func update_tires(delta: float) -> void:
 		)
 	)
 	if (
-		not vehicle.has_driver()
+		not (vehicle.has_driver() or vehicle.is_managed_traffic())
 		or not grounded
 		or (
 			speed < 5.0
@@ -269,3 +285,16 @@ func update_tires(delta: float) -> void:
 	tires.pitch_scale = lerpf(0.88, 1.12, intensity)
 	if intensity <= 0.02 and tires.volume_db <= -39.5:
 		tires.stop()
+
+
+func set_traffic_detail_enabled(enabled: bool) -> void:
+	traffic_detail_enabled = enabled
+	if enabled:
+		if vehicle != null and vehicle.is_managed_traffic():
+			engine_ready = true
+		return
+	if engine.playing:
+		engine.stop()
+	if tires.playing:
+		tires.stop()
+	engine_ready = false

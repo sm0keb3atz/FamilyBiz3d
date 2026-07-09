@@ -86,12 +86,14 @@ signal exit_denied(message: String)
 )
 
 var _driver: CharacterBody3D
+var _managed_traffic_enabled := false
 var _wheel_anchor_positions: Dictionary = {}
 var _skid_mark_emitters: Dictionary = {}
 var _tire_smoke_emitters: Dictionary = {}
 var _tailpipe_idle_exhausts: Array[GPUParticles3D] = []
 var _tailpipe_startup_exhausts: Array[GPUParticles3D] = []
 var _soft_smoke_texture: GradientTexture2D
+var _traffic_detail_enabled := true
 
 
 func _ready() -> void:
@@ -160,6 +162,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func can_interact(player: CharacterBody3D) -> bool:
+	if _managed_traffic_enabled:
+		return false
 	return interaction_component.can_interact(player)
 
 
@@ -168,7 +172,7 @@ func get_interaction_prompt(_player: CharacterBody3D) -> String:
 
 
 func interact(player: CharacterBody3D) -> void:
-	if not can_interact(player):
+	if _managed_traffic_enabled or not can_interact(player):
 		return
 	var component: Variant = player.get_node_or_null(
 		"Components/VehicleComponent"
@@ -178,7 +182,7 @@ func interact(player: CharacterBody3D) -> void:
 
 
 func enter_driver(player: CharacterBody3D) -> bool:
-	if _driver != null or not can_interact(player):
+	if _managed_traffic_enabled or _driver != null or not can_interact(player):
 		return false
 	_driver = player
 	powertrain_component.reset()
@@ -232,6 +236,50 @@ func clear_driver() -> void:
 
 func has_driver() -> bool:
 	return _driver != null
+
+
+func set_managed_traffic_enabled(enabled: bool) -> void:
+	if _managed_traffic_enabled == enabled:
+		return
+	_managed_traffic_enabled = enabled
+	if enabled:
+		if _driver != null:
+			clear_driver()
+		add_to_group("traffic_vehicle")
+		_traffic_detail_enabled = true
+		audio_component.set_traffic_detail_enabled(true)
+		effects_component.set_traffic_detail_enabled(true)
+		drive_component.clear_ai_control()
+		audio_component.engine_ready = true
+		if audio_component.engine.stream != null and not audio_component.engine.playing:
+			audio_component.engine.play()
+		effects_component.set_exhaust_running(true)
+	else:
+		remove_from_group("traffic_vehicle")
+		_traffic_detail_enabled = true
+		audio_component.set_traffic_detail_enabled(true)
+		effects_component.set_traffic_detail_enabled(true)
+		drive_component.clear_ai_control()
+		audio_component.engine_ready = false
+		audio_component.engine.stop()
+		audio_component.tires.stop()
+		effects_component.set_exhaust_running(false)
+
+
+func is_managed_traffic() -> bool:
+	return _managed_traffic_enabled
+
+
+func set_traffic_detail_enabled(enabled: bool) -> void:
+	if _traffic_detail_enabled == enabled:
+		return
+	_traffic_detail_enabled = enabled
+	audio_component.set_traffic_detail_enabled(enabled)
+	effects_component.set_traffic_detail_enabled(enabled)
+
+
+func is_traffic_detail_enabled() -> bool:
+	return _traffic_detail_enabled
 
 
 func get_driver() -> CharacterBody3D:
