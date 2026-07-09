@@ -87,6 +87,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	add_to_group(&"lock_target")
 	movement_component.initialize(self)
 	animation_component.initialize(self)
 	health_component.initialize(self)
@@ -171,6 +172,7 @@ func apply_vehicle_impact(source: Node, impact_velocity: Vector3) -> void:
 
 
 func reset_for_reuse() -> void:
+	add_to_group(&"lock_target")
 	health_component.reset_for_reuse()
 	movement_component.reset_for_reuse()
 	animation_component.reset_for_reuse()
@@ -202,4 +204,5 @@ func _on_defeated(
 	hit_position: Vector3,
 	hit_direction: Vector3
 ) -> void:
+	remove_from_group(&"lock_target")
 	health_component.handle_defeated(source, hit_position, hit_direction)

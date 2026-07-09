@@ -9,8 +9,11 @@ signal footstep_played(is_sprinting: bool)
 @export_category("Sounds")
 @export var footstep_sounds: Array[AudioStream] = []
 @export var reload_sounds: Array[AudioStream] = []
+@export var equip_sounds: Array[AudioStream] = []
 @export var gunshot_sound: AudioStream
 @export var npc_impact_sounds: Array[AudioStream] = []
+@export var metal_impact_sounds: Array[AudioStream] = []
+@export var stone_impact_sounds: Array[AudioStream] = []
 
 @export_category("Footsteps")
 @export_range(-30.0, 0.0, 0.5) var walk_volume_db := -14.0
@@ -25,6 +28,7 @@ signal footstep_played(is_sprinting: bool)
 @export_range(0, 10, 1) var equip_sound_index := 0
 @export_range(-30.0, 6.0, 0.5) var gunshot_volume_db := 0.0
 @export_range(-30.0, 6.0, 0.5) var impact_volume_db := -3.0
+@export_range(-30.0, 6.0, 0.5) var surface_impact_volume_db := -5.0
 @export_range(0.0, 0.25, 0.01) var gunshot_pitch_variation := 0.035
 @export_range(0.0, 0.25, 0.01) var impact_pitch_variation := 0.08
 
@@ -133,10 +137,10 @@ func are_footsteps_enabled() -> bool:
 
 
 func play_equip_sound() -> void:
-	if equip_sound_index < 0 or equip_sound_index >= reload_sounds.size():
+	if equip_sound_index < 0 or equip_sound_index >= equip_sounds.size():
 		return
 
-	var sound := reload_sounds[equip_sound_index]
+	var sound := equip_sounds[equip_sound_index]
 	if sound == null:
 		return
 
@@ -180,6 +184,29 @@ func play_npc_impact(position: Vector3) -> void:
 	)
 	player.volume_db = impact_volume_db
 	player.max_distance = 22.0
+	player.finished.connect(player.queue_free)
+	player.play()
+
+
+func play_surface_impact(position: Vector3, is_metal: bool) -> void:
+	var sounds := metal_impact_sounds if is_metal else stone_impact_sounds
+	if sounds.is_empty():
+		return
+
+	var sound := sounds.pick_random() as AudioStream
+	if sound == null:
+		return
+
+	var player := AudioStreamPlayer3D.new()
+	get_tree().current_scene.add_child(player)
+	player.global_position = position
+	player.stream = sound
+	player.pitch_scale = randf_range(
+		1.0 - impact_pitch_variation,
+		1.0 + impact_pitch_variation
+	)
+	player.volume_db = surface_impact_volume_db
+	player.max_distance = 28.0
 	player.finished.connect(player.queue_free)
 	player.play()
 

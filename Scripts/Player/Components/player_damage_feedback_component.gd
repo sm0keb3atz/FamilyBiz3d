@@ -22,9 +22,11 @@ const HIT_REACTION_BONES := [
 	"../../Visual/PlayerTest2/Armature/GeneralSkeleton"
 )
 @export var bullet_impact_sounds: Array[AudioStream] = []
+@export var bullet_whiz_sounds: Array[AudioStream] = []
 @export_range(0.5, 3.0, 0.05) var head_hit_height := 1.45
 @export_range(0.0, 0.5, 0.01) var reaction_blend_time := 0.08
 @export_range(-12.0, 6.0, 0.5) var bullet_impact_volume_db := 1.0
+@export_range(-30.0, 6.0, 0.5) var bullet_whiz_volume_db := -3.0
 @export_range(0.0, 0.25, 0.01) var bullet_impact_pitch_variation := 0.08
 
 @onready var body := get_node(body_path) as CharacterBody3D
@@ -67,6 +69,21 @@ func receive_hit(
 		_play_hit_reaction(hit_position)
 	_play_bullet_impact()
 	_spawn_blood(hit_position, hit_direction, fatal)
+
+
+func play_bullet_whiz() -> void:
+	if _impact_player == null or bullet_whiz_sounds.is_empty():
+		return
+	var sound := bullet_whiz_sounds.pick_random() as AudioStream
+	if sound == null:
+		return
+	_impact_player.stream = sound
+	_impact_player.volume_db = bullet_whiz_volume_db
+	_impact_player.pitch_scale = randf_range(
+		1.0 - bullet_impact_pitch_variation,
+		1.0 + bullet_impact_pitch_variation
+	)
+	_impact_player.play()
 
 
 func _play_hit_reaction(hit_position: Vector3) -> void:

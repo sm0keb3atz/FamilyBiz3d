@@ -9,6 +9,7 @@ const MODE_SEARCH_COMBAT := 4
 
 @export_range(1.0, 12.0, 0.1) var patrol_speed := 2.5
 @export_range(1.0, 12.0, 0.1) var pursuit_speed := 5.5
+@export_range(0.5, 5.0, 0.1) var combat_aim_move_speed := 2.25
 @export_range(0.5, 5.0, 0.1) var arrest_distance := 1.8
 @export_range(2.0, 30.0, 0.5) var preferred_combat_distance := 11.0
 @export_range(1.0, 20.0, 0.5) var minimum_combat_distance := 3.0
@@ -183,7 +184,6 @@ func _tick_arrest(delta: float) -> void:
 
 
 func _tick_combat(delta: float) -> void:
-	npc.move_speed = pursuit_speed
 	combat.set_equipped(true)
 	if not player_health.is_alive():
 		combat.clear_aim()
@@ -200,8 +200,17 @@ func _tick_combat(delta: float) -> void:
 	var combat_distance: float = npc.global_position.distance_to(
 		player.global_position
 	)
+	var advance_threshold := preferred_combat_distance * 1.25
+	if combat_distance > advance_threshold:
+		npc.move_speed = pursuit_speed
+		combat.clear_aim()
+		_has_reposition_target = false
+		npc.set_navigation_target(player.global_position)
+		npc.set_facing_override(target_position)
+		npc.advance_navigation(delta)
+		return
+
 	_reaction_remaining = maxf(_reaction_remaining - delta, 0.0)
-	combat.set_aim_target(target_position)
 	_movement_decision_remaining = maxf(
 		_movement_decision_remaining - delta,
 		0.0
@@ -210,6 +219,8 @@ func _tick_combat(delta: float) -> void:
 		_retreat_cooldown_remaining - delta,
 		0.0
 	)
+	npc.move_speed = combat_aim_move_speed
+	combat.set_aim_target(target_position)
 	_update_combat_movement(combat_distance, target_position, delta)
 	_pause_remaining = maxf(_pause_remaining - delta, 0.0)
 	_shot_remaining = maxf(_shot_remaining - delta, 0.0)
@@ -245,13 +256,6 @@ func _update_combat_movement(
 	target_position: Vector3,
 	delta: float
 ) -> void:
-	var advance_threshold := preferred_combat_distance * 1.25
-	if combat_distance > advance_threshold:
-		_has_reposition_target = false
-		npc.set_navigation_target(player.global_position)
-		npc.set_facing_override(target_position)
-		npc.advance_navigation(delta)
-		return
 	if (
 		combat_distance < minimum_combat_distance
 		and _retreat_cooldown_remaining <= 0.0
@@ -283,19 +287,14 @@ func _choose_aggressive_reposition(combat_distance: float) -> void:
 		movement_decision_maximum
 	)
 	var roll := _random.randf()
-	if combat_distance > preferred_combat_distance or roll < 0.35:
+	if combat_distance > preferred_combat_distance:
 		var toward: Vector3 = player.global_position - npc.global_position
 		toward.y = 0.0
 		if toward.is_zero_approx():
 			return
-		var side: Vector3 = toward.normalized().rotated(
-			Vector3.UP,
-			PI * 0.5 * (-1.0 if _random.randf() < 0.5 else 1.0)
-		)
 		var candidate: Vector3 = (
 			npc.global_position
 			+ toward.normalized() * _random.randf_range(2.0, 4.0)
-			+ side * _random.randf_range(1.0, 2.5)
 		)
 		_set_reachable_reposition(candidate)
 	elif roll < 0.85:

@@ -47,6 +47,8 @@ const RIGHT_UP_LEG_TRACK := NodePath("%GeneralSkeleton:RightUpperLeg")
 	"parameters/AimMovementSpeed/scale"
 )
 @export_range(0.1, 3.0, 0.05) var walk_animation_speed_scale := 2.0
+@export_range(0.1, 3.0, 0.05) var sprint_animation_speed_scale := 1.65
+@export_range(0.1, 2.0, 0.05) var foot_slide_correction_scale := 1.15
 @export_range(0.1, 10.0, 0.1) var animation_walk_reference_speed := 2.5
 @export_range(0.2, 15.0, 0.1) var animation_sprint_reference_speed := 6.5
 @export_range(0.1, 3.0, 0.05) var aim_movement_animation_speed_scale := 1.35
@@ -170,6 +172,11 @@ func update_locomotion_animation() -> void:
 	var playback_scale := 1.0
 	if horizontal_speed > 0.01:
 		if horizontal_speed <= npc.animation_walk_reference_speed:
+			var walk_speed_ratio := clampf(
+				horizontal_speed / npc.animation_walk_reference_speed,
+				0.35,
+				1.25
+			)
 			blend_position = remap(
 				horizontal_speed,
 				0.0,
@@ -177,7 +184,11 @@ func update_locomotion_animation() -> void:
 				-1.0,
 				0.0
 			)
-			playback_scale = npc.walk_animation_speed_scale
+			playback_scale = (
+				npc.walk_animation_speed_scale
+				* walk_speed_ratio
+				* foot_slide_correction_scale
+			)
 		else:
 			var sprint_blend := clampf(
 				inverse_lerp(
@@ -188,10 +199,18 @@ func update_locomotion_animation() -> void:
 				0.0,
 				1.0
 			)
+			var sprint_speed_ratio := clampf(
+				horizontal_speed / npc.animation_sprint_reference_speed,
+				0.55,
+				1.25
+			)
 			blend_position = sprint_blend
 			playback_scale = lerpf(
-				npc.walk_animation_speed_scale, 1.0, sprint_blend
+				npc.walk_animation_speed_scale,
+				sprint_animation_speed_scale * sprint_speed_ratio,
+				sprint_blend
 			)
+			playback_scale *= foot_slide_correction_scale
 	blend_position = clampf(blend_position, -1.0, 1.0)
 	if not is_equal_approx(blend_position, _last_locomotion_blend):
 		npc.animation_tree.set(
@@ -209,13 +228,18 @@ func update_locomotion_animation() -> void:
 			* Vector3(npc.velocity.x, 0.0, npc.velocity.z)
 		)
 		var reference_speed: float = maxf(npc.move_speed, 0.01)
-		_target_aim_direction = Vector2(
-			local_velocity.x / reference_speed,
-			local_velocity.z / reference_speed
-		).limit_length(1.0)
+		var aim_speed_ratio := clampf(
+			horizontal_speed / reference_speed,
+			0.45,
+			1.2
+		)
+		_target_aim_direction = AimStrafeBlend.from_local_velocity(
+			local_velocity,
+			reference_speed
+		)
 		npc.animation_tree.set(
 			aim_movement_speed_parameter,
-			aim_movement_animation_speed_scale
+			aim_movement_animation_speed_scale * aim_speed_ratio
 			if horizontal_speed > 0.01
 			else 1.0
 		)

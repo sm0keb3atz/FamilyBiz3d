@@ -5,28 +5,8 @@
 
 [node name="TestWorld" type="Node3D" unique_id=1815818858]
 
-[node name="SmRoad01" type="MeshInstance3D" parent="." unique_id=1210493516]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0, 0)
-mesh = ExtResource("2_j8lbt")
-
 [node name="SmRoad04" type="MeshInstance3D" parent="." unique_id=1443676131]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 0)
-mesh = ExtResource("2_j8lbt")
-
-[node name="SmRoad02" type="MeshInstance3D" parent="." unique_id=596045287]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 0, 0)
-mesh = ExtResource("2_j8lbt")
-
-[node name="SmRoad03" type="MeshInstance3D" parent="." unique_id=1059271009]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0, 0)
-mesh = ExtResource("2_j8lbt")
-
-[node name="SmRoad05" type="MeshInstance3D" parent="." unique_id=838906285]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0, 0)
-mesh = ExtResource("2_j8lbt")
-
-[node name="SmRoad06" type="MeshInstance3D" parent="." unique_id=554479316]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96, 0, 0)
+transform = Transform3D(6, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 0)
 mesh = ExtResource("2_j8lbt")
 
 [node name="SmSidewalk01" type="MeshInstance3D" parent="." unique_id=1782973970]

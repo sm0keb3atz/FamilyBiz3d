@@ -13,6 +13,10 @@
 [ext_resource type="ArrayMesh" uid="uid://uhw84xl63dqx" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_doorHouse_02.glb" id="11_6ysp2"]
 [ext_resource type="ArrayMesh" uid="uid://1wgnud7jgt0r" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb" id="12_myuvo"]
 [ext_resource type="ArrayMesh" uid="uid://d3fxf1vpnjdhd" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb" id="13_5371c"]
+[ext_resource type="PackedScene" uid="uid://dfaldmfn4dpuk" path="res://Assets/MapStuff/Meshs/StreetProps/SM_airCondition_02.gltf" id="14_1w0wj"]
+[ext_resource type="PackedScene" uid="uid://bx50bub5cglpj" path="res://Assets/MapStuff/Meshs/StreetProps/SM_airCondition_01.gltf" id="15_thc6l"]
+[ext_resource type="PackedScene" uid="uid://e7egmbnldb1c" path="res://Assets/MapStuff/Meshs/StreetProps/SM_camera.gltf" id="16_4knqk"]
+[ext_resource type="PackedScene" uid="uid://dqrbcvivapabq" path="res://Assets/MapStuff/Meshs/StreetProps/SM_mailbox_2.gltf" id="17_1siws"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_86gvs"]
 transparency = 1
@@ -45,18 +49,6 @@ mesh = ExtResource("3_mr8tn")
 
 [node name="SmWall04" type="MeshInstance3D" parent="Walls/Floor2" unique_id=1414068269]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -11, 3, 6)
-mesh = ExtResource("3_mr8tn")
-
-[node name="SmWall12" type="MeshInstance3D" parent="Walls/Floor2" unique_id=798301680]
-transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -1, -15, 3, -6.0000005)
-mesh = ExtResource("3_mr8tn")
-
-[node name="SmWall13" type="MeshInstance3D" parent="Walls/Floor2" unique_id=890331481]
-transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -1, -15, 3, -2.0000005)
-mesh = ExtResource("3_mr8tn")
-
-[node name="SmWall14" type="MeshInstance3D" parent="Walls/Floor2" unique_id=1743300905]
-transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -1, -15, 3, 1.9999995)
 mesh = ExtResource("3_mr8tn")
 
 [node name="SmWall07" type="MeshInstance3D" parent="Walls/Floor2" unique_id=450354166]
@@ -107,6 +99,18 @@ mesh = ExtResource("5_1w0wj")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 3, 3)
 mesh = ExtResource("6_thc6l")
 surface_material_override/1 = SubResource("StandardMaterial3D_86gvs")
+
+[node name="SmWindow01" type="MeshInstance3D" parent="Walls/Floor2" unique_id=1946475261]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -15, 3, 2)
+mesh = ExtResource("2_0kt2o")
+
+[node name="SmWindow02" type="MeshInstance3D" parent="Walls/Floor2" unique_id=1931067493]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -15, 3, -6)
+mesh = ExtResource("2_0kt2o")
+
+[node name="SmWindow03" type="MeshInstance3D" parent="Walls/Floor2" unique_id=246916442]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -15, 3, -2)
+mesh = ExtResource("2_0kt2o")
 
 [node name="Floor1" type="Node3D" parent="Walls" unique_id=1911402294]
 
@@ -276,18 +280,6 @@ mesh = ExtResource("3_mr8tn")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -11, 6, 6)
 mesh = ExtResource("3_mr8tn")
 
-[node name="SmWall16" type="MeshInstance3D" parent="Walls/Floor3" unique_id=2126702877]
-transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -1, -15, 6, -6.0000005)
-mesh = ExtResource("3_mr8tn")
-
-[node name="SmWall17" type="MeshInstance3D" parent="Walls/Floor3" unique_id=590889732]
-transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -1, -15, 6, -2.0000005)
-mesh = ExtResource("3_mr8tn")
-
-[node name="SmWall18" type="MeshInstance3D" parent="Walls/Floor3" unique_id=1816777660]
-transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -1, -15, 6, 1.9999995)
-mesh = ExtResource("3_mr8tn")
-
 [node name="SmWall08" type="MeshInstance3D" parent="Walls/Floor3" unique_id=1537495208]
 transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, -7, 6, -6)
 mesh = ExtResource("3_mr8tn")
@@ -340,6 +332,18 @@ surface_material_override/1 = SubResource("StandardMaterial3D_86gvs")
 [node name="SmWallAttic02Corner" type="MeshInstance3D" parent="Walls/Floor3" unique_id=1487596115]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 9, 6)
 mesh = ExtResource("8_1siws")
+
+[node name="SmWindow04" type="MeshInstance3D" parent="Walls/Floor3" unique_id=1121804415]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -15, 6, 2)
+mesh = ExtResource("2_0kt2o")
+
+[node name="SmWindow05" type="MeshInstance3D" parent="Walls/Floor3" unique_id=495936903]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -15, 6, -6)
+mesh = ExtResource("2_0kt2o")
+
+[node name="SmWindow06" type="MeshInstance3D" parent="Walls/Floor3" unique_id=1971096960]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -15, 6, -2)
+mesh = ExtResource("2_0kt2o")
 
 [node name="Roof" type="Node3D" parent="." unique_id=184523669]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -25)
@@ -548,3 +552,26 @@ mesh = ExtResource("12_myuvo")
 [node name="SmFloor23" type="MeshInstance3D" parent="Floor" unique_id=519516515]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.8, 3.1, -4)
 mesh = ExtResource("12_myuvo")
+
+[node name="Props" type="Node3D" parent="." unique_id=162601773]
+
+[node name="SM_airCondition_02" parent="Props" unique_id=27831345 instance=ExtResource("14_1w0wj")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -15.2, 7, 0)
+
+[node name="SM_airCondition_01" parent="Props" unique_id=2071329287 instance=ExtResource("15_thc6l")]
+transform = Transform3D(-1, 0, 2.9802322e-08, 0, 1, 0, -2.9802322e-08, 0, -1, -15.2, 4.1, 4.1)
+
+[node name="SM_camera" parent="Props" unique_id=346875578 instance=ExtResource("16_4knqk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 2.5, 1.5)
+
+[node name="SM_mailbox_2" parent="Props" unique_id=963149692 instance=ExtResource("17_1siws")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 0, -1.3000001)
+
+[node name="SM_mailbox_3" parent="Props" unique_id=1218983254 instance=ExtResource("17_1siws")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 0, -1.8000001)
+
+[node name="SM_mailbox_4" parent="Props" unique_id=1476250104 instance=ExtResource("17_1siws")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 0, -2.3000002)
+
+[node name="SM_mailbox_5" parent="Props" unique_id=100650060 instance=ExtResource("17_1siws")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 0, -2.8000002)

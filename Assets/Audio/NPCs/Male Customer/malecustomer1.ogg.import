@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dq5cigpc4qald"
+path="res://.godot/imported/malecustomer1.ogg-81229709f3a06476e82dd8671ea1d7cf.oggvorbisstr"
+
+[deps]
+
+source_file="res://Assets/Audio/NPCs/Male Customer/malecustomer1.ogg"
+dest_files=["res://.godot/imported/malecustomer1.ogg-81229709f3a06476e82dd8671ea1d7cf.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

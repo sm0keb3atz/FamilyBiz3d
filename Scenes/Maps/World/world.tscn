@@ -64,7 +64,7 @@ navigation_mesh = SubResource("WestNavigation")
 [node name="HoodEastPedestrianNetwork" parent="Navigation" unique_id=1230090308 instance=ExtResource("8_pedestrian_network")]
 
 [node name="HoodWestPedestrianNetwork" parent="Navigation" unique_id=878643702 instance=ExtResource("8_pedestrian_network")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -252)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -240.04152)
 
 [node name="SpawnPoints" type="Node3D" parent="." unique_id=1801510180]
 

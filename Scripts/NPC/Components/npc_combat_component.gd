@@ -17,12 +17,15 @@ signal reload_completed
 @export var reload_sound: AudioStream
 @export_range(-30.0, 6.0, 0.5) var gunshot_volume_db := 0.0
 @export_range(-30.0, 6.0, 0.5) var reload_volume_db := -14.0
+@export_range(0.0, 6.0, 0.1) var bullet_whiz_radius := 2.0
+@export_range(0.02, 0.3, 0.01) var tracer_lifetime := 0.08
 
 var npc
 var _weapon_model: Node3D
 var _muzzle_particles: GPUParticles3D
 var _gunshot_player: AudioStreamPlayer3D
 var _reload_player: AudioStreamPlayer3D
+var _tracer_material: StandardMaterial3D
 var _magazine := 0
 var _reserve := 0
 var _cooldown_remaining := 0.0
@@ -141,6 +144,8 @@ func try_fire_at(target_position: Vector3, spread_degrees: float) -> bool:
 			hit_position,
 			direction
 		)
+	_spawn_tracer(origin, hit_position)
+	_play_near_miss_whiz(origin, hit_position, hit.get("collider") as Node)
 	_magazine -= 1
 	_cooldown_remaining = weapon_definition.fire_interval
 	npc.animation_component.trigger_combat_recoil()
@@ -238,6 +243,84 @@ func _play_gunshot() -> void:
 	_gunshot_player.volume_db = gunshot_volume_db
 	_gunshot_player.pitch_scale = randf_range(0.97, 1.03)
 	_gunshot_player.play()
+
+
+func _spawn_tracer(from: Vector3, to: Vector3) -> void:
+	var segment := to - from
+	var length := segment.length()
+	if length <= 0.05:
+		return
+	var tracer := MeshInstance3D.new()
+	tracer.name = "IncomingBulletTracer"
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(0.012, 0.012, length)
+	if _tracer_material == null:
+		_tracer_material = StandardMaterial3D.new()
+		_tracer_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_tracer_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_tracer_material.albedo_color = Color(1.0, 0.82, 0.28, 0.62)
+		_tracer_material.emission_enabled = true
+		_tracer_material.emission = Color(1.0, 0.62, 0.1)
+		_tracer_material.emission_energy_multiplier = 1.9
+	mesh.material = _tracer_material
+	tracer.mesh = mesh
+	var host: Node = npc.get_tree().current_scene
+	if host == null:
+		host = npc.get_tree().root
+	host.add_child(tracer)
+	tracer.global_position = from + segment * 0.5
+	tracer.look_at(to, Vector3.UP)
+	npc.get_tree().create_timer(tracer_lifetime).timeout.connect(
+		func() -> void:
+			if is_instance_valid(tracer):
+				tracer.queue_free()
+	)
+
+
+func _play_near_miss_whiz(
+	from: Vector3,
+	to: Vector3,
+	hit_collider: Node
+) -> void:
+	for player in npc.get_tree().get_nodes_in_group(&"player"):
+		if (
+			player == null
+			or player == hit_collider
+			or _is_node_or_descendant(hit_collider, player)
+		):
+			continue
+		var feedback := player.get_node_or_null(
+			"Components/DamageFeedbackComponent"
+		) as PlayerDamageFeedbackComponent
+		if feedback == null:
+			continue
+		var closest := _closest_point_on_segment(
+			player.global_position + Vector3.UP,
+			from,
+			to
+		)
+		if (
+			closest.distance_to(player.global_position + Vector3.UP)
+			<= bullet_whiz_radius
+		):
+			feedback.play_bullet_whiz()
+
+
+func _closest_point_on_segment(
+	point: Vector3,
+	segment_start: Vector3,
+	segment_end: Vector3
+) -> Vector3:
+	var segment := segment_end - segment_start
+	var length_squared := segment.length_squared()
+	if is_zero_approx(length_squared):
+		return segment_start
+	var t := clampf(
+		(point - segment_start).dot(segment) / length_squared,
+		0.0,
+		1.0
+	)
+	return segment_start + segment * t
 
 
 func _get_muzzle_position() -> Vector3:

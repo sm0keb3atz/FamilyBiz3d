@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://et8j1f0qrgg3"
+path="res://.godot/imported/male-scream1.ogg-72a9da7445d67834b83b891e2b551f18.oggvorbisstr"
+
+[deps]
+
+source_file="res://Assets/Audio/NPCs/Male Customer/Panic/male-scream1.ogg"
+dest_files=["res://.godot/imported/male-scream1.ogg-72a9da7445d67834b83b891e2b551f18.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

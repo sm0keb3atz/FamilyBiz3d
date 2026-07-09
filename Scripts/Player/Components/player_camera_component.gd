@@ -7,6 +7,7 @@ extends Node
 @export var body_path := NodePath("../..")
 @export var movement_component_path := NodePath("../MovementComponent")
 @export var weapon_component_path := NodePath("../WeaponComponent")
+@export var target_lock_component_path := NodePath("../TargetLockComponent")
 @export var sound_component_path := NodePath("../SoundComponent")
 @export var camera_sensitivity := 0.003
 @export var min_camera_pitch := deg_to_rad(-45.0)
@@ -22,6 +23,10 @@ extends Node
 @export_range(-2.0, 2.0, 0.05) var default_shoulder_offset := 0.0
 @export_range(-2.0, 2.0, 0.05) var aim_shoulder_offset := 0.6
 @export_range(0.1, 20.0, 0.1) var shoulder_transition_speed := 4.0
+
+@export_category("Target Lock")
+@export_range(0.0, 30.0, 0.1) var lock_camera_assist_speed := 7.5
+@export_range(0.0, 1.0, 0.01) var lock_camera_assist_strength := 0.72
 
 @export_category("Movement Bob")
 @export_range(0.0, 0.2, 0.001) var walk_bob_height := 0.032
@@ -47,6 +52,9 @@ extends Node
 @onready var weapon_component := (
 	get_node(weapon_component_path) as PlayerWeaponComponent
 )
+@onready var target_lock_component := (
+	get_node_or_null(target_lock_component_path) as PlayerTargetLockComponent
+)
 @onready var sound_component := (
 	get_node(sound_component_path) as PlayerSoundComponent
 )
@@ -61,6 +69,7 @@ var _shot_shake_time := 0.0
 var _camera_base_rotation := Vector3.ZERO
 var _camera_base_h_offset := 0.0
 var _camera_base_v_offset := 0.0
+var _lock_assist_suppression := 0.0
 
 
 func _ready() -> void:
@@ -90,6 +99,10 @@ func _process(delta: float) -> void:
 		target_shoulder_offset,
 		shoulder_transition_speed * delta
 	)
+	if is_aiming:
+		_apply_target_lock_camera_assist(delta)
+	else:
+		_lock_assist_suppression = 0.0
 	_update_camera_motion(delta)
 
 
@@ -109,6 +122,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			max_camera_pitch
 		)
 		camera_pivot.rotation.x = _camera_pitch
+		if (
+			target_lock_component != null
+			and target_lock_component.has_locked_target()
+			and weapon_component.is_aiming()
+		):
+			_lock_assist_suppression = clampf(
+				_lock_assist_suppression + event.relative.length() * 0.025,
+				0.0,
+				1.0
+			)
 
 
 func get_yaw() -> float:
@@ -117,6 +140,48 @@ func get_yaw() -> float:
 
 func get_pitch() -> float:
 	return _camera_pitch
+
+
+func _apply_target_lock_camera_assist(delta: float) -> void:
+	if (
+		target_lock_component == null
+		or not target_lock_component.has_locked_target()
+		or lock_camera_assist_strength <= 0.0
+	):
+		return
+
+	var to_target: Vector3 = (
+		target_lock_component.get_lock_point()
+		- camera.global_position
+	)
+	if to_target.length_squared() <= 0.001:
+		return
+
+	var horizontal: float = Vector2(to_target.x, to_target.z).length()
+	var target_yaw: float = atan2(to_target.x, to_target.z) + PI
+	var target_pitch: float = clampf(
+		atan2(to_target.y, maxf(horizontal, 0.01)),
+		min_camera_pitch,
+		max_camera_pitch
+	)
+	var weight: float = (
+		1.0
+		- exp(-lock_camera_assist_speed * lock_camera_assist_strength * delta)
+	)
+	_lock_assist_suppression = move_toward(
+		_lock_assist_suppression,
+		0.0,
+		delta * 1.8
+	)
+	weight *= 1.0 - _lock_assist_suppression * 0.75
+	camera_pivot.rotation.y = lerp_angle(
+		camera_pivot.rotation.y,
+		target_yaw,
+		weight
+	)
+	_camera_pitch = lerp_angle(_camera_pitch, target_pitch, weight)
+	_camera_pitch = clamp(_camera_pitch, min_camera_pitch, max_camera_pitch)
+	camera_pivot.rotation.x = _camera_pitch
 
 
 func _update_camera_motion(delta: float) -> void:

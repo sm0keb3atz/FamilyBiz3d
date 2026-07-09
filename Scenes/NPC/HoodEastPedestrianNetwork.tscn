@@ -127,27 +127,27 @@ script = ExtResource("2_waypoint")
 connections = Array[NodePath]([NodePath("../NorthNorthEast")])
 
 [node name="NorthNorthEast" type="Marker3D" parent="." unique_id=451976731]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, 97)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.1, 100)
 script = ExtResource("2_waypoint")
 connections = Array[NodePath]([NodePath("../NorthNorth3")])
 
 [node name="NorthNorth3" type="Marker3D" parent="." unique_id=742747269]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 0.1, 97)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 0.1, 100)
 script = ExtResource("2_waypoint")
 connections = Array[NodePath]([NodePath("../NorthNorth2")])
 
 [node name="NorthNorth2" type="Marker3D" parent="." unique_id=894461853]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0.1, 97)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 0.1, 100)
 script = ExtResource("2_waypoint")
 connections = Array[NodePath]([NodePath("../NorthNorth1")])
 
 [node name="NorthNorth1" type="Marker3D" parent="." unique_id=148941826]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0.1, 97)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0.1, 100)
 script = ExtResource("2_waypoint")
 connections = Array[NodePath]([NodePath("../NorthNorthWest")])
 
 [node name="NorthNorthWest" type="Marker3D" parent="." unique_id=1877328540]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, 97)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, 100)
 script = ExtResource("2_waypoint")
 connections = Array[NodePath]([NodePath("../NorthWest3")])
 

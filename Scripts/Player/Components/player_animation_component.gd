@@ -21,6 +21,8 @@ const LOOPING_ANIMATIONS := [
 	&"PistolAim",
 	&"RifleAim",
 	&"RifleIdle",
+	&"Crouch_Idle",
+	&"Crouch_Walk",
 ]
 const RELOAD_EXCLUDED_BONES := [
 	&"Hips",
@@ -85,6 +87,7 @@ const RELOAD_EXCLUDED_BONES := [
 	&"Chest",
 	&"UpperChest",
 ]
+@export_range(-2.0, 2.0, 0.01) var crouch_aim_pitch_compensation := -0.32
 
 @export_category("Weapon Recoil")
 @export_range(0.0, 30.0, 0.1) var recoil_angle_degrees := 7.0
@@ -121,12 +124,15 @@ var _current_aim_blend := 0.0
 var _recoil_pitch := 0.0
 var _reload_remaining := 0.0
 var _is_aiming := false
+var _is_crouching := false
+var _current_crouch_blend := 0.0
 
 
 func _ready() -> void:
 	visual_model.scale = Vector3.ONE
 	armature.scale = Vector3.ONE * CHARACTER_SCALE
 	_prepare_runtime_animations()
+	_setup_crouch_animation_nodes()
 	animation_tree.active = true
 	_cache_parameters()
 	_cache_vertical_aim_bones()
@@ -155,6 +161,11 @@ func _process(delta: float) -> void:
 			else aim_pose_exit_blend_speed
 		) * delta
 	)
+	_current_crouch_blend = move_toward(
+		_current_crouch_blend,
+		1.0 if _is_crouching else 0.0,
+		aim_pose_blend_speed * delta
+	)
 	_recoil_pitch = move_toward(
 		_recoil_pitch,
 		0.0,
@@ -164,37 +175,41 @@ func _process(delta: float) -> void:
 	_set_if_available(aim_direction_parameter, _current_aim_direction)
 	_set_if_available(aim_blend_parameter, _current_aim_blend)
 	_set_if_available(aim_movement_blend_parameter, _current_aim_blend)
+	_set_if_available("parameters/Locomotion/CrouchBlend/blend_amount", _current_crouch_blend)
 	if animation_tree.active:
 		_apply_vertical_aim()
 
 
 func update_animation(
 	horizontal_speed: float,
-	move_input: Vector2,
+	aim_blend_direction: Vector2,
 	is_aiming: bool,
+	is_crouching: bool,
 	aim_pitch: float,
 	walk_speed: float,
 	run_speed: float
 ) -> void:
-	var effective_aiming := is_aiming or _reload_remaining > 0.0
+	_is_crouching = is_crouching
+	var effective_aiming := is_aiming
 	_is_aiming = effective_aiming
 	_target_aim_blend = 1.0 if effective_aiming else 0.0
 	_target_aim_pitch = aim_pitch * vertical_aim_scale
 	_target_aim_direction = (
-		Vector2(move_input.x, -move_input.y)
+		aim_blend_direction
 		if effective_aiming
 		else Vector2.ZERO
 	)
 	_update_locomotion(
 		horizontal_speed,
 		effective_aiming,
+		is_crouching,
 		walk_speed,
 		run_speed
 	)
 	_set_if_available(
 		aim_movement_speed_parameter,
 		aim_movement_animation_speed_scale
-		if effective_aiming and move_input.length_squared() > 0.001
+		if effective_aiming and aim_blend_direction.length_squared() > 0.001
 		else 1.0
 	)
 
@@ -240,6 +255,7 @@ func cancel_reload() -> void:
 func _update_locomotion(
 	horizontal_speed: float,
 	is_aiming: bool,
+	is_crouching: bool,
 	walk_speed: float,
 	run_speed: float
 ) -> void:
@@ -287,6 +303,17 @@ func _update_locomotion(
 		playback_scale
 	)
 
+	# Crouch locomotion parameters
+	var crouch_blend_position := idle_blend_position
+	if horizontal_speed > 0.01:
+		crouch_blend_position = walk_blend_position
+	_set_if_available("parameters/Locomotion/CrouchLocomotion/blend_position", crouch_blend_position)
+
+	var crouch_playback_scale := 1.0
+	if horizontal_speed > 0.01:
+		crouch_playback_scale = 1.25
+	_set_if_available("parameters/Locomotion/CrouchLocomotionSpeed/scale", crouch_playback_scale)
+
 
 func _cache_parameters() -> void:
 	for property in animation_tree.get_property_list():
@@ -310,8 +337,9 @@ func _apply_vertical_aim() -> void:
 	if _vertical_aim_bone_ids.is_empty() or _reload_remaining > 0.0:
 		return
 
+	var crouch_compensation := crouch_aim_pitch_compensation * _current_crouch_blend
 	var pitch_per_bone := (
-		(_current_aim_pitch + _recoil_pitch)
+		(_current_aim_pitch + _recoil_pitch + crouch_compensation)
 		/ float(_vertical_aim_bone_ids.size())
 	)
 	_rotate_bones_in_skeleton_space(
@@ -350,6 +378,9 @@ func _reset_parameters() -> void:
 	_set_if_available(aim_direction_parameter, Vector2.ZERO)
 	_set_if_available(aim_movement_speed_parameter, 1.0)
 	_set_if_available(reload_speed_parameter, 1.0)
+	_set_if_available("parameters/Locomotion/CrouchLocomotion/blend_position", idle_blend_position)
+	_set_if_available("parameters/Locomotion/CrouchLocomotionSpeed/scale", 1.0)
+	_set_if_available("parameters/Locomotion/CrouchBlend/blend_amount", 0.0)
 
 
 func _set_if_available(parameter_path: String, value: Variant) -> void:
@@ -447,6 +478,8 @@ func _prepare_runtime_animations() -> void:
 			animation_name
 		).duplicate(true) as Animation
 		_remove_armature_scale_tracks(normalized_animation)
+		if animation_name.begins_with("Crouch"):
+			_scale_hips_position_track(normalized_animation, 8.0)
 		runtime_library.remove_animation(animation_name)
 		runtime_library.add_animation(animation_name, normalized_animation)
 
@@ -572,3 +605,46 @@ func _create_forward_facing_strafe(
 			)
 
 	return aligned_strafe
+
+
+func _scale_hips_position_track(animation: Animation, scale_factor: float) -> void:
+	var hips_pos_idx := animation.find_track(HIPS_TRACK, Animation.TYPE_POSITION_3D)
+	if hips_pos_idx >= 0:
+		for key_index in animation.track_get_key_count(hips_pos_idx):
+			var pos: Vector3 = animation.track_get_key_value(hips_pos_idx, key_index)
+			animation.track_set_key_value(hips_pos_idx, key_index, pos * scale_factor)
+
+
+func _setup_crouch_animation_nodes() -> void:
+	var state_machine := animation_tree.tree_root as AnimationNodeStateMachine
+	if not state_machine:
+		return
+	var locomotion_tree := state_machine.get_node(&"Locomotion") as AnimationNodeBlendTree
+	if not locomotion_tree:
+		return
+
+	locomotion_tree.disconnect_node(&"AimBlend", 0)
+
+	var crouch_locomotion := AnimationNodeBlendSpace1D.new()
+	crouch_locomotion.min_space = -1.0
+	crouch_locomotion.max_space = 0.0
+
+	var idle_node := AnimationNodeAnimation.new()
+	idle_node.animation = &"Crouch_Idle"
+	crouch_locomotion.add_blend_point(idle_node, -1.0)
+
+	var walk_node := AnimationNodeAnimation.new()
+	walk_node.animation = &"Crouch_Walk"
+	crouch_locomotion.add_blend_point(walk_node, 0.0)
+
+	var crouch_speed_node := AnimationNodeTimeScale.new()
+	var crouch_blend := AnimationNodeBlend2.new()
+
+	locomotion_tree.add_node(&"CrouchLocomotion", crouch_locomotion)
+	locomotion_tree.add_node(&"CrouchLocomotionSpeed", crouch_speed_node)
+	locomotion_tree.add_node(&"CrouchBlend", crouch_blend)
+
+	locomotion_tree.connect_node(&"CrouchLocomotionSpeed", 0, &"CrouchLocomotion")
+	locomotion_tree.connect_node(&"CrouchBlend", 0, &"MovementModeBlend")
+	locomotion_tree.connect_node(&"CrouchBlend", 1, &"CrouchLocomotionSpeed")
+	locomotion_tree.connect_node(&"AimBlend", 0, &"CrouchBlend")

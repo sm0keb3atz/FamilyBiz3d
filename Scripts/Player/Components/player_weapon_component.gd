@@ -4,6 +4,9 @@ extends Node
 const BLOOD_IMPACT_VFX := preload(
 	"res://Scenes/VFX/BloodImpactVFX.tscn"
 )
+const WORLD_COLLISION_LAYER := 1 << 0
+const HITBOX_COLLISION_LAYER := 1 << 2
+const AIM_COLLISION_MASK := WORLD_COLLISION_LAYER | HITBOX_COLLISION_LAYER
 
 signal weapon_changed(definition: WeaponDefinition)
 signal ammo_changed(magazine: int, reserve: int)
@@ -17,6 +20,7 @@ signal reload_completed
 @export var animation_component_path := NodePath("../AnimationComponent")
 @export var health_component_path := NodePath("../HealthComponent")
 @export var sound_component_path := NodePath("../SoundComponent")
+@export var target_lock_component_path := NodePath("../TargetLockComponent")
 @export var body_path := NodePath("../..")
 @export var camera_path := NodePath("../../CameraPivot/SpringArm3D/Camera3D")
 @export var weapon_model_path := NodePath(
@@ -48,6 +52,9 @@ signal reload_completed
 )
 @onready var sound_component := (
 	get_node(sound_component_path) as PlayerSoundComponent
+)
+@onready var target_lock_component := (
+	get_node_or_null(target_lock_component_path) as PlayerTargetLockComponent
 )
 @onready var body := get_node(body_path) as CharacterBody3D
 @onready var camera := get_node(camera_path) as Camera3D
@@ -113,9 +120,19 @@ func _process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(next_weapon_action):
+		if is_aiming():
+			if target_lock_component != null:
+				target_lock_component.cycle_locked_target(1)
+			get_viewport().set_input_as_handled()
+			return
 		cycle_weapon(1)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed(previous_weapon_action):
+		if is_aiming():
+			if target_lock_component != null:
+				target_lock_component.cycle_locked_target(-1)
+			get_viewport().set_input_as_handled()
+			return
 		cycle_weapon(-1)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed(fire_action):
@@ -236,6 +253,12 @@ func get_reserve_ammo() -> int:
 
 
 func get_aim_target_position() -> Vector3:
+	if (
+		target_lock_component != null
+		and target_lock_component.has_locked_target()
+	):
+		return target_lock_component.get_lock_point()
+
 	var definition := get_equipped_weapon()
 	var max_range := definition.max_range if definition != null else 50.0
 	var query := _create_aim_query(max_range)
@@ -272,22 +295,59 @@ func _finish_reload() -> void:
 
 func _fire_hitscan(definition: WeaponDefinition) -> Vector3:
 	var query := _create_aim_query(definition.max_range)
-	var ray_direction := (query.to - query.from).normalized()
 	var hit := body.get_world_3d().direct_space_state.intersect_ray(query)
 	if hit.is_empty():
+		if (
+			target_lock_component != null
+			and target_lock_component.has_locked_target()
+		):
+			var assist_query := _create_lock_assist_query(
+				definition.max_range
+			)
+			var assist_hit := (
+				body.get_world_3d().direct_space_state.intersect_ray(
+					assist_query
+				)
+			)
+			if not assist_hit.is_empty():
+				return _resolve_hitscan_hit(definition, assist_query, assist_hit)
+		shot_resolved.emit(null, false, query.to)
 		return query.to
+
+	return _resolve_hitscan_hit(definition, query, hit)
+
+
+func _resolve_hitscan_hit(
+	definition: WeaponDefinition,
+	query: PhysicsRayQueryParameters3D,
+	hit: Dictionary
+) -> Vector3:
+	var ray_direction := (query.to - query.from).normalized()
 
 	var hit_position := hit.position as Vector3
 	var hit_normal := hit.normal as Vector3
 	var collider := hit.collider as Node
-	var damageable := _find_damageable(collider)
+	var hitbox := _find_combat_hitbox(collider)
+	var damageable := (
+		hitbox.get_damageable()
+		if hitbox != null
+		else _find_damageable(collider)
+	)
 	if damageable != null:
-		damageable.apply_damage(
-			definition.damage,
-			body,
-			hit_position,
-			ray_direction
-		)
+		if hitbox != null:
+			hitbox.resolve_damage(
+				definition.damage,
+				body,
+				hit_position,
+				ray_direction
+			)
+		else:
+			damageable.apply_damage(
+				definition.damage,
+				body,
+				hit_position,
+				ray_direction
+			)
 		var fatal_hit := damageable.is_depleted()
 		hit_confirmed.emit(fatal_hit)
 		shot_resolved.emit(
@@ -320,6 +380,22 @@ func _create_aim_query(max_range: float) -> PhysicsRayQueryParameters3D:
 	var ray_end := ray_origin + ray_direction * max_range
 	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
 	query.exclude = [body.get_rid()]
+	query.collision_mask = AIM_COLLISION_MASK
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+	return query
+
+
+func _create_lock_assist_query(max_range: float) -> PhysicsRayQueryParameters3D:
+	var ray_origin := camera.global_position
+	var lock_point := target_lock_component.get_lock_point()
+	var ray_direction := (lock_point - ray_origin).normalized()
+	var ray_end := ray_origin + ray_direction * max_range
+	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
+	query.exclude = [body.get_rid()]
+	query.collision_mask = AIM_COLLISION_MASK
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
 	return query
 
 
@@ -369,9 +445,19 @@ func _spawn_surface_impact(
 	hit_normal: Vector3,
 	hit_collider: Node3D
 ) -> void:
+	var is_metal := _is_metal_surface(hit_collider)
+	sound_component.play_surface_impact(hit_position, is_metal)
 	var effect := BLOOD_IMPACT_VFX.instantiate() as BloodImpactVFX
 	get_tree().current_scene.add_child(effect)
-	effect.setup_surface_hit(hit_position, hit_normal, hit_collider)
+	var impact_kind := BloodImpactVFX.SurfaceImpactKind.STONE
+	if is_metal:
+		impact_kind = BloodImpactVFX.SurfaceImpactKind.METAL
+	effect.setup_surface_hit(
+		hit_position,
+		hit_normal,
+		hit_collider,
+		impact_kind
+	)
 
 
 func _find_damageable(collider: Node) -> DamageableComponent:
@@ -384,6 +470,24 @@ func _find_damageable(collider: Node) -> DamageableComponent:
 			return component
 		current = current.get_parent()
 	return null
+
+
+func _find_combat_hitbox(collider: Node) -> CombatHitbox:
+	var current := collider
+	while current != null:
+		if current is CombatHitbox:
+			return current as CombatHitbox
+		current = current.get_parent()
+	return null
+
+
+func _is_metal_surface(collider: Node) -> bool:
+	var current := collider
+	while current != null:
+		if current is BaseVehicle:
+			return true
+		current = current.get_parent()
+	return false
 
 
 func _on_health_state_changed(

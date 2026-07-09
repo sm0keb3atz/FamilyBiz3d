@@ -21,13 +21,31 @@
 [ext_resource type="PackedScene" uid="uid://b3h0idtwnkbwm" path="res://Scenes/Maps/Buildings/hood_house_1.tscn" id="15_knlt2"]
 [ext_resource type="PackedScene" uid="uid://cexxortle2liv" path="res://Scenes/Maps/Buildings/corner_store2.tscn" id="16_8ekqm"]
 [ext_resource type="ArrayMesh" uid="uid://c3kbustq1qftl" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_parcel_road_01.glb" id="16_33r63"]
+[ext_resource type="PackedScene" uid="uid://d3xabu82dh8p" path="res://Assets/MapStuff/Meshs/StreetProps/SM_metal_box_2.gltf" id="16_rudg4"]
 [ext_resource type="PackedScene" uid="uid://dpnk5qdg1ja16" path="res://Assets/MapStuff/Meshs/StreetProps/SM_gasStationCarPort_01.gltf" id="17_4tc2c"]
+[ext_resource type="PackedScene" uid="uid://bqvc6b4klapep" path="res://Assets/MapStuff/Meshs/StreetProps/SM_trash.gltf" id="17_ucg5e"]
+[ext_resource type="PackedScene" uid="uid://c8q5ml4m4g8mv" path="res://Assets/MapStuff/Meshs/StreetProps/SM_spray_Can.gltf" id="18_3hmpi"]
 [ext_resource type="PackedScene" uid="uid://cpo2lf5x4gu32" path="res://Assets/MapStuff/Meshs/StreetProps/SM_gasPumpsModern.gltf" id="18_b6t0y"]
 [ext_resource type="Texture2D" uid="uid://bmtr2h6syxppe" path="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/T_brickLarge_01_white.PNG" id="18_uniy5"]
 [ext_resource type="PackedScene" uid="uid://dlx2n61a113ri" path="res://Scenes/Maps/Buildings/building_2.tscn" id="19_cb2ff"]
+[ext_resource type="PackedScene" uid="uid://8ae4t8oc7ddx" path="res://Assets/MapStuff/Meshs/StreetProps/SM_crate_4_set.gltf" id="19_klnlj"]
 [ext_resource type="Texture2D" uid="uid://cwix0vsbklkip" path="res://Assets/MapStuff/Meshs/StreetProps/M_BaseColorPalette_MetallicRoughness.png" id="20_4kyli"]
+[ext_resource type="PackedScene" uid="uid://dij6sn351vtdx" path="res://Assets/MapStuff/Meshs/StreetProps/SM_carton_flat_set.gltf" id="20_cy430"]
 [ext_resource type="PackedScene" uid="uid://bakja128g38e8" path="res://Scenes/Maps/Buildings/Garage1.tscn" id="20_uniy5"]
+[ext_resource type="PackedScene" uid="uid://b772awevxvct6" path="res://Assets/MapStuff/Meshs/StreetProps/SM_billboard_86Gasoline.gltf" id="21_4kyli"]
+[ext_resource type="PackedScene" uid="uid://hinn1eh4joei" path="res://Assets/MapStuff/Meshs/StreetProps/SM_carton_flat.gltf" id="21_8wc7h"]
 [ext_resource type="PackedScene" uid="uid://cr2lp6muwvcdw" path="res://Assets/MapStuff/Meshs/StreetProps/SM_fence_104a.gltf" id="21_cb2ff"]
+[ext_resource type="PackedScene" uid="uid://c7ubrndtnqmic" path="res://Assets/MapStuff/Meshs/StreetProps/SM_Bicycle_01.gltf" id="22_jlj7j"]
+[ext_resource type="PackedScene" uid="uid://me1l3lm3xpb6" path="res://Assets/MapStuff/Meshs/StreetProps/SM_ice_machine.gltf" id="22_xeelq"]
+[ext_resource type="PackedScene" uid="uid://dvkfgc8kvmlv8" path="res://Assets/MapStuff/Meshs/StreetProps/SM_rolledBars_02.gltf" id="23_6uajf"]
+[ext_resource type="PackedScene" uid="uid://ck5s08wprfm3e" path="res://Assets/MapStuff/Meshs/StreetProps/SM_metal_box_3.gltf" id="24_yo30c"]
+[ext_resource type="PackedScene" uid="uid://b8mgu7gr1ehv" path="res://Assets/MapStuff/Meshs/StreetProps/SM_metal_box.gltf" id="25_gnq75"]
+[ext_resource type="PackedScene" uid="uid://cq7amft5bu3df" path="res://Assets/MapStuff/Meshs/StreetProps/SM_wooden_blocks.gltf" id="26_rxbxa"]
+[ext_resource type="PackedScene" uid="uid://dpir5h7uqw456" path="res://Assets/MapStuff/Meshs/StreetProps/SM_trash_bin_1.gltf" id="27_sgj8b"]
+[ext_resource type="PackedScene" uid="uid://dm5dr5g7wsimt" path="res://Assets/MapStuff/Meshs/StreetProps/SM_trash_bin_1a.gltf" id="28_yn3nv"]
+[ext_resource type="PackedScene" uid="uid://8882wsntwlos" path="res://Assets/MapStuff/Meshs/StreetProps/SM_trash_bin_1b.gltf" id="29_d66v6"]
+[ext_resource type="PackedScene" uid="uid://d1npoce17t4lf" path="res://Assets/MapStuff/Meshs/StreetProps/SM_TireSet_01.gltf" id="30_avagh"]
+[ext_resource type="PackedScene" uid="uid://csva8ju0mk3ow" path="res://Assets/MapStuff/Meshs/StreetProps/SM_carton_box_tray.gltf" id="31_gnq75"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sood0"]
 resource_name = "MI_ColorPalette"
@@ -1115,316 +1133,316 @@ surface_material_override/2 = SubResource("StandardMaterial3D_d66v6")
 [node name="Building2" parent="Ground/Plot/Buildings" unique_id=1682830676 instance=ExtResource("19_cb2ff")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 70.85, 0, -29.2)
 
-[node name="Props" type="Node3D" parent="Ground/Plot/Buildings/Building2" unique_id=936359453]
+[node name="Props2" type="Node3D" parent="Ground/Plot/Buildings/Building2" unique_id=936359453]
 
-[node name="Garbage" type="Node3D" parent="Ground/Plot/Buildings/Building2/Props" unique_id=1640427923]
+[node name="Garbage" type="Node3D" parent="Ground/Plot/Buildings/Building2/Props2" unique_id=1640427923]
 
-[node name="Mesh" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props/Garbage" unique_id=1995799719]
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props2/Garbage" unique_id=1995799719]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8.150002, 0, 7.199997)
 mesh = SubResource("ArrayMesh_pbsfr")
 
-[node name="Mesh2" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props/Garbage" unique_id=1786996513]
+[node name="Mesh2" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props2/Garbage" unique_id=1786996513]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.8999958, 0, 6.999996)
 mesh = SubResource("ArrayMesh_lqcn5")
 
-[node name="Mesh3" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props/Garbage" unique_id=1263209845]
+[node name="Mesh3" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props2/Garbage" unique_id=1263209845]
 transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.7071068, -3, 0, 6.7999954)
 mesh = SubResource("ArrayMesh_lqcn5")
 
-[node name="Mesh4" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props/Garbage" unique_id=1231331218]
+[node name="Mesh4" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props2/Garbage" unique_id=1231331218]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0, 6.7999954)
 mesh = SubResource("ArrayMesh_vdcgq")
 
-[node name="Mesh5" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props/Garbage" unique_id=2012096123]
+[node name="Mesh5" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props2/Garbage" unique_id=2012096123]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.200001, 0, 6.75)
 mesh = SubResource("ArrayMesh_5cuol")
 
-[node name="Mesh6" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props/Garbage" unique_id=1383327204]
+[node name="Mesh6" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props2/Garbage" unique_id=1383327204]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6.1500015, 0, 6.649994)
 mesh = SubResource("ArrayMesh_d8w74")
 
-[node name="Mesh7" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props/Garbage" unique_id=1524997894]
+[node name="Mesh7" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props2/Garbage" unique_id=1524997894]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.3500023, 0, 7.449997)
 mesh = SubResource("ArrayMesh_d8w74")
 
-[node name="SM_trash_bin_bigOpen" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props/Garbage" unique_id=809412849]
+[node name="SM_trash_bin_bigOpen" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building2/Props2/Garbage" unique_id=809412849]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.099998474, 0, 7.5)
 mesh = SubResource("ArrayMesh_xpn21")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Ground/Plot/Buildings/Building2/Props" unique_id=484078467]
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground/Plot/Buildings/Building2/Props2" unique_id=484078467]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props/StaticBody3D" unique_id=424125424]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props2/StaticBody3D" unique_id=424125424]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8.150002, 0.87048507, 7.236183)
 shape = SubResource("BoxShape3D_avagh")
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props/StaticBody3D" unique_id=1119627076]
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props2/StaticBody3D" unique_id=1119627076]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.9370823, 0.36293337, 6.9386063)
 shape = SubResource("BoxShape3D_gpchb")
 
-[node name="CollisionShape3D3" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props/StaticBody3D" unique_id=832232709]
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props2/StaticBody3D" unique_id=832232709]
 transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.7071068, -3.0696335, 0.36293337, 6.782814)
 shape = SubResource("BoxShape3D_yoimq")
 
-[node name="CollisionShape3D4" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props/StaticBody3D" unique_id=2140629595]
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props2/StaticBody3D" unique_id=2140629595]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0.59735096, 6.800125)
 shape = SubResource("BoxShape3D_y5fkj")
 
-[node name="CollisionShape3D5" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props/StaticBody3D" unique_id=1603388985]
+[node name="CollisionShape3D5" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props2/StaticBody3D" unique_id=1603388985]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.2327538, 0.6204978, 6.7815323)
 shape = SubResource("BoxShape3D_66paq")
 
-[node name="CollisionShape3D6" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props/StaticBody3D" unique_id=1460509548]
+[node name="CollisionShape3D6" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props2/StaticBody3D" unique_id=1460509548]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6.1553497, 0.38977864, 6.649849)
 shape = SubResource("BoxShape3D_8x1ii")
 
-[node name="CollisionShape3D7" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props/StaticBody3D" unique_id=261767481]
+[node name="CollisionShape3D7" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props2/StaticBody3D" unique_id=261767481]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.3553543, 0.38977864, 7.449856)
 shape = SubResource("BoxShape3D_03j6n")
 
-[node name="CollisionShape3D8" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props/StaticBody3D" unique_id=67215034]
+[node name="CollisionShape3D8" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building2/Props2/StaticBody3D" unique_id=67215034]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.09999657, 0.930995, 7.292305)
 shape = SubResource("BoxShape3D_5jdmt")
 
 [node name="Building6" parent="Ground/Plot/Buildings" unique_id=768551903 instance=ExtResource("19_cb2ff")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 113.8, 0, -85.600006)
 
-[node name="Props" type="Node3D" parent="Ground/Plot/Buildings/Building6" unique_id=1666125645]
+[node name="Props2" type="Node3D" parent="Ground/Plot/Buildings/Building6" unique_id=1666125645]
 
-[node name="Garbage" type="Node3D" parent="Ground/Plot/Buildings/Building6/Props" unique_id=1762635485]
+[node name="Garbage" type="Node3D" parent="Ground/Plot/Buildings/Building6/Props2" unique_id=1762635485]
 
-[node name="Mesh" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props/Garbage" unique_id=599974159]
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props2/Garbage" unique_id=599974159]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8.150002, 0, 7.199997)
 mesh = SubResource("ArrayMesh_pbsfr")
 
-[node name="Mesh2" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props/Garbage" unique_id=931126737]
+[node name="Mesh2" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props2/Garbage" unique_id=931126737]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.8999958, 0, 6.999996)
 mesh = SubResource("ArrayMesh_lqcn5")
 
-[node name="Mesh3" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props/Garbage" unique_id=995357242]
+[node name="Mesh3" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props2/Garbage" unique_id=995357242]
 transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.7071068, -3, 0, 6.7999954)
 mesh = SubResource("ArrayMesh_lqcn5")
 
-[node name="Mesh4" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props/Garbage" unique_id=1932021953]
+[node name="Mesh4" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props2/Garbage" unique_id=1932021953]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0, 6.7999954)
 mesh = SubResource("ArrayMesh_vdcgq")
 
-[node name="Mesh5" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props/Garbage" unique_id=1513614917]
+[node name="Mesh5" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props2/Garbage" unique_id=1513614917]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.200001, 0, 6.75)
 mesh = SubResource("ArrayMesh_5cuol")
 
-[node name="Mesh6" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props/Garbage" unique_id=1738260702]
+[node name="Mesh6" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props2/Garbage" unique_id=1738260702]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6.1500015, 0, 6.649994)
 mesh = SubResource("ArrayMesh_d8w74")
 
-[node name="Mesh7" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props/Garbage" unique_id=2075746606]
+[node name="Mesh7" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props2/Garbage" unique_id=2075746606]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.3500023, 0, 7.449997)
 mesh = SubResource("ArrayMesh_d8w74")
 
-[node name="SM_trash_bin_bigOpen" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props/Garbage" unique_id=2090977954]
+[node name="SM_trash_bin_bigOpen" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building6/Props2/Garbage" unique_id=2090977954]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.099998474, 0, 7.5)
 mesh = SubResource("ArrayMesh_xpn21")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Ground/Plot/Buildings/Building6/Props" unique_id=394813488]
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground/Plot/Buildings/Building6/Props2" unique_id=394813488]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props/StaticBody3D" unique_id=2083625135]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props2/StaticBody3D" unique_id=2083625135]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8.150002, 0.87048507, 7.236183)
 shape = SubResource("BoxShape3D_avagh")
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props/StaticBody3D" unique_id=1382319674]
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props2/StaticBody3D" unique_id=1382319674]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.9370823, 0.36293337, 6.9386063)
 shape = SubResource("BoxShape3D_gpchb")
 
-[node name="CollisionShape3D3" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props/StaticBody3D" unique_id=1453781790]
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props2/StaticBody3D" unique_id=1453781790]
 transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.7071068, -3.0696335, 0.36293337, 6.782814)
 shape = SubResource("BoxShape3D_yoimq")
 
-[node name="CollisionShape3D4" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props/StaticBody3D" unique_id=1521489885]
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props2/StaticBody3D" unique_id=1521489885]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0.59735096, 6.800125)
 shape = SubResource("BoxShape3D_y5fkj")
 
-[node name="CollisionShape3D5" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props/StaticBody3D" unique_id=1239857970]
+[node name="CollisionShape3D5" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props2/StaticBody3D" unique_id=1239857970]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.2327538, 0.6204978, 6.7815323)
 shape = SubResource("BoxShape3D_66paq")
 
-[node name="CollisionShape3D6" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props/StaticBody3D" unique_id=1826796512]
+[node name="CollisionShape3D6" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props2/StaticBody3D" unique_id=1826796512]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6.1553497, 0.38977864, 6.649849)
 shape = SubResource("BoxShape3D_8x1ii")
 
-[node name="CollisionShape3D7" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props/StaticBody3D" unique_id=209356816]
+[node name="CollisionShape3D7" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props2/StaticBody3D" unique_id=209356816]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.3553543, 0.38977864, 7.449856)
 shape = SubResource("BoxShape3D_03j6n")
 
-[node name="CollisionShape3D8" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props/StaticBody3D" unique_id=1162723761]
+[node name="CollisionShape3D8" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building6/Props2/StaticBody3D" unique_id=1162723761]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.09999657, 0.930995, 7.292305)
 shape = SubResource("BoxShape3D_5jdmt")
 
 [node name="Building7" parent="Ground/Plot/Buildings" unique_id=276694371 instance=ExtResource("19_cb2ff")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 113.8, 0, -109.700005)
 
-[node name="Props" type="Node3D" parent="Ground/Plot/Buildings/Building7" unique_id=60200797]
+[node name="Props2" type="Node3D" parent="Ground/Plot/Buildings/Building7" unique_id=60200797]
 
-[node name="Garbage" type="Node3D" parent="Ground/Plot/Buildings/Building7/Props" unique_id=585464701]
+[node name="Garbage" type="Node3D" parent="Ground/Plot/Buildings/Building7/Props2" unique_id=585464701]
 
-[node name="Mesh" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props/Garbage" unique_id=1638344370]
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2/Garbage" unique_id=1638344370]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8.150002, 0, 7.199997)
 mesh = SubResource("ArrayMesh_pbsfr")
 
-[node name="Mesh2" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props/Garbage" unique_id=491154274]
+[node name="Mesh2" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2/Garbage" unique_id=491154274]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.8999958, 0, 6.999996)
 mesh = SubResource("ArrayMesh_lqcn5")
 
-[node name="Mesh3" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props/Garbage" unique_id=55956820]
+[node name="Mesh3" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2/Garbage" unique_id=55956820]
 transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.7071068, -3, 0, 6.7999954)
 mesh = SubResource("ArrayMesh_lqcn5")
 
-[node name="Mesh4" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props/Garbage" unique_id=677870945]
+[node name="Mesh4" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2/Garbage" unique_id=677870945]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0, 6.7999954)
 mesh = SubResource("ArrayMesh_vdcgq")
 
-[node name="Mesh5" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props/Garbage" unique_id=358291099]
+[node name="Mesh5" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2/Garbage" unique_id=358291099]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.200001, 0, 6.75)
 mesh = SubResource("ArrayMesh_5cuol")
 
-[node name="Mesh6" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props/Garbage" unique_id=18155266]
+[node name="Mesh6" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2/Garbage" unique_id=18155266]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6.1500015, 0, 6.649994)
 mesh = SubResource("ArrayMesh_d8w74")
 
-[node name="Mesh7" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props/Garbage" unique_id=2012616232]
+[node name="Mesh7" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2/Garbage" unique_id=2012616232]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.3500023, 0, 7.449997)
 mesh = SubResource("ArrayMesh_d8w74")
 
-[node name="SM_trash_bin_bigOpen" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props/Garbage" unique_id=756976079]
+[node name="SM_trash_bin_bigOpen" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2/Garbage" unique_id=756976079]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.099998474, 0, 7.5)
 mesh = SubResource("ArrayMesh_xpn21")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Ground/Plot/Buildings/Building7/Props" unique_id=160166196]
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground/Plot/Buildings/Building7/Props2" unique_id=160166196]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props/StaticBody3D" unique_id=1264786565]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props2/StaticBody3D" unique_id=1264786565]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8.150002, 0.87048507, 7.236183)
 shape = SubResource("BoxShape3D_avagh")
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props/StaticBody3D" unique_id=897948268]
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props2/StaticBody3D" unique_id=897948268]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.9370823, 0.36293337, 6.9386063)
 shape = SubResource("BoxShape3D_gpchb")
 
-[node name="CollisionShape3D3" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props/StaticBody3D" unique_id=450726525]
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props2/StaticBody3D" unique_id=450726525]
 transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.7071068, -3.0696335, 0.36293337, 6.782814)
 shape = SubResource("BoxShape3D_yoimq")
 
-[node name="CollisionShape3D4" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props/StaticBody3D" unique_id=1979175387]
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props2/StaticBody3D" unique_id=1979175387]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0.59735096, 6.800125)
 shape = SubResource("BoxShape3D_y5fkj")
 
-[node name="CollisionShape3D5" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props/StaticBody3D" unique_id=301401247]
+[node name="CollisionShape3D5" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props2/StaticBody3D" unique_id=301401247]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.2327538, 0.6204978, 6.7815323)
 shape = SubResource("BoxShape3D_66paq")
 
-[node name="CollisionShape3D6" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props/StaticBody3D" unique_id=365677870]
+[node name="CollisionShape3D6" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props2/StaticBody3D" unique_id=365677870]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6.1553497, 0.38977864, 6.649849)
 shape = SubResource("BoxShape3D_8x1ii")
 
-[node name="CollisionShape3D7" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props/StaticBody3D" unique_id=1475656109]
+[node name="CollisionShape3D7" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props2/StaticBody3D" unique_id=1475656109]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.3553543, 0.38977864, 7.449856)
 shape = SubResource("BoxShape3D_03j6n")
 
-[node name="CollisionShape3D8" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props/StaticBody3D" unique_id=1114087054]
+[node name="CollisionShape3D8" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props2/StaticBody3D" unique_id=1114087054]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.09999657, 0.930995, 7.292305)
 shape = SubResource("BoxShape3D_5jdmt")
 
-[node name="CollisionShape3D9" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props/StaticBody3D" unique_id=1588851506]
+[node name="CollisionShape3D9" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props2/StaticBody3D" unique_id=1588851506]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.5000076, 0, 12.950005)
 shape = SubResource("ConcavePolygonShape3D_lesti")
 
-[node name="CollisionShape3D10" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props/StaticBody3D" unique_id=616617804]
+[node name="CollisionShape3D10" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building7/Props2/StaticBody3D" unique_id=616617804]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2000046, 1.2250001, 12.099998)
 shape = SubResource("BoxShape3D_1c86s")
 
-[node name="Mesh" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props" unique_id=1132758249]
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2" unique_id=1132758249]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.5000076, 0, 12.950005)
 mesh = SubResource("ArrayMesh_ipp5h")
 
-[node name="Mesh9" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props" unique_id=1367777960]
+[node name="Mesh9" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2" unique_id=1367777960]
 transform = Transform3D(1, 0, -3.907985e-15, 0, 1, 0, 0, 0, 1.089, 1.199997, -0.01, 10.599998)
 mesh = SubResource("ArrayMesh_lesti")
 
-[node name="Mesh10" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props" unique_id=1903205845]
+[node name="Mesh10" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2" unique_id=1903205845]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.199997, -0.01, 14.599998)
 mesh = SubResource("ArrayMesh_okjkq")
 
-[node name="Mesh11" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props" unique_id=1745132447]
+[node name="Mesh11" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building7/Props2" unique_id=1745132447]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.847, 1.199997, -0.01, 17.84999)
 mesh = SubResource("ArrayMesh_okjkq")
 
 [node name="Building3" parent="Ground/Plot/Buildings" unique_id=2031900734 instance=ExtResource("19_cb2ff")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 88.95, 0, -29.2)
 
-[node name="Props" type="Node3D" parent="Ground/Plot/Buildings/Building3" unique_id=80628738]
+[node name="Props2" type="Node3D" parent="Ground/Plot/Buildings/Building3" unique_id=80628738]
 
-[node name="Garbage" type="Node3D" parent="Ground/Plot/Buildings/Building3/Props" unique_id=1982222416]
+[node name="Garbage" type="Node3D" parent="Ground/Plot/Buildings/Building3/Props2" unique_id=1982222416]
 
-[node name="Mesh" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props/Garbage" unique_id=2019600124]
+[node name="Mesh" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props2/Garbage" unique_id=2019600124]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8.150002, 0, 7.199997)
 mesh = SubResource("ArrayMesh_pbsfr")
 
-[node name="Mesh2" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props/Garbage" unique_id=1938604907]
+[node name="Mesh2" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props2/Garbage" unique_id=1938604907]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.8999958, 0, 6.999996)
 mesh = SubResource("ArrayMesh_lqcn5")
 
-[node name="Mesh3" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props/Garbage" unique_id=411307770]
+[node name="Mesh3" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props2/Garbage" unique_id=411307770]
 transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.7071068, -3, 0, 6.7999954)
 mesh = SubResource("ArrayMesh_lqcn5")
 
-[node name="Mesh4" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props/Garbage" unique_id=259936882]
+[node name="Mesh4" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props2/Garbage" unique_id=259936882]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0, 6.7999954)
 mesh = SubResource("ArrayMesh_vdcgq")
 
-[node name="Mesh5" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props/Garbage" unique_id=2005860548]
+[node name="Mesh5" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props2/Garbage" unique_id=2005860548]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.200001, 0, 6.75)
 mesh = SubResource("ArrayMesh_5cuol")
 
-[node name="Mesh6" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props/Garbage" unique_id=1051161420]
+[node name="Mesh6" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props2/Garbage" unique_id=1051161420]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6.1500015, 0, 6.649994)
 mesh = SubResource("ArrayMesh_d8w74")
 
-[node name="Mesh7" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props/Garbage" unique_id=473906775]
+[node name="Mesh7" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props2/Garbage" unique_id=473906775]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.3500023, 0, 7.449997)
 mesh = SubResource("ArrayMesh_d8w74")
 
-[node name="SM_trash_bin_bigOpen" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props/Garbage" unique_id=693101991]
+[node name="SM_trash_bin_bigOpen" type="MeshInstance3D" parent="Ground/Plot/Buildings/Building3/Props2/Garbage" unique_id=693101991]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.099998474, 0, 7.5)
 mesh = SubResource("ArrayMesh_xpn21")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Ground/Plot/Buildings/Building3/Props" unique_id=1372220084]
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground/Plot/Buildings/Building3/Props2" unique_id=1372220084]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props/StaticBody3D" unique_id=1503560695]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props2/StaticBody3D" unique_id=1503560695]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8.150002, 0.87048507, 7.236183)
 shape = SubResource("BoxShape3D_avagh")
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props/StaticBody3D" unique_id=802665923]
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props2/StaticBody3D" unique_id=802665923]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.9370823, 0.36293337, 6.9386063)
 shape = SubResource("BoxShape3D_gpchb")
 
-[node name="CollisionShape3D3" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props/StaticBody3D" unique_id=1117413409]
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props2/StaticBody3D" unique_id=1117413409]
 transform = Transform3D(-0.7071068, 0, 0.7071067, 0, 1, 0, -0.7071067, 0, -0.7071068, -3.0696335, 0.36293337, 6.782814)
 shape = SubResource("BoxShape3D_yoimq")
 
-[node name="CollisionShape3D4" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props/StaticBody3D" unique_id=1104004954]
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props2/StaticBody3D" unique_id=1104004954]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0.59735096, 6.800125)
 shape = SubResource("BoxShape3D_y5fkj")
 
-[node name="CollisionShape3D5" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props/StaticBody3D" unique_id=968390929]
+[node name="CollisionShape3D5" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props2/StaticBody3D" unique_id=968390929]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.2327538, 0.6204978, 6.7815323)
 shape = SubResource("BoxShape3D_66paq")
 
-[node name="CollisionShape3D6" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props/StaticBody3D" unique_id=569514324]
+[node name="CollisionShape3D6" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props2/StaticBody3D" unique_id=569514324]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6.1553497, 0.38977864, 6.649849)
 shape = SubResource("BoxShape3D_8x1ii")
 
-[node name="CollisionShape3D7" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props/StaticBody3D" unique_id=600385832]
+[node name="CollisionShape3D7" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props2/StaticBody3D" unique_id=600385832]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.3553543, 0.38977864, 7.449856)
 shape = SubResource("BoxShape3D_03j6n")
 
-[node name="CollisionShape3D8" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props/StaticBody3D" unique_id=530280232]
+[node name="CollisionShape3D8" type="CollisionShape3D" parent="Ground/Plot/Buildings/Building3/Props2/StaticBody3D" unique_id=530280232]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.09999657, 0.930995, 7.292305)
 shape = SubResource("BoxShape3D_5jdmt")
 
@@ -1462,69 +1480,136 @@ transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 31.6
 
 [node name="Alleys" type="Node3D" parent="Ground/Plot" unique_id=547023799]
 
-[node name="SmRoad00" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=2100154970]
-transform = Transform3D(5.495, 0, 0, 0, 0.714, 0, 0, 0, 0.357, 0.05, 0.005, -15.75)
+[node name="Props" type="Node3D" parent="Ground/Plot/Alleys" unique_id=784794598]
+
+[node name="SM_metal_box_2" parent="Ground/Plot/Alleys/Props" unique_id=351783071 instance=ExtResource("16_rudg4")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 71.50001, 0, -41.700005)
+
+[node name="SM_trash" parent="Ground/Plot/Alleys/Props" unique_id=1878100747 instance=ExtResource("17_ucg5e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70.8, 0, -40.200005)
+
+[node name="SM_spray_Can" parent="Ground/Plot/Alleys/Props" unique_id=1989411298 instance=ExtResource("18_3hmpi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.3, 0, -39.300003)
+
+[node name="SM_crate_4_set" parent="Ground/Plot/Alleys/Props" unique_id=300830934 instance=ExtResource("19_klnlj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.1, 0, -44.4)
+
+[node name="SM_carton_flat_set" parent="Ground/Plot/Alleys/Props" unique_id=904980658 instance=ExtResource("20_cy430")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70.899994, 0, -34.7)
+
+[node name="SM_carton_flat" parent="Ground/Plot/Alleys/Props" unique_id=1480600566 instance=ExtResource("21_8wc7h")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.1, 0, -50.699997)
+
+[node name="SM_Bicycle_01" parent="Ground/Plot/Alleys/Props" unique_id=906450696 instance=ExtResource("22_jlj7j")]
+transform = Transform3D(-3.7855173e-08, 0.50000006, 0.86602545, 2.1855694e-08, 0.86602545, -0.50000006, -1, 0, -4.371139e-08, 70.799995, 0, -37.5)
+
+[node name="SM_metal_box_3" parent="Ground/Plot/Alleys/Props" unique_id=719301040 instance=ExtResource("24_yo30c")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 71.4, 0, -31)
+
+[node name="SM_metal_box" parent="Ground/Plot/Alleys/Props" unique_id=1437936279 instance=ExtResource("25_gnq75")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 71.4, 0, -28.100002)
+
+[node name="SM_metal_box_4" parent="Ground/Plot/Alleys/Props" unique_id=1107040538 instance=ExtResource("16_rudg4")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 71.4, 0, -30.100002)
+
+[node name="SM_wooden_blocks" parent="Ground/Plot/Alleys/Props" unique_id=106934250 instance=ExtResource("26_rxbxa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70.5, 0, -24.199997)
+
+[node name="SM_trash_bin_1" parent="Ground/Plot/Alleys/Props" unique_id=1300466905 instance=ExtResource("27_sgj8b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71, 0.3, -56.800003)
+
+[node name="SM_trash_bin_1a" parent="Ground/Plot/Alleys/Props" unique_id=664694444 instance=ExtResource("28_yn3nv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.3, 0, -55.800003)
+
+[node name="SM_trash_bin_1b" parent="Ground/Plot/Alleys/Props" unique_id=1502944709 instance=ExtResource("29_d66v6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.3, 0, -54.800003)
+
+[node name="SM_trash2" parent="Ground/Plot/Alleys/Props" unique_id=1990430493 instance=ExtResource("17_ucg5e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70.8, 0, -53.300003)
+
+[node name="SM_trash3" parent="Ground/Plot/Alleys/Props" unique_id=1186824355 instance=ExtResource("17_ucg5e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70.8, 0, -58.1)
+
+[node name="SM_TireSet_01" parent="Ground/Plot/Alleys/Props" unique_id=471256992 instance=ExtResource("30_avagh")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 71.2, 0, -60.6)
+
+[node name="SM_crate_4_set2" parent="Ground/Plot/Alleys/Props" unique_id=1357521183 instance=ExtResource("19_klnlj")]
+transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 70.200005, 0, -52.200005)
+
+[node name="SM_carton_flat_set2" parent="Ground/Plot/Alleys/Props" unique_id=1572979844 instance=ExtResource("20_cy430")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 69.8, 0, -54.700005)
+
+[node name="SM_carton_flat2" parent="Ground/Plot/Alleys/Props" unique_id=360533724 instance=ExtResource("21_8wc7h")]
+transform = Transform3D(0.8660254, 0, -0.5, 0, 1, 0, 0.5, 0, 0.8660254, 70, 0, -56.200005)
+
+[node name="Ground" type="Node3D" parent="Ground/Plot/Alleys" unique_id=1958726185]
+
+[node name="SmRoad00" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=2100154970]
+transform = Transform3D(5.495, 0, 0, 0, 0.714, 0, 0, 0, 0.357, 0.049999237, 0.005, -15.75)
 mesh = ExtResource("9_8ekqm")
 
-[node name="SmRoad03" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=700104191]
+[node name="SmRoad03" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=700104191]
 transform = Transform3D(0.35999998, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0.0010000002, 3.8146973e-06)
 mesh = ExtResource("9_8ekqm")
 
-[node name="SmRoad05" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=1589301907]
+[node name="SmRoad05" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1589301907]
 transform = Transform3D(-1.5736099e-08, 0, -1, 0, 1, 0, 0.35999998, 0, -4.371139e-08, 72, 0.0010000002, -51.85)
 mesh = ExtResource("9_8ekqm")
 
-[node name="SmRoad06" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=1693812286]
+[node name="SmRoad06" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1693812286]
 transform = Transform3D(-3.3045804e-08, 0, -0.99999994, 0, 1, 0, 0.7559999, 0, -4.3711385e-08, 72, 0.0010000002, -75.49999)
 mesh = ExtResource("9_8ekqm")
 
-[node name="SmRoad02" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=109067115]
+[node name="SmRoad02" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=109067115]
 transform = Transform3D(0.35999998, 0, 0, 0, 1, 0, 0, 0, 1, 32.2, 0.0010000002, 3.8146973e-06)
 mesh = ExtResource("9_8ekqm")
 
-[node name="SmRoad04" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=2013399806]
+[node name="SmRoad04" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=2013399806]
 transform = Transform3D(-1.8537125e-07, 0, -0.7999998, 0, 1, 0, 4.2408, 0, -3.4969105e-08, 59.300003, 0.0010000002, -88.049995)
 mesh = ExtResource("9_8ekqm")
 
-[node name="SmRoad07" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=1056486113]
+[node name="SmRoad07" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1056486113]
 transform = Transform3D(-1.823639e-07, 0, -1.144, 0, 1, 0, 4.172, 0, -5.000583e-08, 20.800003, 0.0010000002, -88.049995)
 mesh = ExtResource("9_8ekqm")
 
-[node name="SmRoad08" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=221990817]
+[node name="SmRoad08" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=221990817]
 transform = Transform3D(-1.2765473e-07, 0, -1.3728001, 0, 1, 0, 2.9204, 0, -6.0007e-08, 3.8146973e-06, 0.0010000002, -88.049995)
 mesh = ExtResource("9_8ekqm")
 
-[node name="SmParkingSpot01" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=1993872044]
+[node name="SmParkingSpot01" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1993872044]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 79.799995, 0.005, -0.20000267)
 mesh = ExtResource("7_04mrp")
 
-[node name="SmParkingSpot02" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=882508429]
+[node name="SmParkingSpot02" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=882508429]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 75.950005, 0.005, -0.20000267)
 mesh = ExtResource("7_04mrp")
 
-[node name="SmParkingSpot03" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=1577909104]
+[node name="SmParkingSpot03" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1577909104]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 72.00001, 0.005, -0.20000267)
 mesh = ExtResource("7_04mrp")
 
-[node name="SmRoad01" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=596180208]
-transform = Transform3D(-2.203054e-08, 0, 0.77, 0, 0.99999994, 0, -0.504, 0, -3.365777e-08, 80.05, 0.004, -8.15)
+[node name="SmRoad01" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=596180208]
+transform = Transform3D(-2.203054e-08, 0, 0.77, 0, 0.99999994, 0, -0.504, 0, -3.365777e-08, 80.05, 0.004, -8.150002)
 mesh = ExtResource("9_8ekqm")
 
-[node name="SmParcelRoad01" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=2046576691]
+[node name="SmParcelRoad01" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=2046576691]
 transform = Transform3D(-4.8956753e-08, 0, 0.62, 0, 1, 0, -1.12, 0, -2.7101061e-08, 59.300003, 0.01, -79)
 mesh = ExtResource("16_33r63")
 
-[node name="SmParcelRoad02" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=1527951348]
+[node name="SmParcelRoad02" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1527951348]
 transform = Transform3D(-4.8956753e-08, 0, 0.62, 0, 1, 0, -1.12, 0, -2.7101061e-08, 59.300003, 0.01, -57.6)
 mesh = ExtResource("16_33r63")
 
-[node name="SmParcelRoad03" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=1181487871]
+[node name="SmParcelRoad03" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1181487871]
 transform = Transform3D(-4.8956753e-08, 0, 0.62, 0, 1, 0, -1.12, 0, -2.7101061e-08, 59.300003, 0.01, -34)
 mesh = ExtResource("16_33r63")
 
-[node name="SmParcelRoad04" type="MeshInstance3D" parent="Ground/Plot/Alleys" unique_id=1127334359]
+[node name="SmParcelRoad04" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1127334359]
 transform = Transform3D(-4.8956753e-08, 0, 0.585, 0, 1, 0, -1.12, 0, -2.5571161e-08, 20.800003, 0.01, -22.399998)
 mesh = ExtResource("16_33r63")
+
+[node name="SM_carton_box_tray" parent="Ground/Plot/Alleys/Ground" unique_id=778909238 instance=ExtResource("31_gnq75")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71, 0, -76.9)
 
 [node name="GasStation" type="Node3D" parent="Ground/Plot" unique_id=95022381]
 
@@ -1547,6 +1632,18 @@ transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 9.
 
 [node name="Garage" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=1717629404 instance=ExtResource("20_uniy5")]
 transform = Transform3D(1, 0, -1.0133184e-07, 0, 1, 0, 1.0133184e-07, 0, 1, 0, 0, -24)
+
+[node name="SM_billboard_86Gasoline" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=1836133150 instance=ExtResource("21_4kyli")]
+transform = Transform3D(1, 0, -1.0133184e-07, 0, 1, 0, 1.0133184e-07, 0, 1, 0.3500023, 3.6999998, -3.7999954)
+
+[node name="SM_ice_machine" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=447328426 instance=ExtResource("22_xeelq")]
+transform = Transform3D(1, 0, -1.0133184e-07, 0, 1, 0, 1.0133184e-07, 0, 1, 1.0499992, 0, -7)
+
+[node name="SM_rolledBars_02" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=1116164975 instance=ExtResource("23_6uajf")]
+transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 0.45000076, 0, -4)
+
+[node name="SM_rolledBars_03" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=777684275 instance=ExtResource("23_6uajf")]
+transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 0.45000076, 0, -6)
 
 [node name="PsrkingLot" type="Node3D" parent="Ground/Plot/GasStation/CornerStore2" unique_id=1438158409]
 
@@ -1913,10 +2010,6 @@ mesh = ExtResource("4_uurtm")
 
 [node name="SmSidewalk01Base87" type="MeshInstance3D" parent="Sidewalk" unique_id=530237415]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 24, 0, -92)
-mesh = ExtResource("4_uurtm")
-
-[node name="SmSidewalk01Base92" type="MeshInstance3D" parent="Sidewalk" unique_id=1170653142]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 4, 0, -92)
 mesh = ExtResource("4_uurtm")
 
 [node name="SmSidewalk01Corner2" type="MeshInstance3D" parent="Sidewalk" unique_id=1545501437]
@@ -2489,10 +2582,6 @@ mesh = ExtResource("13_33r63")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, -20)
 mesh = ExtResource("13_33r63")
 
-[node name="SmSidewalk25" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=1241037807]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 24, 0, 4)
-mesh = ExtResource("13_33r63")
-
 [node name="SmSidewalk48" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=106665075]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 20, 0, 4)
 mesh = ExtResource("13_33r63")
@@ -2506,7 +2595,7 @@ transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 40, 
 mesh = ExtResource("13_33r63")
 
 [node name="SmSidewalk50" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=857364439]
-transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, 24, 0, 8)
+transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, 20, 0, 8)
 mesh = ExtResource("13_33r63")
 
 [node name="SmSidewalk30" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=200573947]
@@ -2582,11 +2671,11 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 40, 
 mesh = ExtResource("11_4tc2c")
 
 [node name="SmSidewalk01Corner2" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=678512635]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 24, 0, 4)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 20, 0, 4)
 mesh = ExtResource("11_4tc2c")
 
 [node name="SmRoad00" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=1322806507]
-transform = Transform3D(-2.1855694e-08, 0, -0.5, 0, 1, 0, 0.5, 0, -2.1855694e-08, 28, 0, 0)
+transform = Transform3D(-2.1855694e-08, 0, -0.75, 0, 1, 0, 0.5, 0, -3.278354e-08, 24, 0, 0)
 mesh = ExtResource("9_8ekqm")
 
 [node name="Intersection7" parent="Roads" unique_id=1128809999 instance=ExtResource("7_86gvs")]

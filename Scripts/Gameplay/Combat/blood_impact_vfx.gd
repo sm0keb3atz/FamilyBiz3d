@@ -1,6 +1,11 @@
 class_name BloodImpactVFX
 extends Node3D
 
+enum SurfaceImpactKind {
+	STONE,
+	METAL,
+}
+
 const BLOOD_SPRAY_TEXTURE := preload(
 	"res://Assets/VFX/Blood/BloodSplat5.png"
 )
@@ -47,6 +52,10 @@ var _death_pool_due_time := -1.0
 static var _shared_spray_process_material: ParticleProcessMaterial
 static var _shared_spray_mesh: QuadMesh
 static var _shared_bullet_hole_material: ShaderMaterial
+static var _shared_spark_mesh: BoxMesh
+static var _shared_debris_mesh: BoxMesh
+static var _shared_smoke_mesh: QuadMesh
+static var _shared_soft_smoke_texture: GradientTexture2D
 
 
 static func prewarm_resources() -> void:
@@ -83,6 +92,37 @@ static func prewarm_resources() -> void:
 			Color(0.38, 0.003, 0.006, 0.92)
 		)
 		_shared_spray_mesh.material = spray_material
+	if _shared_spark_mesh == null:
+		_shared_spark_mesh = BoxMesh.new()
+		_shared_spark_mesh.size = Vector3(0.007, 0.007, 0.075)
+		var spark_material := StandardMaterial3D.new()
+		spark_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		spark_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		spark_material.albedo_color = Color(1.0, 0.76, 0.22, 0.95)
+		spark_material.emission_enabled = true
+		spark_material.emission = Color(1.0, 0.48, 0.06)
+		spark_material.emission_energy_multiplier = 2.6
+		spark_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_shared_spark_mesh.material = spark_material
+	if _shared_debris_mesh == null:
+		_shared_debris_mesh = BoxMesh.new()
+		_shared_debris_mesh.size = Vector3(0.025, 0.025, 0.025)
+		var debris_material := StandardMaterial3D.new()
+		debris_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		debris_material.albedo_color = Color(0.12, 0.1, 0.085, 1.0)
+		_shared_debris_mesh.material = debris_material
+	if _shared_smoke_mesh == null:
+		_shared_smoke_mesh = QuadMesh.new()
+		_shared_smoke_mesh.size = Vector2.ONE * 0.48
+		var smoke_material := StandardMaterial3D.new()
+		smoke_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		smoke_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		smoke_material.vertex_color_use_as_albedo = true
+		smoke_material.albedo_color = Color.WHITE
+		smoke_material.albedo_texture = _get_soft_smoke_texture()
+		smoke_material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+		smoke_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_shared_smoke_mesh.material = smoke_material
 
 
 func prewarm_runtime() -> void:
@@ -147,10 +187,17 @@ func setup_blood_hit(
 func setup_surface_hit(
 	hit_position: Vector3,
 	hit_normal: Vector3,
-	hit_collider: Node3D
+	hit_collider: Node3D,
+	impact_kind := SurfaceImpactKind.STONE
 ) -> void:
 	global_position = hit_position
 	_create_bullet_hole(hit_position, hit_normal, hit_collider, 0.13)
+	if impact_kind == SurfaceImpactKind.METAL:
+		_create_metal_sparks(hit_normal)
+		_create_metal_debris(hit_normal)
+		_create_metal_flash(hit_position, hit_normal)
+	else:
+		_create_smoke_puff(hit_normal)
 
 
 func clear_marks_attached_to(owner: Node3D) -> void:
@@ -257,6 +304,182 @@ func _create_spray(shot_direction: Vector3) -> void:
 	particles.draw_pass_1 = _shared_spray_mesh
 	add_child(particles)
 	particles.restart()
+
+
+func _create_metal_sparks(hit_normal: Vector3) -> void:
+	prewarm_resources()
+	var normal := hit_normal.normalized()
+	if normal.is_zero_approx():
+		normal = Vector3.UP
+	var particles := GPUParticles3D.new()
+	particles.name = "MetalSparks"
+	particles.amount = 34
+	particles.lifetime = 0.24
+	particles.one_shot = true
+	particles.explosiveness = 1.0
+	particles.randomness = 0.52
+	particles.visibility_aabb = AABB(
+		Vector3(-3.0, -3.0, -3.0),
+		Vector3(6.0, 6.0, 6.0)
+	)
+	var process_material := ParticleProcessMaterial.new()
+	process_material.emission_shape = (
+		ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	)
+	process_material.emission_sphere_radius = 0.025
+	process_material.direction = (normal + Vector3.UP * 0.18).normalized()
+	process_material.spread = 44.0
+	process_material.initial_velocity_min = 2.8
+	process_material.initial_velocity_max = 5.6
+	process_material.gravity = Vector3(0.0, -7.8, 0.0)
+	process_material.scale_min = 0.45
+	process_material.scale_max = 0.95
+	process_material.damping_min = 0.6
+	process_material.damping_max = 1.9
+	particles.process_material = process_material
+	particles.draw_pass_1 = _shared_spark_mesh
+	add_child(particles)
+	particles.restart()
+
+
+func _create_metal_debris(hit_normal: Vector3) -> void:
+	prewarm_resources()
+	var normal := hit_normal.normalized()
+	if normal.is_zero_approx():
+		normal = Vector3.UP
+	var particles := GPUParticles3D.new()
+	particles.name = "MetalImpactFlecks"
+	particles.amount = 10
+	particles.lifetime = 0.46
+	particles.one_shot = true
+	particles.explosiveness = 1.0
+	particles.randomness = 0.72
+	particles.visibility_aabb = AABB(
+		Vector3(-2.0, -2.0, -2.0),
+		Vector3(4.0, 4.0, 4.0)
+	)
+	var process_material := ParticleProcessMaterial.new()
+	process_material.direction = normal
+	process_material.spread = 50.0
+	process_material.initial_velocity_min = 0.9
+	process_material.initial_velocity_max = 2.4
+	process_material.gravity = Vector3(0.0, -5.5, 0.0)
+	process_material.scale_min = 0.5
+	process_material.scale_max = 1.1
+	process_material.damping_min = 0.35
+	process_material.damping_max = 1.1
+	particles.process_material = process_material
+	particles.draw_pass_1 = _shared_debris_mesh
+	add_child(particles)
+	particles.restart()
+
+
+func _create_metal_flash(hit_position: Vector3, hit_normal: Vector3) -> void:
+	var flash := MeshInstance3D.new()
+	flash.name = "MetalImpactFlash"
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE * randf_range(0.055, 0.09)
+	var material := StandardMaterial3D.new()
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color(1.0, 0.7, 0.16, 0.38)
+	material.emission_enabled = true
+	material.emission = Color(1.0, 0.45, 0.05)
+	material.emission_energy_multiplier = 1.15
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	quad.material = material
+	flash.mesh = quad
+	_place_mark(flash, hit_position, hit_normal, 0.01)
+	var world_transform := flash.transform
+	add_child(flash)
+	flash.global_transform = world_transform
+	get_tree().create_timer(0.06).timeout.connect(
+		func() -> void:
+			if is_instance_valid(flash):
+				flash.queue_free()
+	)
+
+
+func _create_smoke_puff(hit_normal: Vector3) -> void:
+	prewarm_resources()
+	var normal := hit_normal.normalized()
+	if normal.is_zero_approx():
+		normal = Vector3.UP
+	var particles := GPUParticles3D.new()
+	particles.name = "SurfaceSmokePuff"
+	particles.amount = 18
+	particles.lifetime = 0.82
+	particles.one_shot = true
+	particles.explosiveness = 0.9
+	particles.randomness = 0.78
+	particles.visibility_aabb = AABB(
+		Vector3(-3.0, -3.0, -3.0),
+		Vector3(6.0, 6.0, 6.0)
+	)
+	var gradient := Gradient.new()
+	gradient.offsets = PackedFloat32Array([0.0, 0.16, 0.58, 1.0])
+	gradient.colors = PackedColorArray([
+		Color(0.33, 0.32, 0.29, 0.0),
+		Color(0.48, 0.46, 0.4, 0.26),
+		Color(0.62, 0.6, 0.54, 0.11),
+		Color(0.72, 0.7, 0.64, 0.0),
+	])
+	var color_ramp := GradientTexture1D.new()
+	color_ramp.gradient = gradient
+
+	var growth_curve := Curve.new()
+	growth_curve.add_point(Vector2(0.0, 0.28))
+	growth_curve.add_point(Vector2(0.28, 0.85))
+	growth_curve.add_point(Vector2(0.72, 1.18))
+	growth_curve.add_point(Vector2(1.0, 1.42))
+	var scale_curve := CurveTexture.new()
+	scale_curve.curve = growth_curve
+
+	var process_material := ParticleProcessMaterial.new()
+	process_material.emission_shape = (
+		ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	)
+	process_material.emission_sphere_radius = 0.045
+	process_material.direction = (normal + Vector3.UP * 0.45).normalized()
+	process_material.spread = 54.0
+	process_material.initial_velocity_min = 0.42
+	process_material.initial_velocity_max = 1.25
+	process_material.gravity = Vector3(0.0, 0.2, 0.0)
+	process_material.damping_min = 0.35
+	process_material.damping_max = 0.85
+	process_material.angle_min = 0.0
+	process_material.angle_max = 360.0
+	process_material.angular_velocity_min = -120.0
+	process_material.angular_velocity_max = 120.0
+	process_material.scale_min = 0.28
+	process_material.scale_max = 0.62
+	process_material.scale_curve = scale_curve
+	process_material.color_ramp = color_ramp
+	particles.process_material = process_material
+	particles.draw_pass_1 = _shared_smoke_mesh
+	add_child(particles)
+	particles.restart()
+
+
+static func _get_soft_smoke_texture() -> GradientTexture2D:
+	if _shared_soft_smoke_texture != null:
+		return _shared_soft_smoke_texture
+	var edge_gradient := Gradient.new()
+	edge_gradient.offsets = PackedFloat32Array([0.0, 0.48, 0.78, 1.0])
+	edge_gradient.colors = PackedColorArray([
+		Color(1.0, 1.0, 1.0, 0.92),
+		Color(1.0, 1.0, 1.0, 0.68),
+		Color(1.0, 1.0, 1.0, 0.22),
+		Color(1.0, 1.0, 1.0, 0.0),
+	])
+	_shared_soft_smoke_texture = GradientTexture2D.new()
+	_shared_soft_smoke_texture.width = 64
+	_shared_soft_smoke_texture.height = 64
+	_shared_soft_smoke_texture.fill = GradientTexture2D.FILL_RADIAL
+	_shared_soft_smoke_texture.fill_from = Vector2(0.5, 0.5)
+	_shared_soft_smoke_texture.fill_to = Vector2(1.0, 0.5)
+	_shared_soft_smoke_texture.gradient = edge_gradient
+	return _shared_soft_smoke_texture
 
 
 func _trace_landing_splats(
