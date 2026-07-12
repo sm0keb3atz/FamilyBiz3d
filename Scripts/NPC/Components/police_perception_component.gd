@@ -14,7 +14,7 @@ static var debug_draw_enabled := false
 @export_flags_3d_physics var sight_collision_mask := 3
 @export_category("Wanted Vision Cone")
 @export var show_wanted_vision_cone := true
-@export_range(12, 96, 1) var vision_cone_ray_count := 56
+@export_range(12, 128, 1) var vision_cone_ray_count := 96
 @export_range(0.03, 0.5, 0.01) var vision_cone_update_interval := 0.08
 @export_range(0.01, 0.25, 0.01) var vision_cone_ground_offset := 0.06
 
@@ -56,10 +56,15 @@ func _process(delta: float) -> void:
 		_vision_cone_update_remaining - delta,
 		0.0
 	)
+	var has_visual_contact := (
+		wanted != null
+		and wanted.wanted_level > 0
+		and can_see_player()
+	)
 	if is_zero_approx(_vision_cone_update_remaining):
-		_refresh_wanted_vision_cone()
+		_refresh_wanted_vision_cone(false, has_visual_contact)
 		_vision_cone_update_remaining = vision_cone_update_interval
-	if wanted.wanted_level > 0 and can_see_player():
+	if has_visual_contact:
 		wanted.report_police_visual_contact(player.global_position)
 	if player_weapon.get_equipped_weapon() == null:
 		return
@@ -228,7 +233,10 @@ func _ensure_wanted_vision_cone() -> void:
 	npc.add_child(_wanted_cone_mesh_instance)
 
 
-func _refresh_wanted_vision_cone(force := false) -> void:
+func _refresh_wanted_vision_cone(
+	force := false,
+	focused_on_player := false
+) -> void:
 	_ensure_wanted_vision_cone()
 	var should_show: bool = (
 		show_wanted_vision_cone
@@ -241,6 +249,14 @@ func _refresh_wanted_vision_cone(force := false) -> void:
 		return
 	if not force and not npc.visible:
 		return
+	_wanted_cone_material.set_shader_parameter(
+		&"alert_level",
+		clampf(float(wanted.wanted_level) / 3.0, 0.18, 1.0)
+	)
+	_wanted_cone_material.set_shader_parameter(
+		&"focus_strength",
+		1.0 if focused_on_player else 0.0
+	)
 	var origin: Vector3 = npc.global_position + Vector3.UP * 1.35
 	var forward: Vector3 = npc.visual.global_basis.z
 	forward.y = 0.0

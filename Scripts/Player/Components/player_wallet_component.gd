@@ -2,6 +2,7 @@ class_name PlayerWalletComponent
 extends Node
 
 signal money_changed(dirty_cash: int, clean_cash: int)
+signal transaction_completed(dirty_cash_delta: int, clean_cash_delta: int)
 
 @export_range(0, 100000000, 1) var starting_dirty_cash := 100
 @export_range(0, 100000000, 1) var starting_clean_cash := 0
@@ -27,7 +28,7 @@ func can_spend_dirty(amount: int) -> bool:
 	return amount >= 0 and _dirty_cash >= amount
 
 
-func spend_dirty(amount: int) -> bool:
+func spend_dirty(amount: int, record_transaction := true) -> bool:
 	if amount < 0 or not can_spend_dirty(amount):
 		return false
 	if amount == 0:
@@ -35,25 +36,37 @@ func spend_dirty(amount: int) -> bool:
 
 	_dirty_cash -= amount
 	money_changed.emit(_dirty_cash, _clean_cash)
+	if record_transaction:
+		transaction_completed.emit(-amount, 0)
 	return true
 
 
-func add_dirty(amount: int) -> bool:
+func add_dirty(amount: int, record_transaction := true) -> bool:
 	if amount <= 0:
 		return false
 
 	_dirty_cash += amount
 	money_changed.emit(_dirty_cash, _clean_cash)
+	if record_transaction:
+		transaction_completed.emit(amount, 0)
 	return true
 
 
-func add_clean(amount: int) -> bool:
+func add_clean(amount: int, record_transaction := true) -> bool:
 	if amount <= 0:
 		return false
 
 	_clean_cash += amount
 	money_changed.emit(_dirty_cash, _clean_cash)
+	if record_transaction:
+		transaction_completed.emit(0, amount)
 	return true
+
+
+func record_transaction(dirty_cash_delta: int, clean_cash_delta: int) -> void:
+	if dirty_cash_delta == 0 and clean_cash_delta == 0:
+		return
+	transaction_completed.emit(dirty_cash_delta, clean_cash_delta)
 
 
 func export_save_data() -> Dictionary:

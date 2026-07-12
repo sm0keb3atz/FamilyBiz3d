@@ -9,10 +9,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.2, 0.72, 0.78, 0.9)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="PlayerInventoryMenu" type="CanvasLayer"]
 layer = 10
@@ -45,10 +45,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -230.0
-offset_top = -210.0
-offset_right = 230.0
-offset_bottom = 210.0
+offset_left = -360.0
+offset_top = -270.0
+offset_right = 360.0
+offset_bottom = 270.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
@@ -61,7 +61,7 @@ theme_override_constants/margin_bottom = 24
 
 [node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="MenuRoot/Panel/Margin/Content"]
 layout_mode = 2
@@ -70,26 +70,65 @@ theme_override_font_sizes/font_size = 28
 text = "INVENTORY"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="MenuRoot/Panel/Margin/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.67, 0.7, 0.75, 1)
-text = "Products carried"
-horizontal_alignment = 1
-
-[node name="Separator" type="HSeparator" parent="MenuRoot/Panel/Margin/Content"]
-layout_mode = 2
-
-[node name="EmptyLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "No products known."
-horizontal_alignment = 1
-
-[node name="ProductList" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+[node name="TabContainer" type="TabContainer" parent="MenuRoot/Panel/Margin/Content"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+
+[node name="Drugs" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 8
+
+[node name="DrugScroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Drugs"]
+layout_mode = 2
+
+[node name="DrugList" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Drugs/DrugScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Weapons" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 8
+
+[node name="WeaponScroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Weapons"]
+layout_mode = 2
+
+[node name="WeaponList" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Weapons/WeaponScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Girlfriends" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 8
+
+[node name="GirlfriendScroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Girlfriends"]
+layout_mode = 2
+
+[node name="GirlfriendList" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Girlfriends/GirlfriendScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="FeedbackLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.84, 0.9, 1)
+horizontal_alignment = 1
 
 [node name="Hint" type="Label" parent="MenuRoot/Panel/Margin/Content"]
 layout_mode = 2

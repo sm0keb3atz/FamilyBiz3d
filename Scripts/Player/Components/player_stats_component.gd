@@ -8,8 +8,10 @@ signal experience_changed(current: float, required: float)
 signal level_changed(current: int)
 signal skill_points_changed(current: int)
 signal strength_changed(current: int)
+signal aura_changed(current: int)
 
 @export var config: PlayerStatsConfig
+@export var appearance_component_path := NodePath("../AppearanceComponent")
 
 var health: float:
 	get:
@@ -29,6 +31,9 @@ var skill_points: int:
 var strength: int:
 	get:
 		return _strength
+var aura: int:
+	get:
+		return _aura
 
 var _health := 0.0
 var _stamina := 0.0
@@ -36,6 +41,7 @@ var _experience := 0.0
 var _level := 1
 var _skill_points := 0
 var _strength := 1
+var _aura := 0
 var _time_since_damage := 0.0
 var _stamina_consumed_this_frame := false
 
@@ -53,6 +59,21 @@ func _ready() -> void:
 	_time_since_damage = config.health_regen_delay
 	_process_level_ups()
 	_emit_all_stats()
+	call_deferred("_connect_appearance")
+
+
+func _connect_appearance() -> void:
+	var appearance := get_node_or_null(appearance_component_path) as PlayerAppearanceComponent
+	if appearance == null:
+		return
+	_aura = appearance.get_current_aura()
+	appearance.aura_changed.connect(_on_appearance_aura_changed)
+	aura_changed.emit(_aura)
+
+
+func _on_appearance_aura_changed(current: int) -> void:
+	_aura = current
+	aura_changed.emit(_aura)
 
 
 func _process(delta: float) -> void:
@@ -128,6 +149,7 @@ func purchase_strength() -> bool:
 	_increase_current_pools(previous_max_health, previous_max_stamina)
 	skill_points_changed.emit(_skill_points)
 	strength_changed.emit(_strength)
+	aura_changed.emit(_aura)
 	return true
 
 

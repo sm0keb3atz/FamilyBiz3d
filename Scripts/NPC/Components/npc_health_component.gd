@@ -166,7 +166,7 @@ func snap_vfx_position_to_body(world_position: Vector3) -> Vector3:
 	var closest := _find_closest_vfx_bone(world_position)
 	var bone_name := closest.name as StringName
 	var bone_position := closest.position as Vector3
-	var surface_radius := 0.16
+	var surface_radius := 0.15
 	if bone_name == &"Head" or bone_name == &"Neck":
 		surface_radius = 0.10
 	elif String(bone_name).contains("Arm") or String(bone_name).contains("Leg"):

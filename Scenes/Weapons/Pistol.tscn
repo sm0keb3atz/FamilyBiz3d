@@ -1,12 +1,17 @@
 [gd_scene format=3 uid="uid://cd1u7s1fh18wm"]
 
-[ext_resource type="ArrayMesh" uid="uid://bedfxy1x2vrjh" path="res://Assets/MapStuff/Meshs/Weapons/SM_Pistol_01.glb" id="1_mesh"]
-[ext_resource type="PackedScene" uid="uid://g8aqe1kdyinc" path="res://Assets/VFX/muzzle_flash.tscn" id="2_t511x"]
+[ext_resource type="PackedScene" uid="uid://di2lv166pdkx" path="res://Assets/Weapons/Pistol/Pistol.glb" id="1_pistol_model"]
+[ext_resource type="PackedScene" uid="uid://g8aqe1kdyinc" path="res://Assets/VFX/muzzle_flash.tscn" id="2_muzzle_flash"]
+[ext_resource type="Script" uid="uid://dxmh5v22a530j" path="res://Scripts/Gameplay/Weapons/pistol_presentation.gd" id="3_presentation"]
 
 [node name="PistolVisual" type="Node3D" unique_id=742573005]
+script = ExtResource("3_presentation")
 
-[node name="Mesh" type="MeshInstance3D" parent="." unique_id=872071577]
-mesh = ExtResource("1_mesh")
+[node name="PistolModel" parent="." unique_id=1126290401 instance=ExtResource("1_pistol_model")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
 
-[node name="MuzzleFlash" parent="Mesh" unique_id=431674480 instance=ExtResource("2_t511x")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.13530701, 0.06020023, 0)
+[node name="LaserOrigin" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.14, 0.15)
+
+[node name="MuzzleFlash" parent="." unique_id=431674480 instance=ExtResource("2_muzzle_flash")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00045307726, 0.18839584, 0.15640305)

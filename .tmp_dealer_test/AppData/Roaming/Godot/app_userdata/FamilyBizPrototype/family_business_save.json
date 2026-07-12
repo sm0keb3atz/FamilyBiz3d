@@ -1,0 +1,126 @@
+{
+	"dealers": {
+		"/root/World/Gameplay/@CharacterBody3D@18": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 3,
+			"is_wholesaler": false,
+			"stock": {
+				"coke_1g": 13,
+				"fent_1g": 5
+			}
+		},
+		"/root/World/Gameplay/@CharacterBody3D@20": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 2,
+			"is_wholesaler": false,
+			"stock": {
+				"coke_1g": 6,
+				"weed_1g": 14
+			}
+		},
+		"/root/World/Gameplay/@CharacterBody3D@22": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 1,
+			"is_wholesaler": false,
+			"stock": {
+				"weed_1g": 8
+			}
+		},
+		"/root/World/Gameplay/@CharacterBody3D@24": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 3,
+			"is_wholesaler": false,
+			"stock": {
+				"coke_1g": 20,
+				"fent_1g": 6
+			}
+		},
+		"/root/World/Gameplay/@CharacterBody3D@26": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 4,
+			"is_wholesaler": false,
+			"stock": {
+				"weed_brick": 1
+			}
+		},
+		"/root/World/Gameplay/DealerNPC": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 1,
+			"is_wholesaler": false,
+			"stock": {
+				"weed_1g": 5
+			}
+		},
+		"/root/World/Gameplay/EastDealer": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 1,
+			"is_wholesaler": true,
+			"stock": {
+				"coke_brick": 15,
+				"fent_brick": 14,
+				"weed_brick": 14
+			}
+		},
+		"/root/World/Gameplay/WestDealer": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 1,
+			"is_wholesaler": false,
+			"stock": {
+				"weed_1g": 7
+			}
+		}
+	},
+	"player": {
+		"inventory": {
+			"coke_1g": 0,
+			"coke_brick": 0,
+			"fent_1g": 0,
+			"fent_brick": 0,
+			"weed_1g": 106,
+			"weed_brick": 0
+		},
+		"position": [
+			64.0,
+			0.000468746642582119,
+			0.0
+		],
+		"rotation_y": 0.0,
+		"stats": {
+			"experience": 15.0,
+			"health": 100.0,
+			"level": 1,
+			"skill_points": 0,
+			"stamina": 100.0,
+			"strength": 1
+		},
+		"wallet": {
+			"clean_cash": 0,
+			"dirty_cash": 1073
+		},
+		"wanted": {
+			"trigger_territory_id": "",
+			"wanted_level": 0
+		}
+	},
+	"territories": {
+		"hood_east": {
+			"heat": 2.95554238888889,
+			"reputation": 100.0
+		},
+		"hood_west": {
+			"heat": 0.0,
+			"reputation": 0.0
+		}
+	},
+	"version": 2,
+	"world_time": {
+		"daily_earned": 1045,
+		"daily_spent": 72,
+		"day": 1,
+		"minute_accumulator": 0.323172444444445,
+		"minute_of_day": 480,
+		"month": 1,
+		"weekday": 0,
+		"year": 1
+	}
+}

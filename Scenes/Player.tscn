@@ -5,7 +5,7 @@
 [ext_resource type="AnimationNodeBlendSpace1D" uid="uid://btyinpafsjvni" path="res://Assets/Animations/Blendpsaces/Unarmed.tres" id="3_gntrk"]
 [ext_resource type="Script" uid="uid://b4f1vvgfl3sgo" path="res://Scripts/Player/Components/player_camera_component.gd" id="4_camera"]
 [ext_resource type="Script" uid="uid://b4q1m3g62kgf5" path="res://Scripts/Player/Components/player_animation_component.gd" id="5_animation"]
-[ext_resource type="AnimationLibrary" uid="uid://nfmqp5qfafvr" path="res://Assets/Animations/MainAnimationLibary.res" id="5_u7x0b"]
+[ext_resource type="AnimationLibrary" path="res://Assets/Animations/MainAnimationLibary.res" id="5_u7x0b"]
 [ext_resource type="Script" uid="uid://do0t2xi63ufk7" path="res://Scripts/Player/Components/player_movement_component.gd" id="6_movement"]
 [ext_resource type="Script" uid="uid://db6jb4dw00h34" path="res://Scripts/Player/Components/player_stats_component.gd" id="7_stats"]
 [ext_resource type="Resource" path="res://Scripts/Player/Resources/default_player_stats.tres" id="8_stats_config"]
@@ -14,19 +14,21 @@
 [ext_resource type="Script" uid="uid://c0c3nnrp2fcfq" path="res://Scripts/Player/Components/player_ragdoll_component.gd" id="11_ragdoll"]
 [ext_resource type="Script" uid="uid://culvd2uyrw0g2" path="res://Scripts/Player/Components/player_respawn_component.gd" id="12_respawn"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/PlayerStatsMenu.tscn" id="13_stats_menu"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/WeaponDebugMenu.tscn" id="13_weapon_debug"]
 [ext_resource type="Script" uid="uid://cplpescseno4m" path="res://Scripts/Player/Components/player_weapon_component.gd" id="14_weapon"]
 [ext_resource type="Script" uid="uid://cj3swlfkjnljr" path="res://Scripts/Player/Components/player_wallet_component.gd" id="15_wallet"]
 [ext_resource type="AudioStream" uid="uid://kvrkr72ac7f8" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 01_AUDIOELK_AUDIOELK.wav" id="15_wenux"]
 [ext_resource type="Script" uid="uid://dfie7rnpu56wa" path="res://Scripts/Player/Components/player_inventory_component.gd" id="16_inventory"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_girlfriend_component.gd" id="16_girlfriend"]
+[ext_resource type="Script" path="res://Scripts/UI/girlfriend_gift_menu.gd" id="16_gift_menu"]
 [ext_resource type="AudioStream" uid="uid://m21i7r3q05vx" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 02_AUDIOELK_AUDIOELK.wav" id="16_vy33c"]
 [ext_resource type="AudioStream" uid="uid://dbcj4vwedcaxv" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 03_AUDIOELK_AUDIOELK.wav" id="17_h1ppb"]
-[ext_resource type="Resource" path="res://Scripts/Gameplay/Resources/test_product.tres" id="17_product"]
 [ext_resource type="Script" uid="uid://dinop6h3mheqs" path="res://Scripts/Player/Components/player_interaction_component.gd" id="18_interaction"]
 [ext_resource type="AudioStream" uid="uid://du84k416odmdb" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 04_AUDIOELK_AUDIOELK.wav" id="18_k22kr"]
-[ext_resource type="Script" uid="uid://ckjlxfqiq7npe" path="res://Scripts/Gameplay/Resources/product_definition.gd" id="19_c43xd"]
 [ext_resource type="AudioStream" uid="uid://dpxp6cpy8sw87" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 05_AUDIOELK_AUDIOELK.wav" id="19_h4i3a"]
 [ext_resource type="Script" uid="uid://uee27rbx7rjt" path="res://Scripts/Player/Components/player_solicitation_component.gd" id="19_solicitation"]
 [ext_resource type="Script" uid="uid://cggxogh78fv7a" path="res://Scripts/Player/Components/player_menu_controller.gd" id="20_menu_controller"]
+[ext_resource type="Shader" uid="uid://btot6623uel7j" path="res://Assets/VFX/Shaders/solicitation_scanner_pulse.gdshader" id="20_pulse_shader"]
 [ext_resource type="AudioStream" uid="uid://oumeupg3g6aw" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 06_AUDIOELK_AUDIOELK.wav" id="20_rocfp"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/PlayerInventoryMenu.tscn" id="21_inventory_menu"]
 [ext_resource type="AudioStream" uid="uid://co6byji67ukod" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 07_AUDIOELK_AUDIOELK.wav" id="21_uytvf"]
@@ -34,6 +36,8 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/DealerShopMenu.tscn" id="22_shop_menu"]
 [ext_resource type="AudioStream" uid="uid://ddgg0e777yuqs" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 09_AUDIOELK_AUDIOELK.wav" id="23_ed4yo"]
 [ext_resource type="Script" uid="uid://b08ui4exqy0kl" path="res://Scripts/Shared/character_visual_scale.gd" id="23_visual_scale"]
+[ext_resource type="Resource" uid="uid://3oyu4km5uovq" path="res://Scripts/Gameplay/Weapons/draco_definition.tres" id="24_draco"]
+[ext_resource type="PackedScene" uid="uid://cmltrw2tcqtyh" path="res://Scenes/Weapons/Draco.tscn" id="24_draco_preview"]
 [ext_resource type="AudioStream" uid="uid://bltn7anpwpvg6" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 10_AUDIOELK_AUDIOELK.wav" id="24_fsa4a"]
 [ext_resource type="Resource" uid="uid://dqyaai88180j" path="res://Scripts/Gameplay/Weapons/pistol_definition.tres" id="24_pistol"]
 [ext_resource type="AudioStream" uid="uid://d2nyu2gg6okr4" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 11_AUDIOELK_AUDIOELK.wav" id="25_6f3s4"]
@@ -46,7 +50,7 @@
 [ext_resource type="AudioStream" uid="uid://d2hectk745l0y" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 14_AUDIOELK_AUDIOELK.wav" id="28_txwsf"]
 [ext_resource type="AudioStream" uid="uid://b6t8ibffoe4p2" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 15_AUDIOELK_AUDIOELK.wav" id="29_i10l2"]
 [ext_resource type="AudioStream" uid="uid://bec60i8tm0p8b" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Reload 2.wav" id="29_reload_2"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Rack Full.wav" id="30_equip_rack"]
+[ext_resource type="AudioStream" uid="uid://eydkyooy6osc" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Rack Full.wav" id="30_equip_rack"]
 [ext_resource type="AudioStream" uid="uid://cl5wgfqn5eg8t" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 16_AUDIOELK_AUDIOELK.wav" id="30_fgqou"]
 [ext_resource type="Script" uid="uid://cy0ieqbvldc4g" path="res://Scripts/Gameplay/trade_service.gd" id="30_trade"]
 [ext_resource type="AudioStream" uid="uid://cfywojxoaor0v" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 17_AUDIOELK_AUDIOELK.wav" id="31_01r87"]
@@ -63,32 +67,32 @@
 [ext_resource type="Script" uid="uid://dgs5nhvd24v1f" path="res://Scripts/Player/Components/player_wanted_component.gd" id="37_wanted"]
 [ext_resource type="Script" uid="uid://2ku5iqfqe5ep" path="res://Scripts/Player/Components/player_arrest_component.gd" id="38_arrest"]
 [ext_resource type="Script" uid="uid://s2px2hr50ohp" path="res://Scripts/Player/Components/player_damage_feedback_component.gd" id="39_damage_feedback"]
-[ext_resource type="Script" path="res://Scripts/Player/Components/player_target_lock_component.gd" id="40_target_lock"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/body1.ogg" id="41_body_1"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/body2.ogg" id="42_body_2"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/body4.ogg" id="43_body_4"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/body5.ogg" id="44_body_5"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/body6.ogg" id="45_body_6"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/body7.ogg" id="46_body_7"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/body8.ogg" id="47_body_8"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/metal1.ogg" id="48_metal_1"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/metal2.ogg" id="49_metal_2"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/metal3.ogg" id="50_metal_3"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/metal4.ogg" id="51_metal_4"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/metal5.ogg" id="52_metal_5"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/metal6.ogg" id="53_metal_6"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/metal7.ogg" id="54_metal_7"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/stone1.ogg" id="55_stone_1"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/stone2.ogg" id="56_stone_2"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/stone3.ogg" id="57_stone_3"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/stone4.ogg" id="58_stone_4"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/stone5.ogg" id="59_stone_5"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/stone6.ogg" id="60_stone_6"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/stone7.ogg" id="61_stone_7"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/stone8.ogg" id="62_stone_8"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/stone9.ogg" id="63_stone_9"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/stone10.ogg" id="64_stone_10"]
-[ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/BulletImpacts/stone11.ogg" id="65_stone_11"]
+[ext_resource type="Script" uid="uid://cxcja442vhhtl" path="res://Scripts/Player/Components/player_target_lock_component.gd" id="40_target_lock"]
+[ext_resource type="AudioStream" uid="uid://dbb2xxrhvmp42" path="res://Assets/Audio/Weapon/BulletImpacts/body1.ogg" id="41_body_1"]
+[ext_resource type="AudioStream" uid="uid://bbf03bxsntcpx" path="res://Assets/Audio/Weapon/BulletImpacts/body2.ogg" id="42_body_2"]
+[ext_resource type="AudioStream" uid="uid://irejaunxegpf" path="res://Assets/Audio/Weapon/BulletImpacts/body4.ogg" id="43_body_4"]
+[ext_resource type="AudioStream" uid="uid://38j14ghkr3fr" path="res://Assets/Audio/Weapon/BulletImpacts/body5.ogg" id="44_body_5"]
+[ext_resource type="AudioStream" uid="uid://bkih4wlhhyrb6" path="res://Assets/Audio/Weapon/BulletImpacts/body6.ogg" id="45_body_6"]
+[ext_resource type="AudioStream" uid="uid://deyaoqtl7070b" path="res://Assets/Audio/Weapon/BulletImpacts/body7.ogg" id="46_body_7"]
+[ext_resource type="AudioStream" uid="uid://c8872pwp577e8" path="res://Assets/Audio/Weapon/BulletImpacts/body8.ogg" id="47_body_8"]
+[ext_resource type="AudioStream" uid="uid://btmrmppm3pbkc" path="res://Assets/Audio/Weapon/BulletImpacts/metal1.ogg" id="48_metal_1"]
+[ext_resource type="AudioStream" uid="uid://dpxogambncaax" path="res://Assets/Audio/Weapon/BulletImpacts/metal2.ogg" id="49_metal_2"]
+[ext_resource type="AudioStream" uid="uid://cgfs1cdaoohy3" path="res://Assets/Audio/Weapon/BulletImpacts/metal3.ogg" id="50_metal_3"]
+[ext_resource type="AudioStream" uid="uid://brg1mr1m6i7y4" path="res://Assets/Audio/Weapon/BulletImpacts/metal4.ogg" id="51_metal_4"]
+[ext_resource type="AudioStream" uid="uid://deqn4dfp4ggk" path="res://Assets/Audio/Weapon/BulletImpacts/metal5.ogg" id="52_metal_5"]
+[ext_resource type="AudioStream" uid="uid://bwq2yrmh26x6n" path="res://Assets/Audio/Weapon/BulletImpacts/metal6.ogg" id="53_metal_6"]
+[ext_resource type="AudioStream" uid="uid://cwmae1jf2fcwn" path="res://Assets/Audio/Weapon/BulletImpacts/metal7.ogg" id="54_metal_7"]
+[ext_resource type="AudioStream" uid="uid://ct24nqlu1w00w" path="res://Assets/Audio/Weapon/BulletImpacts/stone1.ogg" id="55_stone_1"]
+[ext_resource type="AudioStream" uid="uid://hmb5qy4xf5gg" path="res://Assets/Audio/Weapon/BulletImpacts/stone2.ogg" id="56_stone_2"]
+[ext_resource type="AudioStream" uid="uid://72x6nn07qncs" path="res://Assets/Audio/Weapon/BulletImpacts/stone3.ogg" id="57_stone_3"]
+[ext_resource type="AudioStream" uid="uid://b1oqtsvf2aif5" path="res://Assets/Audio/Weapon/BulletImpacts/stone4.ogg" id="58_stone_4"]
+[ext_resource type="AudioStream" uid="uid://cagf51k01ix0d" path="res://Assets/Audio/Weapon/BulletImpacts/stone5.ogg" id="59_stone_5"]
+[ext_resource type="AudioStream" uid="uid://c3obnssxxn3fu" path="res://Assets/Audio/Weapon/BulletImpacts/stone6.ogg" id="60_stone_6"]
+[ext_resource type="AudioStream" uid="uid://b3n7h07m32d51" path="res://Assets/Audio/Weapon/BulletImpacts/stone7.ogg" id="61_stone_7"]
+[ext_resource type="AudioStream" uid="uid://cek6qrlt8p1jn" path="res://Assets/Audio/Weapon/BulletImpacts/stone8.ogg" id="62_stone_8"]
+[ext_resource type="AudioStream" uid="uid://b2css7lvr5akt" path="res://Assets/Audio/Weapon/BulletImpacts/stone9.ogg" id="63_stone_9"]
+[ext_resource type="AudioStream" uid="uid://c5f6elwhrqa3q" path="res://Assets/Audio/Weapon/BulletImpacts/stone10.ogg" id="64_stone_10"]
+[ext_resource type="AudioStream" uid="uid://cp4vd8n1dcxgr" path="res://Assets/Audio/Weapon/BulletImpacts/stone11.ogg" id="65_stone_11"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
 radius = 0.4
@@ -200,16 +204,22 @@ states/Locomotion/position = Vector2(414, 100)
 states/Start/position = Vector2(128, 100)
 transitions = ["Start", "Locomotion", SubResource("AnimationNodeStateMachineTransition_gntrk")]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pulse"]
-transparency = 1
-shading_mode = 0
-albedo_color = Color(0.2, 0.85, 1, 0.5)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pulse"]
+render_priority = 0
+shader = ExtResource("20_pulse_shader")
+shader_parameter/start_point = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+shader_parameter/radius = 0.0
+shader_parameter/pulse_width = 0.65
+shader_parameter/pulse_color = Color(0.16, 0.95, 1, 0.82)
+shader_parameter/pulse_energy = 1.25
+shader_parameter/pulse_opacity = 1.0
+shader_parameter/edge_sharpness = 2.25
+shader_parameter/scanline_strength = 0.18
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_pulse"]
-material = SubResource("StandardMaterial3D_pulse")
-top_radius = 1.0
-bottom_radius = 1.0
-height = 0.02
+[sub_resource type="QuadMesh" id="QuadMesh_pulse"]
+material = SubResource("ShaderMaterial_pulse")
+flip_faces = true
+size = Vector2(2, 2)
 
 [node name="Player" type="CharacterBody3D" unique_id=1713473279]
 collision_mask = 3
@@ -231,185 +241,199 @@ script = ExtResource("23_visual_scale")
 transform = Transform3D(1.75, 0, 0, 0, 1.75, 0, 0, 0, 1.75, 0, 0, 0)
 
 [node name="GeneralSkeleton" parent="Visual/PlayerTest2/Armature" index="0" unique_id=167059321]
-bones/0/position = Vector3(0.0006717364, 0.07647723, -0.012567845)
-bones/4/rotation = Quaternion(-8.940695e-08, 0, 0, 1)
-bones/8/rotation = Quaternion(0.49999952, 0.50000036, 0.49999952, -0.5000006)
-bones/9/rotation = Quaternion(0, 1, -1.788139e-07, 5.9604638e-08)
-bones/10/rotation = Quaternion(-6.322028e-08, -0.7071067, 1.05367135e-07, 0.7071068)
-bones/11/rotation = Quaternion(-5.1507544e-07, 0.7071067, 4.96449e-07, 0.7071068)
-bones/12/rotation = Quaternion(5.9604645e-08, -5.9604645e-08, 5.9604645e-08, 1)
-bones/13/rotation = Quaternion(-0.21418682, 0.67388725, 0.21418676, 0.6738874)
-bones/14/rotation = Quaternion(-2.9802322e-08, 1.4901161e-08, 2.2204463e-16, 1)
+bones/0/position = Vector3(-7.827603e-05, 0.55789334, -0.0072106807)
+bones/0/rotation = Quaternion(-0.06342781, -0.03497549, 0.027086139, 0.9970056)
+bones/1/rotation = Quaternion(0.046282113, 0.018684953, -0.016107649, 0.9986238)
+bones/2/rotation = Quaternion(0.0129550155, 0.0064883777, -0.0060670227, 0.9998767)
+bones/3/rotation = Quaternion(0.012906738, 0.006510778, -0.0059612356, 0.99987775)
+bones/4/rotation = Quaternion(0.020874554, 0.046441942, 0.015198673, 0.9985872)
+bones/5/rotation = Quaternion(0.026729051, -0.09338703, 0.01895575, 0.9950906)
+bones/8/rotation = Quaternion(0.4857911, 0.47571322, 0.64366, -0.35129166)
+bones/9/rotation = Quaternion(0.13496435, 0.96723545, -0.21366632, -0.024230123)
+bones/10/rotation = Quaternion(0.42232063, -0.65879434, 0.3893241, 0.4858622)
+bones/11/rotation = Quaternion(-0.2571108, -0.25945872, -0.1346924, 0.9211044)
+bones/12/rotation = Quaternion(0.024830768, -0.09420482, 0.12946275, 0.9867869)
+bones/13/rotation = Quaternion(-0.23830825, 0.6467242, 0.2431317, 0.68252766)
+bones/14/rotation = Quaternion(-0.0836943, -0.019818913, -0.14230172, 0.98607945)
 bones/15/rotation = Quaternion(-0.0667562, -0.030510437, -0.021675615, 0.99706715)
-bones/17/rotation = Quaternion(8.9406946e-08, -2.9802315e-08, -2.9802315e-08, 1)
-bones/19/rotation = Quaternion(-8.9406946e-08, -8.9406946e-08, 2.9802315e-08, 1)
+bones/17/rotation = Quaternion(0.5008709, -0.019130003, -0.026517833, 0.8649042)
+bones/18/rotation = Quaternion(0.57760656, 0.03644191, -0.045016672, 0.81425804)
+bones/19/rotation = Quaternion(0.26537803, 0.018637238, -0.02974337, 0.9635053)
 bones/20/rotation = Quaternion(0.102827534, -7.45058e-08, -7.4505795e-07, 0.99469924)
-bones/22/rotation = Quaternion(0.49999893, -0.50000095, -0.4999988, -0.5000013)
-bones/23/rotation = Quaternion(2.9802322e-08, 1, 8.940697e-08, -8.940697e-08)
-bones/24/rotation = Quaternion(3.0556467e-07, 0.7071067, 2.21271e-07, 0.7071068)
-bones/25/rotation = Quaternion(-9.93592e-07, -0.7071067, -9.4516326e-07, 0.7071068)
-bones/26/rotation = Quaternion(2.9802315e-08, 8.9406946e-08, 8.9406946e-08, 1)
-bones/27/rotation = Quaternion(-0.21418676, -0.67388725, -0.21418673, 0.67388725)
-bones/28/rotation = Quaternion(2.980232e-08, -1.0430813e-07, -2.980232e-08, 1)
+bones/22/rotation = Quaternion(0.44263607, -0.5219202, -0.6210702, -0.38202667)
+bones/23/rotation = Quaternion(-0.23393908, 0.9320147, -0.25754812, 0.10144082)
+bones/24/rotation = Quaternion(0.508899, 0.5990367, -0.48048902, 0.38898218)
+bones/25/rotation = Quaternion(0.0001979321, -0.45171905, 0.27302393, 0.8493573)
+bones/26/rotation = Quaternion(0.23639068, -0.22364017, -0.087326616, 0.94153)
+bones/27/rotation = Quaternion(-0.3453183, -0.75323415, 0.0059571574, 0.5597841)
+bones/28/rotation = Quaternion(0.25639766, -0.21017554, 0.14248562, 0.9326223)
 bones/29/rotation = Quaternion(0.20611565, -0.09420386, -0.06692494, 0.9716805)
-bones/31/rotation = Quaternion(-2.9802322e-08, 2.9802322e-08, -2.9802322e-08, 1)
-bones/32/rotation = Quaternion(-1.1920929e-07, 5.9604645e-08, 0, 1)
-bones/33/rotation = Quaternion(0, -5.9604645e-08, 0, 1)
+bones/31/rotation = Quaternion(0.06931745, 0.006310164, -0.006609558, 0.9975529)
+bones/32/rotation = Quaternion(0.47035754, -0.028982922, 0.030354112, 0.8814775)
+bones/33/rotation = Quaternion(0.56371045, -0.03514737, 0.040511727, 0.82422936)
 bones/34/rotation = Quaternion(0.13343368, -1.937151e-07, 1.0728836e-06, 0.9910578)
-bones/36/rotation = Quaternion(-5.8445844e-09, 0, 1, 2.6177148e-08)
-bones/37/rotation = Quaternion(-3.7252907e-09, 1, -7.4505815e-09, -3.4924602e-10)
-bones/38/rotation = Quaternion(-2.7535396e-08, 0.7071066, -0.70710695, -1.1936115e-09)
-bones/39/rotation = Quaternion(-1.0536708e-08, 1, 0, 2.3707596e-08)
-bones/42/rotation = Quaternion(-7.408624e-09, 0, 1, -1.0857754e-07)
-bones/43/rotation = Quaternion(7.450581e-09, 1, 3.7252903e-09, 6.9849193e-10)
-bones/44/rotation = Quaternion(5.0214024e-09, 0.7071068, -0.7071067, -2.4695426e-10)
-bones/45/rotation = Quaternion(1.4487979e-08, 1, -2.9802322e-08, -3.9512673e-09)
+bones/36/rotation = Quaternion(0.101243004, 0.090485364, 0.9907367, -0.0017425455)
+bones/37/rotation = Quaternion(-0.018836772, 0.99393517, -0.080542006, 0.07246532)
+bones/38/rotation = Quaternion(-0.0029100506, 0.7600329, -0.64978695, 0.010884426)
+bones/39/rotation = Quaternion(2.8449122e-07, 1, 5.9604645e-08, 2.555153e-07)
+bones/42/rotation = Quaternion(-0.1326774, 0.006801338, 0.9908968, 0.021773709)
+bones/43/rotation = Quaternion(0.044143807, 0.97802645, -0.1840735, -0.08736536)
+bones/44/rotation = Quaternion(-0.0025792234, 0.6145619, -0.787596, -0.04471715)
+bones/45/rotation = Quaternion(-1.06684205e-07, 0.9997864, 0.020668954, 1.7122154e-08)
 
-[node name="PhysicalBoneSimulator3D" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" index="14" unique_id=1261319765]
+[node name="PhysicalBoneSimulator3D" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" index="19" unique_id=1261319765]
+visible = false
 active = false
 
 [node name="Physical Bone Hips" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="0" unique_id=188029531]
-transform = Transform3D(0.5714286, -1.005923e-06, -1.9907431e-07, -1.1787065e-07, 0.045765597, -0.56959295, 1.0186353e-06, 0.56959295, 0.045765597, 0.0006716361, 0.10231989, -0.014644202)
+transform = Transform3D(0.5714286, -9.258785e-07, -1.7156215e-07, -9.685756e-08, 0.04576563, -0.56959295, 9.366446e-07, 0.56959295, 0.04576563, 0.00067165046, 0.102319926, -0.01464421)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9131664e-07, -8.1257895e-08, 0.045370396)
-body_offset = Transform3D(0.5714286, -1.0059229e-06, -1.9907426e-07, -1.1787064e-07, 0.045765597, -0.56959295, 1.0186353e-06, 0.56959295, 0.045765597, -1.002918e-07, 0.02584266, -0.0020763567)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0013124878, 0.07681881, -0.7936506)
+body_offset = Transform3D(0.56919205, 0.040441077, -0.030256597, -0.028327765, -0.027788617, -0.570049, -0.04181482, 0.56931794, -0.025675043, -0.026372744, -0.45032224, -0.06416622)
 
 [node name="Physical Bone Spine" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="1" unique_id=1576835463]
-transform = Transform3D(0.5714286, -1.0341348e-06, -2.0225339e-07, -1.18780136e-07, 0.04576554, -0.56959295, 1.0470112e-06, 0.56959295, 0.04576554, 0.0006716656, 0.1583124, -0.019143067)
+transform = Transform3D(0.5714286, -1.0118372e-06, -1.9148243e-07, -1.0982953e-07, 0.045765575, -0.56959295, 1.0239226e-06, 0.56959295, 0.045765575, 0.000671684, 0.15831243, -0.019143095)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4260056e-07, 3.632158e-08, 0.052931022)
-body_offset = Transform3D(0.5714286, -1.0341349e-06, -2.0225337e-07, -1.1878013e-07, 0.04576554, -0.56959295, 1.0470112e-06, 0.56959295, 0.04576554, -7.0780516e-08, 0.030149132, -0.002422437)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.005264696, 0.0651796, -0.7852536)
+body_offset = Transform3D(0.57098454, 0.01914276, -0.011870267, -0.01273588, 0.02599902, -0.5706948, -0.0185781, 0.57051575, 0.026405482, -0.0075628255, -0.44990176, -0.016548797)
 
 [node name="Physical Bone Chest" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="2" unique_id=1779132530]
-transform = Transform3D(0.5714286, -6.77767e-07, 2.2917808e-08, 7.7125236e-08, 0.045764614, -0.5695931, 6.7375436e-07, 0.5695931, 0.045764614, 0.00067174184, 0.22291973, -0.024333842)
+transform = Transform3D(0.5714286, -6.9175036e-07, -2.2813695e-09, 5.312697e-08, 0.04576467, -0.5695931, 6.89711e-07, 0.5695931, 0.045764666, 0.00067178725, 0.2229193, -0.024333874)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1797784e-08, -1.9418076e-07, 0.060492475)
-body_offset = Transform3D(0.5714286, -6.7776693e-07, 2.2917792e-08, 7.712523e-08, 0.045764618, -0.56959313, 6.7375436e-07, 0.56959313, 0.045764618, 5.355105e-09, 0.034456104, -0.0027683042)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.007340892, 0.061514076, -0.777609)
+body_offset = Transform3D(0.5712907, 0.011336775, -0.0053869444, -0.00618685, 0.04095828, -0.56992537, -0.010920828, 0.56984615, 0.041071147, -0.00069252425, -0.44574398, -0.003196437)
 
 [node name="Physical Bone UpperChest" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="3" unique_id=2036287581]
-transform = Transform3D(0.5714286, -5.052459e-07, 4.6997922e-08, 8.731158e-08, 0.045765143, -0.5695931, 4.998589e-07, 0.5695931, 0.045765143, 0.00067168445, 0.29614183, -0.030216672)
+transform = Transform3D(0.5714286, -5.6305316e-07, 7.3453266e-09, 5.241599e-08, 0.04576505, -0.5695931, 5.6065613e-07, 0.5695931, 0.04576505, 0.000671676, 0.29614246, -0.0302166)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5467974e-08, -7.5949356e-07, 0.06805449)
-body_offset = Transform3D(0.5714286, -5.0524585e-07, 4.6997922e-08, 8.731158e-08, 0.045765143, -0.5695931, 4.9985886e-07, 0.5695931, 0.045765143, -5.203765e-08, 0.038763404, -0.0031140912)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.008461254, 0.060495097, -0.77003556)
+body_offset = Transform3D(0.5714183, 0.0033466925, 0.000771143, 0.0004410048, 0.05574284, -0.5687031, -0.0034059547, 0.5686935, 0.055739257, 0.0052262647, -0.44129014, 0.008489229)
 
 [node name="Physical Bone Neck" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="4" unique_id=1872941332]
-transform = Transform3D(-0.5714286, -2.1961887e-07, 1.0435796e-07, -1.8044392e-07, 0.21862848, -0.527951, 1.6298164e-07, -0.527951, -0.21862848, 0.00067175674, 0.34866613, -0.027633946)
+transform = Transform3D(-0.5714286, -1.9300094e-07, 1.2110459e-07, -1.8573233e-07, 0.2186284, -0.527951, 1.3198172e-07, -0.527951, -0.21862842, 0.0006718189, 0.34866604, -0.027634198)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0105846e-08, 3.511086e-07, 0.026060745)
-body_offset = Transform3D(-0.5714286, -2.1961884e-07, 1.0435796e-07, -1.8044395e-07, 0.21862859, -0.52795094, 1.6298159e-07, -0.52795094, -0.21862859, 2.0198058e-08, 0.013758719, 0.005697809)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.008291631, 0.32564425, -0.7487115)
+body_offset = Transform3D(-0.5690174, 0.052423246, 0.001279898, 0.015943427, 0.18623853, -0.5399924, -0.049956396, -0.537678, -0.18691532, -0.011394974, -0.46507823, 0.035560325)
 
 [node name="Physical Bone Head" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="5" unique_id=1230832960]
-transform = Transform3D(-0.5714286, -3.07991e-08, 4.3946958e-08, -5.2386962e-08, 0.21862933, -0.52795064, 1.1641545e-08, -0.52795064, -0.21862933, 0.0006718928, 0.4282972, 0.0053432225)
+transform = Transform3D(-0.5714286, -3.9474145e-08, -4.826382e-09, -1.06436895e-08, 0.21862915, -0.5279507, 3.8317282e-08, -0.5279507, -0.21862915, 0.0006718625, 0.4282972, 0.005343331)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8289512e-07, 2.2128224e-06, 0.12477002)
-body_offset = Transform3D(-0.5714286, -3.0799097e-08, 4.3946947e-08, -5.2386962e-08, 0.21862942, -0.5279506, 1.1641535e-08, -0.5279506, -0.21862942, 1.5617115e-07, 0.065871924, 0.027279567)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.007892175, 0.3225788, -0.64990973)
+body_offset = Transform3D(-0.56749696, -0.042908534, -0.051348075, 0.037735842, 0.15690139, -0.5481683, 0.055260953, -0.54778767, -0.15298826, -0.015051445, -0.40717077, 0.07683999)
 
 [node name="Physical Bone LeftShoulder" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="6" unique_id=245800965]
-transform = Transform3D(2.9103848e-08, 0.16056024, -0.54840773, -0.00981101, 0.5483269, 0.16053659, 0.5713444, 0.009415749, 0.0027567295, 0.07011256, 0.31446883, -0.033679627)
+transform = Transform3D(-3.6188528e-08, 0.16056012, -0.5484078, -0.009810999, 0.54832697, 0.16053647, 0.5713444, 0.00941576, 0.002756662, 0.07011282, 0.3144695, -0.033679582)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3392495e-06, 1.4834106e-05, 0.06331338)
-body_offset = Transform3D(0.5713444, 0.009415656, 0.0027565602, -1.2582802e-07, 0.1605613, -0.54840744, -0.009810873, 0.5483266, 0.16053765, -0.0001733303, 0.034719143, -0.010172337)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.018823598, 0.8040025, 0.30735484)
+body_offset = Transform3D(0.5473755, -0.04066687, 0.15892464, 0.15795666, -0.018762685, -0.5488427, 0.044277728, 0.56967086, -0.006731584, -0.005846422, 0.18674806, -0.4551144)
 
 [node name="Physical Bone LeftUpperArm" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="7" unique_id=1408648245]
-transform = Transform3D(-3.9581246e-07, 0.1466531, -0.55228937, -0.24134342, 0.5006129, 0.13293128, 0.5179614, 0.23326004, 0.061938733, 0.16484302, 0.2898687, -0.040584672)
+transform = Transform3D(-3.6933596e-07, 0.14665301, -0.55228937, -0.24134366, 0.5006128, 0.13293117, 0.51796126, 0.23326024, 0.06193878, 0.16484264, 0.28986913, -0.04058491)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8831342e-06, 1.7043203e-06, 0.10865402)
-body_offset = Transform3D(-0.5179614, -0.23325996, -0.061938576, -8.9331877e-07, 0.14665383, -0.5522892, 0.24134333, -0.5006127, -0.13293213, 0.0067292973, 0.06000819, 0.014444917)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.31705618, 0.70797247, 0.326778)
+body_offset = Transform3D(-0.41890892, -0.16531135, -0.35173562, 0.3878309, -0.14433132, -0.3940638, 0.025159344, -0.5276089, 0.21800555, 0.09915768, 0.35391814, 0.31027004)
 
 [node name="Physical Bone LeftLowerArm" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="8" unique_id=1400128094]
-transform = Transform3D(-3.6088787e-07, 0.10396515, -0.5618914, -0.05861406, 0.55892754, 0.103416815, 0.5684145, 0.057635847, 0.010663832, 0.28442022, 0.26400843, -0.048420537)
+transform = Transform3D(-5.02382e-07, 0.10396526, -0.5618914, -0.058613807, 0.55892754, 0.103416935, 0.5684145, 0.05763562, 0.010663659, 0.28442082, 0.2640086, -0.04842044)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0001255084, 0.0007736793, 0.106157884)
-body_offset = Transform3D(0.0586139, -0.5589274, -0.1034178, -5.673382e-07, 0.103966124, -0.56189126, 0.5684146, 0.057635706, 0.010663697, 0.011418402, 0.059568748, -0.0011052862)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.035722308, 0.6484641, 0.35935968)
+body_offset = Transform3D(-0.09038004, -0.41928637, 0.37757254, 0.5571775, -0.006027743, 0.12667863, -0.08896777, 0.38819212, 0.40978312, 0.13943636, -0.06151808, -0.39581004)
 
 [node name="Physical Bone LeftHand" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="9" unique_id=151096186]
-transform = Transform3D(-4.4819927e-07, 0.40554535, -0.40257126, 0.41513836, 0.27663708, 0.2786803, 0.39267138, -0.2924646, -0.2946257, 0.35509905, 0.2396086, -0.04139699)
+transform = Transform3D(-4.4277732e-07, 0.40554535, -0.4025713, 0.41513854, 0.27663693, 0.27868018, 0.39267117, -0.29246473, -0.29462582, 0.35509938, 0.2396086, -0.041397132)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00838541, 0.005586699, 0.03325138)
-body_offset = Transform3D(-0.39267138, 0.29246458, 0.2946258, 8.074277e-07, 0.40554628, -0.4025704, -0.41513842, -0.27663583, -0.2786816, -0.008137915, 0.011120349, 0.014293134)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7070002, -0.11702297, 0.49553636)
+body_offset = Transform3D(-0.1436725, -0.29332295, 0.46888226, 0.04423213, -0.48898643, -0.29234636, 0.5513005, -0.037209332, 0.14564925, -0.16509725, 0.056373477, -0.46629846)
 
 [node name="Physical Bone RightShoulder" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="10" unique_id=617813573]
-transform = Transform3D(4.2491632e-07, -0.16056108, 0.5484075, -0.009810003, 0.5483267, 0.16053745, -0.5713444, -0.009414908, -0.0027560259, -0.06877025, 0.31447637, -0.03298243)
+transform = Transform3D(3.437911e-07, -0.16056119, 0.54840744, -0.00981001, 0.5483267, 0.16053754, -0.5713444, -0.009414891, -0.0027561067, -0.06877043, 0.31447637, -0.032982428)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.083566e-07, 1.5981495e-06, 0.063311644)
-body_offset = Transform3D(0.5713444, 0.009414962, 0.002756325, -1.9691757e-07, 0.16056357, -0.5484068, -0.009810139, 0.54832596, 0.16053991, -0.00017481297, 0.03472028, -0.0101649165)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0093128085, 0.8089061, 0.2914857)
+body_offset = Transform3D(0.5425404, 0.07492776, -0.16299208, -0.17067924, 0.0557885, -0.5424822, -0.055219293, 0.5637412, 0.07534823, -0.008047089, 0.11140865, -0.47849086)
 
 [node name="Physical Bone RightUpperArm" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="11" unique_id=1980971438]
-transform = Transform3D(9.313265e-08, -0.14979918, 0.55144435, 0.26491666, 0.48860306, 0.1327284, -0.50631, 0.25565186, 0.06944761, -0.16338736, 0.28803498, -0.040364493)
+transform = Transform3D(2.0648753e-07, -0.14979923, 0.5514443, 0.26491684, 0.48860303, 0.13272837, -0.5063099, 0.25565198, 0.06944776, -0.16338713, 0.28803465, -0.040364612)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0014904914, 0.0027968325, 0.109376274)
-body_offset = Transform3D(-0.50631, 0.2556519, 0.069447294, 1.4259035e-06, 0.14980134, -0.5514439, -0.26491663, -0.48860237, -0.13273099, -0.0075562485, 0.059895895, 0.016279012)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3565045, 0.7160159, 0.30800456)
+body_offset = Transform3D(-0.34410423, 0.056124978, 0.45273927, -0.4534801, -0.10396865, -0.33177853, 0.049786776, -0.5590806, 0.10714832, -0.05695744, 0.33830023, 0.34955925)
 
 [node name="Physical Bone RightLowerArm" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="12" unique_id=1838272570]
-transform = Transform3D(-3.725293e-07, -0.10171089, 0.5623038, 0.026191752, 0.5617128, 0.101604015, -0.5708281, 0.025773577, 0.0046616104, -0.283067, 0.2646596, -0.04841532)
+transform = Transform3D(-3.4059792e-07, -0.10171064, 0.56230384, 0.026191775, 0.56171286, 0.10160376, -0.5708281, 0.025773594, 0.004661633, -0.28306693, 0.26465955, -0.048415247)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6363996e-06, 9.9681165e-06, 0.10592106)
-body_offset = Transform3D(0.02619162, 0.5617124, 0.101606235, 7.1451336e-07, 0.10171309, -0.56230336, -0.57082814, 0.025773488, 0.00466135, -0.010767907, 0.05955875, -0.0004924871)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.09618884, 0.6695473, 0.33845732)
+body_offset = Transform3D(-0.25869793, 0.3982841, -0.31776708, -0.43225402, 0.017115565, 0.37335548, 0.26974553, 0.4093991, 0.29353118, -0.18400332, -0.17940257, -0.34751332)
 
 [node name="Physical Bone RightHand" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="13" unique_id=659342538]
-transform = Transform3D(-3.0268038e-07, -0.4048039, 0.40331683, -0.411285, 0.2799967, 0.28102878, -0.3967056, -0.2902866, -0.29135722, -0.38236198, 0.24610622, -0.0408295)
+transform = Transform3D(-3.235681e-07, -0.40480417, 0.40331656, -0.41128507, 0.27999645, 0.2810289, -0.3967055, -0.29028645, -0.2913575, -0.38236234, 0.24610643, -0.04082954)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1802261e-06, -0.035380248, 0.06298899)
-body_offset = Transform3D(-0.39670563, -0.29028648, -0.29135743, -2.262513e-06, 0.40480593, -0.40331483, 0.41128507, -0.279994, -0.28103146, 0.008081038, 0.039726526, 0.007796526)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7162168, -0.15104918, 0.62084746)
+body_offset = Transform3D(-0.47402596, 0.076115094, 0.30989772, -0.059775263, -0.5662919, 0.047655433, 0.3134596, 0.007114902, 0.477727, -0.52040744, -0.15793674, -0.071015835)
 
 [node name="Physical Bone LeftUpperLeg" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="14" unique_id=1742435143]
-transform = Transform3D(-0.34671274, -0.4520977, -0.043915384, 3.4342554e-07, -0.055247046, 0.56875163, -0.4542256, 0.3450885, 0.03352127, 0.060122058, -0.07653342, -0.014083062)
+transform = Transform3D(-0.34671274, -0.45209777, -0.043915205, 4.257475e-07, -0.055246893, 0.56875163, -0.45422563, 0.34508845, 0.03352123, 0.060121946, -0.07653312, -0.014083069)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4994293e-07, -2.7287751e-07, 0.21863297)
-body_offset = Transform3D(0.34671277, 0.4520977, 0.04391541, -3.2527367e-07, 0.055247076, -0.5687517, -0.45422563, 0.34508854, 0.033521276, -0.0096011795, 0.124347866, -0.0073288293)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017136633, -0.069205314, 1.0652292)
+body_offset = Transform3D(0.28368613, 0.49457917, 0.038000975, -0.15832326, 0.13176675, -0.53301203, -0.470092, 0.25408548, 0.2024467, -0.0013908185, 0.5741857, -0.20612383)
 
 [node name="Physical Bone LeftLowerLeg" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="15" unique_id=2049584074]
-transform = Transform3D(-0.48161831, -0.3050165, -0.039235007, 3.6670867e-06, -0.072909266, 0.5667582, -0.3075296, 0.4776817, 0.061452225, 0.07779161, -0.31741682, -0.034049045)
+transform = Transform3D(-0.48161831, -0.30501658, -0.039235003, 3.6486563e-06, -0.07290923, 0.5667583, -0.30752963, 0.47768173, 0.061452173, 0.07779166, -0.3174173, -0.034049053)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.9942325e-07, 2.687797e-06, 0.20561634)
-body_offset = Transform3D(-0.48161831, -0.3050165, -0.039235033, -3.6408776e-06, 0.07290928, -0.56675833, 0.3075296, -0.47768176, -0.061452217, 0.008067846, 0.116534576, 0.012637079)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.099608734, 0.0046287775, 1.0767529)
+body_offset = Transform3D(-0.376828, -0.42738628, -0.04326715, -0.07429457, 0.12152923, -0.55339104, 0.42309743, -0.3593079, -0.13570923, 0.011030935, 0.5879024, 0.18993264)
 
 [node name="Physical Bone LeftFoot" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="16" unique_id=675665863]
-transform = Transform3D(-0.5705368, 0.026383774, 0.017953675, 0.031912975, 0.47168645, 0.3209737, -1.7462307e-08, 0.32147542, -0.47242373, 0.084217645, -0.4633099, -0.0034788125)
+transform = Transform3D(-0.5705368, 0.026383799, 0.017953634, 0.031912975, 0.4716865, 0.3209736, 2.6361949e-08, 0.32147536, -0.47242385, 0.0842177, -0.46331015, -0.0034786975)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.699725e-07, -1.4528632e-07, 0.09145649)
-body_offset = Transform3D(0.5705368, -0.026383748, -0.017953629, 2.9429518e-08, 0.3214757, -0.4724236, 0.03191293, 0.4716864, 0.32097396, 0.0016425252, 0.043206256, -0.02935505)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.014175754, 0.8280666, 0.4080729)
+body_offset = Transform3D(0.54638904, 0.06726981, -0.1531803, -0.16422857, 0.3154639, -0.44726068, 0.03191252, 0.47168618, 0.32097396, -0.0009406358, -0.0763821, -0.52202064)
 
 [node name="Physical Bone RightUpperLeg" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="17" unique_id=529186015]
-transform = Transform3D(-0.36537328, 0.43715635, 0.043901585, 1.3387778e-07, -0.05709861, 0.5685687, 0.43935525, 0.36354464, 0.03650893, -0.058778483, -0.07458129, -0.014650879)
+transform = Transform3D(-0.36537325, 0.43715635, 0.04390172, 2.2564616e-07, -0.057098698, 0.5685687, 0.43935525, 0.3635446, 0.036508918, -0.058778554, -0.07458091, -0.01465074)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2619725e-07, 0.0003410345, 0.2153042)
-body_offset = Transform3D(0.36537328, -0.43715635, -0.043901704, -2.1322043e-07, 0.057098698, -0.5685687, 0.43935525, 0.36354464, 0.036508933, 0.009601112, 0.12239574, -0.007984737)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0071431845, -0.076615185, 1.0509394)
+body_offset = Transform3D(0.19964498, -0.5292829, -0.08082054, 0.05685305, 0.10672489, -0.5584873, 0.5323911, 0.1870825, 0.0899473, 0.04296027, 0.59470695, -0.08399877)
 
 [node name="Physical Bone RightLowerLeg" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="18" unique_id=572745210]
-transform = Transform3D(-0.46957618, 0.32322443, 0.039431483, 3.2014245e-07, -0.06919747, 0.56722337, 0.32562074, 0.4661205, 0.05686341, -0.07644824, -0.31741604, -0.034270983)
+transform = Transform3D(-0.46957618, 0.32322446, 0.039431497, 2.6396344e-07, -0.06919756, 0.5672234, 0.3256208, 0.4661205, 0.05686351, -0.076448254, -0.31741634, -0.03427099)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.6962093e-07, -9.982474e-05, 0.20543396)
-body_offset = Transform3D(-0.46957624, 0.3232244, 0.03943161, -4.1269e-07, 0.06919754, -0.5672234, -0.32562074, -0.46612057, -0.056863423, -0.00806801, 0.11653386, 0.011635365)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.021987408, -0.046040725, 1.0439668)
+body_offset = Transform3D(-0.25281036, 0.51139843, 0.03300182, -0.11295127, -0.019711807, -0.55980724, -0.4998595, -0.25419217, 0.1098063, -0.00534901, 0.58599615, -0.115346715)
 
 [node name="Physical Bone RightFoot" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/PhysicalBoneSimulator3D" index="19" unique_id=841485685]
-transform = Transform3D(-0.5705363, -0.026312612, -0.018072639, -0.03192137, 0.47032914, 0.3229584, 3.865014e-06, 0.32346368, -0.47106463, -0.082873076, -0.46330822, -0.0044999933)
+transform = Transform3D(-0.5705363, -0.026312737, -0.01807251, -0.031921398, 0.47032917, 0.32295847, 3.6874198e-06, 0.32346374, -0.4710646, -0.08287313, -0.46330875, -0.0044999807)
 collision_layer = 0
 collision_mask = 0
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7904676e-06, 0.0013939105, 0.088855475)
-body_offset = Transform3D(0.5705363, 0.02631251, 0.018072572, 3.8723865e-06, 0.32346368, -0.47106475, -0.031921253, 0.47032928, 0.32295838, -0.0016435459, 0.0414058, -0.029352158)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.11572235, 0.6819989, 0.6119018)
+body_offset = Transform3D(0.47743723, -0.1549946, 0.27305877, 0.31234726, 0.2850945, -0.3843059, -0.031993844, 0.47034937, 0.3229219, -0.0061288625, 0.076868914, -0.5220766)
 
-[node name="WeaponSocket" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" index="15" unique_id=540142748]
-transform = Transform3D(-4.857202e-07, -1, -6.705522e-06, -5.9604645e-08, 6.7055225e-06, -0.9999999, 0.9999999, -4.857209e-07, -5.960548e-08, -0.3426354, 0.25390247, -0.048910514)
+[node name="WeaponSocket" parent="Visual/PlayerTest2/Armature/GeneralSkeleton" index="20" unique_id=540142748]
+transform = Transform3D(0.28841183, 0.7609011, 0.5812469, 0.9290457, -0.3692838, 0.022435695, 0.23171657, 0.5335343, -0.8134179, -0.07081869, 0.67285854, 0.106256604)
+
+[node name="EquippedWeapon" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/WeaponSocket" index="0" unique_id=742573005]
+transform = Transform3D(0.036539976, 0.44851372, -0.0005804375, -0.279752, 0.023246005, 0.351708, 0.3505765, -0.028197765, 0.28071547, -0.03452009, 0.06886573, 0.05368702)
+visible = false
+
+[node name="WeaponEditorPreview" parent="Visual/PlayerTest2/Armature/GeneralSkeleton/WeaponSocket" index="1" unique_id=720965766 instance=ExtResource("24_draco_preview")]
+transform = Transform3D(-0.15093024, 0.9832473, 0.102208614, 0.2324562, -0.06519252, 0.97041994, 0.9608246, 0.17022467, -0.21872145, 0.039661717, 0.16836564, 0.013309931)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Visual/PlayerTest2" unique_id=675890599]
 libraries/ = ExtResource("5_u7x0b")
@@ -440,11 +464,11 @@ margin = 0.1
 [node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D" unique_id=1191777060]
 current = true
 
-[node name="SolicitationPulse" type="MeshInstance3D" parent="." unique_id=1864319929]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
+[node name="SolicitationPulse" type="MeshInstance3D" parent="CameraPivot/SpringArm3D/Camera3D" unique_id=1864319929]
 visible = false
 cast_shadow = 0
-mesh = SubResource("CylinderMesh_pulse")
+extra_cull_margin = 16384.0
+mesh = SubResource("QuadMesh_pulse")
 
 [node name="Components" type="Node" parent="." unique_id=993241314]
 
@@ -498,22 +522,25 @@ max_polyphony = 2
 
 [node name="GunshotPlayer" type="AudioStreamPlayer3D" parent="Components/SoundComponent" unique_id=1031082550]
 max_distance = 90.0
-max_polyphony = 4
+max_polyphony = 16
 bus = &"Gunshots"
 
-[node name="TargetLockComponent" type="Node" parent="Components"]
+[node name="TargetLockComponent" type="Node" parent="Components" unique_id=174021762]
 script = ExtResource("40_target_lock")
 
 [node name="WeaponComponent" type="Node" parent="Components" unique_id=1354118472]
 script = ExtResource("14_weapon")
 pistol_definition = ExtResource("24_pistol")
+draco_definition = ExtResource("24_draco")
 
 [node name="WalletComponent" type="Node" parent="Components" unique_id=1160500404]
 script = ExtResource("15_wallet")
 
 [node name="InventoryComponent" type="Node" parent="Components" unique_id=92819809]
 script = ExtResource("16_inventory")
-known_products = Array[ExtResource("19_c43xd")]([ExtResource("17_product")])
+
+[node name="GirlfriendComponent" type="Node" parent="Components"]
+script = ExtResource("16_girlfriend")
 
 [node name="TradeService" type="Node" parent="Components" unique_id=2135880022]
 script = ExtResource("30_trade")
@@ -548,7 +575,13 @@ script = ExtResource("27_appearance")
 
 [node name="PlayerStatsMenu" parent="." unique_id=1165805739 instance=ExtResource("13_stats_menu")]
 
+[node name="WeaponDebugMenu" parent="." unique_id=553733031 instance=ExtResource("13_weapon_debug")]
+
 [node name="PlayerInventoryMenu" parent="." unique_id=1453711422 instance=ExtResource("21_inventory_menu")]
+
+[node name="GirlfriendGiftMenu" type="CanvasLayer" parent="."]
+layer = 11
+script = ExtResource("16_gift_menu")
 
 [node name="DealerShopMenu" parent="." unique_id=931469992 instance=ExtResource("22_shop_menu")]
 

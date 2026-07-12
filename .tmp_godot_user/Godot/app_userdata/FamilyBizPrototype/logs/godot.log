@@ -1,0 +1,14 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Could not find type "WorldTimeComponent" in the current scope.
+   at: GDScript::reload (res://Tests/time_cycle_smoke_test.gd:8)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "time" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://Tests/time_cycle_smoke_test.gd:8)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "saved" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://Tests/time_cycle_smoke_test.gd:36)
+SCRIPT ERROR: Parse Error: Could not find type "WorldTimeComponent" in the current scope.
+   at: GDScript::reload (res://Tests/time_cycle_smoke_test.gd:37)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "restored" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://Tests/time_cycle_smoke_test.gd:37)
+ERROR: Failed to load script "res://Tests/time_cycle_smoke_test.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)

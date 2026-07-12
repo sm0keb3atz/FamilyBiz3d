@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://dfk6duu0k1q54"]
+
+[ext_resource type="Texture2D" uid="uid://dr1uk4olfggp2" path="res://Assets/BaseChracters/Player/Textures/tripo_image_b402c94a-906f-4d06-82ca-757edeba4d09_0.jpg" id="1_57hcu"]
+[ext_resource type="Texture2D" uid="uid://4a3yycpu8ql8" path="res://Assets/BaseChracters/Player/Textures/tripo_image_b402c94a-906f-4d06-82ca-757edeba4d09_1.png" id="2_52vdm"]
+
+[resource]
+albedo_texture = ExtResource("1_57hcu")
+normal_enabled = true
+normal_texture = ExtResource("2_52vdm")

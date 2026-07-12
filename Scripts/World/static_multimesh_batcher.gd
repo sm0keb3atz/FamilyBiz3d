@@ -61,7 +61,19 @@ func _can_batch(mesh_instance: MeshInstance3D) -> bool:
 		and mesh_instance.visible
 		and mesh_instance.skin == null
 		and mesh_instance.skeleton.is_empty()
+		and not _has_runtime_visual_ancestor(mesh_instance)
 	)
+
+
+func _has_runtime_visual_ancestor(node: Node) -> bool:
+	var current: Node = node
+	while current != null:
+		# A batched copy cannot respond to a signal state change. Keep the pole,
+		# lenses, and glow meshes together as normal scene nodes instead.
+		if current is TrafficSignalVisual3D:
+			return true
+		current = current.get_parent()
+	return false
 
 
 func _get_batch_key(mesh_instance: MeshInstance3D) -> String:

@@ -10,7 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://cl06v2ykl4ng0" path="res://Scenes/Maps/RoadPieces/intersection.tscn" id="6_dl470"]
 [ext_resource type="Texture2D" uid="uid://0cbdcc2q8rhi" path="res://Assets/MapStuff/Meshs/StreetProps/MI_FenceMetal_01_BaseColor.png" id="6_knlt2"]
 [ext_resource type="ArrayMesh" uid="uid://cvm70cq0cblw8" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_parkingSpot_01.glb" id="7_04mrp"]
-[ext_resource type="PackedScene" uid="uid://dr3oh2pyyibn5" path="res://Scenes/Maps/RoadPieces/Edge.tscn" id="7_86gvs"]
+[ext_resource type="PackedScene" uid="uid://dr3oh2pyyibn5" path="res://Scenes/Maps/RoadPieces/EdgeIntersection.tscn" id="7_86gvs"]
 [ext_resource type="PackedScene" uid="uid://dc6m74vb0nm8e" path="res://Scenes/Maps/Buildings/building_1.tscn" id="8_dl470"]
 [ext_resource type="ArrayMesh" uid="uid://ciqwe8yur35ny" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_04_quarter.glb" id="8_xe0dr"]
 [ext_resource type="ArrayMesh" uid="uid://ci4i6klxu7bk6" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_00.glb" id="9_8ekqm"]
@@ -2721,11 +2721,13 @@ connections = Array[NodePath]([NodePath("../OuterClockwise_EastSouth")])
 [node name="OuterClockwise_EastSouth" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=87817037]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107, 0.2, -91.6)
 script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterClockwise_EastCurve")])
+
+[node name="OuterClockwise_EastCurve" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=989486547]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 103, 0.2, -102.90001)
+script = ExtResource("32_traffic_waypoint")
 connections = Array[NodePath]([NodePath("../OuterClockwise_SouthEast")])
 spawn_allowed = false
-is_stop_line = true
-signal_group = &"north_south"
-signal_controller_path = NodePath("../../Intersection3/SignalController")
 
 [node name="OuterClockwise_SouthEast" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=1335096965]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91.7, 0.2, -106.3)
@@ -2816,11 +2818,13 @@ connections = Array[NodePath]([NodePath("../OuterCounterClockwise_SouthEast")])
 [node name="OuterCounterClockwise_SouthEast" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=706052705]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91.2, 0.2, -101.399994)
 script = ExtResource("32_traffic_waypoint")
+connections = Array[NodePath]([NodePath("../OuterCounterClockwise_EastCurve")])
+
+[node name="OuterCounterClockwise_EastCurve" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=804079579]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98.399994, 0.2, -98.5)
+script = ExtResource("32_traffic_waypoint")
 connections = Array[NodePath]([NodePath("../OuterCounterClockwise_EastSouth")])
 spawn_allowed = false
-is_stop_line = true
-signal_group = &"east_west"
-signal_controller_path = NodePath("../../Intersection3/SignalController")
 
 [node name="OuterCounterClockwise_EastSouth" type="Marker3D" parent="Roads/TrafficRoutes" unique_id=656378444]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 101.20001, 0.2, -91.1)

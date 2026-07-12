@@ -93,6 +93,8 @@ func update_population() -> void:
 		or vehicle_container == null
 	):
 		return
+	if network.get_waypoint_count() == 0 or network.get_connection_count() == 0:
+		return
 	_recycle_distant_vehicles()
 	var activation_count := 0
 	while (

@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Family Business Clothing Setup",
     "author": "Family Business",
-    "version": (1, 1, 0),
+    "version": (1, 2, 2),
     "blender": (4, 3, 0),
     "location": "3D View > Sidebar > FB Clothing",
     "description": "Prepare a sculpted garment for the modular character rig",
@@ -15,7 +15,7 @@ import bpy
 from bpy.props import EnumProperty, IntProperty, StringProperty
 
 
-RIG_NAME = "CHR_Armature"
+RIG_NAMES = ("CHR_Armature", "CHR_Female_Armature", "Armature")
 DEFAULT_EXPORT_PATH = (
     "C:/Users/smo0o/OneDrive/Documents/family-biz-prototype/"
     "Assets/BaseChracters/Player/Working/FB_Character_Working.glb"
@@ -26,6 +26,11 @@ BODY_EXPORT_NAMES = {
     "BODY_Torso",
     "BODY_Legs",
     "BODY_Feet",
+    "BODY_Female_Head",
+    "BODY_Female_Torso",
+    "BODY_Female_LeftArm",
+    "BODY_Female_RightArm",
+    "BODY_Female_Legs",
 }
 SLOT_SETTINGS = {
     "TOP": {
@@ -40,7 +45,32 @@ SLOT_SETTINGS = {
         "collection": "04_SHOES",
         "sources": ("SHOES_01_Sneakers", "BODY_Feet"),
     },
+    "HAIR": {
+        "collection": "05_HAIR",
+        "sources": ("HAIR_01_Short", "BODY_Head"),
+    },
 }
+FIT_SOURCES = {
+    "MALE": {
+        "TOP": ("TOP_01_Hoodie", "BODY_Torso"),
+        "BOTTOM": ("BOTTOM_01_Jeans", "BODY_Legs"),
+        "SHOES": ("SHOES_01_Sneakers", "BODY_Feet"),
+        "HAIR": ("HAIR_01_Short", "BODY_Head"),
+    },
+    "FEMALE": {
+        "TOP": ("BODY_Female_WeightSource",),
+        "BOTTOM": ("BODY_Female_WeightSource",),
+        "SHOES": ("BODY_Female_WeightSource",),
+        "HAIR": ("BODY_Female_WeightSource",),
+    },
+}
+FEMALE_BODY_PARTS = (
+    ("BODY_Female_Head", "Head"),
+    ("BODY_Female_Torso", "Torso"),
+    ("BODY_Female_LeftArm", "LeftArm"),
+    ("BODY_Female_RightArm", "RightArm"),
+    ("BODY_Female_Legs", "Legs"),
+)
 
 
 def clean_description(value):
@@ -48,18 +78,84 @@ def clean_description(value):
     return "".join(word[:1].upper() + word[1:] for word in words)
 
 
-def find_weight_source(slot):
-    for object_name in SLOT_SETTINGS[slot]["sources"]:
+def find_rig(fit_profile=None):
+    names = RIG_NAMES
+    if fit_profile == "FEMALE":
+        names = ("CHR_Female_Armature", "CHR_Armature", "Armature")
+    elif fit_profile == "MALE":
+        names = ("CHR_Armature", "CHR_Female_Armature", "Armature")
+    for name in names:
+        rig = bpy.data.objects.get(name)
+        if rig and rig.type == "ARMATURE":
+            return rig
+    return None
+
+
+def find_weight_source(slot, fit_profile):
+    if fit_profile == "FEMALE":
+        source = ensure_female_weight_source()
+        if source is not None:
+            return source
+    for object_name in FIT_SOURCES[fit_profile][slot]:
         source = bpy.data.objects.get(object_name)
         if source and source.type == "MESH":
             return source
     return None
 
 
+def ensure_female_weight_source():
+    existing = bpy.data.objects.get("BODY_Female_WeightSource")
+    if existing and existing.type == "MESH":
+        required = {"mixamorig:LeftForeArm", "mixamorig:RightForeArm"}
+        if not existing.modifiers and required.issubset(
+            {group.name for group in existing.vertex_groups}
+        ):
+            return existing
+        bpy.data.objects.remove(existing, do_unlink=True)
+
+    parts = []
+    for candidates in FEMALE_BODY_PARTS:
+        part = next(
+            (
+                bpy.data.objects.get(name)
+                for name in candidates
+                if bpy.data.objects.get(name) is not None
+            ),
+            None,
+        )
+        if part is None or part.type != "MESH":
+            return None
+        parts.append(part)
+
+    # Create an invisible, joined copy of the complete female body. It exists
+    # only as a nearest-surface weight-transfer source, so sleeves find arm
+    # weights instead of borrowing weights from the torso or legs.
+    duplicates = []
+    for part in parts:
+        copy = part.copy()
+        copy.data = part.data.copy()
+        # Sample the body's rest geometry, not its current animated pose.
+        copy.modifiers.clear()
+        bpy.context.scene.collection.objects.link(copy)
+        duplicates.append(copy)
+    make_active(duplicates[0])
+    for duplicate in duplicates[1:]:
+        duplicate.select_set(True)
+    bpy.ops.object.join()
+    source = bpy.context.active_object
+    source.name = "BODY_Female_WeightSource"
+    source.data.name = "MESH_BODY_Female_WeightSource"
+    source.hide_set(True)
+    source.hide_render = True
+    move_to_collection(source, "90_REFERENCE")
+    return source
+
+
 def move_to_collection(obj, collection_name):
     collection = bpy.data.collections.get(collection_name)
     if collection is None:
-        raise RuntimeError("Missing collection: " + collection_name)
+        collection = bpy.data.collections.new(collection_name)
+        bpy.context.scene.collection.children.link(collection)
 
     for old_collection in tuple(obj.users_collection):
         old_collection.objects.unlink(obj)
@@ -81,9 +177,13 @@ def remove_existing_rig_data(obj):
 
 
 def transfer_weights(obj, source, rig):
-    armature_modifier = obj.modifiers.new("FB_Armature", "ARMATURE")
-    armature_modifier.object = rig
-    armature_modifier.use_deform_preserve_volume = True
+    # Blender's Data Transfer modifier is more reliable when the destination
+    # already has matching vertex group names. Without this, brand-new imported
+    # garments can finish the transfer with zero groups, and Blender then errors
+    # during vertex_group_clean().
+    for source_group in source.vertex_groups:
+        if obj.vertex_groups.get(source_group.name) is None:
+            obj.vertex_groups.new(name=source_group.name)
 
     transfer = obj.modifiers.new("FB_TransferWeights_TEMP", "DATA_TRANSFER")
     transfer.object = source
@@ -96,10 +196,21 @@ def transfer_weights(obj, source, rig):
     make_active(obj)
     bpy.ops.object.modifier_apply(modifier=transfer.name)
 
+    # Skin after transfer so Blender samples the garment in rest space.
+    armature_modifier = obj.modifiers.new("FB_Armature", "ARMATURE")
+    armature_modifier.object = rig
+    armature_modifier.use_deform_preserve_volume = True
+
     bone_names = {bone.name for bone in rig.data.bones}
     for group in tuple(obj.vertex_groups):
         if group.name not in bone_names:
             obj.vertex_groups.remove(group)
+
+    if not obj.vertex_groups:
+        raise RuntimeError(
+            "No vertex groups were transferred. Check that the garment is close "
+            "to the body source before preparing it."
+        )
 
     bpy.ops.object.vertex_group_clean(
         group_select_mode="ALL",
@@ -196,7 +307,7 @@ def build_material(obj, material_name, base_path, normal_path, orm_path):
 
 
 def is_export_object(obj):
-    if obj.name == RIG_NAME:
+    if obj.type == "ARMATURE" and obj.name in RIG_NAMES:
         return True
     if obj.type != "MESH":
         return False
@@ -205,7 +316,14 @@ def is_export_object(obj):
         or obj.name.startswith("TOP_")
         or obj.name.startswith("BOTTOM_")
         or obj.name.startswith("SHOES_")
+        or obj.name.startswith("HAIR_")
     )
+
+
+def garment_object_name(slot, fit_profile, option_id, description):
+    if fit_profile == "FEMALE":
+        return "{}_Female_{:02d}_{}".format(slot, option_id, description)
+    return "{}_{:02d}_{}".format(slot, option_id, description)
 
 
 def validate_export_objects(objects, rig):
@@ -224,9 +342,9 @@ def validate_export_objects(objects, rig):
             )
         elif armature_modifiers[0].object != rig:
             errors.append(
-                "{} Armature modifier must target {}".format(
-                    obj.name,
-                    RIG_NAME,
+                    "{} Armature modifier must target {}".format(
+                        obj.name,
+                    rig.name,
                 )
             )
     return errors
@@ -241,19 +359,25 @@ class FB_OT_setup_clothing(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         garment = context.active_object
-        rig = bpy.data.objects.get(RIG_NAME)
+        rig = find_rig(scene.fb_clothing_fit_profile)
 
         if garment is None or garment.type != "MESH":
             self.report({"ERROR"}, "Select one garment mesh first")
             return {"CANCELLED"}
-        if garment.name.startswith(("BODY_", "TOP_", "BOTTOM_", "SHOES_")):
+        if garment.name.startswith((
+            "BODY_",
+            "TOP_",
+            "BOTTOM_",
+            "SHOES_",
+            "HAIR_",
+        )):
             self.report(
                 {"ERROR"},
                 "Select the newly imported garment, not an existing character mesh",
             )
             return {"CANCELLED"}
         if rig is None or rig.type != "ARMATURE":
-            self.report({"ERROR"}, "CHR_Armature was not found")
+            self.report({"ERROR"}, "No compatible character armature was found")
             return {"CANCELLED"}
 
         slot = scene.fb_clothing_slot
@@ -262,16 +386,15 @@ class FB_OT_setup_clothing(bpy.types.Operator):
             self.report({"ERROR"}, "Enter a garment description")
             return {"CANCELLED"}
 
-        object_name = "{}_{:02d}_{}".format(
-            slot,
-            scene.fb_clothing_option_id,
-            description,
+        fit_profile = scene.fb_clothing_fit_profile
+        object_name = garment_object_name(
+            slot, fit_profile, scene.fb_clothing_option_id, description
         )
         if bpy.data.objects.get(object_name) not in {None, garment}:
             self.report({"ERROR"}, object_name + " already exists")
             return {"CANCELLED"}
 
-        source = find_weight_source(slot)
+        source = find_weight_source(slot, fit_profile)
         if source is None:
             self.report({"ERROR"}, "No compatible weight source was found")
             return {"CANCELLED"}
@@ -303,6 +426,7 @@ class FB_OT_setup_clothing(bpy.types.Operator):
         )
 
         garment["fb_slot"] = slot
+        garment["fb_fit_profile"] = fit_profile
         garment["fb_option_id"] = scene.fb_clothing_option_id
         garment["fb_weight_source"] = source.name
         garment["fb_setup_complete"] = True
@@ -317,6 +441,44 @@ class FB_OT_setup_clothing(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class FB_OT_reweight_selected_garment(bpy.types.Operator):
+    bl_idname = "fb.reweight_selected_garment"
+    bl_label = "Reweight Selected Garment"
+    bl_description = "Replace the selected garment's weights using the chosen slot and fit profile"
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, context):
+        scene = context.scene
+        garment = context.active_object
+        rig = find_rig(scene.fb_clothing_fit_profile)
+        if garment is None or garment.type != "MESH":
+            self.report({"ERROR"}, "Select the garment mesh first")
+            return {"CANCELLED"}
+        if rig is None or rig.type != "ARMATURE":
+            self.report({"ERROR"}, "No compatible character armature was found")
+            return {"CANCELLED"}
+
+        slot = scene.fb_clothing_slot
+        fit_profile = scene.fb_clothing_fit_profile
+        source = find_weight_source(slot, fit_profile)
+        if source is None:
+            self.report({"ERROR"}, "No compatible weight source was found")
+            return {"CANCELLED"}
+
+        make_active(garment)
+        remove_existing_rig_data(garment)
+        transfer_weights(garment, source, rig)
+        garment["fb_slot"] = slot
+        garment["fb_fit_profile"] = fit_profile
+        garment["fb_weight_source"] = source.name
+        garment["fb_setup_complete"] = True
+        self.report(
+            {"INFO"},
+            "{} reweighted from {}".format(garment.name, source.name),
+        )
+        return {"FINISHED"}
+
+
 class FB_OT_export_working_glb(bpy.types.Operator):
     bl_idname = "fb.export_working_glb"
     bl_label = "Export Working GLB to Godot"
@@ -324,9 +486,9 @@ class FB_OT_export_working_glb(bpy.types.Operator):
 
     def execute(self, context):
         scene = context.scene
-        rig = bpy.data.objects.get(RIG_NAME)
+        rig = find_rig(scene.fb_clothing_fit_profile)
         if rig is None or rig.type != "ARMATURE":
-            self.report({"ERROR"}, "CHR_Armature was not found")
+            self.report({"ERROR"}, "No compatible character armature was found")
             return {"CANCELLED"}
 
         export_objects = [
@@ -363,7 +525,8 @@ class FB_OT_export_working_glb(bpy.types.Operator):
                 filepath=export_path,
                 export_format="GLB",
                 use_selection=True,
-                export_animations=False,
+                export_animations=True,
+                export_animation_mode="ACTIONS",
                 export_cameras=False,
                 export_lights=False,
                 export_apply=True,
@@ -407,6 +570,7 @@ class FB_PT_clothing_setup(bpy.types.Panel):
             layout.label(text="Select a garment mesh", icon="ERROR")
 
         layout.prop(scene, "fb_clothing_slot")
+        layout.prop(scene, "fb_clothing_fit_profile")
         layout.prop(scene, "fb_clothing_option_id")
         layout.prop(scene, "fb_clothing_description")
 
@@ -420,6 +584,10 @@ class FB_PT_clothing_setup(bpy.types.Panel):
         layout.operator(
             FB_OT_setup_clothing.bl_idname,
             icon="MOD_DATA_TRANSFER",
+        )
+        layout.operator(
+            FB_OT_reweight_selected_garment.bl_idname,
+            icon="GROUP_VERTEX",
         )
         layout.label(text="Then test animations and weight paint.")
 
@@ -436,6 +604,7 @@ class FB_PT_clothing_setup(bpy.types.Panel):
 
 CLASSES = (
     FB_OT_setup_clothing,
+    FB_OT_reweight_selected_garment,
     FB_OT_export_working_glb,
     FB_PT_clothing_setup,
 )
@@ -451,8 +620,17 @@ def register():
             ("TOP", "Top", "Prepare a top"),
             ("BOTTOM", "Bottom", "Prepare bottoms"),
             ("SHOES", "Shoes", "Prepare shoes"),
+            ("HAIR", "Hair", "Prepare hair"),
         ),
         default="TOP",
+    )
+    bpy.types.Scene.fb_clothing_fit_profile = EnumProperty(
+        name="Fit Profile",
+        items=(
+            ("MALE", "Male", "Transfer weights from male body or clothing"),
+            ("FEMALE", "Female", "Transfer weights from the female body"),
+        ),
+        default="FEMALE",
     )
     bpy.types.Scene.fb_clothing_option_id = IntProperty(
         name="Option Number",
@@ -491,6 +669,7 @@ def unregister():
     del bpy.types.Scene.fb_clothing_description
     del bpy.types.Scene.fb_clothing_option_id
     del bpy.types.Scene.fb_clothing_slot
+    del bpy.types.Scene.fb_clothing_fit_profile
 
     for cls in reversed(CLASSES):
         bpy.utils.unregister_class(cls)

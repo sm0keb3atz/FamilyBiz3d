@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 1
+const SAVE_VERSION := 2
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -23,6 +23,14 @@ const SAVE_PATH := "user://family_business_save.json"
 	"Components/VehicleComponent"
 )
 @onready var hud := player.get_node("PlayerHUD") as PlayerHUD
+@onready var world_time := get_node("../WorldTimeComponent") as WorldTimeComponent
+
+
+func _ready() -> void:
+	world_time.connect_wallet(wallet)
+	world_time.time_changed.connect(hud.update_clock)
+	world_time.day_ended.connect(_on_day_ended)
+	hud.update_clock(world_time.get_formatted_date(), world_time.get_formatted_time())
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -44,9 +52,15 @@ func save_game() -> bool:
 			territories[String(boundary.territory_id)] = (
 				boundary.stats.export_save_data()
 			)
+	var dealers := {}
+	for node in get_tree().get_nodes_in_group("dealer_npc"):
+		var dealer := node as DealerNPC
+		if dealer != null:
+			dealers[String(dealer.get_path())] = dealer.export_save_data()
 
 	var data := {
 		"version": SAVE_VERSION,
+		"world_time": world_time.export_save_data(),
 		"player": {
 			"position": _vector_to_array(
 				vehicle_component.get_effective_position()
@@ -58,6 +72,7 @@ func save_game() -> bool:
 			"wanted": wanted.export_save_data(),
 		},
 		"territories": territories,
+		"dealers": dealers,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -90,6 +105,7 @@ func load_game() -> bool:
 	wanted.import_save_data(
 		player_data.get("wanted", {}) as Dictionary
 	)
+	world_time.import_save_data(data.get("world_time", {}) as Dictionary)
 	var position_data := player_data.get("position", []) as Array
 	if position_data.size() == 3:
 		player.global_position = Vector3(
@@ -110,6 +126,11 @@ func load_game() -> bool:
 			boundary.stats.import_save_data(
 				territory_data[territory_id] as Dictionary
 			)
+	var dealer_data := data.get("dealers", {}) as Dictionary
+	for path_text in dealer_data.keys():
+		var dealer := get_node_or_null(NodePath(String(path_text))) as DealerNPC
+		if dealer != null:
+			dealer.import_save_data(dealer_data[path_text] as Dictionary)
 	hud.show_feedback("Game loaded.")
 	return true
 
@@ -122,11 +143,16 @@ func _is_valid_save(value: Variant) -> bool:
 	if value is not Dictionary:
 		return false
 	var data := value as Dictionary
+	var version := int(data.get("version", -1))
 	return (
-		int(data.get("version", -1)) == SAVE_VERSION
+		version >= 1 and version <= SAVE_VERSION
 		and data.get("player", null) is Dictionary
 		and data.get("territories", null) is Dictionary
 	)
+
+
+func _on_day_ended(report_date: String, earned: int, spent: int) -> void:
+	hud.show_daily_report(report_date, earned, spent)
 
 
 func _vector_to_array(value: Vector3) -> Array[float]:

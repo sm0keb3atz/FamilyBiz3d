@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://biwqvkbvpbsxk"]
+
+[ext_resource type="Texture2D" uid="uid://bnhdk73w6j3ss" path="res://Assets/BaseChracters/Player/TextureKit/asainmale_tripo_image_2a5f4fdf-566c-407c-901b-8e22c93b5070_0.jpg" id="1_n2agj"]
+[ext_resource type="Texture2D" uid="uid://cldru16x4lkk5" path="res://Assets/BaseChracters/Player/TextureKit/asainmale_tripo_image_2a5f4fdf-566c-407c-901b-8e22c93b5070_1.png" id="2_l1fyp"]
+
+[resource]
+albedo_texture = ExtResource("1_n2agj")
+normal_enabled = true
+normal_texture = ExtResource("2_l1fyp")

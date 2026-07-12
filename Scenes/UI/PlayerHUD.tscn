@@ -64,7 +64,44 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [node name="PlayerHUD" type="CanvasLayer" unique_id=1330545521]
+process_mode = 3
+layer = 20
 script = ExtResource("1_hud")
+
+[node name="TimePanel" type="PanelContainer" parent="."]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 220.0
+offset_bottom = 104.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="TimePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 9
+
+[node name="Content" type="VBoxContainer" parent="TimePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="DateLabel" type="Label" parent="TimePanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.78, 0.9, 1)
+theme_override_font_sizes/font_size = 15
+text = "MON JAN 1"
+
+[node name="TimeLabel" type="Label" parent="TimePanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.55, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 25
+text = "8:00 AM"
 
 [node name="ReputationPanel" type="PanelContainer" parent="."]
 anchors_preset = 10
@@ -592,3 +629,96 @@ vertical_alignment = 1
 unique_name_in_owner = true
 wait_time = 2.5
 one_shot = true
+
+[node name="DailyReportOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="DailyReportOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.015, 0.025, 0.82)
+
+[node name="Center" type="CenterContainer" parent="DailyReportOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="DailyReportOverlay/Center"]
+custom_minimum_size = Vector2(520, 420)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="DailyReportOverlay/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 38
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 38
+
+[node name="Content" type="VBoxContainer" parent="DailyReportOverlay/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Title" type="Label" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.25, 1)
+theme_override_font_sizes/font_size = 32
+text = "DAILY REPORT"
+horizontal_alignment = 1
+
+[node name="ReportDateLabel" type="Label" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.78, 0.9, 1)
+theme_override_font_sizes/font_size = 17
+text = "MON JAN 1"
+horizontal_alignment = 1
+
+[node name="Separator" type="HSeparator" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="ReportEarnedLabel" type="Label" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.9, 0.48, 1)
+theme_override_font_sizes/font_size = 21
+text = "MONEY EARNED   $0"
+
+[node name="ReportSpentLabel" type="Label" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.42, 0.25, 1)
+theme_override_font_sizes/font_size = 21
+text = "MONEY SPENT    $0"
+
+[node name="ReportNetLabel" type="Label" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "BREAK EVEN   $0"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ReportContinueButton" type="Button" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "CONTINUE"

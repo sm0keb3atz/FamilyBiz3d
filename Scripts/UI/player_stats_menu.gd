@@ -8,6 +8,7 @@ extends CanvasLayer
 	"../Components/MovementComponent"
 )
 @export var menu_controller_path := NodePath("../Components/MenuController")
+@export var appearance_component_path := NodePath("../Components/AppearanceComponent")
 
 @export_category("Debug")
 @export_range(1.0, 100000.0, 1.0) var debug_experience_amount := 100.0
@@ -19,6 +20,7 @@ extends CanvasLayer
 @onready var strength_value := %StrengthValue as Label
 @onready var health_value := %HealthValue as Label
 @onready var stamina_value := %StaminaValue as Label
+@onready var aura_value := %AuraValue as Label
 @onready var purchase_strength_button := %PurchaseStrengthButton as Button
 @onready var stats := get_node(stats_component_path) as PlayerStatsComponent
 @onready var health_component := (
@@ -30,6 +32,7 @@ extends CanvasLayer
 @onready var menu_controller := (
 	get_node(menu_controller_path) as PlayerMenuController
 )
+@onready var appearance := get_node(appearance_component_path) as PlayerAppearanceComponent
 
 var _is_open := false
 
@@ -41,6 +44,7 @@ func _ready() -> void:
 	stats.level_changed.connect(_on_level_changed)
 	stats.skill_points_changed.connect(_on_skill_points_changed)
 	stats.strength_changed.connect(_on_strength_changed)
+	stats.aura_changed.connect(_on_aura_changed)
 	purchase_strength_button.pressed.connect(_purchase_strength)
 	menu_root.visible = false
 	_refresh()
@@ -85,6 +89,7 @@ func _refresh() -> void:
 	strength_value.text = str(stats.strength)
 	health_value.text = "%d" % roundi(stats.get_max_health())
 	stamina_value.text = "%d" % roundi(stats.get_max_stamina())
+	aura_value.text = str(stats.aura)
 	purchase_strength_button.disabled = stats.skill_points <= 0
 	purchase_strength_button.text = (
 		"Requires 1 Skill Point"
@@ -110,4 +115,8 @@ func _on_skill_points_changed(_current: int) -> void:
 
 
 func _on_strength_changed(_current: int) -> void:
+	_refresh()
+
+
+func _on_aura_changed(_current: int) -> void:
 	_refresh()

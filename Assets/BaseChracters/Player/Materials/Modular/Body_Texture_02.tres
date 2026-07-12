@@ -1,7 +1,7 @@
-[gd_resource type="StandardMaterial3D" format=3]
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://c4u5qrkevftu0"]
 
-[ext_resource type="Texture2D" path="res://Assets/BaseChracters/Player/Textures/whiteguy.png" id="1_albedo"]
-[ext_resource type="Texture2D" path="res://Assets/BaseChracters/Player/Textures/whiteguyN.png" id="2_normal"]
+[ext_resource type="Texture2D" uid="uid://bhukfc0anklqr" path="res://Assets/BaseChracters/Player/Textures/whiteguy.png" id="1_albedo"]
+[ext_resource type="Texture2D" uid="uid://wflkmyd6cv2a" path="res://Assets/BaseChracters/Player/Textures/whiteguyN.png" id="2_normal"]
 
 [resource]
 resource_name = "Body Texture 02"

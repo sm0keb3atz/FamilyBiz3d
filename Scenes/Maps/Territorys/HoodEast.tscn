@@ -36,7 +36,6 @@ script = ExtResource("10_stats")
 territory_id = &"hood_east"
 
 [node name="TerritoryBoundary" type="Area3D" parent="." unique_id=1647238682]
-visible = false
 script = ExtResource("11_boundary")
 territory_id = &"hood_east"
 display_name = "Hood East"
@@ -44,3 +43,4 @@ display_name = "Hood East"
 [node name="CollisionShape3D" type="CollisionShape3D" parent="TerritoryBoundary" unique_id=1824627339]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0, 0)
 shape = SubResource("BoxShape3D_territory")
+debug_color = Color(0.91971976, 0.2827793, 0, 1)

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ProductDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Gameplay/Resources/product_definition.gd" id="1_product"]
+[ext_resource type="Texture2D" path="res://Assets/UI/Icons/Weed.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_product")
+product_id = &"weed_1g"
+display_name = "Weed 1g"
+drug_type = 0
+package_kind = 0
+package_size_grams = 1
+icon = ExtResource("2_icon")
+dealer_price = 8
+sale_price = 15
+experience_reward = 5.0
+reputation_reward = 0.6
+heat_reward = 1.0

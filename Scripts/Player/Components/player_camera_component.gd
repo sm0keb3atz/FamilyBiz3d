@@ -85,7 +85,12 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	var is_aiming := weapon_component.is_aiming()
-	var target_distance := aim_distance if is_aiming else default_distance
+	var sight_distance := weapon_component.get_aim_distance_override()
+	var target_distance := default_distance
+	if is_aiming:
+		target_distance = aim_distance
+		if sight_distance > 0.0:
+			target_distance = sight_distance
 	spring_arm.spring_length = move_toward(
 		spring_arm.spring_length,
 		target_distance,
@@ -145,6 +150,7 @@ func get_pitch() -> float:
 func _apply_target_lock_camera_assist(delta: float) -> void:
 	if (
 		target_lock_component == null
+		or not weapon_component.is_target_lock_enabled()
 		or not target_lock_component.has_locked_target()
 		or lock_camera_assist_strength <= 0.0
 	):

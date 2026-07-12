@@ -11,11 +11,19 @@ signal material_changed(
 	material_index: int,
 	material_name: String
 )
+signal material_color_changed(
+	slot: StringName,
+	color: Color
+)
+signal aura_changed(current: int)
+signal body_variant_changed(variant: StringName)
 
 const SLOT_TOP := &"top"
 const SLOT_BOTTOM := &"bottom"
 const SLOT_SHOES := &"shoes"
 const SLOT_BODY := &"body"
+const BODY_VARIANT_MALE := &"male"
+const BODY_VARIANT_FEMALE := &"female"
 const AUTO_MESH_DIR := "res://Assets/BaseChracters/Player/Meshes/Auto"
 const AUTO_MATERIAL_DIR := (
 	"res://Assets/BaseChracters/Player/Materials/Variants"
@@ -54,6 +62,23 @@ const BODY_MESHES := [
 	&"BODY_Legs",
 	&"BODY_Feet",
 ]
+const FEMALE_BODY_MESHES := [
+	&"BODY_Female_Head",
+	&"BODY_Female_Torso",
+	&"BODY_Female_LeftArm",
+	&"BODY_Female_RightArm",
+	&"BODY_Female_Legs",
+]
+const FEMALE_CLOTHING_MESHES := [
+	&"TOP_Female_01_HoodieCrop",
+	&"BOTTOM_Female_01_Leggins",
+	&"SHOES_Female_01_FemaleSneakers",
+]
+const FEMALE_CLOTHING_BY_SLOT := {
+	SLOT_TOP: &"TOP_Female_01_HoodieCrop",
+	SLOT_BOTTOM: &"BOTTOM_Female_01_Leggins",
+	SLOT_SHOES: &"SHOES_Female_01_FemaleSneakers",
+}
 
 @export var skeleton_path := NodePath(
 	"../../Visual/PlayerTest2/Armature/GeneralSkeleton"
@@ -89,7 +114,14 @@ var _selected_material := {
 	SLOT_BOTTOM: 0,
 	SLOT_SHOES: 0,
 }
+var _material_color := {
+	SLOT_TOP: Color.WHITE,
+	SLOT_BOTTOM: Color.WHITE,
+	SLOT_SHOES: Color.WHITE,
+}
 var _material_variants: Dictionary = {}
+var _body_variant := BODY_VARIANT_MALE
+var _current_aura := 0
 
 
 func _ready() -> void:
@@ -106,6 +138,11 @@ func _ready() -> void:
 	for slot in _options:
 		_apply_slot(slot)
 		_apply_material(slot)
+	_recalculate_aura()
+
+
+func get_current_aura() -> int:
+	return _current_aura
 
 
 func cycle_option(slot: StringName, direction: int) -> void:
@@ -143,9 +180,13 @@ func get_option_name(slot: StringName) -> String:
 	return str(option["name"])
 
 
-func randomize_appearance(profile := &"all") -> void:
+func randomize_appearance(
+	profile := &"all",
+	random: RandomNumberGenerator = null
+) -> void:
 	var body_materials := _get_material_options(SLOT_BODY)
-	_selected_material[SLOT_BODY] = randi_range(
+	_selected_material[SLOT_BODY] = _random_int(
+		random,
 		0,
 		body_materials.size() - 1
 	)
@@ -158,14 +199,52 @@ func randomize_appearance(profile := &"all") -> void:
 				if profile == &"civilian"
 				else options.size() - 1
 			)
-			_selected[slot] = randi_range(0, maximum_index)
+			_selected[slot] = _random_int(random, 0, maximum_index)
 			var materials := _get_material_options(slot)
-			_selected_material[slot] = randi_range(
+			_selected_material[slot] = _random_int(
+				random,
 				0,
 				materials.size() - 1
 			)
+			if (
+				_body_variant == BODY_VARIANT_FEMALE
+				or _is_selected_material_tintable(slot)
+			):
+				_material_color[slot] = Color.from_hsv(
+					_random_float(random, 0.0, 1.0),
+					_random_float(random, 0.45, 0.95),
+					_random_float(random, 0.65, 1.0)
+				)
+				material_color_changed.emit(slot, _material_color[slot])
 			_apply_slot(slot)
 			_apply_material(slot)
+
+
+func randomize_civilian_appearance(random: RandomNumberGenerator) -> void:
+	if random == null:
+		set_body_variant(
+			BODY_VARIANT_FEMALE if randf() < 0.5 else BODY_VARIANT_MALE
+		)
+	else:
+		set_body_variant(
+			BODY_VARIANT_FEMALE
+			if random.randf() < 0.5
+			else BODY_VARIANT_MALE
+		)
+	randomize_appearance(&"civilian", random)
+
+
+func set_body_variant(variant: StringName) -> void:
+	if variant != BODY_VARIANT_MALE and variant != BODY_VARIANT_FEMALE:
+		push_warning("Unknown body variant: %s" % variant)
+		return
+	_body_variant = variant
+	_apply_body_visibility()
+	body_variant_changed.emit(_body_variant)
+
+
+func get_body_variant() -> StringName:
+	return _body_variant
 
 
 func apply_police_uniform() -> void:
@@ -180,11 +259,14 @@ func apply_police_uniform() -> void:
 
 
 func reset_appearance() -> void:
+	set_body_variant(BODY_VARIANT_MALE)
 	_selected_material[SLOT_BODY] = 0
 	_apply_material(SLOT_BODY)
 	for slot in _selected:
 		_selected[slot] = 0
 		_selected_material[slot] = 0
+		_material_color[slot] = Color.WHITE
+		material_color_changed.emit(slot, _material_color[slot])
 		_apply_slot(slot)
 		_apply_material(slot)
 
@@ -210,6 +292,24 @@ func get_material_name(slot: StringName) -> String:
 	if materials.is_empty():
 		return ""
 	return str(materials[int(_selected_material[slot])]["name"])
+
+
+func set_material_color(slot: StringName, color: Color) -> void:
+	if not _material_color.has(slot):
+		return
+	_material_color[slot] = color
+	_apply_material(slot)
+	material_color_changed.emit(slot, color)
+
+
+func get_material_color(slot: StringName) -> Color:
+	if not _material_color.has(slot):
+		return Color.WHITE
+	return _material_color[slot]
+
+
+func is_material_tintable(slot: StringName) -> bool:
+	return _is_selected_material_tintable(slot)
 
 
 func set_ragdoll_visibility(_active: bool) -> void:
@@ -241,6 +341,7 @@ func _apply_slot(slot: StringName) -> void:
 		selected_index,
 		str(selected_option["name"])
 	)
+	_recalculate_aura()
 
 
 func _apply_material(slot: StringName) -> void:
@@ -249,7 +350,7 @@ func _apply_material(slot: StringName) -> void:
 	var materials := _get_material_options(slot)
 	var material_index := int(_selected_material[slot])
 	var material_option: Dictionary = materials[material_index]
-	var material: Material = material_option.get("material") as Material
+	var material := _make_material_for_slot(slot, material_option)
 	if slot == SLOT_BODY:
 		for mesh_name in BODY_MESHES:
 			var body_mesh := _skeleton.get_node_or_null(
@@ -257,6 +358,8 @@ func _apply_material(slot: StringName) -> void:
 			) as MeshInstance3D
 			if body_mesh != null:
 				body_mesh.material_override = material
+	elif _body_variant == BODY_VARIANT_FEMALE:
+		_apply_female_clothing_material(slot)
 	else:
 		var option: Dictionary = _options[slot][int(_selected[slot])]
 		var mesh := _skeleton.get_node_or_null(
@@ -270,6 +373,25 @@ func _apply_material(slot: StringName) -> void:
 		material_index,
 		str(material_option["name"])
 	)
+	_recalculate_aura()
+
+
+func _apply_female_clothing_material(slot: StringName) -> void:
+	if not FEMALE_CLOTHING_BY_SLOT.has(slot):
+		return
+	var mesh_instance := _skeleton.get_node_or_null(
+		NodePath(str(FEMALE_CLOTHING_BY_SLOT[slot]))
+	) as MeshInstance3D
+	if mesh_instance == null or mesh_instance.mesh == null:
+		return
+	var source := mesh_instance.mesh.surface_get_material(0)
+	if source == null:
+		return
+	var tinted := source.duplicate(true) as BaseMaterial3D
+	if tinted == null:
+		return
+	tinted.albedo_color = _material_color[slot]
+	mesh_instance.material_override = tinted
 
 
 func _get_material_options(slot: StringName) -> Array:
@@ -356,10 +478,13 @@ func _register_material_file(file_name: String) -> void:
 		return
 	var base_name := file_name.get_basename()
 	var separator_index := base_name.find("__")
-	if separator_index <= 0:
+	var node_name := &"TOP_01_Hoodie"
+	var display_name := base_name
+	if separator_index > 0:
+		node_name = StringName(base_name.substr(0, separator_index))
+		display_name = base_name.substr(separator_index + 2)
+	elif not base_name.to_lower().contains("hoodie"):
 		return
-	var node_name := StringName(base_name.substr(0, separator_index))
-	var display_name := base_name.substr(separator_index + 2)
 	if display_name.is_empty():
 		return
 	var material := load(
@@ -372,8 +497,57 @@ func _register_material_file(file_name: String) -> void:
 		_material_variants[node_name] = []
 	var variants: Array = _material_variants[node_name]
 	variants.append(
-		{"name": display_name, "material": material}
+		{
+			"name": display_name,
+			"material": material,
+			"tintable": display_name.to_lower() == "white",
+			"aura": 100 if display_name.to_lower().begins_with("amiri") else 0,
+		}
 	)
+
+
+func _recalculate_aura() -> void:
+	var next_aura := 0
+	for slot in [SLOT_TOP, SLOT_BOTTOM, SLOT_SHOES]:
+		if slot == SLOT_SHOES and _selected_node_name(slot) == &"SHOES_02_Boots":
+			next_aura += 50
+		var materials := _get_material_options(slot)
+		if not materials.is_empty():
+			next_aura += int(materials[int(_selected_material[slot])].get("aura", 0))
+	if next_aura == _current_aura:
+		return
+	_current_aura = next_aura
+	aura_changed.emit(_current_aura)
+
+
+func _make_material_for_slot(
+	slot: StringName,
+	material_option: Dictionary
+) -> Material:
+	var material: Material = material_option.get("material") as Material
+	if (
+		material == null
+		or not bool(material_option.get("tintable", false))
+		or not _material_color.has(slot)
+	):
+		return material
+	var tinted := material.duplicate() as StandardMaterial3D
+	if tinted == null:
+		return material
+	tinted.albedo_color = _material_color[slot]
+	return tinted
+
+
+func _is_selected_material_tintable(slot: StringName) -> bool:
+	if slot == SLOT_BODY or not _options.has(slot):
+		return false
+	var materials := _get_material_options(slot)
+	if materials.is_empty():
+		return false
+	var material_index := int(_selected_material[slot])
+	if material_index < 0 or material_index >= materials.size():
+		return false
+	return bool(materials[material_index].get("tintable", false))
 
 
 func _discover_auto_meshes() -> void:
@@ -474,6 +648,18 @@ func _display_name_from_node_name(node_name: String) -> String:
 
 
 func _apply_body_visibility() -> void:
+	var is_female := _body_variant == BODY_VARIANT_FEMALE
+	for mesh_name in FEMALE_BODY_MESHES:
+		_set_mesh_visible(mesh_name, is_female)
+	for mesh_name in FEMALE_CLOTHING_MESHES:
+		_set_mesh_visible(mesh_name, is_female)
+	if is_female:
+		for mesh_name in BODY_MESHES:
+			_set_mesh_visible(mesh_name, false)
+		for slot in _options:
+			for option in _options[slot]:
+				_set_mesh_visible(StringName(option["node"]), false)
+		return
 	var selected_top := _selected_node_name(SLOT_TOP)
 	var selected_bottom := _selected_node_name(SLOT_BOTTOM)
 	_set_mesh_visible(&"BODY_Head", true)
@@ -488,6 +674,30 @@ func _apply_body_visibility() -> void:
 		selected_bottom != &"BOTTOM_03_PolicePants"
 	)
 	_set_mesh_visible(&"BODY_Feet", false)
+
+
+func _random_int(
+	random: RandomNumberGenerator,
+	minimum: int,
+	maximum: int
+) -> int:
+	return (
+		randi_range(minimum, maximum)
+		if random == null
+		else random.randi_range(minimum, maximum)
+	)
+
+
+func _random_float(
+	random: RandomNumberGenerator,
+	minimum: float,
+	maximum: float
+) -> float:
+	return (
+		randf_range(minimum, maximum)
+		if random == null
+		else random.randf_range(minimum, maximum)
+	)
 
 
 func _selected_node_name(slot: StringName) -> StringName:

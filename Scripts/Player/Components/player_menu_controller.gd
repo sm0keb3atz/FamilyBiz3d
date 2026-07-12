@@ -9,6 +9,7 @@ signal active_menu_changed(menu_id: StringName)
 @export var health_component_path := NodePath("../HealthComponent")
 @export var interaction_component_path := NodePath("../InteractionComponent")
 @export var solicitation_component_path := NodePath("../SolicitationComponent")
+@export var target_lock_component_path := NodePath("../TargetLockComponent")
 
 var active_menu: StringName = &""
 var _gameplay_locked := false
@@ -19,6 +20,7 @@ var _gameplay_locked := false
 @onready var health_component := get_node(health_component_path)
 @onready var interaction_component := get_node(interaction_component_path)
 @onready var solicitation_component := get_node(solicitation_component_path)
+@onready var target_lock_component := get_node_or_null(target_lock_component_path)
 
 
 func request_open(menu_id: StringName) -> bool:
@@ -57,10 +59,16 @@ func set_gameplay_locked(locked: bool) -> void:
 
 func _apply_gameplay_enabled(enabled: bool) -> void:
 	enabled = enabled and not _gameplay_locked
+	if not enabled and movement_component.has_method("stop_immediately"):
+		movement_component.stop_immediately()
 	movement_component.set_physics_process(
 		enabled and health_component.is_alive()
 	)
 	camera_component.set_process_unhandled_input(enabled)
 	weapon_component.set_process_unhandled_input(enabled)
+	weapon_component.set_process(enabled)
+	if target_lock_component != null:
+		target_lock_component.set_process(enabled)
+		target_lock_component.set_process_unhandled_input(enabled)
 	interaction_component.set_gameplay_enabled(enabled)
 	solicitation_component.set_gameplay_enabled(enabled)

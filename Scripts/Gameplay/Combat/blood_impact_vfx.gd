@@ -6,9 +6,6 @@ enum SurfaceImpactKind {
 	METAL,
 }
 
-const BLOOD_SPRAY_TEXTURE := preload(
-	"res://Assets/VFX/Blood/BloodSplat5.png"
-)
 const BLOOD_POOL_TEXTURE := preload(
 	"res://Assets/VFX/Blood/BloodSplat1.png"
 )
@@ -26,14 +23,11 @@ const BULLET_HOLE_SHADER := preload(
 const BLOOD_MARK_SHADER := preload(
 	"res://Assets/VFX/Blood/blood_mark.gdshader"
 )
-const BLOOD_SPRAY_SHADER := preload(
-	"res://Assets/VFX/Blood/blood_spray.gdshader"
-)
 
-@export_range(1, 64, 1) var spray_particle_count := 22
-@export_range(0.1, 5.0, 0.05) var spray_lifetime := 0.78
-@export_range(0.1, 15.0, 0.1) var visual_spray_speed := 5.8
-@export_range(0.1, 10.0, 0.1) var spray_speed := 4.0
+@export_range(1, 96, 1) var spray_particle_count := 52
+@export_range(0.1, 5.0, 0.05) var spray_lifetime := 0.64
+@export_range(0.1, 18.0, 0.1) var visual_spray_speed := 9.4
+@export_range(0.1, 14.0, 0.1) var spray_speed := 5.2
 @export_range(0.05, 3.0, 0.01) var wound_size := 0.12
 @export_range(0.1, 4.0, 0.05) var pool_size := 1.15
 @export_range(0.1, 5.0, 0.05) var pool_growth_time := 1.2
@@ -46,16 +40,21 @@ var _life_elapsed := 0.0
 var _persistent_marks: Array[Node3D] = []
 var _temporary_hosts: Array[Node3D] = []
 var _pending_landing_splats: Array[Dictionary] = []
+var _active_spray_elements: Array[Dictionary] = []
 var _death_pool_target: Node3D
 var _death_pool_due_time := -1.0
 
-static var _shared_spray_process_material: ParticleProcessMaterial
-static var _shared_spray_mesh: QuadMesh
 static var _shared_bullet_hole_material: ShaderMaterial
+static var _shared_blood_droplet_mesh: SphereMesh
+static var _shared_blood_streak_mesh: BoxMesh
+static var _shared_blood_burst_mesh: SphereMesh
 static var _shared_spark_mesh: BoxMesh
 static var _shared_debris_mesh: BoxMesh
 static var _shared_smoke_mesh: QuadMesh
 static var _shared_soft_smoke_texture: GradientTexture2D
+static var _shared_blood_droplet_material: StandardMaterial3D
+static var _shared_blood_streak_material: StandardMaterial3D
+static var _shared_blood_burst_material: StandardMaterial3D
 
 
 static func prewarm_resources() -> void:
@@ -66,32 +65,59 @@ static func prewarm_resources() -> void:
 			"mark_texture",
 			BULLET_HOLE_TEXTURE
 		)
-	if _shared_spray_process_material == null:
-		_shared_spray_process_material = ParticleProcessMaterial.new()
-		_shared_spray_process_material.direction = Vector3.FORWARD
-		_shared_spray_process_material.spread = 17.0
-		_shared_spray_process_material.initial_velocity_min = 4.3
-		_shared_spray_process_material.initial_velocity_max = 7.2
-		_shared_spray_process_material.gravity = Vector3(0.0, -5.7, 0.0)
-		_shared_spray_process_material.scale_min = 0.025
-		_shared_spray_process_material.scale_max = 0.075
-		_shared_spray_process_material.damping_min = 0.1
-		_shared_spray_process_material.damping_max = 0.55
-	if _shared_spray_mesh == null:
-		_shared_spray_mesh = QuadMesh.new()
-		_shared_spray_mesh.size = Vector2(0.38, 0.18)
-		_shared_spray_mesh.orientation = PlaneMesh.FACE_Z
-		var spray_material := ShaderMaterial.new()
-		spray_material.shader = BLOOD_SPRAY_SHADER
-		spray_material.set_shader_parameter(
-			"blood_texture",
-			BLOOD_SPRAY_TEXTURE
+	if _shared_blood_droplet_material == null:
+		_shared_blood_droplet_material = StandardMaterial3D.new()
+		_shared_blood_droplet_material.albedo_color = Color(
+			0.3,
+			0.003,
+			0.005,
+			1.0
 		)
-		spray_material.set_shader_parameter(
-			"blood_tint",
-			Color(0.38, 0.003, 0.006, 0.92)
+		_shared_blood_droplet_material.roughness = 0.24
+		_shared_blood_droplet_material.metallic = 0.0
+	if _shared_blood_streak_material == null:
+		_shared_blood_streak_material = StandardMaterial3D.new()
+		_shared_blood_streak_material.transparency = (
+			BaseMaterial3D.TRANSPARENCY_ALPHA
 		)
-		_shared_spray_mesh.material = spray_material
+		_shared_blood_streak_material.albedo_color = Color(
+			0.4,
+			0.003,
+			0.005,
+			0.82
+		)
+		_shared_blood_streak_material.roughness = 0.18
+		_shared_blood_streak_material.metallic = 0.0
+	if _shared_blood_burst_material == null:
+		_shared_blood_burst_material = StandardMaterial3D.new()
+		_shared_blood_burst_material.transparency = (
+			BaseMaterial3D.TRANSPARENCY_ALPHA
+		)
+		_shared_blood_burst_material.albedo_color = Color(
+			0.28,
+			0.003,
+			0.005,
+			0.84
+		)
+		_shared_blood_burst_material.roughness = 0.3
+	if _shared_blood_droplet_mesh == null:
+		_shared_blood_droplet_mesh = SphereMesh.new()
+		_shared_blood_droplet_mesh.radius = 0.026
+		_shared_blood_droplet_mesh.height = 0.052
+		_shared_blood_droplet_mesh.radial_segments = 8
+		_shared_blood_droplet_mesh.rings = 4
+		_shared_blood_droplet_mesh.material = _shared_blood_droplet_material
+	if _shared_blood_streak_mesh == null:
+		_shared_blood_streak_mesh = BoxMesh.new()
+		_shared_blood_streak_mesh.size = Vector3(0.018, 0.018, 0.17)
+		_shared_blood_streak_mesh.material = _shared_blood_streak_material
+	if _shared_blood_burst_mesh == null:
+		_shared_blood_burst_mesh = SphereMesh.new()
+		_shared_blood_burst_mesh.radius = 0.038
+		_shared_blood_burst_mesh.height = 0.076
+		_shared_blood_burst_mesh.radial_segments = 8
+		_shared_blood_burst_mesh.rings = 4
+		_shared_blood_burst_mesh.material = _shared_blood_burst_material
 	if _shared_spark_mesh == null:
 		_shared_spark_mesh = BoxMesh.new()
 		_shared_spark_mesh.size = Vector3(0.007, 0.007, 0.075)
@@ -128,19 +154,17 @@ static func prewarm_resources() -> void:
 func prewarm_runtime() -> void:
 	prewarm_resources()
 
-	var particles := GPUParticles3D.new()
-	particles.amount = 1
-	particles.lifetime = 0.12
-	particles.one_shot = true
-	particles.explosiveness = 1.0
-	particles.visibility_aabb = AABB(
-		Vector3(-1.0, -1.0, -1.0),
-		Vector3(2.0, 2.0, 2.0)
-	)
-	particles.process_material = _shared_spray_process_material
-	particles.draw_pass_1 = _shared_spray_mesh
-	add_child(particles)
-	particles.restart()
+	var droplet := MeshInstance3D.new()
+	droplet.mesh = _shared_blood_droplet_mesh
+	add_child(droplet)
+	droplet.queue_free()
+
+	var streak := MeshInstance3D.new()
+	streak.mesh = _shared_blood_streak_mesh
+	add_child(streak)
+	streak.queue_free()
+
+	_create_spray(Vector3.BACK)
 
 	var bullet_quad := QuadMesh.new()
 	bullet_quad.size = Vector2.ONE * 0.02
@@ -173,10 +197,11 @@ func setup_blood_hit(
 	hit_normal: Vector3,
 	shot_direction: Vector3,
 	hit_collider: Node3D,
-	fatal_hit: bool
+	fatal_hit: bool,
+	spray_multiplier := 1.0
 ) -> void:
 	global_position = hit_position
-	_create_spray(shot_direction)
+	_create_spray(shot_direction, spray_multiplier)
 	_trace_landing_splats(hit_position, shot_direction, hit_collider)
 	_create_wound_mark(hit_position, hit_normal, hit_collider)
 	if fatal_hit:
@@ -223,6 +248,7 @@ func clear_marks_attached_to(owner: Node3D) -> void:
 
 func _process(delta: float) -> void:
 	_life_elapsed += delta
+	_update_spray_elements(delta)
 	_update_landing_splats()
 	_update_death_pool()
 	if _pool != null and _pool_growth_elapsed < pool_growth_time:
@@ -277,33 +303,212 @@ func _update_death_pool() -> void:
 	_create_floor_pool(pool_origin, _death_pool_target)
 
 
-func _create_spray(shot_direction: Vector3) -> void:
+func _create_spray(shot_direction: Vector3, multiplier := 1.0) -> void:
 	prewarm_resources()
-	var particles := GPUParticles3D.new()
-	particles.name = "BloodSpray"
-	particles.amount = spray_particle_count
-	particles.lifetime = spray_lifetime
-	particles.one_shot = true
-	particles.explosiveness = 0.95
-	particles.randomness = 0.45
-	particles.visibility_aabb = AABB(
-		Vector3(-7.0, -5.0, -7.0),
-		Vector3(14.0, 10.0, 14.0)
-	)
 
 	var spray_direction := shot_direction.normalized()
 	if spray_direction.is_zero_approx():
 		spray_direction = Vector3.FORWARD
-	var process_material := (
-		_shared_spray_process_material.duplicate() as ParticleProcessMaterial
+	var particle_count := maxi(
+		1,
+		int(round(float(spray_particle_count) * maxf(0.1, multiplier)))
 	)
-	process_material.direction = spray_direction
-	process_material.initial_velocity_min = visual_spray_speed * 0.75
-	process_material.initial_velocity_max = visual_spray_speed * 1.25
-	particles.process_material = process_material
-	particles.draw_pass_1 = _shared_spray_mesh
-	add_child(particles)
-	particles.restart()
+	_create_impact_burst(spray_direction, multiplier)
+
+	var origin := spray_direction * 0.045
+	for droplet_index in particle_count:
+		var droplet := MeshInstance3D.new()
+		droplet.name = "BloodDroplet3D"
+		droplet.mesh = _shared_blood_droplet_mesh
+		droplet.position = origin + _random_spray_offset(spray_direction, 0.055)
+		var size := _random_droplet_size()
+		droplet.scale = Vector3.ONE * size
+		add_child(droplet)
+		var velocity := (
+			_random_spray_direction(spray_direction, 0.5)
+			* randf_range(visual_spray_speed * 0.72, visual_spray_speed * 1.42)
+		)
+		velocity += Vector3.UP * randf_range(-0.15, 1.1)
+		_active_spray_elements.append({
+			"node": droplet,
+			"velocity": velocity,
+			"age": 0.0,
+			"lifetime": spray_lifetime * randf_range(0.46, 1.0),
+			"base_scale": droplet.scale,
+			"gravity": randf_range(9.5, 13.5),
+			"damping": randf_range(0.02, 0.12),
+			"kind": "droplet",
+		})
+
+	var streak_count := maxi(10, int(round(float(particle_count) * 0.44)))
+	for streak_index in streak_count:
+		var streak := MeshInstance3D.new()
+		streak.name = "BloodStreak3D"
+		streak.mesh = _shared_blood_streak_mesh
+		streak.position = origin + _random_spray_offset(spray_direction, 0.035)
+		add_child(streak)
+		var streak_velocity := (
+			_random_spray_direction(spray_direction, 0.2)
+			* randf_range(visual_spray_speed * 1.05, visual_spray_speed * 1.58)
+		)
+		var width_scale := randf_range(0.28, 0.72)
+		var length_scale := randf_range(0.9, 2.35)
+		_place_spray_streak(streak, streak_velocity, width_scale, length_scale)
+		_active_spray_elements.append({
+			"node": streak,
+			"velocity": streak_velocity,
+			"age": 0.0,
+			"lifetime": spray_lifetime * randf_range(0.2, 0.38),
+			"width_scale": width_scale,
+			"length_scale": length_scale,
+			"gravity": randf_range(5.5, 8.5),
+			"damping": randf_range(0.08, 0.22),
+			"kind": "streak",
+		})
+
+
+func _create_impact_burst(spray_direction: Vector3, multiplier := 1.0) -> void:
+	var burst_count := maxi(1, int(round(8.0 * maxf(0.1, multiplier))))
+	for burst_index in burst_count:
+		var burst := MeshInstance3D.new()
+		burst.name = "BloodImpactBurst3D"
+		burst.mesh = _shared_blood_burst_mesh
+		burst.position = _random_spray_offset(spray_direction, 0.025)
+		var base_scale := Vector3(
+			randf_range(0.34, 0.82),
+			randf_range(0.24, 0.58),
+			randf_range(0.24, 0.58)
+		)
+		burst.scale = base_scale
+		add_child(burst)
+		_active_spray_elements.append({
+			"node": burst,
+			"velocity": _random_spray_direction(
+				spray_direction,
+				0.34
+			) * randf_range(2.0, 4.2),
+			"age": 0.0,
+			"lifetime": randf_range(0.08, 0.15),
+			"base_scale": base_scale,
+			"gravity": 2.0,
+			"damping": 0.4,
+			"kind": "burst",
+		})
+
+
+func _random_droplet_size() -> float:
+	if randf() < 0.14:
+		return randf_range(0.62, 0.95)
+	return randf_range(0.16, 0.56)
+
+
+func _update_spray_elements(delta: float) -> void:
+	for index in range(_active_spray_elements.size() - 1, -1, -1):
+		var element := _active_spray_elements[index]
+		var node := element.node as MeshInstance3D
+		if not is_instance_valid(node):
+			_active_spray_elements.remove_at(index)
+			continue
+
+		var age := (element.age as float) + delta
+		var lifetime := element.lifetime as float
+		if age >= lifetime:
+			node.queue_free()
+			_active_spray_elements.remove_at(index)
+			continue
+
+		var velocity := element.velocity as Vector3
+		velocity += Vector3.DOWN * (element.gravity as float) * delta
+		velocity *= maxf(0.0, 1.0 - (element.damping as float) * delta)
+		node.position += velocity * delta
+
+		var progress := age / lifetime
+		var kind := element.kind as String
+		if kind == "streak":
+			var taper := 1.0 - pow(progress, 1.8)
+			_place_spray_streak(
+				node,
+				velocity,
+				(element.width_scale as float) * maxf(0.2, taper),
+				(element.length_scale as float) * maxf(0.12, taper)
+			)
+		elif kind == "burst":
+			var burst_scale := element.base_scale as Vector3
+			node.scale = burst_scale * lerpf(1.2, 0.12, progress)
+		else:
+			var droplet_scale := element.base_scale as Vector3
+			var shrink := lerpf(1.0, 0.35, progress * progress)
+			node.scale = droplet_scale * shrink
+
+		element.age = age
+		element.velocity = velocity
+		_active_spray_elements[index] = element
+
+
+func _random_spray_direction(forward: Vector3, spread: float) -> Vector3:
+	var safe_forward := forward.normalized()
+	if safe_forward.is_zero_approx():
+		safe_forward = Vector3.FORWARD
+	var up_hint := (
+		Vector3.RIGHT
+		if absf(safe_forward.dot(Vector3.UP)) > 0.92
+		else Vector3.UP
+	)
+	var right := up_hint.cross(safe_forward).normalized()
+	var up := safe_forward.cross(right).normalized()
+	var lateral := (
+		right * randf_range(-spread, spread)
+		+ up * randf_range(-spread * 0.72, spread * 0.72)
+	)
+	return (safe_forward + lateral).normalized()
+
+
+func _random_spray_offset(forward: Vector3, radius: float) -> Vector3:
+	var safe_forward := forward.normalized()
+	if safe_forward.is_zero_approx():
+		safe_forward = Vector3.FORWARD
+	var up_hint := (
+		Vector3.RIGHT
+		if absf(safe_forward.dot(Vector3.UP)) > 0.92
+		else Vector3.UP
+	)
+	var right := up_hint.cross(safe_forward).normalized()
+	var up := safe_forward.cross(right).normalized()
+	return (
+		right * randf_range(-radius, radius)
+		+ up * randf_range(-radius, radius)
+		+ safe_forward * randf_range(0.0, radius * 0.65)
+	)
+
+
+func _place_spray_streak(
+	streak: MeshInstance3D,
+	velocity: Vector3,
+	width_scale: float,
+	length_scale: float
+) -> void:
+	var forward := velocity.normalized()
+	if forward.is_zero_approx():
+		forward = Vector3.FORWARD
+	var basis := _basis_from_forward(forward)
+	streak.transform = Transform3D(
+		basis.scaled(Vector3(width_scale, width_scale, length_scale)),
+		streak.position
+	)
+
+
+func _basis_from_forward(forward: Vector3) -> Basis:
+	var safe_forward := forward.normalized()
+	if safe_forward.is_zero_approx():
+		safe_forward = Vector3.FORWARD
+	var up_hint := (
+		Vector3.RIGHT
+		if absf(safe_forward.dot(Vector3.UP)) > 0.96
+		else Vector3.UP
+	)
+	var right := up_hint.cross(safe_forward).normalized()
+	var up := safe_forward.cross(right).normalized()
+	return Basis(right, up, safe_forward)
 
 
 func _create_metal_sparks(hit_normal: Vector3) -> void:
@@ -539,19 +744,27 @@ func _create_wound_mark(
 	hit_normal: Vector3,
 	hit_collider: Node3D
 ) -> void:
+	var is_body_hit := _is_body_vfx_target(hit_collider)
+	var mark_size := wound_size * randf_range(0.85, 1.2)
+	var bullet_size := wound_size * 0.32
+	var wound_tint := Color(0.38, 0.008, 0.01, 0.96)
+	if is_body_hit:
+		mark_size = wound_size * randf_range(0.48, 0.72)
+		bullet_size = wound_size * 0.16
+		wound_tint = Color(0.22, 0.0015, 0.003, 0.98)
 	var wound := _create_textured_mark(
 		BLOOD_WOUND_TEXTURES.pick_random(),
 		hit_position,
 		hit_normal,
-		wound_size * randf_range(0.85, 1.2),
-		Color(0.38, 0.008, 0.01, 0.96)
+		mark_size,
+		wound_tint
 	)
 	_attach_mark(wound, hit_collider)
 	_create_bullet_hole(
 		hit_position + hit_normal.normalized() * 0.002,
 		hit_normal,
 		hit_collider,
-		wound_size * 0.32
+		bullet_size
 	)
 
 
@@ -678,6 +891,15 @@ func _find_vfx_owner(target: Node3D) -> Node3D:
 			return current
 		current = current.get_parent() as Node3D
 	return target
+
+
+func _is_body_vfx_target(target: Node3D) -> bool:
+	var owner := _find_vfx_owner(target)
+	return (
+		owner != null
+		and owner.has_method("create_vfx_attachment")
+		and owner.has_method("snap_vfx_position_to_body")
+	)
 
 
 func _get_collision_exclusions(target: Node3D) -> Array[RID]:

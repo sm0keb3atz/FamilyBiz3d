@@ -41,10 +41,12 @@ func _run() -> void:
 	var signal_root := Node3D.new()
 	root.add_child(signal_root)
 	var stop_controller := TrafficSignalController3D.new()
+	stop_controller.name = "TrafficSignalController3D"
 	signal_root.add_child(stop_controller)
 	var stop_line := TrafficWaypoint3D.new()
 	stop_line.is_stop_line = true
 	stop_line.signal_group = &"east_west"
+	stop_line.signal_controller_path = NodePath("../TrafficSignalController3D")
 	signal_root.add_child(stop_line)
 	await process_frame
 	assert(stop_line.should_stop_for_signal())
@@ -53,6 +55,36 @@ func _run() -> void:
 	stop_controller.advance_phase_for_test()
 	assert(not stop_line.should_stop_for_signal())
 	signal_root.queue_free()
+
+	var intersection_scene := load(
+		"res://Scenes/Maps/RoadPieces/intersection.tscn"
+	) as PackedScene
+	assert(intersection_scene != null)
+	var intersection := intersection_scene.instantiate()
+	root.add_child(intersection)
+	await process_frame
+	var intersection_controller := intersection.get_node(
+		"SignalController"
+	) as TrafficSignalController3D
+	assert(intersection_controller != null)
+	for light_path in [
+		"TrafficLights/NorthSouthLightA",
+		"TrafficLights/NorthSouthLightB",
+		"TrafficLights/EastWestLightA",
+		"TrafficLights/EastWestLightB",
+	]:
+		var light := intersection.get_node(light_path) as TrafficSignalVisual3D
+		assert(light != null)
+		assert(light.get_signal_controller() == intersection_controller)
+	assert(
+		(intersection.get_node("TrafficLights/NorthSouthLightA") as TrafficSignalVisual3D)
+		.get_active_state() == TrafficSignalController3D.SignalState.GREEN
+	)
+	assert(
+		(intersection.get_node("TrafficLights/EastWestLightA") as TrafficSignalVisual3D)
+		.get_active_state() == TrafficSignalController3D.SignalState.RED
+	)
+	intersection.queue_free()
 
 	var world_scene := load(
 		"res://Scenes/Maps/World/world.tscn"

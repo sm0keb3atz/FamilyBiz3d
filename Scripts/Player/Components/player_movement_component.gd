@@ -175,6 +175,25 @@ func is_sprinting() -> bool:
 	return _is_sprinting
 
 
+func stop_immediately() -> void:
+	_move_input = Vector2.ZERO
+	_is_aiming = false
+	_is_sprinting = false
+	body.velocity.x = 0.0
+	body.velocity.z = 0.0
+	if body.is_on_floor():
+		body.velocity.y = 0.0
+	animation_component.update_animation(
+		0.0,
+		Vector2.ZERO,
+		false,
+		_is_crouching,
+		camera_component.get_pitch(),
+		walk_speed,
+		run_speed
+	)
+
+
 func get_horizontal_speed() -> float:
 	return Vector2(body.velocity.x, body.velocity.z).length()
 

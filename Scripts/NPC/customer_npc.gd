@@ -9,12 +9,18 @@ enum State {
 	PANICKING,
 }
 
+const GIRLFRIEND_FOLLOWING := &"FOLLOWING"
+const GIRLFRIEND_HOME := &"HOME"
+
 const EVENT_SOLICITED := &"solicited"
 const EVENT_REACHED_PLAYER := &"reached_player"
 const EVENT_RETURN_TO_ROUTE := &"return_to_route"
 const EVENT_RESUMED_ROUTE := &"resumed_route"
 const EVENT_GUNSHOT_HEARD := &"gunshot_heard"
 const EVENT_PANIC_FINISHED := &"panic_finished"
+const CUSTOMER_OUTLINE_SHADER := preload(
+	"res://Assets/VFX/Shaders/target_lock_outline.gdshader"
+)
 
 @export_range(0.5, 5.0, 0.1) var player_stop_distance := 1.6
 @export_range(0.5, 10.0, 0.1) var route_stop_distance := 0.75
@@ -40,6 +46,12 @@ const EVENT_PANIC_FINISHED := &"panic_finished"
 @export_range(0.5, 30.0, 0.5) var panic_minimum_duration := 4.0
 @export_range(1.0, 60.0, 0.5) var panic_maximum_duration := 12.0
 
+@export_category("Solicitation Outline")
+@export var solicitation_outline_color := Color(1.0, 0.78, 0.18, 1.0)
+@export_range(0.0, 0.3, 0.005) var solicitation_outline_thickness := 0.028
+@export_range(0.0, 4.0, 0.05) var solicitation_outline_energy := 1.35
+@export_range(0.0, 1.0, 0.05) var solicitation_outline_transparency := 0.9
+
 @onready var hsm := $LimboHSM as LimboHSM
 @onready var roaming_state := $LimboHSM/Roaming as LimboState
 @onready var approaching_state := $LimboHSM/Approaching as LimboState
@@ -54,6 +66,10 @@ const EVENT_PANIC_FINISHED := &"panic_finished"
 var product_wanted: ProductDefinition:
 	get:
 		return role_component.product_wanted
+
+var amount_wanted: int:
+	get:
+		return role_component.amount_wanted
 
 var _state := State.ROAMING
 var _home_position := Vector3.ZERO
@@ -82,6 +98,14 @@ var _panic_source_position := Vector3.ZERO
 var _cached_route_target_position := Vector3.ZERO
 var _cached_return_position := Vector3.ZERO
 var _departure_turn_remaining := 0.0
+var _solicitation_outline_material: ShaderMaterial
+var _solicitation_outline_overlays: Dictionary[int, Array] = {}
+var _girlfriend_roster: PlayerGirlfriendComponent
+var _girlfriend_player: CharacterBody3D
+var _girlfriend_status := &""
+var _girlfriend_follow_slot := 0
+var _girlfriend_repath_remaining := 0.0
+var _civilian_name := "Woman"
 
 
 func _ready() -> void:
@@ -92,9 +116,10 @@ func _ready() -> void:
 	_base_walk_animation_speed_scale = walk_animation_speed_scale
 	_roaming_move_speed = move_speed
 	_roaming_animation_speed_scale = walk_animation_speed_scale
-	appearance_component.randomize_appearance(&"civilian")
+	appearance_component.randomize_civilian_appearance(_random)
 	role_component.initialize(self)
 	role_component.activate()
+	_initialize_solicitation_outline()
 	navigation_agent.path_desired_distance = 0.3
 	navigation_agent.target_desired_distance = route_stop_distance
 	navigation_agent.max_speed = move_speed
@@ -103,6 +128,10 @@ func _ready() -> void:
 
 func can_respond_to_solicitation() -> bool:
 	return role_component.can_respond_to_solicitation()
+
+
+func can_player_fill_order(player: CharacterBody3D) -> bool:
+	return role_component.can_player_fill_order(player)
 
 
 func respond_to_solicitation(player: CharacterBody3D) -> bool:
@@ -142,19 +171,171 @@ func finish_customer_trade() -> void:
 
 
 func can_interact(player: CharacterBody3D) -> bool:
+	if can_receive_gift(player):
+		return true
 	return role_component.can_interact(player)
 
 
 func get_interaction_prompt(player: CharacterBody3D) -> String:
+	if can_receive_gift(player):
+		return "E - Give money to %s" % _civilian_name
 	return role_component.get_interaction_prompt(player)
 
 
 func interact(player: CharacterBody3D) -> void:
+	if can_receive_gift(player):
+		var gift_menu := player.get_node_or_null("GirlfriendGiftMenu")
+		if gift_menu != null and gift_menu.has_method("open_for"):
+			gift_menu.call("open_for", self)
+		return
 	role_component.interact(player)
 
 
+func can_receive_gift(player: CharacterBody3D) -> bool:
+	return _girlfriend_status == GIRLFRIEND_FOLLOWING and player == _girlfriend_player and _girlfriend_roster != null and not is_defeated()
+
+
 func get_state_name() -> String:
+	if not _girlfriend_status.is_empty():
+		return String(_girlfriend_status)
 	return State.keys()[_state]
+
+
+func get_customer_level() -> int:
+	return role_component.customer_level
+
+
+func get_civilian_name() -> String:
+	return _civilian_name
+
+
+func is_female_civilian() -> bool:
+	return appearance_component.get_body_variant() == PlayerAppearanceComponent.BODY_VARIANT_FEMALE
+
+
+func is_recruited_girlfriend() -> bool:
+	return _girlfriend_roster != null
+
+
+func can_attempt_girlfriend_recruitment(player: CharacterBody3D) -> bool:
+	return player != null and _pool_active and not is_defeated() and _state == State.ROAMING and _girlfriend_roster == null and is_female_civilian() and player.get_node_or_null("Components/GirlfriendComponent") is PlayerGirlfriendComponent
+
+
+func attempt_girlfriend_recruitment(player: CharacterBody3D) -> void:
+	var roster := player.get_node_or_null("Components/GirlfriendComponent") as PlayerGirlfriendComponent
+	var hud := player.get_node_or_null("PlayerHUD") as PlayerHUD
+	if roster == null:
+		return
+	var required := roster.get_aura_requirement(get_customer_level())
+	if roster.get_current_aura() < required:
+		if hud != null:
+			hud.show_feedback("She rejected you. Level %d requires %d Aura." % [get_customer_level(), required])
+		return
+	roster.recruit(self)
+
+
+func begin_girlfriend_following(player: CharacterBody3D, roster: PlayerGirlfriendComponent, follow_slot: int) -> void:
+	_girlfriend_player = player
+	_girlfriend_roster = roster
+	_girlfriend_follow_slot = follow_slot
+	_girlfriend_status = GIRLFRIEND_FOLLOWING
+	_civilian_name = str(roster.get_roster()[follow_slot]["name"])
+	hsm.set_active(false)
+	role_component.deactivate()
+	add_to_group(&"girlfriend_npc")
+	add_to_group(&"interactable")
+	set_physics_process(true)
+
+
+func set_girlfriend_follow_slot(slot: int) -> void:
+	_girlfriend_follow_slot = maxi(slot, 0)
+
+
+func send_girlfriend_home() -> void:
+	_girlfriend_status = GIRLFRIEND_HOME
+	_girlfriend_player = null
+	move_speed = _roaming_move_speed
+	navigation_agent.max_speed = move_speed
+	remove_from_group(&"interactable")
+	hsm.set_active(true)
+	role_component.activate()
+
+
+func call_girlfriend(player: CharacterBody3D, follow_slot: int) -> void:
+	_girlfriend_player = player
+	_girlfriend_follow_slot = follow_slot
+	_girlfriend_status = GIRLFRIEND_FOLLOWING
+	hsm.set_active(false)
+	role_component.deactivate()
+	add_to_group(&"interactable")
+	var side := -1.0 if follow_slot % 2 == 0 else 1.0
+	var spawn_position := player.global_position + player.global_basis.z * 8.0 + player.global_basis.x * side * (2.0 + float(follow_slot / 2))
+	var navigation_map := navigation_agent.get_navigation_map()
+	if navigation_map.is_valid():
+		spawn_position = NavigationServer3D.map_get_closest_point(navigation_map, spawn_position)
+	global_position = spawn_position
+	velocity = Vector3.ZERO
+	navigation_agent.set_velocity_forced(Vector3.ZERO)
+
+
+func end_girlfriend_relationship() -> void:
+	_girlfriend_roster = null
+	_girlfriend_player = null
+	_girlfriend_status = &""
+	move_speed = _roaming_move_speed
+	navigation_agent.max_speed = move_speed
+	remove_from_group(&"girlfriend_npc")
+	remove_from_group(&"interactable")
+	hsm.set_active(true)
+	role_component.activate()
+
+
+func _physics_process(delta: float) -> void:
+	if _girlfriend_status != GIRLFRIEND_FOLLOWING:
+		return
+	if not is_instance_valid(_girlfriend_player) or is_defeated():
+		stop_moving(delta)
+		return
+	var player_movement := _girlfriend_player.get_node_or_null("Components/MovementComponent") as PlayerMovementComponent
+	var sprinting := player_movement != null and player_movement.is_sprinting()
+	move_speed = player_movement.run_speed if sprinting else _roaming_move_speed
+	navigation_agent.max_speed = move_speed
+	var row := float(_girlfriend_follow_slot / 2)
+	var side := -1.0 if _girlfriend_follow_slot % 2 == 0 else 1.0
+	var target := _girlfriend_player.global_position + _girlfriend_player.global_basis.z * (2.2 + row * 1.2) + _girlfriend_player.global_basis.x * side * (1.0 + row * 0.4)
+	_girlfriend_repath_remaining = maxf(_girlfriend_repath_remaining - delta, 0.0)
+	if _girlfriend_repath_remaining <= 0.0:
+		set_navigation_target(target)
+		_girlfriend_repath_remaining = 0.25
+	if global_position.distance_squared_to(target) > 1.4 * 1.4:
+		advance_navigation(delta)
+	else:
+		stop_moving(delta)
+
+
+func apply_customer_level_style(level: int) -> void:
+	match clampi(level, 1, 4):
+		1:
+			solicitation_outline_color = Color(0.18, 1.0, 0.38, 1.0)
+		2:
+			solicitation_outline_color = Color(0.18, 0.55, 1.0, 1.0)
+		3:
+			solicitation_outline_color = Color(0.72, 0.28, 1.0, 1.0)
+		4:
+			solicitation_outline_color = Color(1.0, 0.78, 0.18, 1.0)
+	if _solicitation_outline_material != null:
+		_solicitation_outline_material.set_shader_parameter(
+			&"outline_color",
+			Vector3(
+				solicitation_outline_color.r,
+				solicitation_outline_color.g,
+				solicitation_outline_color.b
+			)
+		)
+
+
+func get_solicitation_outline_mesh_count() -> int:
+	return _solicitation_outline_overlays.size()
 
 
 func assign_route(
@@ -183,6 +364,7 @@ func prepare_for_pool_spawn(
 	reset_for_reuse()
 	_pool_active = true
 	_random.seed = random_seed
+	appearance_component.randomize_civilian_appearance(_random)
 	_apply_crowd_variation()
 	_target_player = null
 	_solicitation_cooldown = 0.0
@@ -215,6 +397,7 @@ func prepare_for_pool_recycle() -> void:
 	_cached_route_target_position = Vector3.ZERO
 	_cached_return_position = Vector3.ZERO
 	role_component.deactivate()
+	_clear_solicitation_outline()
 	body_collision.set_deferred("disabled", true)
 	visible = false
 	process_mode = Node.PROCESS_MODE_DISABLED
@@ -223,6 +406,7 @@ func prepare_for_pool_recycle() -> void:
 func can_be_recycled() -> bool:
 	return (
 		_pool_active
+		and _girlfriend_roster == null
 		and not is_defeated()
 		and _network != null
 		and _state == State.ROAMING
@@ -316,6 +500,7 @@ func _limbo_state_enter(state_id: int) -> void:
 	_state_elapsed = 0.0
 	match _state:
 		State.ROAMING:
+			_clear_solicitation_outline()
 			_target_player = null
 			_departure_turn_remaining = 0.0
 			navigation_agent.target_desired_distance = route_stop_distance
@@ -328,16 +513,19 @@ func _limbo_state_enter(state_id: int) -> void:
 				set_navigation_avoidance_enabled(false)
 				clear_navigation_target()
 		State.APPROACHING:
+			_apply_solicitation_outline()
 			navigation_agent.target_desired_distance = player_stop_distance
 			_repath_remaining = 0.0
 			_last_player_path_target = Vector3.INF
 			_refresh_navigation_avoidance()
 			_update_player_navigation_target(true)
 		State.WAITING:
+			_apply_solicitation_outline()
 			_waiting_remaining = waiting_duration
 			set_navigation_avoidance_enabled(false)
 			clear_navigation_target()
 		State.RETURNING:
+			_clear_solicitation_outline()
 			_solicitation_cooldown = cooldown_duration
 			navigation_agent.target_desired_distance = route_stop_distance
 			_cached_return_position = _get_return_position()
@@ -346,6 +534,7 @@ func _limbo_state_enter(state_id: int) -> void:
 			set_navigation_avoidance_enabled(false)
 			set_local_obstacle_steering_enabled(false)
 		State.PANICKING:
+			_clear_solicitation_outline()
 			_solicitation_cooldown = cooldown_duration
 			navigation_agent.target_desired_distance = route_stop_distance
 			move_speed = panic_move_speed
@@ -378,6 +567,8 @@ func _limbo_state_update(state_id: int, delta: float) -> void:
 
 
 func _limbo_state_exit(state_id: int) -> void:
+	if state_id in [State.APPROACHING, State.WAITING]:
+		_clear_solicitation_outline()
 	if state_id != State.PANICKING:
 		return
 	move_speed = _roaming_move_speed
@@ -761,6 +952,82 @@ func _finish_returning() -> void:
 	hsm.dispatch(EVENT_RESUMED_ROUTE)
 
 
+func _initialize_solicitation_outline() -> void:
+	_solicitation_outline_material = ShaderMaterial.new()
+	_solicitation_outline_material.shader = CUSTOMER_OUTLINE_SHADER
+	apply_customer_level_style(role_component.customer_level)
+	_solicitation_outline_material.set_shader_parameter(
+		&"thickness",
+		solicitation_outline_thickness
+	)
+	_solicitation_outline_material.set_shader_parameter(
+		&"outline_energy",
+		solicitation_outline_energy
+	)
+	_solicitation_outline_material.set_shader_parameter(
+		&"outline_transparency",
+		solicitation_outline_transparency
+	)
+	_solicitation_outline_material.set_shader_parameter(
+		&"silhouette_start",
+		0.18
+	)
+	_solicitation_outline_material.set_shader_parameter(
+		&"silhouette_end",
+		0.42
+	)
+	_solicitation_outline_material.set_shader_parameter(&"merge_group", true)
+	_solicitation_outline_material.set_shader_parameter(
+		&"merge_depth_range",
+		10.0
+	)
+
+
+func _apply_solicitation_outline() -> void:
+	if _solicitation_outline_material == null:
+		return
+	_solicitation_outline_material.set_shader_parameter(
+		&"outline_transparency",
+		solicitation_outline_transparency
+	)
+	var root := get_node_or_null("Visual") as Node
+	if root == null:
+		root = self
+	for child in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh := child as MeshInstance3D
+		if mesh == null or not mesh.visible:
+			continue
+		var id := mesh.get_instance_id()
+		if _solicitation_outline_overlays.has(id):
+			continue
+		_solicitation_outline_overlays[id] = [
+			mesh,
+			mesh.material_overlay,
+			mesh.extra_cull_margin,
+		]
+		mesh.material_overlay = _solicitation_outline_material
+		mesh.extra_cull_margin = maxf(
+			mesh.extra_cull_margin,
+			solicitation_outline_thickness * 4.0
+		)
+
+
+func _clear_solicitation_outline() -> void:
+	if _solicitation_outline_material != null:
+		_solicitation_outline_material.set_shader_parameter(
+			&"outline_transparency",
+			0.0
+		)
+	for item in _solicitation_outline_overlays.values():
+		var mesh_object: Variant = item[0]
+		if is_instance_valid(mesh_object) and mesh_object is MeshInstance3D:
+			var mesh := mesh_object as MeshInstance3D
+			if mesh.material_overlay == _solicitation_outline_material:
+				mesh.material_overlay = item[1] as Material
+				mesh.extra_cull_margin = float(item[2])
+	_solicitation_outline_overlays.clear()
+
+
 func _face_target(target: Vector3, delta: float) -> void:
 	var direction := target - global_position
 	direction.y = 0.0
@@ -778,8 +1045,16 @@ func _on_defeated(
 	hit_position: Vector3,
 	hit_direction: Vector3
 ) -> void:
+	if _girlfriend_roster != null:
+		var roster := _girlfriend_roster
+		_girlfriend_roster = null
+		_girlfriend_player = null
+		_girlfriend_status = &""
+		remove_from_group(&"girlfriend_npc")
+		roster.remove_girlfriend_due_to_death(self)
 	_pool_active = false
 	role_component.deactivate()
+	_clear_solicitation_outline()
 	if hsm != null:
 		hsm.set_active(false)
 	super(source, hit_position, hit_direction)

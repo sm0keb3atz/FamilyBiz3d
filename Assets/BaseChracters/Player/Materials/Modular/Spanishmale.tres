@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bpc1q65s2jy5a"]
+
+[ext_resource type="Texture2D" uid="uid://bby2j6o5rup2v" path="res://Assets/BaseChracters/Player/Materials/Modular/spanishmalebody (1)_spanishmalebody_glb_basecolor.jpg" id="1_obq2r"]
+
+[resource]
+albedo_texture = ExtResource("1_obq2r")

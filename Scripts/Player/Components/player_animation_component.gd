@@ -4,6 +4,14 @@ extends Node
 const AIM_ANIMATION := &"PistolAim"
 const IDLE_ANIMATION := &"Idle"
 const RELOAD_ANIMATION := &"Pistol_Reload"
+const FIRE_ANIMATION := &"PistolShoot"
+const RIFLE_FIRE_FALLBACKS := [
+	&"RifleShoot",
+	&"RifleFire",
+	&"Rifle_Shoot",
+	&"Rifle_Fire",
+]
+const FIRE_ANIMATION_RESOURCE := preload("res://Assets/Animations/Pistol_Shoot.anim")
 const HIPS_TRACK := NodePath("%GeneralSkeleton:Hips")
 const CHARACTER_SCALE := 1.75
 const SPINE_TRACK := NodePath("%GeneralSkeleton:Spine")
@@ -34,6 +42,21 @@ const RELOAD_EXCLUDED_BONES := [
 	&"RightLowerLeg",
 	&"RightFoot",
 	&"RightToes",
+]
+const FIRE_ANIMATION_BONES := [
+	&"Hips",
+	&"Chest",
+	&"UpperChest",
+	&"Neck",
+	&"Head",
+	&"LeftShoulder",
+	&"LeftUpperArm",
+	&"LeftLowerArm",
+	&"LeftHand",
+	&"RightShoulder",
+	&"RightUpperArm",
+	&"RightLowerArm",
+	&"RightHand",
 ]
 
 @export_category("Scene References")
@@ -75,6 +98,12 @@ const RELOAD_EXCLUDED_BONES := [
 )
 @export var reload_speed_parameter := (
 	"parameters/Locomotion/ReloadSpeed/scale"
+)
+@export var fire_request_parameter := (
+	"parameters/Locomotion/FireOneShot/request"
+)
+@export var carry_blend_parameter := (
+	"parameters/Locomotion/CarryBlend/blend_amount"
 )
 @export_range(0.1, 3.0, 0.05) var aim_movement_animation_speed_scale := 1.35
 @export_range(0.1, 30.0, 0.1) var aim_direction_blend_speed := 8.0
@@ -126,6 +155,13 @@ var _reload_remaining := 0.0
 var _is_aiming := false
 var _is_crouching := false
 var _current_crouch_blend := 0.0
+var _target_carry_blend := 0.0
+var _current_carry_blend := 0.0
+var _current_weapon_definition: WeaponDefinition
+var _current_carry_animation: StringName
+var _current_aim_animation := AIM_ANIMATION
+var _current_fire_animation := FIRE_ANIMATION
+var _current_reload_animation := RELOAD_ANIMATION
 
 
 func _ready() -> void:
@@ -133,6 +169,8 @@ func _ready() -> void:
 	armature.scale = Vector3.ONE * CHARACTER_SCALE
 	_prepare_runtime_animations()
 	_setup_crouch_animation_nodes()
+	_setup_carry_animation_node()
+	_setup_fire_animation_node()
 	animation_tree.active = true
 	_cache_parameters()
 	_cache_vertical_aim_bones()
@@ -166,6 +204,11 @@ func _process(delta: float) -> void:
 		1.0 if _is_crouching else 0.0,
 		aim_pose_blend_speed * delta
 	)
+	_current_carry_blend = move_toward(
+		_current_carry_blend,
+		_target_carry_blend,
+		aim_pose_blend_speed * delta
+	)
 	_recoil_pitch = move_toward(
 		_recoil_pitch,
 		0.0,
@@ -176,6 +219,7 @@ func _process(delta: float) -> void:
 	_set_if_available(aim_blend_parameter, _current_aim_blend)
 	_set_if_available(aim_movement_blend_parameter, _current_aim_blend)
 	_set_if_available("parameters/Locomotion/CrouchBlend/blend_amount", _current_crouch_blend)
+	_set_if_available(carry_blend_parameter, _current_carry_blend)
 	if animation_tree.active:
 		_apply_vertical_aim()
 
@@ -192,7 +236,17 @@ func update_animation(
 	_is_crouching = is_crouching
 	var effective_aiming := is_aiming
 	_is_aiming = effective_aiming
+	var is_sprinting := horizontal_speed > walk_speed + 0.01
 	_target_aim_blend = 1.0 if effective_aiming else 0.0
+	_target_carry_blend = (
+		1.0
+		if (
+			not effective_aiming
+			and not is_sprinting
+			and not _is_animation_name_empty(_current_carry_animation)
+		)
+		else 0.0
+	)
 	_target_aim_pitch = aim_pitch * vertical_aim_scale
 	_target_aim_direction = (
 		aim_blend_direction
@@ -214,22 +268,28 @@ func update_animation(
 	)
 
 
+func trigger_weapon_fire(definition: WeaponDefinition) -> void:
+	set_weapon_definition(definition)
+	if not _is_aiming:
+		return
+	_recoil_pitch = -deg_to_rad(recoil_angle_degrees)
+
+
 func trigger_recoil() -> void:
-	if _is_aiming:
-		_recoil_pitch = -deg_to_rad(recoil_angle_degrees)
+	trigger_weapon_fire(_current_weapon_definition)
 
 
 func trigger_reload(duration: float) -> bool:
 	if (
 		_reload_remaining > 0.0
-		or not animation_player.has_animation(RELOAD_ANIMATION)
+		or not animation_player.has_animation(_current_reload_animation)
 		or not _available_parameters.has(reload_request_parameter)
 	):
 		return false
 
 	_reload_remaining = maxf(duration, 0.01)
 	_recoil_pitch = 0.0
-	var reload_animation := animation_player.get_animation(RELOAD_ANIMATION)
+	var reload_animation := animation_player.get_animation(_current_reload_animation)
 	_set_if_available(
 		reload_speed_parameter,
 		reload_animation.length / _reload_remaining
@@ -250,6 +310,26 @@ func cancel_reload() -> void:
 		reload_request_parameter,
 		AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT
 	)
+
+
+func set_weapon_definition(definition: WeaponDefinition) -> void:
+	if _current_weapon_definition == definition:
+		return
+	_current_weapon_definition = definition
+	if definition == null:
+		_current_carry_animation = &""
+		_current_aim_animation = AIM_ANIMATION
+		_current_fire_animation = FIRE_ANIMATION
+		_current_reload_animation = RELOAD_ANIMATION
+	else:
+		_current_carry_animation = _resolve_animation(definition.carry_animation, &"")
+		_current_aim_animation = _resolve_animation(definition.aim_animation, AIM_ANIMATION)
+		_current_fire_animation = _resolve_fire_animation(definition.fire_animation)
+		_current_reload_animation = _resolve_animation(
+			definition.reload_animation,
+			RELOAD_ANIMATION
+		)
+	_apply_weapon_animation_profile()
 
 
 func _update_locomotion(
@@ -378,6 +458,7 @@ func _reset_parameters() -> void:
 	_set_if_available(aim_direction_parameter, Vector2.ZERO)
 	_set_if_available(aim_movement_speed_parameter, 1.0)
 	_set_if_available(reload_speed_parameter, 1.0)
+	_set_if_available(carry_blend_parameter, 0.0)
 	_set_if_available("parameters/Locomotion/CrouchLocomotion/blend_position", idle_blend_position)
 	_set_if_available("parameters/Locomotion/CrouchLocomotionSpeed/scale", 1.0)
 	_set_if_available("parameters/Locomotion/CrouchBlend/blend_amount", 0.0)
@@ -386,6 +467,75 @@ func _reset_parameters() -> void:
 func _set_if_available(parameter_path: String, value: Variant) -> void:
 	if _available_parameters.has(parameter_path):
 		animation_tree.set(parameter_path, value)
+
+
+func _resolve_animation(
+	preferred_animation: StringName,
+	fallback_animation: StringName
+) -> StringName:
+	if (
+		not _is_animation_name_empty(preferred_animation)
+		and animation_player.has_animation(preferred_animation)
+	):
+		return preferred_animation
+	if (
+		not _is_animation_name_empty(fallback_animation)
+		and animation_player.has_animation(fallback_animation)
+	):
+		return fallback_animation
+	return &""
+
+
+func _resolve_fire_animation(preferred_animation: StringName) -> StringName:
+	if _is_animation_name_empty(preferred_animation):
+		return &""
+	if (
+		animation_player.has_animation(preferred_animation)
+	):
+		return preferred_animation
+	for fallback in RIFLE_FIRE_FALLBACKS:
+		if animation_player.has_animation(fallback):
+			return fallback
+	if animation_player.has_animation(FIRE_ANIMATION):
+		return FIRE_ANIMATION
+	return &""
+
+
+func _apply_weapon_animation_profile() -> void:
+	var locomotion_tree := _get_locomotion_tree()
+	if locomotion_tree == null:
+		return
+	_set_animation_node(
+		locomotion_tree,
+		&"CarryPose",
+		_current_carry_animation if not _is_animation_name_empty(_current_carry_animation) else IDLE_ANIMATION
+	)
+	_set_animation_node(locomotion_tree, &"AimPose", _current_aim_animation)
+	_set_animation_node(locomotion_tree, &"ReloadAnimation", _current_reload_animation)
+	_set_animation_node(locomotion_tree, &"FireAnimation", _current_fire_animation)
+
+
+func _set_animation_node(
+	blend_tree: AnimationNodeBlendTree,
+	node_name: StringName,
+	animation_name: StringName
+) -> void:
+	if _is_animation_name_empty(animation_name) or not animation_player.has_animation(animation_name):
+		return
+	var animation_node := blend_tree.get_node(node_name) as AnimationNodeAnimation
+	if animation_node != null:
+		animation_node.animation = animation_name
+
+
+func _is_animation_name_empty(animation_name: StringName) -> bool:
+	return String(animation_name).is_empty()
+
+
+func _get_locomotion_tree() -> AnimationNodeBlendTree:
+	var state_machine := animation_tree.tree_root as AnimationNodeStateMachine
+	if state_machine == null:
+		return null
+	return state_machine.get_node(&"Locomotion") as AnimationNodeBlendTree
 
 
 func _prepare_runtime_animations() -> void:
@@ -454,11 +604,18 @@ func _prepare_runtime_animations() -> void:
 		runtime_library.add_animation(strafe_animation_name, aligned_strafe)
 
 	if source_library.has_animation(RELOAD_ANIMATION):
-		var aligned_reload := _create_upper_body_reload(
+		var aligned_reload := _create_upper_body_weapon_animation(
 			source_library.get_animation(RELOAD_ANIMATION)
 		)
 		runtime_library.remove_animation(RELOAD_ANIMATION)
 		runtime_library.add_animation(RELOAD_ANIMATION, aligned_reload)
+
+	if FIRE_ANIMATION_RESOURCE != null:
+		var fire_animation := _create_fire_animation(
+			FIRE_ANIMATION_RESOURCE,
+			runtime_library.get_animation(AIM_ANIMATION)
+		)
+		runtime_library.add_animation(FIRE_ANIMATION, fire_animation)
 
 	for looping_animation_name in LOOPING_ANIMATIONS:
 		if not runtime_library.has_animation(looping_animation_name):
@@ -487,7 +644,7 @@ func _prepare_runtime_animations() -> void:
 	animation_player.add_animation_library(&"", runtime_library)
 
 
-func _create_upper_body_reload(source_animation: Animation) -> Animation:
+func _create_upper_body_weapon_animation(source_animation: Animation) -> Animation:
 	var aligned_reload := source_animation.duplicate(true) as Animation
 	for track_index in range(
 		aligned_reload.get_track_count() - 1,
@@ -512,6 +669,126 @@ func _create_upper_body_reload(source_animation: Animation) -> Animation:
 		if remove_track:
 			aligned_reload.remove_track(track_index)
 	return aligned_reload
+
+
+func _create_fire_animation(
+	source_animation: Animation,
+	aim_animation: Animation
+) -> Animation:
+	var fire_animation := source_animation.duplicate(true) as Animation
+	for track_index in range(fire_animation.get_track_count() - 1, -1, -1):
+		var track_type: int = fire_animation.track_get_type(track_index)
+		if (
+			track_type != Animation.TYPE_POSITION_3D
+			and track_type != Animation.TYPE_ROTATION_3D
+			and track_type != Animation.TYPE_SCALE_3D
+		):
+			continue
+		var bone_name: StringName = (
+			fire_animation.track_get_path(track_index).get_subname(0)
+		)
+		if (
+			bone_name not in FIRE_ANIMATION_BONES
+			or skeleton.find_bone(bone_name) < 0
+		):
+			fire_animation.remove_track(track_index)
+	_normalize_fire_hips_to_aim(fire_animation, aim_animation)
+	_align_fire_rotations_to_aim(
+		fire_animation,
+		source_animation,
+		aim_animation
+	)
+	return fire_animation
+
+
+func _normalize_fire_hips_to_aim(
+	fire_animation: Animation,
+	aim_animation: Animation
+) -> void:
+	var fire_hips_position := fire_animation.find_track(
+		HIPS_TRACK,
+		Animation.TYPE_POSITION_3D
+	)
+	var aim_hips_position := aim_animation.find_track(
+		HIPS_TRACK,
+		Animation.TYPE_POSITION_3D
+	)
+	if fire_hips_position >= 0 and aim_hips_position >= 0:
+		var aim_position := aim_animation.position_track_interpolate(
+			aim_hips_position,
+			0.0
+		)
+		for key_index in fire_animation.track_get_key_count(fire_hips_position):
+			fire_animation.track_set_key_value(
+				fire_hips_position,
+				key_index,
+				aim_position
+			)
+
+
+func _align_fire_rotations_to_aim(
+	fire_animation: Animation,
+	source_animation: Animation,
+	aim_animation: Animation
+) -> void:
+	for track_index in range(fire_animation.get_track_count() - 1, -1, -1):
+		if fire_animation.track_get_type(track_index) != Animation.TYPE_ROTATION_3D:
+			continue
+		var track_path: NodePath = fire_animation.track_get_path(track_index)
+		var bone_name: StringName = track_path.get_subname(0)
+		if bone_name == &"Hips":
+			continue
+		var source_track: int = source_animation.find_track(
+			track_path,
+			Animation.TYPE_ROTATION_3D
+		)
+		var aim_track: int = aim_animation.find_track(
+			track_path,
+			Animation.TYPE_ROTATION_3D
+		)
+		if source_track < 0 or aim_track < 0:
+			fire_animation.remove_track(track_index)
+			continue
+		var source_base: Quaternion = source_animation.rotation_track_interpolate(
+			source_track,
+			0.0
+		)
+		var aim_base: Quaternion = aim_animation.rotation_track_interpolate(
+			aim_track,
+			0.0
+		)
+		for key_index in fire_animation.track_get_key_count(track_index):
+			var source_rotation: Quaternion = (
+				fire_animation.track_get_key_value(track_index, key_index)
+			)
+			var rotation_delta: Quaternion = (
+				source_base.inverse() * source_rotation
+			)
+			fire_animation.track_set_key_value(
+				track_index,
+				key_index,
+				(aim_base * rotation_delta).normalized()
+			)
+
+	var fire_hips_rotation := fire_animation.find_track(
+		HIPS_TRACK,
+		Animation.TYPE_ROTATION_3D
+	)
+	var aim_hips_rotation := aim_animation.find_track(
+		HIPS_TRACK,
+		Animation.TYPE_ROTATION_3D
+	)
+	if fire_hips_rotation >= 0 and aim_hips_rotation >= 0:
+		var aim_rotation := aim_animation.rotation_track_interpolate(
+			aim_hips_rotation,
+			0.0
+		)
+		for key_index in fire_animation.track_get_key_count(fire_hips_rotation):
+			fire_animation.track_set_key_value(
+				fire_hips_rotation,
+				key_index,
+				aim_rotation
+			)
 
 
 func _remove_armature_scale_tracks(animation: Animation) -> void:
@@ -616,10 +893,7 @@ func _scale_hips_position_track(animation: Animation, scale_factor: float) -> vo
 
 
 func _setup_crouch_animation_nodes() -> void:
-	var state_machine := animation_tree.tree_root as AnimationNodeStateMachine
-	if not state_machine:
-		return
-	var locomotion_tree := state_machine.get_node(&"Locomotion") as AnimationNodeBlendTree
+	var locomotion_tree := _get_locomotion_tree()
 	if not locomotion_tree:
 		return
 
@@ -648,3 +922,57 @@ func _setup_crouch_animation_nodes() -> void:
 	locomotion_tree.connect_node(&"CrouchBlend", 0, &"MovementModeBlend")
 	locomotion_tree.connect_node(&"CrouchBlend", 1, &"CrouchLocomotionSpeed")
 	locomotion_tree.connect_node(&"AimBlend", 0, &"CrouchBlend")
+
+
+func _setup_carry_animation_node() -> void:
+	var locomotion_tree := _get_locomotion_tree()
+	if locomotion_tree == null:
+		return
+	if locomotion_tree.has_node(&"CarryBlend"):
+		return
+
+	locomotion_tree.disconnect_node(&"AimBlend", 0)
+
+	var carry_animation := AnimationNodeAnimation.new()
+	carry_animation.animation = IDLE_ANIMATION
+	var carry_blend := AnimationNodeBlend2.new()
+	carry_blend.filter_enabled = true
+	for bone_name in FIRE_ANIMATION_BONES:
+		carry_blend.set_filter_path(
+			NodePath("%GeneralSkeleton:" + String(bone_name)),
+			true
+		)
+
+	locomotion_tree.add_node(&"CarryPose", carry_animation)
+	locomotion_tree.add_node(&"CarryBlend", carry_blend)
+	locomotion_tree.connect_node(&"CarryBlend", 0, &"CrouchBlend")
+	locomotion_tree.connect_node(&"CarryBlend", 1, &"CarryPose")
+	locomotion_tree.connect_node(&"AimBlend", 0, &"CarryBlend")
+
+
+func _setup_fire_animation_node() -> void:
+	if not animation_player.has_animation(FIRE_ANIMATION):
+		return
+	var locomotion_tree := _get_locomotion_tree()
+	if locomotion_tree == null:
+		return
+	if locomotion_tree.has_node(&"FireOneShot"):
+		return
+
+	var fire_animation := AnimationNodeAnimation.new()
+	fire_animation.animation = FIRE_ANIMATION
+	var fire_one_shot := AnimationNodeOneShot.new()
+	fire_one_shot.fadein_time = 0.02
+	fire_one_shot.fadeout_time = 0.04
+	fire_one_shot.filter_enabled = true
+	for bone_name in FIRE_ANIMATION_BONES:
+		fire_one_shot.set_filter_path(
+			NodePath("%GeneralSkeleton:" + String(bone_name)),
+			true
+		)
+	locomotion_tree.add_node(&"FireAnimation", fire_animation)
+	locomotion_tree.add_node(&"FireOneShot", fire_one_shot)
+	locomotion_tree.disconnect_node(&"output", 0)
+	locomotion_tree.connect_node(&"FireOneShot", 0, &"ReloadOneShot")
+	locomotion_tree.connect_node(&"FireOneShot", 1, &"FireAnimation")
+	locomotion_tree.connect_node(&"output", 0, &"FireOneShot")

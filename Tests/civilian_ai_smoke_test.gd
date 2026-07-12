@@ -65,6 +65,45 @@ func _run() -> void:
 	) as Skeleton3D
 	assert(modular_skeleton.get_node("BODY_Head") is MeshInstance3D)
 	assert(
+		modular_skeleton.get_node("BODY_Female_Head")
+		is MeshInstance3D
+	)
+	assert(
+		modular_skeleton.get_node("BODY_Female_Torso")
+		is MeshInstance3D
+	)
+	customer.appearance_component.set_body_variant(
+		PlayerAppearanceComponent.BODY_VARIANT_FEMALE
+	)
+	assert(not (modular_skeleton.get_node("BODY_Head") as MeshInstance3D).visible)
+	assert(
+		(
+			modular_skeleton.get_node("BODY_Female_Head")
+			as MeshInstance3D
+		).visible
+	)
+	customer.appearance_component.set_body_variant(
+		PlayerAppearanceComponent.BODY_VARIANT_MALE
+	)
+	assert((modular_skeleton.get_node("BODY_Head") as MeshInstance3D).visible)
+	assert(
+		not (
+			modular_skeleton.get_node("BODY_Female_Head")
+			as MeshInstance3D
+		).visible
+	)
+	var appearance_random := RandomNumberGenerator.new()
+	appearance_random.seed = 99881
+	customer.appearance_component.randomize_civilian_appearance(
+		appearance_random
+	)
+	var seeded_body_variant := customer.appearance_component.get_body_variant()
+	appearance_random.seed = 99881
+	customer.appearance_component.randomize_civilian_appearance(
+		appearance_random
+	)
+	assert(customer.appearance_component.get_body_variant() == seeded_body_variant)
+	assert(
 		(
 			modular_skeleton.get_node("TOP_01_Hoodie") as MeshInstance3D
 		).visible
@@ -101,17 +140,22 @@ func _run() -> void:
 	customer.waiting_duration = 0.05
 	customer.return_timeout = 0.05
 	var saved_route_target := customer.get_route_target()
-	assert(customer.respond_to_solicitation(player))
-	assert(customer.get_state_name() == "APPROACHING")
-	await physics_frame
-	assert(customer.get_state_name() == "WAITING")
-
 	var inventory := player.get_node(
 		"Components/InventoryComponent"
 	) as PlayerInventoryComponent
-	inventory.add_product(customer.product_wanted)
+	assert(not customer.respond_to_solicitation(player))
+	inventory.add_product(customer.product_wanted, customer.amount_wanted)
+	assert(customer.respond_to_solicitation(player))
+	assert(customer.get_state_name() == "APPROACHING")
+	assert(customer.get_solicitation_outline_mesh_count() > 0)
+	await physics_frame
+	assert(customer.get_state_name() == "WAITING")
+	assert(customer.get_solicitation_outline_mesh_count() > 0)
+
+	assert(inventory.remove_product(customer.product_wanted, customer.amount_wanted))
 	customer.interact(player)
 	assert(customer.get_state_name() == "RETURNING")
+	assert(customer.get_solicitation_outline_mesh_count() == 0)
 	for _frame in range(6):
 		await physics_frame
 	assert(customer.get_state_name() == "ROAMING")
@@ -130,6 +174,7 @@ func _run() -> void:
 	assert(not customer.is_in_group("customer_npc"))
 	assert(not customer.visible)
 	assert(not customer.animation_tree.active)
+	assert(customer.get_solicitation_outline_mesh_count() == 0)
 
 	var respawn_waypoint := network.get_waypoints()[0]
 	customer.prepare_for_pool_spawn(network, respawn_waypoint, 12345)
@@ -141,12 +186,15 @@ func _run() -> void:
 
 	customer.waiting_duration = 0.05
 	player.global_position = customer.global_position + Vector3(0.5, 0.0, 0.0)
+	inventory.add_product(customer.product_wanted, customer.amount_wanted)
 	assert(customer.respond_to_solicitation(player))
 	await physics_frame
 	assert(customer.get_state_name() == "WAITING")
+	assert(customer.get_solicitation_outline_mesh_count() > 0)
 	for _frame in range(6):
 		await physics_frame
 	assert(customer.get_state_name() != "WAITING")
+	assert(customer.get_solicitation_outline_mesh_count() == 0)
 
 	print("CIVILIAN_AI_SMOKE_TEST_PASS")
 	quit(0)

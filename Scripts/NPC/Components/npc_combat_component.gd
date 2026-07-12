@@ -31,11 +31,18 @@ var _reserve := 0
 var _cooldown_remaining := 0.0
 var _reload_remaining := 0.0
 var _equipped := false
+var _fully_automatic := false
+var _fire_interval_override := -1.0
+var _weapon_socket: Node3D
+var _weapon_visual_transform := Transform3D.IDENTITY
 
 
 func initialize(owner_npc: BaseNPC) -> void:
 	npc = owner_npc
-	_weapon_model = get_node(weapon_model_path) as Node3D
+	_weapon_model = get_node_or_null(weapon_model_path) as Node3D
+	if _weapon_model != null:
+		_weapon_socket = _weapon_model.get_parent() as Node3D
+		_weapon_visual_transform = _weapon_model.transform
 	_muzzle_particles = get_node_or_null(
 		muzzle_particles_path
 	) as GPUParticles3D
@@ -53,6 +60,51 @@ func initialize(owner_npc: BaseNPC) -> void:
 		_magazine = weapon_definition.magazine_capacity
 		_reserve = weapon_definition.starting_reserve_ammo
 	set_equipped(false)
+
+
+func configure_weapon(
+	definition: WeaponDefinition,
+	fully_automatic := false,
+	fire_interval_override := -1.0
+) -> void:
+	var was_equipped := _equipped
+	weapon_definition = definition
+	_fully_automatic = fully_automatic and definition != null and definition.supports_full_auto
+	_fire_interval_override = fire_interval_override
+	_magazine = definition.magazine_capacity if definition != null else 0
+	_reserve = definition.starting_reserve_ammo if definition != null else 0
+	_cooldown_remaining = 0.0
+	_reload_remaining = 0.0
+	_replace_weapon_visual()
+	set_equipped(was_equipped)
+
+
+func get_weapon_definition() -> WeaponDefinition:
+	return weapon_definition
+
+
+func is_fully_automatic() -> bool:
+	return _fully_automatic
+
+
+func get_fire_interval() -> float:
+	if weapon_definition == null:
+		return 0.0
+	if _fire_interval_override > 0.0:
+		return _fire_interval_override
+	return (
+		weapon_definition.full_auto_fire_interval
+		if _fully_automatic
+		else weapon_definition.fire_interval
+	)
+
+
+func get_effective_gunshot_sound() -> AudioStream:
+	if gunshot_sound != null:
+		return gunshot_sound
+	if weapon_definition != null:
+		return weapon_definition.gunshot_sound
+	return null
 
 
 func _process(delta: float) -> void:
@@ -147,7 +199,7 @@ func try_fire_at(target_position: Vector3, spread_degrees: float) -> bool:
 	_spawn_tracer(origin, hit_position)
 	_play_near_miss_whiz(origin, hit_position, hit.get("collider") as Node)
 	_magazine -= 1
-	_cooldown_remaining = weapon_definition.fire_interval
+	_cooldown_remaining = get_fire_interval()
 	npc.animation_component.trigger_combat_recoil()
 	_play_gunshot()
 	if _muzzle_particles != null:
@@ -187,6 +239,35 @@ func reset_for_reuse() -> void:
 		_magazine = weapon_definition.magazine_capacity
 		_reserve = weapon_definition.starting_reserve_ammo
 	set_equipped(false)
+
+
+func _replace_weapon_visual() -> void:
+	if _weapon_socket == null:
+		return
+	if _weapon_model != null:
+		_weapon_socket.remove_child(_weapon_model)
+		_weapon_model.queue_free()
+		_weapon_model = null
+	_muzzle_particles = null
+	if weapon_definition == null or weapon_definition.visual_scene == null:
+		return
+	_weapon_model = weapon_definition.visual_scene.instantiate() as Node3D
+	if _weapon_model == null:
+		return
+	_weapon_model.name = "EquippedWeapon"
+	_weapon_model.transform = _weapon_visual_transform
+	_weapon_socket.add_child(_weapon_model)
+	_muzzle_particles = _find_muzzle_particles(_weapon_model)
+
+
+func _find_muzzle_particles(node: Node) -> GPUParticles3D:
+	if node is GPUParticles3D:
+		return node as GPUParticles3D
+	for child in node.get_children():
+		var result := _find_muzzle_particles(child)
+		if result != null:
+			return result
+	return null
 
 
 func _finish_reload() -> void:
@@ -236,10 +317,11 @@ func _apply_hit(
 
 
 func _play_gunshot() -> void:
-	if gunshot_sound == null:
+	var effective_sound := get_effective_gunshot_sound()
+	if effective_sound == null:
 		return
 	_gunshot_player.global_position = _get_muzzle_position()
-	_gunshot_player.stream = gunshot_sound
+	_gunshot_player.stream = effective_sound
 	_gunshot_player.volume_db = gunshot_volume_db
 	_gunshot_player.pitch_scale = randf_range(0.97, 1.03)
 	_gunshot_player.play()

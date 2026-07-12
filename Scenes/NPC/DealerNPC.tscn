@@ -4,6 +4,12 @@
 [ext_resource type="Script" uid="uid://cqqkx8gke75la" path="res://Scripts/NPC/dealer_npc.gd" id="2_dealer"]
 [ext_resource type="Resource" path="res://Scripts/Gameplay/Resources/test_product.tres" id="3_product"]
 [ext_resource type="Script" path="res://Scripts/NPC/Roles/dealer_role_component.gd" id="4_role"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/dealer_threat_component.gd" id="5_threat"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/npc_combat_component.gd" id="6_combat"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/dealer_combat_ai_component.gd" id="7_ai"]
+[ext_resource type="BehaviorTree" path="res://Scripts/NPC/AI/police_behavior_tree.tres" id="8_tree"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_dealer"]
 
 [node name="DealerNPC" unique_id=1638533300 instance=ExtResource("1_base")]
 script = ExtResource("2_dealer")
@@ -11,6 +17,19 @@ script = ExtResource("2_dealer")
 [node name="RoleComponent" type="Node" parent="Components" index="3"]
 script = ExtResource("4_role")
 product = ExtResource("3_product")
+
+[node name="ThreatComponent" type="Node" parent="Components" index="4"]
+script = ExtResource("5_threat")
+
+[node name="CombatComponent" type="Node" parent="Components" index="5"]
+script = ExtResource("6_combat")
+
+[node name="AIComponent" type="Node" parent="Components" index="6"]
+script = ExtResource("7_ai")
+
+[node name="BTPlayer" type="BTPlayer" parent="."]
+behavior_tree = ExtResource("8_tree")
+blackboard_plan = SubResource("BlackboardPlan_dealer")
 
 [node name="RoleLabel" parent="." index="2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)

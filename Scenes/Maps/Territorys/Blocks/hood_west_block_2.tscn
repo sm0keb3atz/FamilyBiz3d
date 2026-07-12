@@ -4,8 +4,8 @@
 [ext_resource type="ArrayMesh" uid="uid://t8oac28wc7b4" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01_corner.glb" id="2_11fr6"]
 [ext_resource type="ArrayMesh" uid="uid://dt4uhxypni1" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_grass_00.glb" id="3_vmff8"]
 [ext_resource type="ArrayMesh" uid="uid://bkgfypoi0u130" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_base.glb" id="4_7nleo"]
-[ext_resource type="PackedScene" uid="uid://dr3oh2pyyibn5" path="res://Scenes/Maps/RoadPieces/Edge.tscn" id="5_ulu5n"]
-[ext_resource type="PackedScene" uid="uid://dqou4rqdajdki" path="res://Scenes/Maps/RoadPieces/Corner.tscn" id="6_x0lfm"]
+[ext_resource type="PackedScene" uid="uid://dr3oh2pyyibn5" path="res://Scenes/Maps/RoadPieces/EdgeIntersection.tscn" id="5_ulu5n"]
+[ext_resource type="PackedScene" uid="uid://dqou4rqdajdki" path="res://Scenes/Maps/RoadPieces/CornerInterSection.tscn" id="6_x0lfm"]
 [ext_resource type="PackedScene" uid="uid://c0eipv3r5ufeg" path="res://Scenes/Maps/RoadPieces/RoadStraight.tscn" id="6_xolqc"]
 
 [node name="HoodWestBlock1" type="Node3D" unique_id=1105998331]

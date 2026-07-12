@@ -9,10 +9,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(1, 0.72, 0.18, 0.95)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [node name="DealerShopMenu" type="CanvasLayer"]
 layer = 11
@@ -45,55 +45,66 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -250.0
-offset_top = -235.0
-offset_right = 250.0
-offset_bottom = 235.0
+offset_left = -360.0
+offset_top = -270.0
+offset_right = 360.0
+offset_bottom = 270.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="Margin" type="MarginContainer" parent="MenuRoot/Panel"]
-theme_override_constants/margin_left = 30
-theme_override_constants/margin_top = 26
-theme_override_constants/margin_right = 30
-theme_override_constants/margin_bottom = 26
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
 
 [node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+[node name="TitleLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.77, 0.2, 1)
 theme_override_font_sizes/font_size = 28
 text = "DEALER"
 horizontal_alignment = 1
 
-[node name="Separator" type="HSeparator" parent="MenuRoot/Panel/Margin/Content"]
-layout_mode = 2
-
-[node name="ProductNameLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+[node name="LevelLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 23
-text = "Test Product"
-
-[node name="PriceLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Dealer price: $10 Dirty Cash"
-
-[node name="OwnedLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Owned: 0"
+theme_override_colors/font_color = Color(0.78, 0.84, 0.9, 1)
+text = "Level 1"
+horizontal_alignment = 1
 
 [node name="CashLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.55, 0.3, 1)
 text = "Dirty Cash: $100"
+horizontal_alignment = 1
+
+[node name="CooldownLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.42, 0.32, 1)
+text = "Restocking in 30s"
+horizontal_alignment = 1
+
+[node name="Separator" type="HSeparator" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StockList" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
 
 [node name="FeedbackLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
 unique_name_in_owner = true
@@ -102,20 +113,8 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.84, 0.9, 1)
 horizontal_alignment = 1
 
-[node name="BuyButton" type="Button" parent="MenuRoot/Panel/Margin/Content"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 50)
-layout_mode = 2
-text = "BUY 1 — $10"
-
 [node name="CloseButton" type="Button" parent="MenuRoot/Panel/Margin/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "CLOSE"
-
-[node name="Hint" type="Label" parent="MenuRoot/Panel/Margin/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.52, 0.55, 0.6, 1)
-text = "Esc also closes the shop"
-horizontal_alignment = 1

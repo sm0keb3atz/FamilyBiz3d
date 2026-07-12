@@ -1,6 +1,8 @@
 class_name PlayerHUD
 extends CanvasLayer
 
+signal daily_report_closed
+
 @export var stats_component_path := NodePath("../Components/StatsComponent")
 @export var wallet_component_path := NodePath("../Components/WalletComponent")
 @export var weapon_component_path := NodePath("../Components/WeaponComponent")
@@ -18,6 +20,14 @@ extends CanvasLayer
 @onready var state_label := %StateLabel as Label
 @onready var dirty_cash_label := %DirtyCashLabel as Label
 @onready var clean_cash_label := %CleanCashLabel as Label
+@onready var date_label := %DateLabel as Label
+@onready var time_label := %TimeLabel as Label
+@onready var daily_report_overlay := %DailyReportOverlay as Control
+@onready var report_date_label := %ReportDateLabel as Label
+@onready var report_earned_label := %ReportEarnedLabel as Label
+@onready var report_spent_label := %ReportSpentLabel as Label
+@onready var report_net_label := %ReportNetLabel as Label
+@onready var report_continue_button := %ReportContinueButton as Button
 @onready var interaction_prompt := %InteractionPrompt as Label
 @onready var feedback_label := %FeedbackLabel as Label
 @onready var feedback_timer := %FeedbackTimer as Timer
@@ -53,6 +63,8 @@ extends CanvasLayer
 
 var _hit_marker_remaining := 0.0
 var _detection_debug_visible := false
+var _was_tree_paused := false
+var _previous_mouse_mode := Input.MOUSE_MODE_CAPTURED
 
 
 func _ready() -> void:
@@ -74,6 +86,7 @@ func _ready() -> void:
 	arrest.arrest_progress_changed.connect(_on_arrest_progress_changed)
 	arrest.arrested.connect(_on_arrested)
 	feedback_timer.timeout.connect(_on_feedback_timeout)
+	report_continue_button.pressed.connect(_close_daily_report)
 	_refresh_all()
 
 
@@ -152,6 +165,7 @@ func _refresh_all() -> void:
 	interaction_prompt.visible = false
 	feedback_label.visible = false
 	hit_marker.visible = false
+	daily_report_overlay.visible = false
 	_on_weapon_changed(weapon.get_equipped_weapon())
 	_on_wanted_level_changed(0, wanted.wanted_level)
 	_on_escape_progress_changed(
@@ -199,6 +213,42 @@ func show_feedback(message: String, duration := 2.5) -> void:
 	feedback_label.text = message
 	feedback_label.visible = not message.is_empty()
 	feedback_timer.start(maxf(duration, 0.1))
+
+
+func update_clock(date_text: String, time_text: String) -> void:
+	date_label.text = date_text
+	time_label.text = time_text
+
+
+func show_daily_report(report_date: String, earned: int, spent: int) -> void:
+	_was_tree_paused = get_tree().paused
+	_previous_mouse_mode = Input.mouse_mode
+	report_date_label.text = report_date
+	report_earned_label.text = "MONEY EARNED   $%d" % earned
+	report_spent_label.text = "MONEY SPENT    $%d" % spent
+	var net := earned - spent
+	if net > 0:
+		report_net_label.text = "PROFIT   +$%d" % net
+		report_net_label.modulate = Color(0.32, 0.9, 0.48)
+	elif net < 0:
+		report_net_label.text = "LOSS   -$%d" % -net
+		report_net_label.modulate = Color(1.0, 0.32, 0.25)
+	else:
+		report_net_label.text = "BREAK EVEN   $0"
+		report_net_label.modulate = Color(0.9, 0.9, 0.9)
+	daily_report_overlay.visible = true
+	get_tree().paused = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	report_continue_button.grab_focus()
+
+
+func _close_daily_report() -> void:
+	if not daily_report_overlay.visible:
+		return
+	daily_report_overlay.visible = false
+	Input.mouse_mode = _previous_mouse_mode
+	get_tree().paused = _was_tree_paused
+	daily_report_closed.emit()
 
 
 func _on_money_changed(dirty_cash: int, clean_cash: int) -> void:

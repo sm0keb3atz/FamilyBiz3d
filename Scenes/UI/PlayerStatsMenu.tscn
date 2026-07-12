@@ -173,6 +173,19 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "100"
 
+[node name="AuraRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/AuraRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Clothing Aura"
+
+[node name="AuraValue" type="Label" parent="MenuRoot/Panel/Margin/Content/AuraRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+
 [node name="PurchaseStrengthButton" type="Button" parent="MenuRoot/Panel/Margin/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)

@@ -152,18 +152,28 @@ func play_equip_sound() -> void:
 	reload_player.play()
 
 
-func play_gunshot(position: Vector3) -> void:
-	if gunshot_sound == null:
+func play_gunshot(position: Vector3, sound_override: AudioStream = null) -> void:
+	var sound := sound_override if sound_override != null else gunshot_sound
+	if sound == null:
 		return
 
-	gunshot_player.global_position = position
-	gunshot_player.stream = gunshot_sound
-	gunshot_player.pitch_scale = randf_range(
+	var player := AudioStreamPlayer3D.new()
+	var host := get_tree().current_scene
+	if host == null:
+		host = get_tree().root
+	host.add_child(player)
+	player.global_position = position
+	player.stream = sound
+	player.pitch_scale = randf_range(
 		1.0 - gunshot_pitch_variation,
 		1.0 + gunshot_pitch_variation
 	)
-	gunshot_player.volume_db = gunshot_volume_db
-	gunshot_player.play()
+	player.volume_db = gunshot_volume_db
+	player.max_distance = gunshot_player.max_distance
+	player.max_polyphony = 1
+	player.bus = gunshot_player.bus
+	player.finished.connect(player.queue_free)
+	player.play()
 
 
 func play_npc_impact(position: Vector3) -> void:

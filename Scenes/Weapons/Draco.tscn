@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://cmltrw2tcqtyh"]
+
+[ext_resource type="PackedScene" uid="uid://cm7b7g8hryred" path="res://Assets/Weapons/Draco/Draco.glb" id="1_draco_model"]
+[ext_resource type="PackedScene" uid="uid://g8aqe1kdyinc" path="res://Assets/VFX/muzzle_flash.tscn" id="2_muzzle_flash"]
+[ext_resource type="Script" uid="uid://dxmh5v22a530j" path="res://Scripts/Gameplay/Weapons/pistol_presentation.gd" id="3_presentation"]
+
+[node name="DracoVisual" type="Node3D" unique_id=2095543328]
+script = ExtResource("3_presentation")
+
+[node name="DracoModel" parent="." unique_id=1027049689 instance=ExtResource("1_draco_model")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+
+[node name="LaserOrigin" type="Node3D" parent="." unique_id=608722843]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.02085267, 0.026351988, 0.102256425)
+
+[node name="MuzzleFlash" parent="." unique_id=1886235775 instance=ExtResource("2_muzzle_flash")]
+transform = Transform3D(1.35, 0, 0, 0, 1.35, 0, 0, 0, 1.35, 0.0024524666, 0.026341543, 0.15048093)

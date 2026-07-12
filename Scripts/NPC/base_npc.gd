@@ -88,6 +88,7 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	add_to_group(&"lock_target")
+	add_to_group(&"traffic_obstacle")
 	movement_component.initialize(self)
 	animation_component.initialize(self)
 	health_component.initialize(self)

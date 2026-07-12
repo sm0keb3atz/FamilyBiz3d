@@ -27,6 +27,11 @@ extends Node3D
 		draw_spawn_markers = value
 		_refresh_preview()
 
+@export var show_unconnected_future_routes := false:
+	set(value):
+		show_unconnected_future_routes = value
+		_refresh_preview()
+
 @export_range(0.25, 5.0, 0.05) var arrow_size := 1.2:
 	set(value):
 		arrow_size = value
@@ -76,16 +81,28 @@ func _refresh_preview() -> void:
 
 	var mesh := ImmediateMesh.new()
 	mesh.surface_begin(Mesh.PRIMITIVE_LINES, material)
+	var drew_geometry := false
 	for waypoint in _collect_waypoints():
-		_draw_waypoint(mesh, waypoint)
+		if not _should_preview_waypoint(waypoint):
+			continue
+		if draw_spawn_markers:
+			_draw_waypoint(mesh, waypoint)
+			drew_geometry = true
 		for connection in waypoint.connections:
 			var target := waypoint.get_node_or_null(connection) as TrafficWaypoint3D
-			if target == null or target == waypoint:
+			if (
+				target == null
+				or target == waypoint
+				or not _should_preview_waypoint(target)
+			):
 				continue
 			_draw_connection(mesh, waypoint, target)
-	mesh.surface_end()
-
-	_preview_mesh_instance.mesh = mesh
+			drew_geometry = true
+	if drew_geometry:
+		mesh.surface_end()
+		_preview_mesh_instance.mesh = mesh
+	else:
+		_preview_mesh_instance.mesh = null
 	_preview_mesh_instance.visible = true
 
 
@@ -93,6 +110,20 @@ func _collect_waypoints() -> Array[TrafficWaypoint3D]:
 	var waypoints: Array[TrafficWaypoint3D] = []
 	_collect_waypoints_recursive(self, waypoints)
 	return waypoints
+
+
+func _should_preview_waypoint(waypoint: TrafficWaypoint3D) -> bool:
+	if show_unconnected_future_routes:
+		return true
+	var route_root := waypoint.get_parent()
+	if route_root == null:
+		return true
+	var exit := route_root.get_node_or_null("Exit") as TrafficWaypoint3D
+	return (
+		exit == null
+		or not exit.is_external_connector
+		or not exit.connections.is_empty()
+	)
 
 
 func _collect_waypoints_recursive(

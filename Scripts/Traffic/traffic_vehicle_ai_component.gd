@@ -2,17 +2,20 @@ class_name TrafficVehicleAIComponent
 extends Node
 
 @export_range(0.5, 8.0, 0.1) var arrival_distance := 3.0
-@export_range(1.0, 25.0, 0.5) var look_ahead_distance := 9.0
-@export_range(1.0, 25.0, 0.5) var following_distance := 10.0
+@export_range(1.0, 60.0, 0.5) var look_ahead_distance := 35.0
+@export_range(1.0, 60.0, 0.5) var following_distance := 35.0
 @export_range(1.0, 60.0, 0.5) var steering_sensitivity_degrees := 32.0
 @export_range(0.0, 1.0, 0.05) var cautious_throttle := 0.35
 @export_range(0.0, 1.0, 0.05) var cruise_throttle := 0.75
 @export_range(0.0, 8.0, 0.1) var brake_speed_margin := 3.0
 @export_range(0.0, 6.0, 0.1) var curve_brake_angle_degrees := 24.0
-@export_range(0.0, 5.0, 0.1) var stuck_creep_delay := 1.8
-@export_range(1.0, 20.0, 0.5) var stuck_recycle_delay := 8.0
-@export_range(0.0, 1.0, 0.05) var stuck_creep_throttle := 0.18
 @export_range(0.0, 4.0, 0.1) var lane_block_margin := 1.35
+@export_range(0.1, 3.0, 0.05) var reaction_time := 1.15
+@export_range(0.5, 15.0, 0.25) var comfortable_deceleration := 2.5
+@export_range(1.0, 25.0, 0.25) var emergency_deceleration := 6.0
+@export_range(0.5, 12.0, 0.1) var standstill_gap := 6.0
+@export_range(0.5, 4.0, 0.1) var following_time := 2.1
+@export_range(0.5, 4.0, 0.1) var pedestrian_probe_half_width := 1.35
 @export_flags_3d_physics var obstacle_mask := 3
 
 var vehicle: BaseVehicle
@@ -26,6 +29,7 @@ var _enabled := false
 var _blocked_elapsed := 0.0
 var _last_raycast_blocked := false
 var _last_raycast_requires_full_stop := false
+var _last_raycast_distance := INF
 var _last_obstacle_blocked := false
 var _recycle_requested := false
 var _ignore_stale_blockers_remaining := 0.0
@@ -54,6 +58,7 @@ func assign_route(
 	_blocked_elapsed = 0.0
 	_last_raycast_blocked = false
 	_last_raycast_requires_full_stop = false
+	_last_raycast_distance = INF
 	_last_obstacle_blocked = false
 	_recycle_requested = false
 	_ignore_stale_blockers_remaining = 0.0
@@ -70,6 +75,7 @@ func clear() -> void:
 	_blocked_elapsed = 0.0
 	_last_raycast_blocked = false
 	_last_raycast_requires_full_stop = false
+	_last_raycast_distance = INF
 	_last_obstacle_blocked = false
 	_recycle_requested = false
 	_ignore_stale_blockers_remaining = 0.0
@@ -97,62 +103,75 @@ func tick_traffic(
 			_stop_vehicle()
 			return
 
+	var forward_speed := maxf(
+		vehicle.linear_velocity.dot(vehicle.global_basis.z),
+		0.0
+	)
 	var target_position := _get_target_position()
-	var should_stop_for_signal := _should_stop_for_signal(target_position)
-	if (
-		not should_stop_for_signal and
-		vehicle.global_position.distance_squared_to(target_position)
-		<= arrival_distance * arrival_distance
-	):
+	var target_distance := vehicle.global_position.distance_to(target_position)
+	var signal_state := _get_target_signal_state()
+	var should_hold_at_signal := _should_hold_at_signal(
+		signal_state,
+		target_distance,
+		forward_speed
+	)
+	if not should_hold_at_signal and target_distance <= arrival_distance:
 		previous_waypoint = current_waypoint
 		current_waypoint = target_waypoint
 		_choose_next()
 		target_position = _get_target_position()
-		should_stop_for_signal = _should_stop_for_signal(target_position)
+		target_distance = vehicle.global_position.distance_to(target_position)
+		signal_state = _get_target_signal_state()
+		should_hold_at_signal = _should_hold_at_signal(
+			signal_state,
+			target_distance,
+			forward_speed
+		)
 
-	var should_stop := should_stop_for_signal
-	var blocked_by_obstacle := _has_obstacle_ahead(traffic_cars, allow_raycast)
-	should_stop = should_stop or blocked_by_obstacle
-	var hard_stop_blocked := should_stop_for_signal or _last_raycast_requires_full_stop
+	var obstacle := _get_obstacle_ahead(
+		traffic_cars,
+		allow_raycast,
+		forward_speed
+	)
+	var stopping_distance := INF
+	var hard_stop_blocked := false
+	if should_hold_at_signal:
+		stopping_distance = target_distance
+		hard_stop_blocked = signal_state == TrafficSignalController3D.SignalState.RED
+	if bool(obstacle.get("blocked", false)):
+		var obstacle_distance := float(obstacle.get("distance", INF))
+		if obstacle_distance < stopping_distance:
+			stopping_distance = obstacle_distance
+			hard_stop_blocked = bool(obstacle.get("hard_stop", false))
 	_hard_stop_active = hard_stop_blocked
 	var steering := _calculate_steering(target_position)
-	var forward_speed := vehicle.linear_velocity.dot(vehicle.global_basis.z)
 	var target_speed := (
 		minf(current_waypoint.speed_limit, target_waypoint.speed_limit)
 		if is_instance_valid(target_waypoint) else 6.0
 	)
 	target_speed = minf(target_speed, _curve_speed_limit(steering))
-	var throttle := cruise_throttle
-	var brake := 0.0
-	if should_stop:
-		throttle = 0.0
-		brake = 1.0
-	elif absf(rad_to_deg(steering)) > steering_sensitivity_degrees * 0.55:
-		throttle = cautious_throttle
-	elif forward_speed > target_speed:
-		throttle = 0.0
-		if forward_speed > target_speed + brake_speed_margin:
-			brake = 0.25
-	if blocked_by_obstacle:
+	if is_finite(stopping_distance):
+		target_speed = minf(
+			target_speed,
+			_get_safe_speed_for_distance(stopping_distance)
+		)
+	var controls := _calculate_speed_controls(
+		forward_speed,
+		target_speed,
+		stopping_distance,
+		hard_stop_blocked,
+		steering
+	)
+	if is_finite(stopping_distance):
 		_blocked_elapsed += delta
-		if hard_stop_blocked:
-			_ignore_stale_blockers_remaining = 0.0
-		elif (
-			_blocked_elapsed >= stuck_creep_delay
-			and absf(forward_speed) < 1.0
-		):
-			throttle = stuck_creep_throttle
-			brake = 0.0
-			_ignore_stale_blockers_remaining = 0.55
-		if not hard_stop_blocked and _blocked_elapsed >= stuck_recycle_delay:
-			_recycle_requested = true
 	else:
 		_blocked_elapsed = maxf(_blocked_elapsed - delta * 2.0, 0.0)
-	_ignore_stale_blockers_remaining = maxf(
-		_ignore_stale_blockers_remaining - delta,
-		0.0
+	_ignore_stale_blockers_remaining = 0.0
+	vehicle.drive_component.set_ai_control(
+		float(controls.get("throttle", 0.0)),
+		float(controls.get("brake", 0.0)),
+		steering
 	)
-	vehicle.drive_component.set_ai_control(throttle, brake, steering)
 
 
 func has_route() -> bool:
@@ -261,31 +280,107 @@ func _curve_speed_limit(steering: float) -> float:
 	return lerpf(8.0, 4.5, turn_ratio)
 
 
-func _should_stop_for_signal(target_position: Vector3) -> bool:
+func _get_target_signal_state() -> int:
 	if not is_instance_valid(target_waypoint):
-		return false
-	if not target_waypoint.should_stop_for_signal():
-		return false
-	var distance_squared := vehicle.global_position.distance_squared_to(
-		target_position
-	)
-	return distance_squared <= look_ahead_distance * look_ahead_distance
+		return -1
+	return target_waypoint.get_signal_state()
 
 
-func _has_obstacle_ahead(
-	traffic_cars: Array[BaseVehicle],
-	allow_raycast: bool
+func _should_hold_at_signal(
+	state: int,
+	distance: float,
+	forward_speed: float
 ) -> bool:
+	if distance > maxf(look_ahead_distance, _get_stopping_distance(forward_speed)):
+		return false
+	if state == TrafficSignalController3D.SignalState.RED:
+		return true
+	if state == TrafficSignalController3D.SignalState.YELLOW:
+		return distance >= _get_stopping_distance(forward_speed)
+	return false
+
+
+func _get_stopping_distance(forward_speed: float) -> float:
+	var speed := maxf(forward_speed, 0.0)
+	return (
+		speed * reaction_time
+		+ (speed * speed) / (2.0 * maxf(comfortable_deceleration, 0.1))
+		+ standstill_gap
+	)
+
+
+func _get_safe_speed_for_distance(distance: float) -> float:
+	var usable_distance := maxf(distance - standstill_gap, 0.0)
+	return sqrt(2.0 * maxf(comfortable_deceleration, 0.1) * usable_distance)
+
+
+func _calculate_speed_controls(
+	forward_speed: float,
+	target_speed: float,
+	stopping_distance: float,
+	hard_stop: bool,
+	steering: float
+) -> Dictionary:
+	var throttle := 0.0
+	var brake := 0.0
+	if forward_speed > target_speed + 0.15:
+		var required_deceleration := 0.0
+		if is_finite(stopping_distance):
+			var usable_distance := maxf(stopping_distance - standstill_gap, 0.15)
+			required_deceleration = maxf(
+				(forward_speed * forward_speed - target_speed * target_speed)
+				/ (2.0 * usable_distance),
+				0.0
+			)
+		brake = clampf(
+			maxf(
+				0.2,
+				required_deceleration / maxf(comfortable_deceleration, 0.1)
+			),
+			0.0,
+			1.0
+		)
+	elif target_speed > forward_speed + 0.45:
+		throttle = (
+			cautious_throttle
+			if absf(rad_to_deg(steering)) > steering_sensitivity_degrees * 0.55
+			else cruise_throttle
+		)
+	if (
+		is_finite(stopping_distance)
+		and target_speed <= 0.25
+		and stopping_distance <= standstill_gap + 0.45
+	):
+		throttle = 0.0
+		brake = 1.0 if forward_speed > 0.35 else 0.35
+	if hard_stop:
+		throttle = 0.0
+	return {"throttle": throttle, "brake": brake}
+
+
+func _get_obstacle_ahead(
+	traffic_cars: Array[BaseVehicle],
+	allow_raycast: bool,
+	forward_speed: float
+) -> Dictionary:
+	var result := {"blocked": false, "distance": INF, "hard_stop": false}
 	var forward := vehicle.global_basis.z.normalized()
 	var side := vehicle.global_basis.x.normalized()
 	var origin := vehicle.global_position + Vector3.UP * 0.65
+	var detection_distance := maxf(
+		following_distance,
+		maxf(
+			_get_stopping_distance(forward_speed),
+			forward_speed * following_time + standstill_gap
+		)
+	)
 	for other in traffic_cars:
 		if other == vehicle or not is_instance_valid(other):
 			continue
 		var offset := other.global_position - vehicle.global_position
 		offset.y = 0.0
 		var distance_squared := offset.length_squared()
-		if distance_squared > following_distance * following_distance:
+		if distance_squared > detection_distance * detection_distance:
 			continue
 		if distance_squared < 0.01:
 			continue
@@ -300,52 +395,82 @@ func _has_obstacle_ahead(
 		)
 		if lateral_distance > lane_width + lane_block_margin:
 			continue
-		if (
-			_ignore_stale_blockers_remaining <= 0.0
-			or forward_distance < following_distance * 0.45
-		):
-			var other_ai := _get_traffic_ai(other)
-			_last_obstacle_blocked = true
-			_last_raycast_requires_full_stop = (
-				other_ai != null and other_ai.is_hard_stop_active()
-			)
-			return true
+		var other_ai := _get_traffic_ai(other)
+		_record_obstacle(
+			result,
+			forward_distance,
+			other_ai != null and other_ai.is_hard_stop_active()
+		)
 
 	if not allow_raycast:
-		return _last_raycast_blocked
+		if not bool(result.get("blocked", false)) and _last_raycast_blocked:
+			_record_obstacle(
+				result,
+				_last_raycast_distance,
+				_last_raycast_requires_full_stop
+			)
+		return result
 
-	var query := PhysicsRayQueryParameters3D.create(
-		origin,
-		origin + forward * following_distance,
-		obstacle_mask,
-		[vehicle.get_rid()]
-	)
-	query.collide_with_areas = true
-	var hit := vehicle.get_world_3d().direct_space_state.intersect_ray(query)
-	if hit.is_empty():
-		_last_raycast_blocked = false
-		_last_raycast_requires_full_stop = false
-		return false
-	var collider := hit.get("collider") as Node
-	if collider == null or collider == vehicle:
-		_last_raycast_blocked = false
-		_last_raycast_requires_full_stop = false
-		return false
-	var is_pedestrian := (
+	_last_raycast_blocked = false
+	_last_raycast_requires_full_stop = false
+	_last_raycast_distance = INF
+	var probe_offsets: PackedFloat32Array = PackedFloat32Array([
+		0.0,
+		-pedestrian_probe_half_width,
+		pedestrian_probe_half_width,
+	])
+	for lateral_offset: float in probe_offsets:
+		var probe_origin: Vector3 = origin + side * lateral_offset
+		var query := PhysicsRayQueryParameters3D.create(
+			probe_origin,
+			probe_origin + forward * detection_distance,
+			obstacle_mask,
+			[vehicle.get_rid()]
+		)
+		query.collide_with_areas = true
+		var hit := vehicle.get_world_3d().direct_space_state.intersect_ray(query)
+		if hit.is_empty():
+			continue
+		var collider := hit.get("collider") as Node
+		if collider == null or collider == vehicle:
+			continue
+		var is_human := _is_human_obstacle(collider)
+		var is_signal_blocker := collider.is_in_group("traffic_signal_blocker")
+		var is_vehicle := collider is BaseVehicle or collider.is_in_group("traffic_vehicle")
+		if not (is_human or is_signal_blocker or is_vehicle):
+			continue
+		var hit_position := hit.get("position") as Vector3
+		var hit_distance := maxf((hit_position - probe_origin).dot(forward), 0.0)
+		var is_hard_stop := is_human or is_signal_blocker
+		_record_obstacle(result, hit_distance, is_hard_stop)
+		_last_raycast_blocked = true
+		_last_raycast_requires_full_stop = (
+			_last_raycast_requires_full_stop or is_hard_stop
+		)
+		_last_raycast_distance = minf(_last_raycast_distance, hit_distance)
+	return result
+
+
+func _record_obstacle(
+	result: Dictionary,
+	distance: float,
+	hard_stop: bool
+) -> void:
+	if distance < float(result.get("distance", INF)):
+		result["blocked"] = true
+		result["distance"] = distance
+		result["hard_stop"] = hard_stop
+
+
+func _is_human_obstacle(collider: Node) -> bool:
+	return (
 		collider is BaseNPC
+		or collider.is_in_group("traffic_obstacle")
+		or collider.is_in_group("player")
 		or collider.is_in_group("customer_npc")
 		or collider.is_in_group("police_npc")
 		or collider.is_in_group("interactable_npc")
 	)
-	var is_signal_blocker := collider.is_in_group("traffic_signal_blocker")
-	_last_raycast_blocked = (
-		collider is BaseVehicle
-		or is_pedestrian
-		or collider.is_in_group("traffic_vehicle")
-		or is_signal_blocker
-	)
-	_last_raycast_requires_full_stop = is_pedestrian or is_signal_blocker
-	return _last_raycast_blocked
 
 
 func _stop_vehicle() -> void:

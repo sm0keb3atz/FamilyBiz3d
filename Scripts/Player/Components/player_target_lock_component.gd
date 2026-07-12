@@ -30,8 +30,12 @@ signal lock_changed(previous: Node, current: Node)
 
 @export_category("Outline")
 @export var outline_color := Color(1.0, 0.08, 0.03, 1.0)
-@export_range(0.0, 0.3, 0.005) var outline_thickness := 0.035
+@export_range(0.0, 0.3, 0.005) var outline_thickness := 0.028
 @export_range(0.0, 4.0, 0.05) var outline_energy := 1.4
+@export_range(0.0, 1.0, 0.05) var outline_transparency := 0.9
+@export_range(0.0, 1.0, 0.01) var outline_silhouette_start := 0.18
+@export_range(0.0, 1.0, 0.01) var outline_silhouette_end := 0.42
+@export_range(0.1, 100.0, 0.1) var outline_merge_depth_range := 10.0
 
 @onready var body := get_node(body_path) as CharacterBody3D
 @onready var camera := get_node(camera_path) as Camera3D
@@ -57,11 +61,30 @@ func _ready() -> void:
 	)
 	_outline_material.set_shader_parameter(&"thickness", outline_thickness)
 	_outline_material.set_shader_parameter(&"outline_energy", outline_energy)
+	_outline_material.set_shader_parameter(
+		&"outline_transparency",
+		outline_transparency
+	)
+	_outline_material.set_shader_parameter(
+		&"silhouette_start",
+		outline_silhouette_start
+	)
+	_outline_material.set_shader_parameter(
+		&"silhouette_end",
+		outline_silhouette_end
+	)
 	_outline_material.set_shader_parameter(&"merge_group", true)
+	_outline_material.set_shader_parameter(
+		&"merge_depth_range",
+		outline_merge_depth_range
+	)
 
 
 func _process(delta: float) -> void:
-	if not weapon_component.is_aiming():
+	if (
+		not weapon_component.is_target_lock_enabled()
+		or not weapon_component.is_aiming()
+	):
 		_aim_elapsed = 0.0
 		_acquire_cooldown = 0.0
 		_set_locked_target(null)
@@ -89,6 +112,8 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not weapon_component.is_target_lock_enabled():
+		return
 	if (
 		event is InputEventMouseMotion
 		and has_locked_target()
@@ -314,8 +339,16 @@ func _apply_outline(target: Node3D) -> void:
 		if mesh == null or not mesh.visible:
 			continue
 		var id := mesh.get_instance_id()
-		_outlined_mesh_overlays[id] = [mesh, mesh.material_overlay]
+		_outlined_mesh_overlays[id] = [
+			mesh,
+			mesh.material_overlay,
+			mesh.extra_cull_margin,
+		]
 		mesh.material_overlay = _outline_material
+		mesh.extra_cull_margin = maxf(
+			mesh.extra_cull_margin,
+			outline_thickness * 4.0
+		)
 
 
 func _clear_outline() -> void:
@@ -324,6 +357,7 @@ func _clear_outline() -> void:
 		if is_instance_valid(mesh_object) and mesh_object is MeshInstance3D:
 			var mesh := mesh_object as MeshInstance3D
 			mesh.material_overlay = item[1] as Material
+			mesh.extra_cull_margin = float(item[2])
 	_outlined_mesh_overlays.clear()
 
 

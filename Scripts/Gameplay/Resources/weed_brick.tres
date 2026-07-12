@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ProductDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Gameplay/Resources/product_definition.gd" id="1_product"]
+[ext_resource type="Texture2D" path="res://Assets/UI/Icons/WeedBrick.png" id="2_icon"]
+[ext_resource type="Resource" path="res://Scripts/Gameplay/Resources/weed_1g.tres" id="3_breakdown"]
+
+[resource]
+script = ExtResource("1_product")
+product_id = &"weed_brick"
+display_name = "Weed Brick"
+drug_type = 0
+package_kind = 1
+package_size_grams = 100
+icon = ExtResource("2_icon")
+breakdown_product = ExtResource("3_breakdown")
+breakdown_amount = 100
+dealer_price = 550
+sale_price = 1500
+experience_reward = 500.0
+reputation_reward = 60.0
+heat_reward = 100.0

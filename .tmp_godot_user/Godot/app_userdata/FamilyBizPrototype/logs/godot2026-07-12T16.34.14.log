@@ -1,0 +1,28 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+ANIMATION Walk tracks=37
+1 %GeneralSkeleton:Hips
+2 %GeneralSkeleton:Hips
+2 %GeneralSkeleton:Spine
+2 %GeneralSkeleton:Chest
+2 %GeneralSkeleton:UpperChest
+2 %GeneralSkeleton:Neck
+2 %GeneralSkeleton:Head
+2 %GeneralSkeleton:LeftShoulder
+2 %GeneralSkeleton:LeftUpperArm
+2 %GeneralSkeleton:LeftLowerArm
+2 %GeneralSkeleton:LeftHand
+2 %GeneralSkeleton:mixamorig_LeftHandThumb1
+ANIMATION FemaleWalk tracks=90
+1 %GeneralSkeleton:Hips
+2 %GeneralSkeleton:Hips
+3 %GeneralSkeleton:Hips
+2 %GeneralSkeleton:Spine
+3 %GeneralSkeleton:Spine
+2 %GeneralSkeleton:Chest
+3 %GeneralSkeleton:Chest
+2 %GeneralSkeleton:UpperChest
+3 %GeneralSkeleton:UpperChest
+2 %GeneralSkeleton:Neck
+3 %GeneralSkeleton:Neck
+2 %GeneralSkeleton:Head

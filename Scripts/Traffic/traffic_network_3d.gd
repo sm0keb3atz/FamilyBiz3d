@@ -22,6 +22,11 @@ extends Node3D
 		scan_root_paths = value
 		_cache_dirty = true
 
+@export var allow_empty_network := false:
+	set(value):
+		allow_empty_network = value
+		_cache_dirty = true
+
 var _waypoints: Array[TrafficWaypoint3D] = []
 var _waypoint_lookup := {}
 var _adjacency := {}
@@ -129,7 +134,7 @@ func get_spawn_candidates(
 			if not _spatial_cells.has(cell):
 				continue
 			for waypoint: TrafficWaypoint3D in _spatial_cells[cell]:
-				if not waypoint.spawn_allowed:
+				if not waypoint.can_spawn_traffic():
 					continue
 				var distance_squared := waypoint.global_position.distance_squared_to(
 					world_position
@@ -196,18 +201,23 @@ func get_next_waypoint(
 	var neighbors: Array = _adjacency[current]
 	if neighbors.is_empty():
 		return null
-	if neighbors.size() == 1:
-		return neighbors[0] as TrafficWaypoint3D
-
-	var previous_index := neighbors.find(previous)
-	if previous_index < 0:
-		return neighbors[
-			random.randi_range(0, neighbors.size() - 1)
-		] as TrafficWaypoint3D
-	var candidate_index := random.randi_range(0, neighbors.size() - 2)
-	if candidate_index >= previous_index:
-		candidate_index += 1
-	return neighbors[candidate_index] as TrafficWaypoint3D
+	var candidates: Array[TrafficWaypoint3D] = []
+	for neighbor: TrafficWaypoint3D in neighbors:
+		if neighbor != previous:
+			candidates.append(neighbor)
+	if candidates.is_empty():
+		candidates.assign(neighbors)
+	if candidates.size() == 1:
+		return candidates[0]
+	var total_weight := 0.0
+	for candidate in candidates:
+		total_weight += maxf(candidate.route_weight, 0.05)
+	var roll := random.randf_range(0.0, total_weight)
+	for candidate in candidates:
+		roll -= maxf(candidate.route_weight, 0.05)
+		if roll <= 0.0:
+			return candidate
+	return candidates.back()
 
 
 func has_waypoint(waypoint: TrafficWaypoint3D) -> bool:
@@ -218,12 +228,28 @@ func has_waypoint(waypoint: TrafficWaypoint3D) -> bool:
 func get_validation_errors() -> PackedStringArray:
 	_ensure_cache()
 	var warnings := PackedStringArray()
-	if _waypoints.is_empty():
+	if _waypoints.is_empty() and not allow_empty_network:
 		warnings.append("Traffic network has no waypoint children.")
 		return warnings
 	for waypoint in _waypoints:
-		if (_adjacency.get(waypoint, []) as Array).is_empty():
+		if (
+			(_adjacency.get(waypoint, []) as Array).is_empty()
+			and not waypoint.is_external_connector
+		):
 			warnings.append("Traffic waypoint '%s' has no valid exits." % waypoint.name)
+		if waypoint.is_stop_line:
+			var controller := waypoint.get_signal_controller()
+			if controller == null:
+				warnings.append(
+					"Stop line '%s' has no valid signal controller." % waypoint.name
+				)
+			elif (
+				waypoint.signal_group != controller.north_south_group
+				and waypoint.signal_group != controller.east_west_group
+			):
+				warnings.append(
+					"Stop line '%s' uses an unknown signal group." % waypoint.name
+				)
 	return warnings
 
 

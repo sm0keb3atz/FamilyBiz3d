@@ -9,44 +9,46 @@ extends Marker3D
 
 @export var spawn_allowed := true
 @export_range(0.1, 10.0, 0.1) var spawn_weight := 1.0
+@export_range(0.05, 10.0, 0.05) var route_weight := 1.0
 @export_range(0.0, 4.0, 0.05) var lane_half_width := 0.75
 @export_range(1.0, 40.0, 0.5) var speed_limit := 13.0
+@export var is_external_connector := false
 @export var is_stop_line := false
 @export var signal_group: StringName = &""
 @export var signal_controller_path: NodePath
 
 
 func should_stop_for_signal() -> bool:
+	var state := get_signal_state()
+	return state != -1 and state != TrafficSignalController3D.SignalState.GREEN
+
+
+func get_signal_state() -> int:
 	if not is_stop_line or signal_group == &"":
+		return -1
+	var controller := get_signal_controller()
+	if controller == null:
+		return -1
+	return controller.get_signal_state(signal_group)
+
+
+func get_signal_controller() -> TrafficSignalController3D:
+	if signal_controller_path.is_empty():
+		return null
+	return get_node_or_null(signal_controller_path) as TrafficSignalController3D
+
+
+func can_spawn_traffic() -> bool:
+	if not spawn_allowed:
 		return false
-	var controller := (
-		get_node_or_null(signal_controller_path) as TrafficSignalController3D
+	# Curves inside the reusable intersection are route-only. Traffic must begin
+	# on a real road segment, never in the middle of a junction.
+	var route_parent := get_parent()
+	return (
+		route_parent == null
+		or route_parent.get_parent() == null
+		or not route_parent.get_parent() is TrafficRouteVisualizer3D
 	)
-	if controller == null:
-		controller = _find_signal_controller()
-	if controller == null:
-		return false
-	return controller.should_stop(signal_group)
-
-
-func _find_signal_controller() -> TrafficSignalController3D:
-	var node := get_parent()
-	while node != null:
-		var controller := _find_signal_controller_recursive(node)
-		if controller != null:
-			return controller
-		node = node.get_parent()
-	return null
-
-
-func _find_signal_controller_recursive(node: Node) -> TrafficSignalController3D:
-	for child in node.get_children():
-		if child is TrafficSignalController3D:
-			return child as TrafficSignalController3D
-		var controller := _find_signal_controller_recursive(child)
-		if controller != null:
-			return controller
-	return null
 
 
 func _get_configuration_warnings() -> PackedStringArray:
@@ -66,4 +68,6 @@ func _get_configuration_warnings() -> PackedStringArray:
 			)
 	if is_stop_line and signal_group == &"":
 		warnings.append("Stop line has no signal group.")
+	if is_stop_line and signal_controller_path.is_empty():
+		warnings.append("Stop line needs an explicit signal controller path.")
 	return warnings

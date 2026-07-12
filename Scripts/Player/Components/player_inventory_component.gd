@@ -9,10 +9,12 @@ var _quantities: Dictionary[StringName, int] = {}
 
 
 func _ready() -> void:
+	for product in EconomyCatalog.get_all_products():
+		_ensure_known_product(product)
 	for product in known_products:
 		if product != null:
-			_quantities[product.product_id] = 0
-			quantity_changed.emit(product, 0)
+			_quantities[product.product_id] = get_quantity(product)
+			quantity_changed.emit(product, _quantities[product.product_id])
 
 
 func get_quantity(product: ProductDefinition) -> int:
@@ -31,8 +33,7 @@ func add_product(product: ProductDefinition, amount := 1) -> bool:
 
 	var next_quantity := get_quantity(product) + amount
 	_quantities[product.product_id] = next_quantity
-	if product not in known_products:
-		known_products.append(product)
+	_ensure_known_product(product)
 	quantity_changed.emit(product, next_quantity)
 	return true
 
@@ -51,6 +52,20 @@ func get_known_products() -> Array[ProductDefinition]:
 	return known_products.duplicate()
 
 
+func break_down_product(product: ProductDefinition) -> bool:
+	if product == null or not product.can_break_down():
+		return false
+	if not has_product(product, 1):
+		return false
+	if not remove_product(product, 1):
+		return false
+	if add_product(product.breakdown_product, product.breakdown_amount):
+		return true
+
+	add_product(product, 1)
+	return false
+
+
 func export_save_data() -> Dictionary:
 	var data := {}
 	for product in known_products:
@@ -60,9 +75,16 @@ func export_save_data() -> Dictionary:
 
 
 func import_save_data(data: Dictionary) -> void:
+	for product in EconomyCatalog.get_all_products():
+		_ensure_known_product(product)
 	for product in known_products:
 		if product == null:
 			continue
 		var quantity := maxi(int(data.get(String(product.product_id), 0)), 0)
 		_quantities[product.product_id] = quantity
 		quantity_changed.emit(product, quantity)
+
+
+func _ensure_known_product(product: ProductDefinition) -> void:
+	if product != null and product not in known_products:
+		known_products.append(product)

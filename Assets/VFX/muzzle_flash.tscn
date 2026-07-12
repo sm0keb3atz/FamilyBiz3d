@@ -11,6 +11,9 @@ shading_mode = 0
 vertex_color_use_as_albedo = true
 vertex_color_is_srgb = true
 albedo_texture = ExtResource("1_iom8u")
+emission_enabled = true
+emission = Color(3.5, 1.35, 0.28, 1)
+emission_energy_multiplier = 3.5
 
 [sub_resource type="Curve" id="Curve_40m1g"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -28,10 +31,10 @@ curve = SubResource("Curve_lbfqs")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_y3am3"]
 gravity = Vector3(0, 0, 0)
-scale_min = 0.07
-scale_max = 0.11
+scale_min = 0.18
+scale_max = 0.28
 scale_curve = SubResource("CurveTexture_txqta")
-color = Color(1.3528494, 1.193816, 0.99969536, 1)
+color = Color(4.5, 2.1, 0.65, 1)
 alpha_curve = SubResource("CurveTexture_rwn6q")
 
 [node name="MuzzleFlash" type="Node3D" unique_id=431674480]
@@ -39,7 +42,7 @@ alpha_curve = SubResource("CurveTexture_rwn6q")
 [node name="MuzzlePlanes" type="GPUParticles3D" parent="." unique_id=684731460]
 material_override = SubResource("StandardMaterial3D_kn4hg")
 emitting = false
-amount = 1
+amount = 2
 lifetime = 0.1
 one_shot = true
 explosiveness = 1.0

@@ -15,7 +15,9 @@ var _menu_controller: PlayerMenuController
 var _menu_root: Control
 var _labels: Dictionary = {}
 var _material_labels: Dictionary = {}
+var _color_buttons: Dictionary = {}
 var _is_open := false
+var _aura_label: Label
 
 
 func _ready() -> void:
@@ -28,7 +30,10 @@ func _ready() -> void:
 	_build_menu()
 	_appearance.appearance_changed.connect(_on_appearance_changed)
 	_appearance.material_changed.connect(_on_material_changed)
+	_appearance.material_color_changed.connect(_on_material_color_changed)
+	_appearance.aura_changed.connect(_on_aura_changed)
 	_refresh_labels()
+	_refresh_color_pickers()
 	_menu_root.visible = false
 
 
@@ -56,6 +61,7 @@ func set_menu_open(open: bool) -> void:
 	_menu_root.visible = open
 	if open:
 		_refresh_labels()
+		_refresh_color_pickers()
 
 
 func _build_menu() -> void:
@@ -93,6 +99,12 @@ func _build_menu() -> void:
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	content.add_child(help)
 
+	_aura_label = Label.new()
+	_aura_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_aura_label.add_theme_font_size_override("font_size", 20)
+	content.add_child(_aura_label)
+	_on_aura_changed(_appearance.get_current_aura())
+
 	_add_material_row(
 		content,
 		"Body Material",
@@ -106,6 +118,11 @@ func _build_menu() -> void:
 	_add_material_row(
 		content,
 		"Top Material",
+		PlayerAppearanceComponent.SLOT_TOP
+	)
+	_add_color_row(
+		content,
+		"Top Color",
 		PlayerAppearanceComponent.SLOT_TOP
 	)
 	_add_option_row(
@@ -226,6 +243,27 @@ func _add_material_row(
 	row.add_child(next_button)
 
 
+func _add_color_row(
+	parent: VBoxContainer,
+	display_name: String,
+	slot: StringName
+) -> void:
+	var heading := Label.new()
+	heading.text = display_name
+	heading.add_theme_font_size_override("font_size", 16)
+	parent.add_child(heading)
+
+	var color_button := ColorPickerButton.new()
+	color_button.custom_minimum_size = Vector2(160.0, 36.0)
+	color_button.color = _appearance.get_material_color(slot)
+	color_button.color_changed.connect(
+		func(color: Color) -> void:
+			_appearance.set_material_color(slot, color)
+	)
+	parent.add_child(color_button)
+	_color_buttons[slot] = color_button
+
+
 func _refresh_labels() -> void:
 	for slot in _labels:
 		var label := _labels[slot] as Label
@@ -233,6 +271,13 @@ func _refresh_labels() -> void:
 	for slot in _material_labels:
 		var label := _material_labels[slot] as Label
 		label.text = _appearance.get_material_name(slot)
+
+
+func _refresh_color_pickers() -> void:
+	for slot in _color_buttons:
+		var color_button := _color_buttons[slot] as ColorPickerButton
+		color_button.color = _appearance.get_material_color(slot)
+		color_button.disabled = not _appearance.is_material_tintable(slot)
 
 
 func _on_appearance_changed(
@@ -246,6 +291,7 @@ func _on_appearance_changed(
 	if _material_labels.has(slot):
 		var material_label := _material_labels[slot] as Label
 		material_label.text = _appearance.get_material_name(slot)
+	_refresh_color_pickers()
 
 
 func _on_material_changed(
@@ -256,3 +302,15 @@ func _on_material_changed(
 	if _material_labels.has(slot):
 		var label := _material_labels[slot] as Label
 		label.text = material_name
+	_refresh_color_pickers()
+
+
+func _on_material_color_changed(slot: StringName, color: Color) -> void:
+	if _color_buttons.has(slot):
+		var color_button := _color_buttons[slot] as ColorPickerButton
+		color_button.color = color
+
+
+func _on_aura_changed(current: int) -> void:
+	if _aura_label != null:
+		_aura_label.text = "AURA  %d" % current
