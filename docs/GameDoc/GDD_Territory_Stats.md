@@ -55,8 +55,14 @@ Reputation dictates the player's economic leverage and control over a neighborho
 * Hood East and Hood West track Heat and Reputation independently.
 * A successful sale adds the product's configured Heat and Reputation rewards
   to the territory where the customer is standing.
-* Heat decays automatically over time.
+* Weed adds `1` Heat per gram, Coke adds `2`, and Fent adds `3`.
+* Heat continuously decays at `0.25` per second, including during active dealing.
 * Customers refuse sales when their territory reaches `76` Heat.
+* Local supplier gates are Level 1 at `0` Rep, Level 2 at `15`, Level 3 at
+  `40`, Level 4 at `80`, and wholesalers at `100`.
+* Locked suppliers remain visible and show their local Reputation requirement.
+* Each territory provides deterministic Level 2, 3, and 4 progression dealers
+  alongside its starting Level 1 dealer. Level 1 dealers stock `25-35g` Weed.
 
 ## Current Wanted Response
 

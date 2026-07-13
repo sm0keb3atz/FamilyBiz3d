@@ -5,6 +5,7 @@ extends Marker3D
 @export var dealer_container_path := NodePath("../Gameplay")
 @export var territory_id: StringName
 @export_range(1, 12, 1) var dealer_count := 3
+@export var dealer_levels := PackedInt32Array()
 @export var guarantee_level_one_in_territory := true
 @export_range(0.0, 20.0, 0.5) var spawn_radius := 4.0
 @export_range(-1.0, 1.0, 0.01) var spawn_vertical_offset := -0.1
@@ -47,13 +48,17 @@ func spawn_dealers() -> Array[DealerNPC]:
 		dealer.global_position += _get_spawn_offset(index)
 		dealer.global_position.y += spawn_vertical_offset
 		var level := 1
-		if not (needs_level_one and index == 0):
+		if index < dealer_levels.size():
+			level = clampi(dealer_levels[index], 1, 4)
+		elif not (needs_level_one and index == 0):
 			level = DealerRoleComponent.roll_weighted_level(_random)
 		var role := dealer.get_role_component()
 		if role == null:
 			dealer.queue_free()
 			continue
 		role.territory_id = territory_id
+		if index < dealer_levels.size():
+			role.set_fixed_progression_level(level)
 		dealer.configure_dealer(level, false)
 		_spawned_dealers.append(dealer)
 	return _spawned_dealers

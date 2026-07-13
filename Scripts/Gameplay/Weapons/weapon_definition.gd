@@ -5,6 +5,12 @@ extends Resource
 @export var display_name := "Weapon"
 @export var visual_scene: PackedScene
 
+@export_category("Store")
+@export_multiline var description := ""
+@export_range(0, 1000000, 1) var purchase_price := 0
+@export_range(1, 9999, 1) var ammo_bundle_amount := 30
+@export_range(0, 1000000, 1) var ammo_bundle_price := 100
+
 @export_category("Combat")
 @export_range(0.0, 1000.0, 0.1) var damage := 10.0
 @export_range(0.01, 5.0, 0.01) var fire_interval := 0.25
@@ -35,3 +41,7 @@ func get_capacity_for_magazine_type(magazine_type: int) -> int:
 			return drum_magazine_capacity
 		_:
 			return magazine_capacity
+
+
+func get_rounds_per_second() -> float:
+	return 1.0 / maxf(fire_interval, 0.01)

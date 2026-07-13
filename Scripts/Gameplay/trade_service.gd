@@ -79,8 +79,13 @@ func sell_product(
 	if not inventory.remove_product(product, amount):
 		return TradeResult.failed("Sale failed.")
 
-	var total_sale_price := product.sale_price * amount
-	var total_experience := product.experience_reward * float(amount)
+	var hustle_multiplier := stats.get_hustle_sale_multiplier()
+	var total_sale_price := roundi(
+		float(product.sale_price * amount) * hustle_multiplier
+	)
+	var total_experience := (
+		product.experience_reward * float(amount) * hustle_multiplier
+	)
 	var total_reputation := product.reputation_reward * float(amount)
 	var total_heat := product.heat_reward * float(amount)
 	wallet.add_dirty(total_sale_price)

@@ -38,6 +38,8 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if not _is_open and not _menu_controller.active_menu.is_empty():
+		return
 	if (
 		event is InputEventKey
 		and event.pressed

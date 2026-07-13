@@ -1,6 +1,9 @@
 class_name DealerRoleComponent
 extends NPCRoleComponent
 
+const DEALER_REP_REQUIREMENTS := [0.0, 15.0, 40.0, 80.0]
+const WHOLESALER_REP_REQUIREMENT := 100.0
+
 signal stock_changed
 signal cooldown_changed(remaining: float)
 
@@ -15,6 +18,7 @@ var _stock: Dictionary[StringName, int] = {}
 var _products: Dictionary[StringName, ProductDefinition] = {}
 var _cooldown_remaining := 0.0
 var _random := RandomNumberGenerator.new()
+var _fixed_progression_level := 0
 
 
 func _ready() -> void:
@@ -58,6 +62,10 @@ func configure_dealer(level := 1, wholesaler := false) -> void:
 	_refresh_wholesaler_visibility()
 
 
+func set_fixed_progression_level(level: int) -> void:
+	_fixed_progression_level = clampi(level, 0, 4)
+
+
 static func roll_weighted_level(random: RandomNumberGenerator) -> int:
 	var roll := random.randi_range(1, 100)
 	if roll <= 55:
@@ -71,20 +79,28 @@ static func roll_weighted_level(random: RandomNumberGenerator) -> int:
 
 func can_interact(_player: CharacterBody3D) -> bool:
 	_refresh_wholesaler_visibility()
-	return (
-		not npc.is_defeated()
-		and _is_wholesaler_unlocked()
-		and (not _stock.is_empty() or _cooldown_remaining > 0.0)
-	)
+	return not npc.is_defeated()
 
 
 func get_interaction_prompt(_player: CharacterBody3D) -> String:
+	if not _is_unlocked():
+		return "E - Locked (%d Territory Rep)" % roundi(
+			get_required_reputation()
+		)
 	if _cooldown_remaining > 0.0:
 		return "E - Dealer restocking"
 	return "E - Shop"
 
 
 func interact(player: CharacterBody3D) -> void:
+	if not _is_unlocked():
+		var hud := player.get_node_or_null("PlayerHUD") as PlayerHUD
+		if hud != null:
+			hud.show_feedback(
+				"Requires %d Reputation in this territory."
+				% roundi(get_required_reputation())
+			)
+		return
 	var shop_menu := player.get_node_or_null(
 		"DealerShopMenu"
 	) as DealerShopMenu
@@ -101,6 +117,10 @@ func try_purchase(
 		return "This dealer has nothing for sale."
 	if amount <= 0:
 		return "Invalid purchase amount."
+	if not _is_unlocked():
+		return "Requires %d Reputation in this territory." % roundi(
+			get_required_reputation()
+		)
 	if _cooldown_remaining > 0.0:
 		return "Dealer is restocking."
 
@@ -145,7 +165,7 @@ func restock() -> void:
 	else:
 		match dealer_level:
 			1:
-				_stock_product(EconomyCatalog.WEED_1G, _random.randi_range(4, 10))
+				_stock_product(EconomyCatalog.WEED_1G, _random.randi_range(25, 35))
 			2:
 				_stock_product(EconomyCatalog.WEED_1G, _random.randi_range(14, 28))
 				_stock_product(EconomyCatalog.COKE_1G, _random.randi_range(2, 6))
@@ -217,8 +237,21 @@ func export_save_data() -> Dictionary:
 
 
 func import_save_data(data: Dictionary) -> void:
-	dealer_level = clampi(int(data.get("dealer_level", dealer_level)), 1, 4)
-	is_wholesaler = bool(data.get("is_wholesaler", is_wholesaler))
+	var imported_level := clampi(
+		int(data.get("dealer_level", dealer_level)),
+		1,
+		4
+	)
+	var imported_wholesaler := bool(data.get("is_wholesaler", is_wholesaler))
+	if _fixed_progression_level > 0:
+		dealer_level = _fixed_progression_level
+		is_wholesaler = false
+		if imported_level != dealer_level or imported_wholesaler:
+			restock()
+			return
+	else:
+		dealer_level = imported_level
+		is_wholesaler = imported_wholesaler
 	_cooldown_remaining = maxf(float(data.get("cooldown_remaining", 0.0)), 0.0)
 	_stock.clear()
 	_products.clear()
@@ -251,17 +284,26 @@ func _start_cooldown() -> void:
 	cooldown_changed.emit(_cooldown_remaining)
 
 
-func _is_wholesaler_unlocked() -> bool:
-	if not is_wholesaler:
-		return true
+func get_required_reputation() -> float:
+	if is_wholesaler:
+		return WHOLESALER_REP_REQUIREMENT
+	return DEALER_REP_REQUIREMENTS[clampi(dealer_level, 1, 4) - 1]
+
+
+func _is_unlocked() -> bool:
 	var territory := _find_territory()
-	return territory != null and territory.stats != null and territory.stats.reputation >= 100.0
+	return (
+		territory != null
+		and territory.stats != null
+		and territory.stats.reputation >= get_required_reputation()
+	)
 
 
 func _refresh_wholesaler_visibility() -> void:
 	if npc == null:
 		return
-	npc.visible = (not is_wholesaler) or _is_wholesaler_unlocked()
+	npc.visible = true
+	_refresh_role_label()
 
 
 func _refresh_role_label() -> void:
@@ -270,7 +312,14 @@ func _refresh_role_label() -> void:
 	var label := npc.get_node_or_null("RoleLabel") as Label3D
 	if label == null:
 		return
-	label.text = "WHOLESALER" if is_wholesaler else "DEALER L%d" % dealer_level
+	var title := "WHOLESALER" if is_wholesaler else "DEALER L%d" % dealer_level
+	if _is_unlocked():
+		label.text = title
+	else:
+		label.text = "%s (%d REP)" % [
+			title,
+			roundi(get_required_reputation()),
+		]
 
 
 func _find_territory() -> TerritoryBoundary:

@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 2
+const SAVE_VERSION := 4
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -13,6 +13,12 @@ const SAVE_PATH := "user://family_business_save.json"
 @onready var inventory := player.get_node(
 	"Components/InventoryComponent"
 ) as PlayerInventoryComponent
+@onready var wardrobe := player.get_node(
+	"Components/WardrobeComponent"
+) as PlayerWardrobeComponent
+@onready var weapon := player.get_node(
+	"Components/WeaponComponent"
+) as PlayerWeaponComponent
 @onready var stats := player.get_node(
 	"Components/StatsComponent"
 ) as PlayerStatsComponent
@@ -68,6 +74,8 @@ func save_game() -> bool:
 			"rotation_y": player.rotation.y,
 			"wallet": wallet.export_save_data(),
 			"inventory": inventory.export_save_data(),
+			"wardrobe": wardrobe.export_save_data(),
+			"weapons": weapon.export_save_data(),
 			"stats": stats.export_save_data(),
 			"wanted": wanted.export_save_data(),
 		},
@@ -101,6 +109,11 @@ func load_game() -> bool:
 	vehicle_component.prepare_for_load()
 	wallet.import_save_data(player_data.get("wallet", {}) as Dictionary)
 	inventory.import_save_data(player_data.get("inventory", {}) as Dictionary)
+	wardrobe.import_save_data(player_data.get("wardrobe", {}) as Dictionary)
+	weapon.import_save_data(
+		player_data.get("weapons", {}) as Dictionary,
+		int(data.get("version", 1)) < 3
+	)
 	stats.import_save_data(player_data.get("stats", {}) as Dictionary)
 	wanted.import_save_data(
 		player_data.get("wanted", {}) as Dictionary

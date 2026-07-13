@@ -138,6 +138,31 @@ func respond_to_solicitation(player: CharacterBody3D) -> bool:
 	return role_component.respond_to_solicitation(player)
 
 
+func assign_solicitation_order(
+	requested_product: ProductDefinition,
+	requested_amount: int
+) -> void:
+	role_component.assign_solicitation_order(
+		requested_product,
+		requested_amount
+	)
+
+
+func roll_solicitation_amount() -> int:
+	return role_component.roll_solicitation_amount()
+
+
+func get_solicitation_amount_range() -> Vector2i:
+	return role_component.get_solicitation_amount_range()
+
+
+func is_committed_to_solicitation(player: CharacterBody3D) -> bool:
+	return (
+		player == _target_player
+		and _state in [State.APPROACHING, State.WAITING]
+	)
+
+
 func is_solicitation_ready() -> bool:
 	return is_zero_approx(_solicitation_cooldown)
 

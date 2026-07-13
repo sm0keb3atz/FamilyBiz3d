@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/debug_command_console.gd" id="1"]
+
+[node name="DebugCommandConsole" type="CanvasLayer"]
+layer = 30
+script = ExtResource("1")

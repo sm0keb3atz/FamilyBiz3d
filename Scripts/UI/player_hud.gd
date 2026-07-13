@@ -10,6 +10,8 @@ signal daily_report_closed
 @export var arrest_component_path := NodePath("../Components/ArrestComponent")
 @export_range(0.0, 1000.0, 1.0) var debug_damage_amount := 25.0
 @export_range(0.05, 1.0, 0.01) var hit_marker_duration := 0.18
+@export_range(0.05, 1.0, 0.01) var cash_roll_duration := 0.35
+@export_range(0.1, 2.0, 0.05) var transaction_float_duration := 0.8
 
 @onready var health_bar := %HealthBar as ProgressBar
 @onready var health_value := %HealthValue as Label
@@ -20,6 +22,9 @@ signal daily_report_closed
 @onready var state_label := %StateLabel as Label
 @onready var dirty_cash_label := %DirtyCashLabel as Label
 @onready var clean_cash_label := %CleanCashLabel as Label
+@onready var money_panel := %MoneyPanel as PanelContainer
+@onready var transaction_float_layer := %TransactionFloatLayer as Control
+@onready var transaction_audio := %TransactionAudio as AudioStreamPlayer
 @onready var date_label := %DateLabel as Label
 @onready var time_label := %TimeLabel as Label
 @onready var daily_report_overlay := %DailyReportOverlay as Control
@@ -65,6 +70,16 @@ var _hit_marker_remaining := 0.0
 var _detection_debug_visible := false
 var _was_tree_paused := false
 var _previous_mouse_mode := Input.MOUSE_MODE_CAPTURED
+var _displayed_dirty_cash := 0.0
+var _displayed_clean_cash := 0.0
+var _pending_dirty_cash := 0
+var _pending_clean_cash := 0
+var _pending_money_refresh := false
+var _dirty_cash_tween: Tween
+var _clean_cash_tween: Tween
+var _dirty_cash_pulse_tween: Tween
+var _clean_cash_pulse_tween: Tween
+var _transaction_float_index := 0
 
 
 func _ready() -> void:
@@ -76,6 +91,7 @@ func _ready() -> void:
 	stats.level_changed.connect(_on_level_changed)
 	stats.health_depleted.connect(_on_health_depleted)
 	wallet.money_changed.connect(_on_money_changed)
+	wallet.transaction_completed.connect(_on_transaction_completed)
 	weapon.weapon_changed.connect(_on_weapon_changed)
 	weapon.ammo_changed.connect(_on_ammo_changed)
 	weapon.hit_confirmed.connect(_on_hit_confirmed)
@@ -160,7 +176,7 @@ func _refresh_all() -> void:
 		stats.get_experience_required_for_next_level()
 	)
 	_on_level_changed(stats.level)
-	_on_money_changed(wallet.dirty_cash, wallet.clean_cash)
+	_set_displayed_money(wallet.dirty_cash, wallet.clean_cash)
 	state_label.visible = is_zero_approx(stats.health)
 	interaction_prompt.visible = false
 	feedback_label.visible = false
@@ -252,8 +268,137 @@ func _close_daily_report() -> void:
 
 
 func _on_money_changed(dirty_cash: int, clean_cash: int) -> void:
-	dirty_cash_label.text = "DIRTY  $%d" % dirty_cash
-	clean_cash_label.text = "CLEAN  $%d" % clean_cash
+	_pending_dirty_cash = dirty_cash
+	_pending_clean_cash = clean_cash
+	if _pending_money_refresh:
+		return
+	_pending_money_refresh = true
+	call_deferred("_apply_pending_money_without_feedback")
+
+
+func _on_transaction_completed(
+	dirty_cash_delta: int,
+	clean_cash_delta: int
+) -> void:
+	_pending_money_refresh = false
+	if dirty_cash_delta != 0:
+		_animate_dirty_cash(float(wallet.dirty_cash))
+		_pulse_cash_label(dirty_cash_label, true)
+		_spawn_transaction_float(dirty_cash_delta)
+	else:
+		_set_displayed_dirty_cash(float(wallet.dirty_cash))
+	if clean_cash_delta != 0:
+		_animate_clean_cash(float(wallet.clean_cash))
+		_pulse_cash_label(clean_cash_label, false)
+		_spawn_transaction_float(clean_cash_delta)
+	else:
+		_set_displayed_clean_cash(float(wallet.clean_cash))
+	transaction_audio.play()
+
+
+func _apply_pending_money_without_feedback() -> void:
+	if not _pending_money_refresh:
+		return
+	_pending_money_refresh = false
+	_set_displayed_money(_pending_dirty_cash, _pending_clean_cash)
+
+
+func _set_displayed_money(dirty_cash: int, clean_cash: int) -> void:
+	if _dirty_cash_tween != null and _dirty_cash_tween.is_valid():
+		_dirty_cash_tween.kill()
+	if _clean_cash_tween != null and _clean_cash_tween.is_valid():
+		_clean_cash_tween.kill()
+	_set_displayed_dirty_cash(float(dirty_cash))
+	_set_displayed_clean_cash(float(clean_cash))
+
+
+func _animate_dirty_cash(target: float) -> void:
+	if _dirty_cash_tween != null and _dirty_cash_tween.is_valid():
+		_dirty_cash_tween.kill()
+	_dirty_cash_tween = create_tween()
+	_dirty_cash_tween.tween_method(
+		_set_displayed_dirty_cash,
+		_displayed_dirty_cash,
+		target,
+		cash_roll_duration
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
+func _animate_clean_cash(target: float) -> void:
+	if _clean_cash_tween != null and _clean_cash_tween.is_valid():
+		_clean_cash_tween.kill()
+	_clean_cash_tween = create_tween()
+	_clean_cash_tween.tween_method(
+		_set_displayed_clean_cash,
+		_displayed_clean_cash,
+		target,
+		cash_roll_duration
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
+func _set_displayed_dirty_cash(value: float) -> void:
+	_displayed_dirty_cash = value
+	dirty_cash_label.text = "DIRTY  $%d" % roundi(value)
+
+
+func _set_displayed_clean_cash(value: float) -> void:
+	_displayed_clean_cash = value
+	clean_cash_label.text = "CLEAN  $%d" % roundi(value)
+
+
+func _pulse_cash_label(label: Label, dirty: bool) -> void:
+	var active_tween := (
+		_dirty_cash_pulse_tween if dirty else _clean_cash_pulse_tween
+	)
+	if active_tween != null and active_tween.is_valid():
+		active_tween.kill()
+	label.pivot_offset = label.size * 0.5
+	label.scale = Vector2.ONE
+	var tween := create_tween()
+	tween.tween_property(label, "scale", Vector2(1.12, 1.12), 0.09)
+	tween.tween_property(label, "scale", Vector2.ONE, 0.16).set_trans(
+		Tween.TRANS_BACK
+	).set_ease(Tween.EASE_OUT)
+	if dirty:
+		_dirty_cash_pulse_tween = tween
+	else:
+		_clean_cash_pulse_tween = tween
+
+
+func _spawn_transaction_float(delta: int) -> void:
+	var label := Label.new()
+	label.text = "+$%d" % delta if delta > 0 else "-$%d" % -delta
+	label.modulate = (
+		Color(0.32, 0.95, 0.48, 1.0)
+		if delta > 0
+		else Color(1.0, 0.3, 0.24, 1.0)
+	)
+	label.add_theme_font_size_override("font_size", 22)
+	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+	label.add_theme_constant_override("shadow_offset_x", 2)
+	label.add_theme_constant_override("shadow_offset_y", 2)
+	label.size = Vector2(150.0, 32.0)
+	label.position = (
+		money_panel.position
+		+ Vector2(18.0 + float(_transaction_float_index % 3) * 12.0, -8.0)
+	)
+	_transaction_float_index += 1
+	transaction_float_layer.add_child(label)
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(
+		label,
+		"position:y",
+		label.position.y - 48.0,
+		transaction_float_duration
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(
+		label,
+		"modulate:a",
+		0.0,
+		transaction_float_duration * 0.55
+	).set_delay(transaction_float_duration * 0.45)
+	tween.chain().tween_callback(label.queue_free)
 
 
 func _on_feedback_timeout() -> void:

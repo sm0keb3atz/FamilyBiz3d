@@ -7,6 +7,14 @@
 [ext_resource type="ArrayMesh" uid="uid://bkgfypoi0u130" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_base.glb" id="4_s1b3l"]
 [ext_resource type="PackedScene" uid="uid://c0eipv3r5ufeg" path="res://Scenes/Maps/RoadPieces/RoadStraight.tscn" id="5_ihl8a"]
 [ext_resource type="PackedScene" uid="uid://dr3oh2pyyibn5" path="res://Scenes/Maps/RoadPieces/EdgeIntersection.tscn" id="7_wi2nh"]
+[ext_resource type="ArrayMesh" uid="uid://ciqwe8yur35ny" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_04_quarter.glb" id="8_wi2nh"]
+[ext_resource type="PackedScene" uid="uid://dc6m74vb0nm8e" path="res://Scenes/Maps/Buildings/building_1.tscn" id="9_tt8na"]
+[ext_resource type="PackedScene" uid="uid://6mxy0jff8eru" path="res://Scenes/Maps/Buildings/GunStore.tscn" id="10_7pymp"]
+[ext_resource type="PackedScene" uid="uid://df2a8o772ovav" path="res://Scenes/Maps/Buildings/corner_store.tscn" id="11_hfr2e"]
+[ext_resource type="PackedScene" uid="uid://cexxortle2liv" path="res://Scenes/Maps/Buildings/corner_store2.tscn" id="12_q756g"]
+[ext_resource type="PackedScene" uid="uid://dlx2n61a113ri" path="res://Scenes/Maps/Buildings/building_2.tscn" id="13_i5sdg"]
+[ext_resource type="PackedScene" uid="uid://cban7tcyvqm6b" path="res://Scenes/Maps/Buildings/ClothingStore.tscn" id="14_7pymp"]
+[ext_resource type="PackedScene" uid="uid://blmeb18vhv0uc" path="res://Scenes/Maps/atm_machine.tscn" id="14_tt8na"]
 
 [node name="HoodEastBlock1" type="Node3D" unique_id=177450189]
 
@@ -597,3 +605,53 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 120)
 
 [node name="Intersection6" parent="Roads" unique_id=572012062 instance=ExtResource("7_wi2nh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116, 0, 120)
+
+[node name="Alleyway" type="Node3D" parent="." unique_id=1534005581]
+
+[node name="SmRoad04Quarter" type="MeshInstance3D" parent="Alleyway" unique_id=798867023]
+transform = Transform3D(3.897, 0, 0, 0, 0.984, 0, 0, 0, 5.5, 64, 0.01, -28)
+mesh = ExtResource("8_wi2nh")
+
+[node name="Buildings" type="Node3D" parent="." unique_id=1555797954]
+
+[node name="Building1" parent="Buildings" unique_id=1313747676 instance=ExtResource("9_tt8na")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 34, 0, -29)
+
+[node name="Building9" parent="Buildings" unique_id=476124924 instance=ExtResource("9_tt8na")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 81.1, 0, -39.300003)
+
+[node name="GunStore" parent="Buildings" unique_id=1778244247 instance=ExtResource("10_7pymp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0.01, -98.2)
+
+[node name="CornerStore" parent="Buildings" unique_id=112300491 instance=ExtResource("11_hfr2e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0.01, -107)
+
+[node name="CornerStore2" parent="Buildings" unique_id=1374684364 instance=ExtResource("12_q756g")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0.01, -47)
+
+[node name="Building2" parent="Buildings" unique_id=585605033 instance=ExtResource("9_tt8na")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, 0.01, -62)
+
+[node name="Building3" parent="Buildings" unique_id=1600041131 instance=ExtResource("13_i5sdg")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 30, 0.01, -57)
+
+[node name="Building4" parent="Buildings" unique_id=1635346297 instance=ExtResource("13_i5sdg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, 0.01, -75)
+
+[node name="Building5" parent="Buildings" unique_id=1348827309 instance=ExtResource("13_i5sdg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, 0.01, -88)
+
+[node name="Building7" parent="Buildings" unique_id=1384899513 instance=ExtResource("13_i5sdg")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 80.9, 0.01, -100.5)
+
+[node name="Building8" parent="Buildings" unique_id=580221544 instance=ExtResource("13_i5sdg")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 80.9, 0.01, -86.9)
+
+[node name="Building6" parent="Buildings" unique_id=1472734539 instance=ExtResource("9_tt8na")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 29, 0.01, -98)
+
+[node name="ClothingStore" parent="Buildings" unique_id=1210165433 instance=ExtResource("14_7pymp")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 79.6, 0.01, -115.799995)
+
+[node name="AtmMachine" parent="." unique_id=1534474147 instance=ExtResource("14_tt8na")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 63, 1.4, -115.200005)

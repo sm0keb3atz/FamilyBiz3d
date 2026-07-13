@@ -17,6 +17,9 @@ func _run() -> void:
 		"Components/WeaponComponent"
 	) as PlayerWeaponComponent
 	assert(weapon != null)
+	assert(weapon.get_weapon_slots().is_empty())
+	assert(weapon.grant_weapon(weapon.pistol_definition))
+	assert(weapon.grant_weapon(weapon.draco_definition))
 	assert(weapon.get_weapon_slots().size() == 2)
 	assert(weapon.equip_slot(1))
 	assert(weapon.get_magazine_capacity() == 15)
@@ -29,6 +32,12 @@ func _run() -> void:
 	assert(presentation.find_child("PistolModel", true, false) != null)
 	assert(not presentation.is_attachment_visible(&"sights"))
 
+	assert(not weapon.set_sights_enabled(true))
+	assert(weapon.unlock_attachment(&"pistol", &"sights"))
+	assert(weapon.unlock_attachment(&"pistol", &"laser"))
+	assert(weapon.unlock_attachment(&"pistol", &"switch"))
+	assert(weapon.unlock_attachment(&"pistol", &"extended"))
+	assert(weapon.unlock_attachment(&"pistol", &"drum"))
 	weapon.set_sights_enabled(true)
 	assert(weapon.get_aim_distance_override() == 0.75)
 	assert(presentation.is_attachment_visible(&"sights"))
@@ -57,6 +66,8 @@ func _run() -> void:
 
 	assert(weapon.equip_slot(2))
 	assert(weapon.get_equipped_weapon().weapon_id == &"draco")
+	for attachment_id in PlayerWeaponComponent.STORE_ATTACHMENT_IDS:
+		assert(weapon.unlock_attachment(&"draco", attachment_id))
 	assert(weapon.get_magazine_capacity() == 32)
 	assert(weapon.get_equipped_weapon().gunshot_sound != pistol_definition.gunshot_sound)
 	presentation = player.get_node(
@@ -91,15 +102,11 @@ func _run() -> void:
 	weapon.set_laser_enabled(false)
 	assert(not weapon.is_target_lock_enabled())
 
-	var menu := player.get_node("WeaponDebugMenu") as WeaponDebugMenu
-	assert(menu != null)
-	var toggle_event := InputEventKey.new()
-	toggle_event.physical_keycode = KEY_G
-	toggle_event.pressed = true
-	menu._input(toggle_event)
-	assert(menu.menu_root.visible)
-	menu._input(toggle_event)
-	assert(not menu.menu_root.visible)
+	var saved := weapon.export_save_data()
+	weapon.import_save_data(saved)
+	assert(weapon.owns_weapon(&"pistol"))
+	assert(weapon.owns_weapon(&"draco"))
+	assert(weapon.owns_attachment(&"pistol", &"sights"))
 
 	print("WEAPON_ATTACHMENT_SMOKE_TEST_PASS")
 	quit(0)

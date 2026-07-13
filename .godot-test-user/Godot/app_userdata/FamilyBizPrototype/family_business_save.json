@@ -1,36 +1,138 @@
 {
+	"dealers": {
+		"/root/World/Gameplay/@CharacterBody3D@18": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 3,
+			"is_wholesaler": false,
+			"stock": {
+				"coke_1g": 17,
+				"fent_1g": 2
+			}
+		},
+		"/root/World/Gameplay/@CharacterBody3D@20": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 4,
+			"is_wholesaler": false,
+			"stock": {
+				"fent_brick": 3
+			}
+		},
+		"/root/World/Gameplay/@CharacterBody3D@22": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 2,
+			"is_wholesaler": false,
+			"stock": {
+				"coke_1g": 5,
+				"weed_1g": 19
+			}
+		},
+		"/root/World/Gameplay/@CharacterBody3D@24": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 3,
+			"is_wholesaler": false,
+			"stock": {
+				"coke_1g": 20,
+				"fent_1g": 5
+			}
+		},
+		"/root/World/Gameplay/@CharacterBody3D@26": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 4,
+			"is_wholesaler": false,
+			"stock": {
+				"coke_brick": 1
+			}
+		},
+		"/root/World/Gameplay/DealerNPC": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 2,
+			"is_wholesaler": false,
+			"stock": {
+				"coke_1g": 5,
+				"weed_1g": 24
+			}
+		},
+		"/root/World/Gameplay/EastDealer": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 1,
+			"is_wholesaler": true,
+			"stock": {
+				"coke_brick": 12,
+				"fent_brick": 11,
+				"weed_brick": 14
+			}
+		},
+		"/root/World/Gameplay/WestDealer": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 1,
+			"is_wholesaler": false,
+			"stock": {
+				"weed_1g": 34
+			}
+		}
+	},
 	"player": {
 		"inventory": {
-			"test_product": 0
+			"coke_1g": 0,
+			"coke_brick": 0,
+			"fent_1g": 0,
+			"fent_brick": 0,
+			"weed_1g": 134,
+			"weed_brick": 0
 		},
 		"position": [
-			60.0,
-			0.632528483867645,
-			-5.0
+			64.0,
+			0.000468746642582119,
+			0.0
 		],
 		"rotation_y": 0.0,
 		"stats": {
-			"experience": 0.0,
+			"experience": 15.0,
 			"health": 100.0,
+			"hustle": 1,
 			"level": 1,
 			"skill_points": 0,
 			"stamina": 100.0,
 			"strength": 1
 		},
 		"wallet": {
+			"atm_deposit_date": "",
+			"atm_deposited_today": 0,
 			"clean_cash": 0,
-			"dirty_cash": 100
+			"dirty_cash": 858
+		},
+		"wanted": {
+			"trigger_territory_id": "",
+			"wanted_level": 0
+		},
+		"weapons": {
+			"attachment_states": {},
+			"attachment_unlocks": {},
+			"equipped_weapon_id": "",
+			"magazine_ammo": {},
+			"owned_weapon_ids": [],
+			"reserve_ammo": {}
 		}
 	},
 	"territories": {
 		"hood_east": {
-			"heat": 0.0,
-			"reputation": 0.0
+			"heat": 2.9561218124989,
+			"reputation": 100.0
 		},
 		"hood_west": {
 			"heat": 0.0,
 			"reputation": 0.0
 		}
 	},
-	"version": 1
+	"version": 3,
+	"world_time": {
+		"daily_earned": 1054,
+		"daily_spent": 296,
+		"day": 1,
+		"minute_accumulator": 0.325512750004418,
+		"minute_of_day": 480,
+		"month": 1,
+		"weekday": 0,
+		"year": 1
+	}
 }

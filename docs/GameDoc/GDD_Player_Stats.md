@@ -6,7 +6,7 @@ This document outlines the core player-specific attributes, progression systems,
 
 ## 👤 Core Player Stats
 
-The player character has five primary stats that dictate their physical capabilities, progression, and social standing in the game world.
+The player character has six primary stats that dictate their physical capabilities, progression, dealing efficiency, and social standing in the game world.
 
 | Stat | Type | Default | Purpose | How to Modify |
 | :--- | :--- | :--- | :--- | :--- |
@@ -15,6 +15,7 @@ The player character has five primary stats that dictate their physical capabili
 | **Aura** | Float | `0.0` | Social credit and style rating. Dictates success rates with romantic interests (girls) and general social respect. | **Decrease**: Wearing damaged/deteriorating gear, getting arrested, or failing interactions.<br>**Increase**: Equipping high-quality clothes, jewelry, cars, and owning property. |
 | **EXP** | Float | `0.0` | Experience points representing the player's overall growth. | **Increase**: Gained by completing successful deals, expanding territory, buying property, and laundering money. |
 | **Level** | Integer | `1` | The player's overall rank. Used to unlock higher-tier gameplay features. | **Increase**: Reaching the EXP threshold for the current level triggers a level up, resetting the EXP bar and incrementing the level. |
+| **Hustle** | Integer | `1` | Improves street-sale cash, sale EXP, and the number of customers a solicitation can attract. | **Increase**: Spend one skill point in the Player Attributes menu, up to Hustle 10. |
 
 ---
 
@@ -78,5 +79,8 @@ The first player stats implementation uses the following finalized rules:
 * Every level awards `1` skill point and adds `2` maximum Stamina.
 * Strength starts at `1` and costs `1` skill point per increase.
 * Each Strength point after the first adds `10` maximum Health and `5` maximum Stamina.
+* Hustle starts at `1`, costs `1` skill point per increase, and caps at `10`.
+* Each Hustle point after the first adds `5%` street-sale cash and EXP. Reputation and Heat are not multiplied.
+* Solicitation attracts up to `2 + (Hustle - 1)` customers, capped at `6`.
 * Maximum Health is `100 + ((Strength - 1) x 10)`.
 * Maximum Stamina is `100 + ((Strength - 1) x 5) + ((Level - 1) x 2)`.

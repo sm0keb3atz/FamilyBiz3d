@@ -138,6 +138,7 @@ dealer_scene = ExtResource("4_dealer")
 dealer_container_path = NodePath("../../Gameplay")
 territory_id = &"hood_east"
 dealer_count = 3
+dealer_levels = PackedInt32Array(2, 3, 4)
 
 [node name="WestDealerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=624407290]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0.1, -256)
@@ -146,6 +147,7 @@ dealer_scene = ExtResource("4_dealer")
 dealer_container_path = NodePath("../../Gameplay")
 territory_id = &"hood_west"
 dealer_count = 3
+dealer_levels = PackedInt32Array(2, 3, 4)
 
 [node name="Gameplay" type="Node3D" parent="." unique_id=319354138]
 

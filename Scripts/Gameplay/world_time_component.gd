@@ -97,6 +97,15 @@ func get_formatted_time() -> String:
 	return "%d:%02d %s" % [hour_12, minute, suffix]
 
 
+func set_time_of_day(hour: int, minute: int) -> bool:
+	if hour < 0 or hour > 23 or minute < 0 or minute > 59:
+		return false
+	minute_of_day = hour * 60 + minute
+	_update_visuals()
+	_emit_time_changed()
+	return true
+
+
 func export_save_data() -> Dictionary:
 	return {
 		"year": year,

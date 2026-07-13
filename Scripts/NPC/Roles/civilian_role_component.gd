@@ -103,6 +103,33 @@ func can_player_fill_order(player: CharacterBody3D) -> bool:
 	return inventory != null and inventory.has_product(product_wanted, amount_wanted)
 
 
+func assign_solicitation_order(
+	requested_product: ProductDefinition,
+	requested_amount: int
+) -> void:
+	product_wanted = requested_product
+	amount_wanted = maxi(requested_amount, 0)
+	_refresh_role_label()
+
+
+func roll_solicitation_amount() -> int:
+	var amount_range := get_solicitation_amount_range()
+	return _random.randi_range(amount_range.x, amount_range.y)
+
+
+func get_solicitation_amount_range() -> Vector2i:
+	match clampi(customer_level, 1, 4):
+		1:
+			return Vector2i(1, 4)
+		2:
+			return Vector2i(5, 10)
+		3:
+			return Vector2i(10, 20)
+		4:
+			return Vector2i(20, 40)
+	return Vector2i.ONE
+
+
 static func roll_weighted_level(random: RandomNumberGenerator) -> int:
 	var roll := random.randi_range(1, 100)
 	if roll <= 55:
@@ -116,34 +143,11 @@ static func roll_weighted_level(random: RandomNumberGenerator) -> int:
 
 func _roll_demand() -> void:
 	customer_level = roll_weighted_level(_random)
-	match customer_level:
-		1:
-			product_wanted = EconomyCatalog.WEED_1G
-			amount_wanted = _random.randi_range(1, 3)
-		2:
-			if _random.randf() < 0.65:
-				product_wanted = EconomyCatalog.WEED_1G
-				amount_wanted = _random.randi_range(4, 10)
-			else:
-				product_wanted = EconomyCatalog.COKE_1G
-				amount_wanted = _random.randi_range(1, 3)
-		3:
-			if _random.randf() < 0.7:
-				product_wanted = EconomyCatalog.COKE_1G
-				amount_wanted = _random.randi_range(4, 10)
-			else:
-				product_wanted = EconomyCatalog.FENT_1G
-				amount_wanted = _random.randi_range(1, 3)
-		4:
-			if _random.randf() < 0.55:
-				product_wanted = EconomyCatalog.COKE_1G
-				amount_wanted = _random.randi_range(10, 20)
-			else:
-				product_wanted = EconomyCatalog.FENT_1G
-				amount_wanted = _random.randi_range(4, 10)
-		_:
-			product_wanted = EconomyCatalog.WEED_1G
-			amount_wanted = 1
+	var gram_products := EconomyCatalog.get_gram_products()
+	product_wanted = gram_products[
+		_random.randi_range(0, gram_products.size() - 1)
+	]
+	amount_wanted = roll_solicitation_amount()
 	if npc != null and npc.has_method("apply_customer_level_style"):
 		npc.call("apply_customer_level_style", customer_level)
 

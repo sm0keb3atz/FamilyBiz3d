@@ -46,9 +46,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -230.0
-offset_top = -250.0
+offset_top = -340.0
 offset_right = 230.0
-offset_bottom = 250.0
+offset_bottom = 340.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
@@ -187,6 +187,40 @@ layout_mode = 2
 text = "0"
 
 [node name="PurchaseStrengthButton" type="Button" parent="MenuRoot/Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+disabled = true
+text = "Requires 1 Skill Point"
+
+[node name="HustleSeparator" type="HSeparator" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="HustleHeading" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 21
+text = "HUSTLE"
+
+[node name="HustleDescription" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.73, 0.78, 1)
+text = "Each point attracts more customers and adds 5% sale cash and EXP. Customer capacity is capped at 6."
+autowrap_mode = 2
+
+[node name="HustleRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Current Hustle"
+
+[node name="HustleValue" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1"
+
+[node name="PurchaseHustleButton" type="Button" parent="MenuRoot/Panel/Margin/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2

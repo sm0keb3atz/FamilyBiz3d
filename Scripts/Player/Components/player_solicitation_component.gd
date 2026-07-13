@@ -21,6 +21,12 @@ extends Node
 @onready var wanted := get_node(
 	wanted_component_path
 ) as PlayerWantedComponent
+@onready var stats := player.get_node(
+	"Components/StatsComponent"
+) as PlayerStatsComponent
+@onready var inventory := player.get_node(
+	"Components/InventoryComponent"
+) as PlayerInventoryComponent
 
 var _gameplay_enabled := true
 var _pulse_tween: Tween
@@ -52,33 +58,89 @@ func solicit() -> void:
 		player.global_position,
 		solicitation_radius
 	)
-	var customer := _select_customer()
-	if customer == null:
+	var customers := _select_customers()
+	if customers.is_empty():
 		hud.show_feedback("No customers buying what you carry.")
 		return
 
-	if customer.respond_to_solicitation(player):
+	var responding_count := 0
+	for customer in customers:
+		if customer.respond_to_solicitation(player):
+			responding_count += 1
+	if responding_count == 1:
 		hud.show_feedback("A customer is coming over.")
+	elif responding_count > 1:
+		hud.show_feedback("%d customers are coming over." % responding_count)
 	else:
 		hud.show_feedback("No customers buying what you carry.")
 
 
-func _select_customer() -> CustomerNPC:
-	var nearest: CustomerNPC
-	var nearest_distance := solicitation_radius
-
+func _select_customers() -> Array[CustomerNPC]:
+	var available := _get_unreserved_inventory()
+	var candidates: Array[CustomerNPC] = []
 	for node in get_tree().get_nodes_in_group("customer_npc"):
 		var customer := node as CustomerNPC
 		if customer == null or not customer.can_respond_to_solicitation():
 			continue
-		if not customer.can_player_fill_order(player):
-			continue
 		var distance := player.global_position.distance_to(customer.global_position)
-		if distance <= nearest_distance:
-			nearest = customer
-			nearest_distance = distance
+		if distance <= solicitation_radius:
+			candidates.append(customer)
+	candidates.sort_custom(func(a: CustomerNPC, b: CustomerNPC) -> bool:
+		var a_distance := player.global_position.distance_squared_to(
+			a.global_position
+		)
+		var b_distance := player.global_position.distance_squared_to(
+			b.global_position
+		)
+		return a_distance < b_distance
+	)
 
-	return nearest
+	var selected: Array[CustomerNPC] = []
+	for customer in candidates:
+		if selected.size() >= stats.get_hustle_customer_limit():
+			break
+		var product := _get_largest_available_product(available)
+		if product == null:
+			break
+		var remaining := int(available.get(product.product_id, 0))
+		var amount := mini(customer.roll_solicitation_amount(), remaining)
+		if amount <= 0:
+			continue
+		customer.assign_solicitation_order(product, amount)
+		available[product.product_id] = remaining - amount
+		selected.append(customer)
+	return selected
+
+
+func _get_unreserved_inventory() -> Dictionary[StringName, int]:
+	var available: Dictionary[StringName, int] = {}
+	for product in EconomyCatalog.get_gram_products():
+		available[product.product_id] = inventory.get_quantity(product)
+	for node in get_tree().get_nodes_in_group("customer_npc"):
+		var customer := node as CustomerNPC
+		if customer == null or not customer.is_committed_to_solicitation(player):
+			continue
+		if customer.product_wanted == null or customer.product_wanted.is_brick():
+			continue
+		var product_id := customer.product_wanted.product_id
+		available[product_id] = maxi(
+			int(available.get(product_id, 0)) - customer.amount_wanted,
+			0
+		)
+	return available
+
+
+func _get_largest_available_product(
+	available: Dictionary[StringName, int]
+) -> ProductDefinition:
+	var best: ProductDefinition
+	var best_quantity := 0
+	for product in EconomyCatalog.get_gram_products():
+		var quantity := int(available.get(product.product_id, 0))
+		if quantity > best_quantity:
+			best = product
+			best_quantity = quantity
+	return best
 
 
 func _play_pulse() -> void:

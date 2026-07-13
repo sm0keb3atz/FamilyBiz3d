@@ -122,6 +122,7 @@ var _material_color := {
 var _material_variants: Dictionary = {}
 var _body_variant := BODY_VARIANT_MALE
 var _current_aura := 0
+var _equipped_aura_by_slot: Dictionary[StringName, int] = {}
 
 
 func _ready() -> void:
@@ -143,6 +144,91 @@ func _ready() -> void:
 
 func get_current_aura() -> int:
 	return _current_aura
+
+
+func apply_clothing_definition(
+	definition: ClothingDefinition,
+	color := Color.WHITE
+) -> bool:
+	if definition == null or not _options.has(definition.category):
+		return false
+	var option_index := _find_option_index(
+		definition.category,
+		definition.mesh_name
+	)
+	if option_index < 0:
+		return false
+	_selected[definition.category] = option_index
+	var material_index := _find_material_index(
+		definition.category,
+		definition.material
+	)
+	if material_index < 0:
+		return false
+	_selected_material[definition.category] = material_index
+	if definition.tintable:
+		_material_color[definition.category] = color
+		material_color_changed.emit(definition.category, color)
+	_equipped_aura_by_slot[definition.category] = definition.aura
+	_apply_slot(definition.category)
+	_apply_material(definition.category)
+	return true
+
+
+func get_selected_mesh_name(slot: StringName) -> StringName:
+	return _selected_node_name(slot)
+
+
+func copy_skeleton_pose_to(target: PlayerAppearanceComponent) -> void:
+	if _skeleton == null or target == null or target._skeleton == null:
+		return
+	target.set_body_variant(_body_variant)
+	target._selected_material[SLOT_BODY] = _selected_material[SLOT_BODY]
+	target._apply_material(SLOT_BODY)
+	for source_index in _skeleton.get_bone_count():
+		var target_index := target._skeleton.find_bone(
+			_skeleton.get_bone_name(source_index)
+		)
+		if target_index < 0:
+			continue
+		target._skeleton.set_bone_pose_position(
+			target_index,
+			_skeleton.get_bone_pose_position(source_index)
+		)
+		target._skeleton.set_bone_pose_rotation(
+			target_index,
+			_skeleton.get_bone_pose_rotation(source_index)
+		)
+		target._skeleton.set_bone_pose_scale(
+			target_index,
+			_skeleton.get_bone_pose_scale(source_index)
+		)
+
+
+func _find_option_index(slot: StringName, mesh_name: StringName) -> int:
+	if not _options.has(slot):
+		return -1
+	var options: Array = _options[slot]
+	for index in options.size():
+		if StringName(options[index]["node"]) == mesh_name:
+			return index
+	return -1
+
+
+func _find_material_index(slot: StringName, target: Material) -> int:
+	var materials := _get_material_options(slot)
+	for index in materials.size():
+		var candidate := materials[index].get("material") as Material
+		if candidate == target:
+			return index
+		if (
+			candidate != null
+			and target != null
+			and not candidate.resource_path.is_empty()
+			and candidate.resource_path == target.resource_path
+		):
+			return index
+	return -1
 
 
 func cycle_option(slot: StringName, direction: int) -> void:
@@ -509,11 +595,14 @@ func _register_material_file(file_name: String) -> void:
 func _recalculate_aura() -> void:
 	var next_aura := 0
 	for slot in [SLOT_TOP, SLOT_BOTTOM, SLOT_SHOES]:
-		if slot == SLOT_SHOES and _selected_node_name(slot) == &"SHOES_02_Boots":
-			next_aura += 50
-		var materials := _get_material_options(slot)
-		if not materials.is_empty():
-			next_aura += int(materials[int(_selected_material[slot])].get("aura", 0))
+		if _equipped_aura_by_slot.has(slot):
+			next_aura += int(_equipped_aura_by_slot[slot])
+		else:
+			if slot == SLOT_SHOES and _selected_node_name(slot) == &"SHOES_02_Boots":
+				next_aura += 50
+			var materials := _get_material_options(slot)
+			if not materials.is_empty():
+				next_aura += int(materials[int(_selected_material[slot])].get("aura", 0))
 	if next_aura == _current_aura:
 		return
 	_current_aura = next_aura

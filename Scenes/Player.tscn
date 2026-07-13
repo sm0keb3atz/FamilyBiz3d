@@ -14,7 +14,6 @@
 [ext_resource type="Script" uid="uid://c0c3nnrp2fcfq" path="res://Scripts/Player/Components/player_ragdoll_component.gd" id="11_ragdoll"]
 [ext_resource type="Script" uid="uid://culvd2uyrw0g2" path="res://Scripts/Player/Components/player_respawn_component.gd" id="12_respawn"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/PlayerStatsMenu.tscn" id="13_stats_menu"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/WeaponDebugMenu.tscn" id="13_weapon_debug"]
 [ext_resource type="Script" uid="uid://cplpescseno4m" path="res://Scripts/Player/Components/player_weapon_component.gd" id="14_weapon"]
 [ext_resource type="Script" uid="uid://cj3swlfkjnljr" path="res://Scripts/Player/Components/player_wallet_component.gd" id="15_wallet"]
 [ext_resource type="AudioStream" uid="uid://kvrkr72ac7f8" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 01_AUDIOELK_AUDIOELK.wav" id="15_wenux"]
@@ -34,6 +33,12 @@
 [ext_resource type="AudioStream" uid="uid://co6byji67ukod" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 07_AUDIOELK_AUDIOELK.wav" id="21_uytvf"]
 [ext_resource type="AudioStream" uid="uid://qwijrjt207c0" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 08_AUDIOELK_AUDIOELK.wav" id="22_s7lb4"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/DealerShopMenu.tscn" id="22_shop_menu"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/gun_store_service.gd" id="22_gun_store_service"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/GunStoreMenu.tscn" id="22_gun_store_menu"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/clothing_store_service.gd" id="22_clothing_store_service"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/ClothingStoreMenu.tscn" id="22_clothing_store_menu"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/ATMMenu.tscn" id="22_atm_menu"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DebugCommandConsole.tscn" id="22_debug_console"]
 [ext_resource type="AudioStream" uid="uid://ddgg0e777yuqs" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 09_AUDIOELK_AUDIOELK.wav" id="23_ed4yo"]
 [ext_resource type="Script" uid="uid://b08ui4exqy0kl" path="res://Scripts/Shared/character_visual_scale.gd" id="23_visual_scale"]
 [ext_resource type="Resource" uid="uid://3oyu4km5uovq" path="res://Scripts/Gameplay/Weapons/draco_definition.tres" id="24_draco"]
@@ -45,7 +50,7 @@
 [ext_resource type="Script" uid="uid://bjqk3lymu6fn0" path="res://Scripts/Player/Components/player_sound_component.gd" id="26_sound"]
 [ext_resource type="Script" uid="uid://bylmcxtnhxmu0" path="res://Scripts/Player/Components/player_appearance_component.gd" id="27_appearance"]
 [ext_resource type="AudioStream" uid="uid://cw87kh2figl3r" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 13_AUDIOELK_AUDIOELK.wav" id="27_ujsok"]
-[ext_resource type="Script" uid="uid://c1tgjg5q5daet" path="res://Scripts/UI/player_appearance_menu.gd" id="28_appearance_menu"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_wardrobe_component.gd" id="28_wardrobe"]
 [ext_resource type="AudioStream" uid="uid://dkocn7g7w2ix0" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Reload 1.wav" id="28_reload_1"]
 [ext_resource type="AudioStream" uid="uid://d2hectk745l0y" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 14_AUDIOELK_AUDIOELK.wav" id="28_txwsf"]
 [ext_resource type="AudioStream" uid="uid://b6t8ibffoe4p2" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 15_AUDIOELK_AUDIOELK.wav" id="29_i10l2"]
@@ -545,6 +550,9 @@ script = ExtResource("16_girlfriend")
 [node name="TradeService" type="Node" parent="Components" unique_id=2135880022]
 script = ExtResource("30_trade")
 
+[node name="GunStoreService" type="Node" parent="Components"]
+script = ExtResource("22_gun_store_service")
+
 [node name="InteractionComponent" type="Node" parent="Components" unique_id=324301799]
 script = ExtResource("18_interaction")
 
@@ -571,11 +579,15 @@ bullet_whiz_sounds = Array[AudioStream]([ExtResource("41_body_1"), ExtResource("
 [node name="AppearanceComponent" type="Node" parent="Components" unique_id=224595059]
 script = ExtResource("27_appearance")
 
+[node name="WardrobeComponent" type="Node" parent="Components"]
+script = ExtResource("28_wardrobe")
+
+[node name="ClothingStoreService" type="Node" parent="Components"]
+script = ExtResource("22_clothing_store_service")
+
 [node name="PlayerHUD" parent="." unique_id=1245845484 instance=ExtResource("9_hud")]
 
 [node name="PlayerStatsMenu" parent="." unique_id=1165805739 instance=ExtResource("13_stats_menu")]
-
-[node name="WeaponDebugMenu" parent="." unique_id=553733031 instance=ExtResource("13_weapon_debug")]
 
 [node name="PlayerInventoryMenu" parent="." unique_id=1453711422 instance=ExtResource("21_inventory_menu")]
 
@@ -585,7 +597,12 @@ script = ExtResource("16_gift_menu")
 
 [node name="DealerShopMenu" parent="." unique_id=931469992 instance=ExtResource("22_shop_menu")]
 
-[node name="PlayerAppearanceMenu" type="CanvasLayer" parent="." unique_id=1008204883]
-script = ExtResource("28_appearance_menu")
+[node name="GunStoreMenu" parent="." instance=ExtResource("22_gun_store_menu")]
+
+[node name="ClothingStoreMenu" parent="." instance=ExtResource("22_clothing_store_menu")]
+
+[node name="ATMMenu" parent="." instance=ExtResource("22_atm_menu")]
+
+[node name="DebugCommandConsole" parent="." instance=ExtResource("22_debug_console")]
 
 [editable path="Visual/PlayerTest2"]

@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://blmeb18vhv0uc"]
+
+[ext_resource type="PackedScene" uid="uid://c3qo55u258gt" path="res://Assets/MapStuff/Meshs/StreetProps/atm+machine+3d+model.glb" id="1_o8pap"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/atm_interaction.gd" id="2_interaction"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1c86s"]
+size = Vector3(1, 1, 0.6)
+
+[node name="AtmMachine" unique_id=1534474147 instance=ExtResource("1_o8pap")]
+
+[node name="Interaction" type="Area3D" parent="." index="1" unique_id=761661760]
+script = ExtResource("2_interaction")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interaction" index="0" unique_id=551217499]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.19999999)
+shape = SubResource("BoxShape3D_1c86s")

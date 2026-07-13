@@ -1,18 +1,14 @@
-[gd_resource type="Resource" script_class="ProductDefinition" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="ProductDefinition" format=3 uid="uid://dl6x8qfl2v36o"]
 
-[ext_resource type="Script" path="res://Scripts/Gameplay/Resources/product_definition.gd" id="1_product"]
-[ext_resource type="Texture2D" path="res://Assets/UI/Icons/Fent.png" id="2_icon"]
+[ext_resource type="Script" uid="uid://ckjlxfqiq7npe" path="res://Scripts/Gameplay/Resources/product_definition.gd" id="1_product"]
+[ext_resource type="Texture2D" uid="uid://dqk5kxc77qetq" path="res://Assets/UI/Icons/Fent.png" id="2_icon"]
 
 [resource]
 script = ExtResource("1_product")
 product_id = &"fent_1g"
 display_name = "Fent 1g"
 drug_type = 2
-package_kind = 0
-package_size_grams = 1
 icon = ExtResource("2_icon")
 dealer_price = 30
-sale_price = 60
-experience_reward = 10.0
-reputation_reward = 1.0
-heat_reward = 4.0
+sale_price = 105
+heat_reward = 3.0

@@ -34,6 +34,9 @@ func _run() -> void:
 	var weed := EconomyCatalog.WEED_1G
 	var weed_brick := EconomyCatalog.WEED_BRICK
 	dealer.configure_dealer(2, false)
+	assert(dealer.can_interact(player))
+	assert(dealer.get_interaction_prompt(player).contains("15"))
+	assert(east.stats.add_reputation(15.0))
 	var starting_cash := wallet.dirty_cash
 	var purchase_message := dealer.try_purchase(player, weed, 5)
 	assert(purchase_message.begins_with("Purchased"))
@@ -65,9 +68,10 @@ func _run() -> void:
 
 	dealer.configure_dealer(1, true)
 	dealer.role_component.territory_id = &"hood_east"
-	assert(not dealer.can_interact(player))
-	assert(east.stats.add_reputation(100.0))
 	assert(dealer.can_interact(player))
+	assert(dealer.get_interaction_prompt(player).contains("100"))
+	assert(east.stats.add_reputation(100.0))
+	assert(dealer.get_interaction_prompt(player) == "E - Shop")
 
 	var controller := world.get_node("WorldController") as WorldController
 	assert(controller.save_game())

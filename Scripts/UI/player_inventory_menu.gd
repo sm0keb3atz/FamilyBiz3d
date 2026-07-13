@@ -42,6 +42,8 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if not _is_open and not menu_controller.active_menu.is_empty():
+		return
 	if event.is_action_pressed(&"inventory"):
 		set_menu_open(not _is_open)
 		get_viewport().set_input_as_handled()

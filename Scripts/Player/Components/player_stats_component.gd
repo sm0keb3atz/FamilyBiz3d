@@ -8,6 +8,7 @@ signal experience_changed(current: float, required: float)
 signal level_changed(current: int)
 signal skill_points_changed(current: int)
 signal strength_changed(current: int)
+signal hustle_changed(current: int)
 signal aura_changed(current: int)
 
 @export var config: PlayerStatsConfig
@@ -31,6 +32,9 @@ var skill_points: int:
 var strength: int:
 	get:
 		return _strength
+var hustle: int:
+	get:
+		return _hustle
 var aura: int:
 	get:
 		return _aura
@@ -41,6 +45,7 @@ var _experience := 0.0
 var _level := 1
 var _skill_points := 0
 var _strength := 1
+var _hustle := 1
 var _aura := 0
 var _time_since_damage := 0.0
 var _stamina_consumed_this_frame := false
@@ -52,6 +57,7 @@ func _ready() -> void:
 
 	_level = maxi(config.starting_level, 1)
 	_strength = maxi(config.starting_strength, 1)
+	_hustle = clampi(config.starting_hustle, 1, config.max_hustle)
 	_skill_points = maxi(config.starting_skill_points, 0)
 	_experience = maxf(config.starting_experience, 0.0)
 	_health = get_max_health()
@@ -153,6 +159,28 @@ func purchase_strength() -> bool:
 	return true
 
 
+func purchase_hustle() -> bool:
+	if _skill_points <= 0 or _hustle >= config.max_hustle:
+		return false
+
+	_skill_points -= 1
+	_hustle += 1
+	skill_points_changed.emit(_skill_points)
+	hustle_changed.emit(_hustle)
+	return true
+
+
+func get_hustle_sale_multiplier() -> float:
+	return 1.0 + float(_hustle - 1) * config.sale_bonus_per_hustle
+
+
+func get_hustle_customer_limit() -> int:
+	return mini(
+		config.base_solicitation_customer_limit + _hustle - 1,
+		config.max_solicitation_customer_limit
+	)
+
+
 func get_experience_required_for_next_level() -> float:
 	return config.experience_per_level * float(_level)
 
@@ -180,12 +208,18 @@ func export_save_data() -> Dictionary:
 		"level": _level,
 		"skill_points": _skill_points,
 		"strength": _strength,
+		"hustle": _hustle,
 	}
 
 
 func import_save_data(data: Dictionary) -> void:
 	_level = maxi(int(data.get("level", config.starting_level)), 1)
 	_strength = maxi(int(data.get("strength", config.starting_strength)), 1)
+	_hustle = clampi(
+		int(data.get("hustle", config.starting_hustle)),
+		1,
+		config.max_hustle
+	)
 	_skill_points = maxi(int(data.get("skill_points", 0)), 0)
 	_experience = maxf(float(data.get("experience", 0.0)), 0.0)
 	_health = clampf(
@@ -246,3 +280,4 @@ func _emit_all_stats() -> void:
 	level_changed.emit(_level)
 	skill_points_changed.emit(_skill_points)
 	strength_changed.emit(_strength)
+	hustle_changed.emit(_hustle)
