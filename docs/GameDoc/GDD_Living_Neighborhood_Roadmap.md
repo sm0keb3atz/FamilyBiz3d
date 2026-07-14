@@ -29,6 +29,8 @@ reference territory and:
 
 ## Pass 0 - Finish the Existing Property Checkpoint
 
+**Status:** Working. This session treats the property checkpoint as complete.
+
 ### Outcome
 
 The current house purchase and stash work is verified and isolated as a stable
@@ -57,6 +59,9 @@ ownership, NPC activities, or police cruisers.
 
 ## Pass 1 - Signed Territory State
 
+**Status:** Implemented July 14, 2026. Focused automated coverage passes;
+player-run regression verification remains pending.
+
 ### Outcome
 
 Territory state can represent hostility and future ownership without changing
@@ -82,23 +87,32 @@ dealer factions yet.
 
 ## Pass 2 - Daily Territory Market Quotes
 
+**Status:** Implemented July 14, 2026. The current-territory HUD price row is
+the comparison view for this pass; Reputation price adjustments are explicitly
+deferred. Focused automated coverage passes; player-run regression verification
+remains pending.
+
 ### Outcome
 
-Every product has stable, different daily buy and sell prices per territory.
+Every product has a stable daily dealer price per territory, and customer
+payout is a predictable Hustle markup over that local price.
 
 ### Work
 
 - Add a territory market state keyed by permanent territory and product IDs.
-- Generate bounded random buy and sell multipliers at day rollover.
+- Generate one bounded random dealer-price multiplier at day rollover.
 - Save the generated date and quotes so loading cannot reroll the same day.
-- Apply a small signed-Reputation adjustment after the daily quote.
-- Route dealer purchase prices and street sale prices through the quote service.
-- Show the local unit price in dealer/customer transaction UI.
-- Add a simple price-comparison view for discovered territories.
+- Apply a small signed-Reputation adjustment after the daily quote. **Deferred
+  by product decision; Reputation does not modify prices in this pass.**
+- Route dealer purchases through the quote service and derive customer payout
+  from that same quote: `70%` markup at Hustle 1 plus `15%` per additional level.
+- Show the dealer unit price and marked-up payout in transaction UI.
+- Show the current territory's three gram-product dealer quotes in the HUD; a
+  separate discovered-territory comparison screen is deferred.
 
 ### Acceptance
 
-- Quotes differ between territories and can differ between products.
+- Dealer quotes differ between territories and can differ between products.
 - Quotes remain unchanged during a day and across save/load.
 - Sleeping advances the day and generates exactly one new quote set.
 - Failed trades do not change quotes or partially change inventory/money.
@@ -345,4 +359,3 @@ without manual state injection.
 - Territory loss, large gang wars, wholesale logistics, crew management,
   business audits, and executive management interfaces.
 - Final animation volume, onboarding, broad balance, and presentation polish.
-

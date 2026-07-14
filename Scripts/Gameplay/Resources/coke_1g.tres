@@ -12,5 +12,5 @@ icon = ExtResource("2_icon")
 dealer_price = 45
 sale_price = 90
 experience_reward = 12.0
-reputation_reward = 1.2
+reputation_reward = 0.3
 heat_reward = 2.0

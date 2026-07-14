@@ -31,7 +31,9 @@ static func _ensure_catalog() -> void:
 			PROPERTY_IDS[index],
 			"Hood House %d" % (index + 1),
 			"Hood East",
-			PURCHASE_PRICE
+			PURCHASE_PRICE,
+			1000,
+			&"hood_east"
 		)
 		_definitions.append(definition)
 		_by_id[definition.property_id] = definition

@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://Scripts/NPC/dealer_spawner.gd" id="13_dealer_spawner"]
 [ext_resource type="Script" path="res://Scripts/Gameplay/world_time_component.gd" id="14_world_time"]
 [ext_resource type="Shader" path="res://Assets/VFX/Shaders/customizable_sky.gdshader" id="15_sky_shader"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/territory_market_service.gd" id="16_market"]
 
 [sub_resource type="FastNoiseLite" id="CloudNoiseA"]
 seed = 3191
@@ -172,6 +173,9 @@ script = ExtResource("6_controller")
 
 [node name="WorldTimeComponent" type="Node" parent="."]
 script = ExtResource("14_world_time")
+
+[node name="TerritoryMarketService" type="Node" parent="."]
+script = ExtResource("16_market")
 
 [node name="CivilianPopulationManager" type="Node3D" parent="." unique_id=872426728]
 script = ExtResource("9_population")

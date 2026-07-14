@@ -38,9 +38,13 @@ func _run() -> void:
 	assert(dealer.get_interaction_prompt(player).contains("15"))
 	assert(east.stats.add_reputation(15.0))
 	var starting_cash := wallet.dirty_cash
+	var market := world.get_node(
+		"TerritoryMarketService"
+	) as TerritoryMarketService
+	var weed_buy_quote := market.get_buy_quote(east.territory_id, weed)
 	var purchase_message := dealer.try_purchase(player, weed, 5)
 	assert(purchase_message.begins_with("Purchased"))
-	assert(wallet.dirty_cash == starting_cash - weed.dealer_price * 5)
+	assert(wallet.dirty_cash == starting_cash - weed_buy_quote * 5)
 	assert(inventory.get_quantity(weed) == 5)
 	assert(dealer.get_stock_quantity(weed) > 0)
 

@@ -12,10 +12,12 @@ func _initialize() -> void:
 	time.connect_wallet(wallet)
 
 	assert(time.get_formatted_date() == "MON JAN 1")
+	assert(time.get_date_key() == "0001-01-01")
 	assert(time.get_formatted_time() == "8:00 AM")
 	time.minute_of_day = 0
 	time.advance_real_seconds(600.0)
 	assert(time.day == 2)
+	assert(time.get_date_key() == "0001-01-02")
 	assert(time.weekday == 1)
 	assert(time.minute_of_day == 0)
 	assert(time.get_formatted_time() == "12:00 AM")

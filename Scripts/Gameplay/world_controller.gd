@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 5
+const SAVE_VERSION := 6
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -33,12 +33,16 @@ const SAVE_PATH := "user://family_business_save.json"
 )
 @onready var hud := player.get_node("PlayerHUD") as PlayerHUD
 @onready var world_time := get_node("../WorldTimeComponent") as WorldTimeComponent
+@onready var territory_market := get_node(
+	"../TerritoryMarketService"
+) as TerritoryMarketService
 
 
 func _ready() -> void:
 	world_time.connect_wallet(wallet)
 	world_time.time_changed.connect(hud.update_clock)
 	world_time.day_ended.connect(_on_day_ended)
+	territory_market.ensure_quotes(world_time.get_date_key())
 	hud.update_clock(world_time.get_formatted_date(), world_time.get_formatted_time())
 
 
@@ -70,6 +74,7 @@ func save_game() -> bool:
 	var data := {
 		"version": SAVE_VERSION,
 		"world_time": world_time.export_save_data(),
+		"territory_market": territory_market.export_save_data(),
 		"player": {
 			"position": _vector_to_array(
 				vehicle_component.get_effective_position()
@@ -146,6 +151,10 @@ func load_game() -> bool:
 			boundary.stats.import_save_data(
 				territory_data[territory_id] as Dictionary
 			)
+	territory_market.import_save_data(
+		data.get("territory_market", {}) as Dictionary,
+		world_time.get_date_key()
+	)
 	var dealer_data := data.get("dealers", {}) as Dictionary
 	for path_text in dealer_data.keys():
 		var dealer := get_node_or_null(NodePath(String(path_text))) as DealerNPC
@@ -182,6 +191,7 @@ func _is_valid_save(value: Variant) -> bool:
 
 
 func _on_day_ended(report_date: String, earned: int, spent: int) -> void:
+	territory_market.ensure_quotes(world_time.get_date_key())
 	hud.show_daily_report(report_date, earned, spent)
 
 

@@ -12,6 +12,7 @@ signal daily_report_closed
 @export_range(0.05, 1.0, 0.01) var hit_marker_duration := 0.18
 @export_range(0.05, 1.0, 0.01) var cash_roll_duration := 0.35
 @export_range(0.1, 2.0, 0.05) var transaction_float_duration := 0.8
+@export_range(0.05, 1.0, 0.05) var territory_refresh_interval := 0.1
 
 @onready var health_bar := %HealthBar as ProgressBar
 @onready var health_value := %HealthValue as Label
@@ -44,6 +45,7 @@ signal daily_report_closed
 @onready var reputation_title := %ReputationTitle as Label
 @onready var reputation_bar := %ReputationBar as ProgressBar
 @onready var reputation_value := %ReputationValue as Label
+@onready var market_quote_row := %MarketQuoteRow as HBoxContainer
 @onready var heat_title := %HeatTitle as Label
 @onready var heat_bar := %HeatBar as ProgressBar
 @onready var heat_value := %HeatValue as Label
@@ -80,9 +82,15 @@ var _clean_cash_tween: Tween
 var _dirty_cash_pulse_tween: Tween
 var _clean_cash_pulse_tween: Tween
 var _transaction_float_index := 0
+var _market_price_labels: Dictionary = {}
+var _market_products: Array[ProductDefinition] = []
+var _market: TerritoryMarketService
+var _current_territory_id: StringName = &""
+var _territory_refresh_remaining := 0.0
 
 
 func _ready() -> void:
+	reputation_bar.min_value = -100.0
 	reputation_bar.max_value = 100.0
 	heat_bar.max_value = 100.0
 	stats.health_changed.connect(_on_health_changed)
@@ -103,11 +111,17 @@ func _ready() -> void:
 	arrest.arrested.connect(_on_arrested)
 	feedback_timer.timeout.connect(_on_feedback_timeout)
 	report_continue_button.pressed.connect(_close_daily_report)
+	_market_products = EconomyCatalog.get_gram_products()
+	_build_market_quote_row()
 	_refresh_all()
+	_refresh_territory()
 
 
 func _process(delta: float) -> void:
-	_refresh_territory()
+	_territory_refresh_remaining -= delta
+	if _territory_refresh_remaining <= 0.0:
+		_territory_refresh_remaining = territory_refresh_interval
+		_refresh_territory()
 	crosshair.visible = (
 		weapon.is_aiming()
 		and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
@@ -126,19 +140,106 @@ func _refresh_territory() -> void:
 		get_tree(), player.global_position
 	)
 	if boundary == null or boundary.stats == null:
-		reputation_title.text = "OUTSIDE TERRITORY — REPUTATION"
-		heat_title.text = "OUTSIDE TERRITORY — HEAT"
+		_set_label_text(reputation_title, "OUTSIDE TERRITORY — REPUTATION")
+		_set_label_text(heat_title, "OUTSIDE TERRITORY — HEAT")
 		reputation_bar.value = 0.0
 		heat_bar.value = 0.0
-		reputation_value.text = "—"
-		heat_value.text = "—"
+		_set_label_text(reputation_value, "—")
+		_set_label_text(heat_value, "—")
+		if not _current_territory_id.is_empty():
+			_current_territory_id = &""
+			_refresh_market_quotes(&"")
 		return
-	reputation_title.text = "%s — REPUTATION" % boundary.display_name.to_upper()
-	heat_title.text = "%s — HEAT" % boundary.display_name.to_upper()
+	_set_label_text(
+		reputation_title,
+		"%s — REPUTATION" % boundary.display_name.to_upper()
+	)
+	_set_label_text(
+		heat_title,
+		"%s — HEAT" % boundary.display_name.to_upper()
+	)
 	reputation_bar.value = boundary.stats.reputation
 	heat_bar.value = boundary.stats.heat
-	reputation_value.text = "%d / 100" % roundi(boundary.stats.reputation)
-	heat_value.text = "%d / 100" % roundi(boundary.stats.heat)
+	var reputation_number := roundi(boundary.stats.reputation)
+	var reputation_text := str(reputation_number)
+	if reputation_number > 0:
+		reputation_text = "+%d" % reputation_number
+	_set_label_text(reputation_value, "%s / 100" % reputation_text)
+	_set_label_text(heat_value, "%d / 100" % roundi(boundary.stats.heat))
+	var territory_changed := boundary.territory_id != _current_territory_id
+	var market_was_missing := not is_instance_valid(_market)
+	_current_territory_id = boundary.territory_id
+	var market := _get_market()
+	if territory_changed or (market_was_missing and market != null):
+		_refresh_market_quotes(_current_territory_id)
+
+
+func _build_market_quote_row() -> void:
+	for child in market_quote_row.get_children():
+		child.queue_free()
+	_market_price_labels.clear()
+	for product in _market_products:
+		var entry := HBoxContainer.new()
+		entry.add_theme_constant_override("separation", 5)
+		entry.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		entry.alignment = BoxContainer.ALIGNMENT_CENTER
+		entry.tooltip_text = product.display_name
+		market_quote_row.add_child(entry)
+
+		var icon := TextureRect.new()
+		icon.custom_minimum_size = Vector2(25, 25)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture = product.icon
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		entry.add_child(icon)
+
+		var price_label := Label.new()
+		price_label.text = "$—/g"
+		price_label.add_theme_color_override(
+			"font_color",
+			Color(1.0, 0.9, 0.55, 1.0)
+		)
+		price_label.add_theme_font_size_override("font_size", 14)
+		price_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		entry.add_child(price_label)
+		_market_price_labels[product.product_id] = price_label
+
+
+func _refresh_market_quotes(territory_id: StringName) -> void:
+	var market := _get_market()
+	for product in _market_products:
+		var label := _market_price_labels.get(product.product_id) as Label
+		if label == null:
+			continue
+		var next_text := "$—/g"
+		if not territory_id.is_empty() and market != null:
+			next_text = "$%d/g" % market.get_buy_quote(
+				territory_id,
+				product
+			)
+		_set_label_text(label, next_text)
+
+
+func _get_market() -> TerritoryMarketService:
+	if is_instance_valid(_market):
+		return _market
+	_market = TerritoryMarketService.find(get_tree())
+	if (
+		_market != null
+		and not _market.market_changed.is_connected(_on_market_changed)
+	):
+		_market.market_changed.connect(_on_market_changed)
+	return _market
+
+
+func _on_market_changed(_date_key: String) -> void:
+	_refresh_market_quotes(_current_territory_id)
+
+
+func _set_label_text(label: Label, value: String) -> void:
+	if label.text != value:
+		label.text = value
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -221,8 +322,10 @@ func _on_health_depleted() -> void:
 
 
 func set_interaction_prompt(prompt: String) -> void:
-	interaction_prompt.text = prompt
-	interaction_prompt.visible = not prompt.is_empty()
+	_set_label_text(interaction_prompt, prompt)
+	var should_be_visible := not prompt.is_empty()
+	if interaction_prompt.visible != should_be_visible:
+		interaction_prompt.visible = should_be_visible
 
 
 func show_feedback(message: String, duration := 2.5) -> void:

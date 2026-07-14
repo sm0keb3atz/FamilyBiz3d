@@ -39,7 +39,9 @@ scripts produced results.
 ### Working Foundation
 
 - `Scenes/Maps/World/world.tscn` is the permanent two-territory world.
-- Hood East and Hood West have stable IDs, boundaries, Heat, and Reputation.
+- Hood East and Hood West have stable IDs, boundaries, Heat, signed Reputation,
+  neutral/rival/player ownership state, rival-pressure tiers, and takeover
+  availability queries.
 - The player can buy product, solicit customers, sell product, gain EXP and
   local Reputation, generate local Heat, and save/load progress.
 - Customers are pooled, navigate a pedestrian waypoint network, approach the
@@ -50,6 +52,9 @@ scripts produced results.
   Aura, vehicles, a wanted component, and component-based save data.
 - The world has a working clock, day rollover, sleep-to-morning, and daily
   earned/spent reporting.
+- Every product has a persistent daily dealer quote per territory. Dealers use
+  that quote, customers pay a Hustle markup over it, and the territory HUD
+  shows the three local gram-product dealer prices.
 - Clothing and gun stores sell their current catalogs for Clean Cash.
 - The ATM transfers limited Dirty Cash into Clean Cash and supports withdrawals.
 - Traffic has pooled cars, a waypoint graph, weighted route choices, signals,
@@ -58,16 +63,17 @@ scripts produced results.
   perception, last-known-position search, arrest, combat, and 0-3 wanted stars.
 - Focused smoke tests exist for the main gameplay foundations.
 
-### In Progress / Requires Clean Verification
+### Recently Completed Foundation
 
-- Four Hood East houses are being converted into purchasable properties.
+- The Pass 0 property checkpoint is complete for this session baseline.
+- Four Hood East houses are purchasable properties.
 - Owned houses have locked/unlocked doors, beds, wardrobes, and persistent
   stashes for Dirty Cash, products, weapons, ammunition, and attachments.
 - Property ownership and stash state are connected to the save controller.
 - Recent uncommitted customer, solicitation, wardrobe, weapon, UI, and world
-  changes overlap this work and must be preserved.
-- The property test should be run sequentially first, followed by the complete
-  smoke-test suite, before calling the property pass complete.
+  changes overlap this work and must continue to be preserved.
+- Passes 1 and 2 are implemented with focused smoke coverage; the user will run
+  the remaining Godot regression and in-editor presentation checks.
 
 ### Prototype Quality / Needs Rework
 
@@ -77,10 +83,8 @@ scripts produced results.
   believable groups.
 - Traffic can branch in code, but the current authored road network still feels
   like local loops and is not yet the city-wide intersection network.
-- Daily territory product prices do not fluctuate.
-- Reputation is clamped to `0-100`; negative reputation and rival-pressure
-  events do not exist.
-- Territory ownership, takeover events, and faction conversion do not exist.
+- Rival-pressure encounters, takeover events, and dealer faction conversion do
+  not exist yet; Pass 1 provides only their persistent state and queries.
 - Player-owned dealers are not supplied by stash houses.
 - Stores are shopping locations, not purchasable front businesses with stock
   and passive Clean Cash earnings.
@@ -106,7 +110,7 @@ scripts produced results.
 
 ## Immediate Next Move
 
-Do not start with the full living-city system. First finish and sequentially
-verify the existing property/stash pass. Once that checkpoint is stable, follow
-`GameDoc/GDD_Living_Neighborhood_Roadmap.md` one pass at a time.
-
+Have the user run the Pass 1/2 focused and full sequential smoke-test suite,
+then verify the signed Reputation meter and local Weed/Coke/Fent HUD quote row
+in the editor. After that verification, continue with Pass 3 property roles and
+front-business data; do not combine it with passive store operation from Pass 4.

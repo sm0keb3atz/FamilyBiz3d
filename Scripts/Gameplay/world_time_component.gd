@@ -93,6 +93,10 @@ func get_formatted_date() -> String:
 	]
 
 
+func get_date_key() -> String:
+	return "%04d-%02d-%02d" % [year, month, day]
+
+
 func get_formatted_time() -> String:
 	var hour_24 := minute_of_day / 60
 	var minute := minute_of_day % 60

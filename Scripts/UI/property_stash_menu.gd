@@ -9,11 +9,13 @@ const PRODUCT_PRESETS := [1, 10, 100, 2147483647]
 @export var property_component_path := NodePath("../Components/PropertyComponent")
 @export var inventory_component_path := NodePath("../Components/InventoryComponent")
 @export var weapon_component_path := NodePath("../Components/WeaponComponent")
+@export var stats_component_path := NodePath("../Components/StatsComponent")
 @export var menu_controller_path := NodePath("../Components/MenuController")
 
 @onready var properties := get_node(property_component_path) as PlayerPropertyComponent
 @onready var inventory := get_node(inventory_component_path) as PlayerInventoryComponent
 @onready var weapons := get_node(weapon_component_path) as PlayerWeaponComponent
+@onready var stats := get_node(stats_component_path) as PlayerStatsComponent
 @onready var menu_controller := get_node(menu_controller_path) as PlayerMenuController
 
 @onready var _root := %MenuRoot as Control
@@ -370,13 +372,32 @@ func _refresh_detail() -> void:
 			_estimated_value.text = "STORED VALUE  $%s" % _money(stored)
 		"product":
 			var product := entry["definition"] as ProductDefinition
+			var property := PropertyCatalog.get_by_id(_property_id)
+			var dealer_price := product.dealer_price
+			var market := TerritoryMarketService.find(get_tree())
+			if (
+				property != null
+				and not property.territory_id.is_empty()
+				and market != null
+			):
+				dealer_price = market.get_buy_quote(
+					property.territory_id,
+					product
+				)
+			var estimated_payout := roundi(
+				dealer_price
+				* stored
+				* stats.get_hustle_sale_multiplier()
+			)
 			_detail_icon.texture = product.icon
 			_detail_icon.visible = true
-			_detail_description.text = "%d gram %s package. Estimated street value is based on the current unit sale price." % [
+			_detail_description.text = "%d gram %s package. Estimated payout uses today's local dealer price and your current Hustle markup." % [
 				product.package_size_grams,
 				"brick" if product.is_brick() else "retail",
 			]
-			_estimated_value.text = "EST. STORED VALUE  $%s" % _money(product.sale_price * stored)
+			_estimated_value.text = "EST. CUSTOMER PAYOUT  $%s" % _money(
+				estimated_payout
+			)
 		"weapon":
 			var definition := entry["definition"] as WeaponDefinition
 			_weapon_preview.visible = true

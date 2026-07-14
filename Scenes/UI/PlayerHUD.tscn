@@ -111,7 +111,7 @@ anchor_right = 0.5
 offset_left = -180.0
 offset_top = 20.0
 offset_right = 180.0
-offset_bottom = 92.0
+offset_bottom = 137.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
@@ -138,9 +138,22 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(332, 24)
 layout_mode = 2
+min_value = -100.0
 theme_override_styles/background = SubResource("StyleBoxFlat_bar_background")
 theme_override_styles/fill = SubResource("StyleBoxFlat_reputation_fill")
 show_percentage = false
+
+[node name="ZeroMarker" type="ColorRect" parent="ReputationPanel/Margin/Content/ReputationBar"]
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -1.0
+offset_right = 1.0
+offset_bottom = 24.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0.72)
 
 [node name="ReputationValue" type="Label" parent="ReputationPanel/Margin/Content/ReputationBar"]
 unique_name_in_owner = true
@@ -158,6 +171,13 @@ theme_override_font_sizes/font_size = 13
 text = "0 / 100"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="MarketQuoteRow" type="HBoxContainer" parent="ReputationPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(332, 30)
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
 
 [node name="HeatPanel" type="PanelContainer" parent="."]
 anchors_preset = 1
@@ -221,9 +241,9 @@ anchors_preset = 10
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -120.0
-offset_top = 100.0
+offset_top = 145.0
 offset_right = 120.0
-offset_bottom = 142.0
+offset_bottom = 187.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(1, 0.75, 0.12, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
@@ -241,9 +261,9 @@ anchors_preset = 10
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -170.0
-offset_top = 142.0
+offset_top = 187.0
 offset_right = 170.0
-offset_bottom = 202.0
+offset_bottom = 247.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 

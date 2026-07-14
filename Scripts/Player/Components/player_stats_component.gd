@@ -171,6 +171,14 @@ func purchase_hustle() -> bool:
 
 
 func get_hustle_sale_multiplier() -> float:
+	return (
+		1.0
+		+ config.base_customer_price_markup
+		+ float(_hustle - 1) * config.sale_bonus_per_hustle
+	)
+
+
+func get_hustle_experience_multiplier() -> float:
 	return 1.0 + float(_hustle - 1) * config.sale_bonus_per_hustle
 
 

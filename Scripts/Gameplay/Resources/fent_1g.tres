@@ -11,4 +11,5 @@ drug_type = 2
 icon = ExtResource("2_icon")
 dealer_price = 30
 sale_price = 105
+reputation_reward = 0.45
 heat_reward = 3.0

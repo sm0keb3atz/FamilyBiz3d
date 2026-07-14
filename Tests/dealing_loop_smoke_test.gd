@@ -40,13 +40,16 @@ func _run() -> void:
 	# Missing Hustle data from an old save defaults safely to 1.
 	stats.import_save_data({"skill_points": 9})
 	assert(stats.hustle == 1)
+	assert(is_equal_approx(stats.get_hustle_sale_multiplier(), 1.70))
+	assert(is_equal_approx(stats.get_hustle_experience_multiplier(), 1.0))
 	assert(stats.get_hustle_customer_limit() == 2)
 	for expected_hustle in range(2, 11):
 		assert(stats.purchase_hustle())
 		assert(stats.hustle == expected_hustle)
 	assert(not stats.purchase_hustle())
 	assert(stats.get_hustle_customer_limit() == 6)
-	assert(is_equal_approx(stats.get_hustle_sale_multiplier(), 1.45))
+	assert(is_equal_approx(stats.get_hustle_sale_multiplier(), 3.05))
+	assert(is_equal_approx(stats.get_hustle_experience_multiplier(), 2.35))
 	var stats_save := stats.export_save_data()
 	stats.import_save_data(stats_save)
 	assert(stats.hustle == 10)
@@ -109,10 +112,18 @@ func _run() -> void:
 		2
 	)
 	assert(result.success)
-	assert(result.dirty_cash_delta == 52)
-	assert(wallet.dirty_cash == cash_before + 52)
-	assert(is_equal_approx(stats.experience - experience_before, 14.5))
-	assert(is_equal_approx(east.stats.reputation - reputation_before, 1.2))
+	var market := world.get_node(
+		"TerritoryMarketService"
+	) as TerritoryMarketService
+	var expected_sale := roundi(
+		market.get_buy_quote(east.territory_id, EconomyCatalog.WEED_1G)
+		* 2.0
+		* stats.get_hustle_sale_multiplier()
+	)
+	assert(result.dirty_cash_delta == expected_sale)
+	assert(wallet.dirty_cash == cash_before + expected_sale)
+	assert(is_equal_approx(stats.experience - experience_before, 23.5))
+	assert(is_equal_approx(east.stats.reputation - reputation_before, 0.3))
 	assert(is_equal_approx(east.stats.heat - heat_before, 2.0))
 	var failed_cash := wallet.dirty_cash
 	var failed_heat := east.stats.heat

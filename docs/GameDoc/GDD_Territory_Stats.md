@@ -56,6 +56,7 @@ Reputation dictates the player's economic leverage and control over a neighborho
 * A successful sale adds the product's configured Heat and Reputation rewards
   to the territory where the customer is standing.
 * Weed adds `1` Heat per gram, Coke adds `2`, and Fent adds `3`.
+* Weed adds `0.15` Reputation per gram, Coke adds `0.30`, and Fent adds `0.45`.
 * Heat continuously decays at `0.25` per second, including during active dealing.
 * Customers refuse sales when their territory reaches `76` Heat.
 * Local supplier gates are Level 1 at `0` Rep, Level 2 at `15`, Level 3 at

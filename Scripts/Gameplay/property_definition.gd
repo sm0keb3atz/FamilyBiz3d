@@ -4,6 +4,7 @@ extends RefCounted
 var property_id: StringName
 var display_name := ""
 var neighborhood := ""
+var territory_id: StringName
 var purchase_price := 0
 var stash_capacity := 1000
 
@@ -13,11 +14,13 @@ func _init(
 	value_name := "",
 	value_neighborhood := "",
 	value_price := 0,
-	value_stash_capacity := 1000
+	value_stash_capacity := 1000,
+	value_territory_id: StringName = &""
 ) -> void:
 	property_id = value_id
 	display_name = value_name
 	neighborhood = value_neighborhood
+	territory_id = value_territory_id
 	purchase_price = maxi(value_price, 0)
 	stash_capacity = maxi(value_stash_capacity, 0)
 

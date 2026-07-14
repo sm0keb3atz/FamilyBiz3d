@@ -17,18 +17,20 @@ extends Node
 	"Components/WantedComponent"
 ) as PlayerWantedComponent
 
+var _market: TerritoryMarketService
+
 
 func buy_product(
 	product: ProductDefinition,
-	amount := 1,
-	unit_price := -1
+	territory_id: StringName,
+	amount := 1
 ) -> TradeResult:
 	if product == null:
 		return TradeResult.failed("This dealer has nothing for sale.")
 	if amount <= 0:
 		return TradeResult.failed("Invalid purchase amount.")
 
-	var price := product.dealer_price if unit_price < 0 else unit_price
+	var price := get_buy_unit_price(product, territory_id)
 	var total_price := price * amount
 	if not wallet.can_spend_dirty(total_price):
 		return TradeResult.failed("Not enough Dirty Cash.")
@@ -80,11 +82,12 @@ func sell_product(
 		return TradeResult.failed("Sale failed.")
 
 	var hustle_multiplier := stats.get_hustle_sale_multiplier()
-	var total_sale_price := roundi(
-		float(product.sale_price * amount) * hustle_multiplier
-	)
+	var unit_price := get_buy_unit_price(product, territory.territory_id)
+	var total_sale_price := roundi(float(unit_price * amount) * hustle_multiplier)
 	var total_experience := (
-		product.experience_reward * float(amount) * hustle_multiplier
+		product.experience_reward
+		* float(amount)
+		* stats.get_hustle_experience_multiplier()
 	)
 	var total_reputation := product.reputation_reward * float(amount)
 	var total_heat := product.heat_reward * float(amount)
@@ -112,3 +115,65 @@ func sell_product(
 		]
 	)
 	return result
+
+
+func get_buy_unit_price(
+	product: ProductDefinition,
+	territory_id: StringName
+) -> int:
+	if product == null:
+		return 0
+	var market := _get_market()
+	if market == null:
+		return product.dealer_price
+	return market.get_buy_quote(territory_id, product)
+
+
+func get_sell_unit_price(
+	product: ProductDefinition,
+	territory_id: StringName
+) -> int:
+	if product == null:
+		return 0
+	return get_buy_unit_price(product, territory_id)
+
+
+func get_sale_total(
+	product: ProductDefinition,
+	world_position: Vector3,
+	amount := 1
+) -> int:
+	if product == null or amount <= 0:
+		return 0
+	var territory := TerritoryBoundary.find_at_position(
+		get_tree(),
+		world_position
+	)
+	if territory == null:
+		return 0
+	return roundi(
+		float(get_buy_unit_price(product, territory.territory_id) * amount)
+		* stats.get_hustle_sale_multiplier()
+	)
+
+
+func get_sale_pricing(
+	product: ProductDefinition,
+	territory_id: StringName,
+	amount := 1
+) -> Vector2i:
+	if product == null or amount <= 0:
+		return Vector2i.ZERO
+	var unit_price := get_buy_unit_price(product, territory_id)
+	return Vector2i(
+		unit_price,
+		roundi(
+			float(unit_price * amount) * stats.get_hustle_sale_multiplier()
+		)
+	)
+
+
+func _get_market() -> TerritoryMarketService:
+	if not is_instance_valid(_market):
+		_market = TerritoryMarketService.find(get_tree())
+	return _market

@@ -136,10 +136,13 @@ func try_purchase(
 	var trade_service := player.get_node(
 		"Components/TradeService"
 	) as TradeService
+	var territory := _find_territory()
+	if territory == null:
+		return "This dealer is outside a territory."
 	var result := trade_service.buy_product(
 		requested_product,
-		amount,
-		requested_product.dealer_price
+		territory.territory_id,
+		amount
 	)
 	if not result.success:
 		return result.message
@@ -185,12 +188,20 @@ func restock() -> void:
 
 func get_stock_items() -> Array[Dictionary]:
 	var items: Array[Dictionary] = []
+	var territory := _find_territory()
+	var market := TerritoryMarketService.find(get_tree())
 	for product_id in _products.keys():
 		var stock_product := _products[product_id]
+		var unit_price := stock_product.dealer_price
+		if territory != null and market != null:
+			unit_price = market.get_buy_quote(
+				territory.territory_id,
+				stock_product
+			)
 		items.append({
 			"product": stock_product,
 			"quantity": _stock.get(product_id, 0),
-			"unit_price": stock_product.dealer_price,
+			"unit_price": unit_price,
 		})
 	items.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var a_product := a.get("product") as ProductDefinition
