@@ -103,13 +103,25 @@ func _select_customers() -> Array[CustomerNPC]:
 		if product == null:
 			break
 		var remaining := int(available.get(product.product_id, 0))
-		var amount := mini(customer.roll_solicitation_amount(), remaining)
+		var order_cap := get_customer_inventory_cap(remaining)
+		var amount := mini(customer.roll_solicitation_amount(), order_cap)
 		if amount <= 0:
 			continue
 		customer.assign_solicitation_order(product, amount)
 		available[product.product_id] = remaining - amount
 		selected.append(customer)
 	return selected
+
+
+func get_customer_inventory_cap(available_quantity: int) -> int:
+	if available_quantity <= 1:
+		return maxi(available_quantity, 0)
+	var inventory_share := 0.50 + float(stats.hustle - 1) * 0.025
+	return clampi(
+		ceili(float(available_quantity) * inventory_share),
+		1,
+		available_quantity - 1
+	)
 
 
 func _get_unreserved_inventory() -> Dictionary[StringName, int]:

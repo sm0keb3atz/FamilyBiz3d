@@ -51,8 +51,24 @@ func _run() -> void:
 	stats.import_save_data(stats_save)
 	assert(stats.hustle == 10)
 
+	# Better customers unlock gradually with Hustle instead of flooding new saves.
+	assert(CivilianRoleComponent.get_level_weights(1) == [88, 11, 1, 0])
+	assert(CivilianRoleComponent.get_level_weights(5) == [65, 24, 10, 1])
+	assert(CivilianRoleComponent.get_level_weights(10) == [38, 31, 23, 8])
+	stats.import_save_data({"hustle": 1})
+	assert(solicitation.get_customer_inventory_cap(10) == 5)
+	assert(solicitation.get_customer_inventory_cap(2) == 1)
+	assert(solicitation.get_customer_inventory_cap(1) == 1)
+	stats.import_save_data({"hustle": 10})
+	assert(solicitation.get_customer_inventory_cap(10) == 8)
+
 	# Customer level controls quantity only; any gram product can be assigned.
 	var customers := get_nodes_in_group("customer_npc")
+	for _frame in range(60):
+		if not customers.is_empty():
+			break
+		await physics_frame
+		customers = get_nodes_in_group("customer_npc")
 	assert(not customers.is_empty())
 	var customer := customers[0] as CustomerNPC
 	var expected_ranges := [

@@ -24,12 +24,16 @@ gram product the player currently carries, prioritizing the largest remaining
 stack. Customer level controls only the requested quantity: Level 1 buys
 `1-4g`, Level 2 `5-10g`, Level 3 `10-20g`, and Level 4 `20-40g`. Approaching
 and waiting customers reserve their quantities so the same inventory is not
-promised twice. Bricks must be broken down before street sale.
+promised twice. A single customer can take at most 50% of an available stack at
+Hustle 1, scaling gradually to 72.5% at Hustle 10, except when only one unit
+remains. Bricks must be broken down before street sale.
 
 Hustle starts at `1`. It attracts at least two customers per solicitation,
 adds one customer per point up to six, and adds `5%` street-sale cash and EXP
-per point after the first. Current street prices are `$18/g` Weed, `$90/g`
-Coke, and `$105/g` Fent.
+per point after the first. It also improves customer quality: at Hustle 1 the
+level chances are `88% / 11% / 1% / 0%`, while at Hustle 10 they are
+`38% / 31% / 23% / 8%`. Current street prices are `$18/g` Weed, `$90/g` Coke,
+and `$105/g` Fent.
 
 ## Saving
 

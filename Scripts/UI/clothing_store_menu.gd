@@ -48,6 +48,7 @@ const COLOR_OPTIONS := [
 @onready var menu_controller := get_node(menu_controller_path) as PlayerMenuController
 
 var _root: Control
+var _title_label: Label
 var _item_list: VBoxContainer
 var _filter_box: VBoxContainer
 var _type_row: HBoxContainer
@@ -75,6 +76,8 @@ var _selected: ClothingDefinition
 var _trial_color := Color.WHITE
 var _color_index := 0
 var _is_open := false
+var _wardrobe_mode := false
+var _active_menu_id: StringName = &"clothing_store"
 var _dragging := false
 var _last_mouse_x := 0.0
 var _preview_generation := 0
@@ -106,14 +109,31 @@ func _input(event: InputEvent) -> void:
 func open_store() -> void:
 	if not menu_controller.request_open(&"clothing_store"):
 		return
+	_wardrobe_mode = false
+	_active_menu_id = &"clothing_store"
+	_title_label.text = "  CLOTHING SHOP"
+	_select_first_for_category()
 	_is_open = true
 	_root.visible = true
 	_feedback_label.text = ""
 	_refresh()
 
 
+func open_wardrobe() -> void:
+	if not menu_controller.request_open(&"wardrobe"):
+		return
+	_wardrobe_mode = true
+	_active_menu_id = &"wardrobe"
+	_title_label.text = "  HOME WARDROBE"
+	_select_first_for_category()
+	_is_open = true
+	_root.visible = true
+	_feedback_label.text = "Choose from clothing you own."
+	_refresh()
+
+
 func close() -> void:
-	if not _is_open or not menu_controller.close(&"clothing_store"):
+	if not _is_open or not menu_controller.close(_active_menu_id):
 		return
 	_is_open = false
 	_dragging = false
@@ -143,12 +163,12 @@ func _build_ui() -> void:
 	header.custom_minimum_size.y = 74
 	header.add_theme_constant_override("separation", 18)
 	page.add_child(header)
-	var title := Label.new()
-	title.text = "  CLOTHING SHOP"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.add_theme_font_size_override("font_size", 34)
-	title.add_theme_color_override("font_color", Color(0.95, 0.91, 0.98))
-	header.add_child(title)
+	_title_label = Label.new()
+	_title_label.text = "  CLOTHING SHOP"
+	_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_title_label.add_theme_font_size_override("font_size", 34)
+	_title_label.add_theme_color_override("font_color", Color(0.95, 0.91, 0.98))
+	header.add_child(_title_label)
 	_total_aura_label = Label.new()
 	_total_aura_label.add_theme_font_size_override("font_size", 24)
 	_total_aura_label.add_theme_color_override(
@@ -372,7 +392,7 @@ func _refresh() -> void:
 	_variant_label.text = "VARIANT  %s" % _selected.variant_name.to_upper()
 	_price_label.text = "OWNED" if wardrobe.owns(_selected.clothing_id) else "PRICE  $%d" % _selected.price
 	_aura_label.text = "AURA  +%d" % _selected.aura
-	_color_row.visible = _selected.tintable
+	_color_row.visible = _selected.tintable and not _wardrobe_mode
 	_refresh_color_selector()
 	_color_apply_button.disabled = (
 		not wardrobe.owns(_selected.clothing_id)
@@ -387,9 +407,12 @@ func _refresh() -> void:
 	elif owned:
 		_action_button.text = "EQUIP"
 		_action_button.disabled = false
-	else:
+	elif not _wardrobe_mode:
 		_action_button.text = "BUY  $%d" % _selected.price
 		_action_button.disabled = not wallet.can_spend_clean(_selected.price)
+	else:
+		_action_button.text = "UNAVAILABLE"
+		_action_button.disabled = true
 	_refresh_preview()
 
 
@@ -420,12 +443,18 @@ func _finish_preview(generation: int) -> void:
 	if generation != _preview_generation or not is_instance_valid(_preview_appearance):
 		return
 	wardrobe.apply_outfit_to(_preview_appearance, _selected.clothing_id)
-	if _selected.tintable:
+	if _selected.tintable and not _wardrobe_mode:
 		_preview_appearance.apply_clothing_definition(_selected, _trial_color)
 	appearance.copy_skeleton_pose_to(_preview_appearance)
 
 
 func _get_visible_items() -> Array[ClothingDefinition]:
+	if _wardrobe_mode:
+		var owned: Array[ClothingDefinition] = []
+		for definition in ClothingCatalog.get_for_category(_category):
+			if wardrobe.owns(definition.clothing_id):
+				owned.append(definition)
+		return owned
 	if _category == ClothingCatalog.CATEGORY_TOP:
 		return ClothingCatalog.get_filtered(
 			_category,
@@ -436,9 +465,9 @@ func _get_visible_items() -> Array[ClothingDefinition]:
 
 
 func _rebuild_filters() -> void:
-	_filter_box.visible = _category == ClothingCatalog.CATEGORY_TOP
+	_filter_box.visible = _category == ClothingCatalog.CATEGORY_TOP and not _wardrobe_mode
 	if not _filter_box.visible:
-		_browse_label.text = String(_category).to_upper()
+		_browse_label.text = "%s YOU OWN" % String(_category).to_upper() if _wardrobe_mode else String(_category).to_upper()
 		return
 	for child in _type_row.get_children():
 		_type_row.remove_child(child)
@@ -518,7 +547,7 @@ func _perform_action() -> void:
 		return
 	if wardrobe.owns(_selected.clothing_id):
 		store.equip(_selected.clothing_id)
-	else:
+	elif not _wardrobe_mode:
 		store.buy(_selected.clothing_id)
 
 

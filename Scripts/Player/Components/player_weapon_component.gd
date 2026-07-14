@@ -187,6 +187,80 @@ func get_weapon_definition(weapon_id: StringName) -> WeaponDefinition:
 	return null
 
 
+func export_weapon_state(weapon_id: StringName) -> Dictionary:
+	var definition := get_weapon_definition(weapon_id)
+	if definition == null or not owns_weapon(weapon_id):
+		return {}
+	if get_equipped_weapon() == definition:
+		_store_current_attachment_state()
+	return {
+		"weapon_id": String(weapon_id),
+		"magazine_ammo": int(_magazine_ammo.get(weapon_id, definition.magazine_capacity)),
+		"reserve_ammo": int(_reserve_ammo.get(weapon_id, definition.starting_reserve_ammo)),
+		"attachment_unlocks": (_unlocked_attachments.get(weapon_id, {}) as Dictionary).duplicate(true),
+		"attachment_state": (_attachment_states.get(weapon_id, _default_attachment_state()) as Dictionary).duplicate(true),
+	}
+
+
+func remove_weapon_with_state(weapon_id: StringName) -> Dictionary:
+	var state := export_weapon_state(weapon_id)
+	if state.is_empty():
+		return {}
+	var remove_index := -1
+	for index in range(1, _slots.size()):
+		if _slots[index] != null and _slots[index].weapon_id == weapon_id:
+			remove_index = index
+			break
+	if remove_index < 0:
+		return {}
+	cancel_reload()
+	var removed_equipped := remove_index == _equipped_slot
+	_slots.remove_at(remove_index)
+	_owned_weapon_ids.erase(weapon_id)
+	_magazine_ammo.erase(weapon_id)
+	_reserve_ammo.erase(weapon_id)
+	_unlocked_attachments.erase(weapon_id)
+	_attachment_states.erase(weapon_id)
+	if removed_equipped:
+		_equipped_slot = 0
+	elif remove_index < _equipped_slot:
+		_equipped_slot -= 1
+	_equipped_slot = clampi(_equipped_slot, 0, _slots.size() - 1)
+	_apply_equipped_weapon()
+	attachments_changed.emit()
+	return state
+
+
+func restore_weapon_state(state: Dictionary) -> bool:
+	var weapon_id := StringName(String(state.get("weapon_id", "")))
+	var definition := get_weapon_definition(weapon_id)
+	if definition == null or owns_weapon(weapon_id) or not grant_weapon(definition):
+		return false
+	var unlocks := {}
+	var saved_unlocks := state.get("attachment_unlocks", {}) as Dictionary
+	for attachment_id in STORE_ATTACHMENT_IDS:
+		if bool(saved_unlocks.get(String(attachment_id), false)):
+			unlocks[attachment_id] = true
+	_unlocked_attachments[weapon_id] = unlocks
+	var saved_state := state.get("attachment_state", {}) as Dictionary
+	var safe_state := _default_attachment_state()
+	for attachment_id in [ATTACHMENT_SIGHTS, ATTACHMENT_LASER, ATTACHMENT_SWITCH]:
+		safe_state[String(attachment_id)] = bool(saved_state.get(String(attachment_id), false)) and owns_attachment(weapon_id, attachment_id)
+	var magazine_type := clampi(int(saved_state.get("magazine_type", MagazineType.STANDARD)), MagazineType.STANDARD, MagazineType.DRUM)
+	if magazine_type == MagazineType.EXTENDED and not owns_attachment(weapon_id, ATTACHMENT_EXTENDED):
+		magazine_type = MagazineType.STANDARD
+	if magazine_type == MagazineType.DRUM and not owns_attachment(weapon_id, ATTACHMENT_DRUM):
+		magazine_type = MagazineType.STANDARD
+	safe_state["magazine_type"] = magazine_type
+	_attachment_states[weapon_id] = safe_state
+	_magazine_ammo[weapon_id] = clampi(int(state.get("magazine_ammo", definition.magazine_capacity)), 0, definition.drum_magazine_capacity)
+	_reserve_ammo[weapon_id] = maxi(int(state.get("reserve_ammo", definition.starting_reserve_ammo)), 0)
+	weapon_changed.emit(get_equipped_weapon())
+	ammo_changed.emit(get_magazine_ammo(), get_reserve_ammo())
+	attachments_changed.emit()
+	return true
+
+
 func export_save_data() -> Dictionary:
 	_store_current_attachment_state()
 	var owned: Array[String] = []

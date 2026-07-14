@@ -1,0 +1,639 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/property_stash_menu.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="Style_panel"]
+bg_color = Color(0.035, 0.042, 0.052, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.19, 0.21, 0.24, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="Style_panel_soft"]
+bg_color = Color(0.055, 0.061, 0.071, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.16, 0.18, 0.21, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="Style_button"]
+bg_color = Color(0.075, 0.082, 0.094, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.2, 0.23, 0.9)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="Style_button_hover"]
+bg_color = Color(0.12, 0.11, 0.095, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.47, 0.12, 0.95)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="Style_button_pressed"]
+bg_color = Color(0.16, 0.105, 0.065, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.43, 0.08, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="Style_action"]
+bg_color = Color(0.95, 0.34, 0.065, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="Style_action_hover"]
+bg_color = Color(1, 0.46, 0.1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="Style_progress_bg"]
+bg_color = Color(0.018, 0.022, 0.028, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="Style_progress_fill"]
+bg_color = Color(0.96, 0.38, 0.08, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="PropertyStashMenu" type="CanvasLayer"]
+layer = 20
+script = ExtResource("1_script")
+
+[node name="MenuRoot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Dimmer" type="ColorRect" parent="MenuRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.006, 0.008, 0.012, 0.94)
+
+[node name="SafeArea" type="MarginContainer" parent="MenuRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 38
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 38
+theme_override_constants/margin_bottom = 26
+
+[node name="Page" type="VBoxContainer" parent="MenuRoot/SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Header" type="HBoxContainer" parent="MenuRoot/SafeArea/Page"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Titles" type="VBoxContainer" parent="MenuRoot/SafeArea/Page/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = -2
+
+[node name="Title" type="Label" parent="MenuRoot/SafeArea/Page/Header/Titles"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.96, 0.95, 1)
+theme_override_font_sizes/font_size = 34
+text = "HOOD HOUSE 1  •  STASH"
+
+[node name="Neighborhood" type="Label" parent="MenuRoot/SafeArea/Page/Header/Titles"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.38, 0.08, 1)
+theme_override_font_sizes/font_size = 15
+text = "HOOD EAST  /  PROPERTY STORAGE"
+
+[node name="CloseButton" type="Button" parent="MenuRoot/SafeArea/Page/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(112, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.86, 0.88, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("Style_button")
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+text = "CLOSE  ×"
+
+[node name="Summary" type="PanelContainer" parent="MenuRoot/SafeArea/Page"]
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Margin" type="MarginContainer" parent="MenuRoot/SafeArea/Page/Summary"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 14
+
+[node name="Metrics" type="HBoxContainer" parent="MenuRoot/SafeArea/Page/Summary/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 42
+
+[node name="Cash" type="VBoxContainer" parent="MenuRoot/SafeArea/Page/Summary/Margin/Metrics"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuRoot/SafeArea/Page/Summary/Margin/Metrics/Cash"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.66, 1)
+theme_override_font_sizes/font_size = 13
+text = "CARRIED DIRTY CASH"
+
+[node name="CashValue" type="Label" parent="MenuRoot/SafeArea/Page/Summary/Margin/Metrics/Cash"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.84, 0.4, 1)
+theme_override_font_sizes/font_size = 25
+text = "$0"
+
+[node name="Capacity" type="VBoxContainer" parent="MenuRoot/SafeArea/Page/Summary/Margin/Metrics"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Label" type="Label" parent="MenuRoot/SafeArea/Page/Summary/Margin/Metrics/Capacity"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.66, 1)
+theme_override_font_sizes/font_size = 13
+text = "STASH CAPACITY"
+
+[node name="CapacityValue" type="Label" parent="MenuRoot/SafeArea/Page/Summary/Margin/Metrics/Capacity"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.89, 1)
+theme_override_font_sizes/font_size = 20
+text = "0 / 1000"
+
+[node name="CapacityBar" type="ProgressBar" parent="MenuRoot/SafeArea/Page/Summary/Margin/Metrics/Capacity"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+theme_override_styles/background = SubResource("Style_progress_bg")
+theme_override_styles/fill = SubResource("Style_progress_fill")
+show_percentage = false
+
+[node name="Status" type="VBoxContainer" parent="MenuRoot/SafeArea/Page/Summary/Margin/Metrics"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuRoot/SafeArea/Page/Summary/Margin/Metrics/Status"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.61, 0.66, 1)
+theme_override_font_sizes/font_size = 13
+text = "PROPERTY STATUS"
+
+[node name="StatusValue" type="Label" parent="MenuRoot/SafeArea/Page/Summary/Margin/Metrics/Status"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.37, 0.86, 0.43, 1)
+theme_override_font_sizes/font_size = 22
+text = "●  OWNED"
+
+[node name="Body" type="HBoxContainer" parent="MenuRoot/SafeArea/Page"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="CategoriesPanel" type="PanelContainer" parent="MenuRoot/SafeArea/Page/Body"]
+custom_minimum_size = Vector2(225, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Margin" type="MarginContainer" parent="MenuRoot/SafeArea/Page/Body/CategoriesPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 12
+
+[node name="Categories" type="VBoxContainer" parent="MenuRoot/SafeArea/Page/Body/CategoriesPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="AllCategory" type="Button" parent="MenuRoot/SafeArea/Page/Body/CategoriesPanel/Margin/Categories"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.85, 0.87, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("Style_button")
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+toggle_mode = true
+text = "▦   ALL ITEMS     0"
+alignment = 0
+
+[node name="DrugsCategory" type="Button" parent="MenuRoot/SafeArea/Page/Body/CategoriesPanel/Margin/Categories"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.85, 0.87, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("Style_button")
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+toggle_mode = true
+text = "◆   DRUGS         0"
+alignment = 0
+
+[node name="MoneyCategory" type="Button" parent="MenuRoot/SafeArea/Page/Body/CategoriesPanel/Margin/Categories"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.85, 0.87, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("Style_button")
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+toggle_mode = true
+text = "$   MONEY         0"
+alignment = 0
+
+[node name="WeaponsCategory" type="Button" parent="MenuRoot/SafeArea/Page/Body/CategoriesPanel/Margin/Categories"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.85, 0.87, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("Style_button")
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+toggle_mode = true
+text = "▲   WEAPONS       0"
+alignment = 0
+
+[node name="Spacer" type="Control" parent="MenuRoot/SafeArea/Page/Body/CategoriesPanel/Margin/Categories"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StoredCash" type="Label" parent="MenuRoot/SafeArea/Page/Body/CategoriesPanel/Margin/Categories"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "STORED CASH\n$0"
+
+[node name="ItemsPanel" type="PanelContainer" parent="MenuRoot/SafeArea/Page/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Margin" type="MarginContainer" parent="MenuRoot/SafeArea/Page/Body/ItemsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="Content" type="VBoxContainer" parent="MenuRoot/SafeArea/Page/Body/ItemsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ItemsHeader" type="HBoxContainer" parent="MenuRoot/SafeArea/Page/Body/ItemsPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="CategoryTitle" type="Label" parent="MenuRoot/SafeArea/Page/Body/ItemsPanel/Margin/Content/ItemsHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.92, 0.91, 1)
+theme_override_font_sizes/font_size = 21
+text = "ALL ITEMS"
+
+[node name="TransferModeButton" type="Button" parent="MenuRoot/SafeArea/Page/Body/ItemsPanel/Margin/Content/ItemsHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 38)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.55, 0.3, 1)
+theme_override_font_sizes/font_size = 13
+theme_override_styles/normal = SubResource("Style_button")
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+text = "+  ADD FROM INVENTORY"
+
+[node name="ItemCount" type="Label" parent="MenuRoot/SafeArea/Page/Body/ItemsPanel/Margin/Content/ItemsHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.51, 0.56, 1)
+theme_override_font_sizes/font_size = 13
+text = "0 ENTRIES"
+
+[node name="ItemScroll" type="ScrollContainer" parent="MenuRoot/SafeArea/Page/Body/ItemsPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ItemGrid" type="GridContainer" parent="MenuRoot/SafeArea/Page/Body/ItemsPanel/Margin/Content/ItemScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 3
+
+[node name="EmptyState" type="Label" parent="MenuRoot/SafeArea/Page/Body/ItemsPanel/Margin/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.48, 0.51, 0.56, 1)
+theme_override_font_sizes/font_size = 18
+text = "Nothing in this category yet."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DetailsPanel" type="PanelContainer" parent="MenuRoot/SafeArea/Page/Body"]
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Margin" type="MarginContainer" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="Details" type="VBoxContainer" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="DetailTitle" type="Label" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.96, 0.95, 1)
+theme_override_font_sizes/font_size = 23
+text = "SELECT AN ITEM"
+
+[node name="DetailCategory" type="Label" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.38, 0.08, 1)
+theme_override_font_sizes/font_size = 13
+text = "STASH ITEM"
+
+[node name="PreviewPanel" type="PanelContainer" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details"]
+custom_minimum_size = Vector2(0, 178)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Style_panel_soft")
+
+[node name="Preview" type="Control" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/PreviewPanel"]
+layout_mode = 2
+
+[node name="DetailIcon" type="TextureRect" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/PreviewPanel/Preview"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 34.0
+offset_top = 18.0
+offset_right = -34.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CashPreview" type="Label" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/PreviewPanel/Preview"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.38, 0.84, 0.42, 1)
+theme_override_font_sizes/font_size = 68
+text = "$"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WeaponPreview" type="SubViewportContainer" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/PreviewPanel/Preview"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="PreviewViewport" type="SubViewport" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/PreviewPanel/Preview/WeaponPreview"]
+unique_name_in_owner = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(320, 178)
+render_target_update_mode = 4
+own_world_3d = true
+
+[node name="PreviewRoot" type="Node3D" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/PreviewPanel/Preview/WeaponPreview/PreviewViewport"]
+unique_name_in_owner = true
+
+[node name="Camera3D" type="Camera3D" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/PreviewPanel/Preview/WeaponPreview/PreviewViewport"]
+transform = Transform3D(0.707107, -0.301511, 0.639602, 0, 0.904534, 0.426401, -0.707107, -0.301511, 0.639602, 1.8, 0.9, 1.8)
+current = true
+
+[node name="KeyLight" type="DirectionalLight3D" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/PreviewPanel/Preview/WeaponPreview/PreviewViewport"]
+rotation_degrees = Vector3(-48, -32, 0)
+light_color = Color(1, 0.82, 0.67, 1)
+light_energy = 2.2
+
+[node name="FillLight" type="DirectionalLight3D" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/PreviewPanel/Preview/WeaponPreview/PreviewViewport"]
+rotation_degrees = Vector3(35, 145, 0)
+light_color = Color(0.45, 0.66, 1, 1)
+light_energy = 1.2
+
+[node name="DetailDescription" type="Label" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.68, 0.71, 1)
+theme_override_font_sizes/font_size = 14
+text = "Choose an item to see its details."
+autowrap_mode = 2
+
+[node name="Separator" type="HSeparator" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details"]
+layout_mode = 2
+
+[node name="Quantities" type="HBoxContainer" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details"]
+layout_mode = 2
+
+[node name="CarriedValue" type="Label" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/Quantities"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.65, 0.67, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "CARRIED  0"
+
+[node name="StashedValue" type="Label" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/Quantities"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.67, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "STORED  0"
+horizontal_alignment = 2
+
+[node name="EstimatedValue" type="Label" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.84, 0.42, 1)
+theme_override_font_sizes/font_size = 18
+text = "EST. VALUE  $0"
+horizontal_alignment = 2
+
+[node name="Spacer" type="Control" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="AmountLabel" type="Label" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.58, 0.62, 1)
+theme_override_font_sizes/font_size = 12
+text = "TRANSFER AMOUNT"
+
+[node name="Amounts" type="HBoxContainer" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Amount1" type="Button" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/Amounts"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("Style_button")
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+toggle_mode = true
+text = "1"
+
+[node name="Amount2" type="Button" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/Amounts"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("Style_button")
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+toggle_mode = true
+text = "10"
+
+[node name="Amount3" type="Button" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/Amounts"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("Style_button")
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+toggle_mode = true
+text = "100"
+
+[node name="AmountMax" type="Button" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/Amounts"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("Style_button")
+theme_override_styles/hover = SubResource("Style_button_hover")
+theme_override_styles/pressed = SubResource("Style_button_pressed")
+toggle_mode = true
+text = "MAX"
+
+[node name="Actions" type="HBoxContainer" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StoreButton" type="Button" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.08, 0.055, 0.025, 1)
+theme_override_colors/font_hover_color = Color(0.04, 0.03, 0.015, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("Style_action")
+theme_override_styles/hover = SubResource("Style_action_hover")
+text = "STORE"
+
+[node name="TakeButton" type="Button" parent="MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("Style_button")
+theme_override_styles/hover = SubResource("Style_button_hover")
+text = "TAKE"
+
+[node name="Feedback" type="PanelContainer" parent="MenuRoot/SafeArea/Page"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="FeedbackLabel" type="Label" parent="MenuRoot/SafeArea/Page/Feedback"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.68, 0.7, 0.73, 1)
+theme_override_font_sizes/font_size = 13
+text = "TIP: Stored drugs and weapons use capacity. Dirty cash does not."
+horizontal_alignment = 1
+vertical_alignment = 1

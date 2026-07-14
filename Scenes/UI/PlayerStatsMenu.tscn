@@ -204,7 +204,7 @@ text = "HUSTLE"
 [node name="HustleDescription" type="Label" parent="MenuRoot/Panel/Margin/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.73, 0.78, 1)
-text = "Each point attracts more customers and adds 5% sale cash and EXP. Customer capacity is capped at 6."
+text = "Each point attracts more customers, improves the chance of higher-level buyers, and adds 5% sale cash and EXP. Customer capacity is capped at 6."
 autowrap_mode = 2
 
 [node name="HustleRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]

@@ -381,7 +381,8 @@ func assign_route(
 func prepare_for_pool_spawn(
 	network: PedestrianNetwork3D,
 	start_waypoint: PedestrianWaypoint3D,
-	random_seed: int
+	random_seed: int,
+	player_hustle: int = 1
 ) -> void:
 	process_mode = Node.PROCESS_MODE_INHERIT
 	visible = true
@@ -397,6 +398,7 @@ func prepare_for_pool_spawn(
 	global_position = _get_route_start_position()
 	_home_position = global_position
 	navigation_agent.set_velocity_forced(Vector3.ZERO)
+	role_component.set_demand_hustle(player_hustle)
 	role_component.activate()
 	hsm.set_active(true)
 

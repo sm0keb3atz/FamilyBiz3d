@@ -13,6 +13,13 @@ dirty money, and eventually manages a city-wide wholesale network.
 3. [Territory Stats and Heat](GDD_Territory_Stats.md)
 4. [Money and Economy System](GDD_Money_System.md)
 5. [Current Gameplay Foundation](GDD_Gameplay_Foundation.md)
+6. [Living Neighborhood and Business Roadmap](GDD_Living_Neighborhood_Roadmap.md)
+
+## Current Project Handoff
+
+- [Project Checkpoint - July 14, 2026](../project-checkpoint-2026-07-14.md)
+- The July 2 checkpoint remains historical context and should not be used as
+  the current implementation inventory.
 
 ## Technical Foundation
 

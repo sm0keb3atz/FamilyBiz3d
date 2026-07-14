@@ -150,7 +150,8 @@ func _activate_one() -> bool:
 	customer.prepare_for_pool_spawn(
 		network,
 		chosen,
-		_random.randi()
+		_random.randi(),
+		_get_player_hustle()
 	)
 	var high_detail_distance_squared: float = (
 		high_detail_distance * high_detail_distance
@@ -162,6 +163,13 @@ func _activate_one() -> bool:
 	customer.set_role_label_visible(show_managed_role_labels)
 	_active.append(customer)
 	return true
+
+
+func _get_player_hustle() -> int:
+	var stats := player.get_node_or_null(
+		"Components/StatsComponent"
+	) as PlayerStatsComponent
+	return stats.hustle if stats != null else 1
 
 
 func _activate_one_police() -> bool:

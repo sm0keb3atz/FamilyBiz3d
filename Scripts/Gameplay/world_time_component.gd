@@ -74,9 +74,15 @@ func advance_minutes(minutes: int) -> void:
 			_update_visuals()
 			_emit_time_changed()
 			day_ended.emit(report_date, earned, spent)
-			return
 	_update_visuals()
 	_emit_time_changed()
+
+
+func advance_to_next_morning(wake_hour := 8) -> bool:
+	if wake_hour < 0 or wake_hour > 23:
+		return false
+	advance_minutes(MINUTES_PER_DAY - minute_of_day + wake_hour * 60)
+	return true
 
 
 func get_formatted_date() -> String:

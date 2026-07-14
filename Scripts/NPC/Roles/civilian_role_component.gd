@@ -7,6 +7,7 @@ extends NPCRoleComponent
 @export var randomize_demand_on_activate := true
 
 var _random := RandomNumberGenerator.new()
+var _demand_hustle := 1
 
 
 func _ready() -> void:
@@ -130,19 +131,53 @@ func get_solicitation_amount_range() -> Vector2i:
 	return Vector2i.ONE
 
 
-static func roll_weighted_level(random: RandomNumberGenerator) -> int:
+static func get_level_weights(hustle: int) -> Array[int]:
+	# High-value customers are progression rewards instead of common early rolls.
+	# Each row totals 100 and maps to customer levels 1 through 4.
+	var weights: Array[Array] = [
+		[88, 11, 1, 0],
+		[84, 14, 2, 0],
+		[78, 18, 4, 0],
+		[72, 21, 7, 0],
+		[65, 24, 10, 1],
+		[59, 26, 13, 2],
+		[53, 28, 16, 3],
+		[48, 29, 19, 4],
+		[43, 30, 21, 6],
+		[38, 31, 23, 8],
+	]
+	var selected: Array[int] = []
+	selected.assign(weights[clampi(hustle, 1, 10) - 1])
+	return selected
+
+
+static func roll_weighted_level(
+	random: RandomNumberGenerator,
+	hustle: int = 1
+) -> int:
 	var roll := random.randi_range(1, 100)
-	if roll <= 55:
-		return 1
-	if roll <= 80:
-		return 2
-	if roll <= 95:
-		return 3
+	var cumulative := 0
+	var weights := get_level_weights(hustle)
+	for index in range(weights.size()):
+		cumulative += weights[index]
+		if roll <= cumulative:
+			return index + 1
 	return 4
 
 
+func set_demand_hustle(hustle: int) -> void:
+	_demand_hustle = clampi(hustle, 1, 10)
+
+
 func _roll_demand() -> void:
-	customer_level = roll_weighted_level(_random)
+	var player := get_tree().get_first_node_in_group(&"player") as CharacterBody3D
+	if player != null:
+		var stats := player.get_node_or_null(
+			"Components/StatsComponent"
+		) as PlayerStatsComponent
+		if stats != null:
+			_demand_hustle = stats.hustle
+	customer_level = roll_weighted_level(_random, _demand_hustle)
 	var gram_products := EconomyCatalog.get_gram_products()
 	product_wanted = gram_products[
 		_random.randi_range(0, gram_products.size() - 1)

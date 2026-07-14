@@ -51,6 +51,9 @@
 [ext_resource type="Script" uid="uid://bylmcxtnhxmu0" path="res://Scripts/Player/Components/player_appearance_component.gd" id="27_appearance"]
 [ext_resource type="AudioStream" uid="uid://cw87kh2figl3r" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 13_AUDIOELK_AUDIOELK.wav" id="27_ujsok"]
 [ext_resource type="Script" path="res://Scripts/Player/Components/player_wardrobe_component.gd" id="28_wardrobe"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_property_component.gd" id="66_property"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PropertyPurchaseMenu.tscn" id="67_property_purchase"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PropertyStashMenu.tscn" id="68_property_stash"]
 [ext_resource type="AudioStream" uid="uid://dkocn7g7w2ix0" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Reload 1.wav" id="28_reload_1"]
 [ext_resource type="AudioStream" uid="uid://d2hectk745l0y" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 14_AUDIOELK_AUDIOELK.wav" id="28_txwsf"]
 [ext_resource type="AudioStream" uid="uid://b6t8ibffoe4p2" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 15_AUDIOELK_AUDIOELK.wav" id="29_i10l2"]
@@ -582,6 +585,9 @@ script = ExtResource("27_appearance")
 [node name="WardrobeComponent" type="Node" parent="Components"]
 script = ExtResource("28_wardrobe")
 
+[node name="PropertyComponent" type="Node" parent="Components"]
+script = ExtResource("66_property")
+
 [node name="ClothingStoreService" type="Node" parent="Components"]
 script = ExtResource("22_clothing_store_service")
 
@@ -600,6 +606,10 @@ script = ExtResource("16_gift_menu")
 [node name="GunStoreMenu" parent="." instance=ExtResource("22_gun_store_menu")]
 
 [node name="ClothingStoreMenu" parent="." instance=ExtResource("22_clothing_store_menu")]
+
+[node name="PropertyPurchaseMenu" parent="." instance=ExtResource("67_property_purchase")]
+
+[node name="PropertyStashMenu" parent="." instance=ExtResource("68_property_stash")]
 
 [node name="ATMMenu" parent="." instance=ExtResource("22_atm_menu")]
 

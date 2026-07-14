@@ -82,5 +82,9 @@ The first player stats implementation uses the following finalized rules:
 * Hustle starts at `1`, costs `1` skill point per increase, and caps at `10`.
 * Each Hustle point after the first adds `5%` street-sale cash and EXP. Reputation and Heat are not multiplied.
 * Solicitation attracts up to `2 + (Hustle - 1)` customers, capped at `6`.
+* Hustle progressively raises the chance of finding Level 2-4 customers. Level
+  4 customers cannot roll at Hustle 1-4.
+* One customer can reserve at most `50%` of a product stack at Hustle 1,
+  scaling to `72.5%` at Hustle 10, except for the final unit.
 * Maximum Health is `100 + ((Strength - 1) x 10)`.
 * Maximum Stamina is `100 + ((Strength - 1) x 5) + ((Level - 1) x 2)`.

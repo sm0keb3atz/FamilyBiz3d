@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 4
+const SAVE_VERSION := 5
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -25,6 +25,9 @@ const SAVE_PATH := "user://family_business_save.json"
 @onready var wanted := player.get_node(
 	"Components/WantedComponent"
 ) as PlayerWantedComponent
+@onready var properties := player.get_node(
+	"Components/PropertyComponent"
+) as PlayerPropertyComponent
 @onready var vehicle_component: Variant = player.get_node(
 	"Components/VehicleComponent"
 )
@@ -78,6 +81,7 @@ func save_game() -> bool:
 			"weapons": weapon.export_save_data(),
 			"stats": stats.export_save_data(),
 			"wanted": wanted.export_save_data(),
+			"properties": properties.export_save_data(),
 		},
 		"territories": territories,
 		"dealers": dealers,
@@ -118,6 +122,9 @@ func load_game() -> bool:
 	wanted.import_save_data(
 		player_data.get("wanted", {}) as Dictionary
 	)
+	properties.import_save_data(
+		player_data.get("properties", {}) as Dictionary
+	)
 	world_time.import_save_data(data.get("world_time", {}) as Dictionary)
 	var position_data := player_data.get("position", []) as Array
 	if position_data.size() == 3:
@@ -150,6 +157,16 @@ func load_game() -> bool:
 
 func has_save() -> bool:
 	return FileAccess.file_exists(SAVE_PATH)
+
+
+func sleep_at_property(property_id: StringName) -> bool:
+	if not properties.owns(property_id):
+		return false
+	if not world_time.advance_to_next_morning(8):
+		return false
+	stats.heal(stats.get_max_health())
+	stats.restore_stamina(stats.get_max_stamina())
+	return save_game()
 
 
 func _is_valid_save(value: Variant) -> bool:

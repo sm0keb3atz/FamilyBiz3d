@@ -7,12 +7,14 @@ extends CanvasLayer
 @export var weapon_component_path := NodePath("../Components/WeaponComponent")
 @export var menu_controller_path := NodePath("../Components/MenuController")
 @export var girlfriend_component_path := NodePath("../Components/GirlfriendComponent")
+@export var property_component_path := NodePath("../Components/PropertyComponent")
 
 @onready var menu_root := %MenuRoot as Control
 @onready var tab_container := %TabContainer as TabContainer
 @onready var drug_list := %DrugList as VBoxContainer
 @onready var weapon_list := %WeaponList as VBoxContainer
 @onready var girlfriend_list := %GirlfriendList as VBoxContainer
+@onready var property_list := %PropertyList as VBoxContainer
 @onready var feedback_label := %FeedbackLabel as Label
 @onready var inventory := (
 	get_node(inventory_component_path) as PlayerInventoryComponent
@@ -24,6 +26,7 @@ extends CanvasLayer
 	get_node(menu_controller_path) as PlayerMenuController
 )
 @onready var girlfriends := get_node_or_null(girlfriend_component_path) as PlayerGirlfriendComponent
+@onready var properties := get_node_or_null(property_component_path) as PlayerPropertyComponent
 
 var _is_open := false
 
@@ -36,6 +39,9 @@ func _ready() -> void:
 		weapon_component.attachments_changed.connect(_on_attachments_changed)
 	if girlfriends != null:
 		girlfriends.roster_changed.connect(_on_roster_changed)
+	if properties != null:
+		properties.ownership_changed.connect(_on_property_changed)
+		properties.stash_changed.connect(_on_property_stash_changed)
 	_style_tabs()
 	menu_root.visible = false
 	_refresh()
@@ -75,6 +81,52 @@ func _refresh() -> void:
 	_refresh_drugs()
 	_refresh_weapons()
 	_refresh_girlfriends()
+	_refresh_properties()
+
+
+func _refresh_properties() -> void:
+	for child in property_list.get_children():
+		child.queue_free()
+	if properties == null or properties.get_owned_definitions().is_empty():
+		property_list.add_child(_create_center_label("No properties owned."))
+		return
+	for definition in properties.get_owned_definitions():
+		property_list.add_child(_create_property_row(definition))
+
+
+func _create_property_row(definition: PropertyDefinition) -> Control:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.055, 0.064, 0.078, 0.96), Color(0.88, 0.58, 0.22, 0.55)))
+	var margin := MarginContainer.new()
+	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		margin.add_theme_constant_override(side, 12)
+	panel.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 5)
+	margin.add_child(box)
+	var title := Label.new()
+	title.text = "%s  •  OWNED" % definition.display_name
+	title.add_theme_font_size_override("font_size", 21)
+	box.add_child(title)
+	var location := Label.new()
+	location.text = "%s  •  Bed & Save  •  Wardrobe  •  Private Stash" % definition.neighborhood
+	location.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82))
+	box.add_child(location)
+	var summary := properties.get_stash_summary(definition.property_id)
+	var storage := Label.new()
+	storage.text = "Stored: $%s dirty  •  %d drug units  •  %d weapons" % [_money(int(summary["dirty_cash"])), int(summary["product_units"]), int(summary["weapon_count"])]
+	storage.add_theme_color_override("font_color", Color(0.9, 0.66, 0.3))
+	box.add_child(storage)
+	return panel
+
+
+func _money(amount: int) -> String:
+	var text := str(amount)
+	var result := ""
+	while text.length() > 3:
+		result = "," + text.right(3) + result
+		text = text.left(text.length() - 3)
+	return text + result
 
 
 func _refresh_girlfriends() -> void:
@@ -389,3 +441,13 @@ func _on_attachments_changed() -> void:
 func _on_roster_changed() -> void:
 	if _is_open:
 		_refresh_girlfriends()
+
+
+func _on_property_changed(_property_id: StringName, _owned: bool) -> void:
+	if _is_open:
+		_refresh_properties()
+
+
+func _on_property_stash_changed(_property_id: StringName) -> void:
+	if _is_open:
+		_refresh_properties()

@@ -1470,15 +1470,19 @@ mesh = SubResource("ArrayMesh_okjkq")
 
 [node name="HoodHouse1" parent="Ground/Plot/Buildings" unique_id=413113688 instance=ExtResource("15_knlt2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.6, 0, -51.45)
+property_id = &"hood_east_house_1"
 
 [node name="HoodHouse2" parent="Ground/Plot/Buildings" unique_id=513910864 instance=ExtResource("15_knlt2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.6, 0, -74.95)
+property_id = &"hood_east_house_2"
 
 [node name="HoodHouse3" parent="Ground/Plot/Buildings" unique_id=434503377 instance=ExtResource("15_knlt2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.6, 0, -97.25)
+property_id = &"hood_east_house_3"
 
 [node name="HoodHouse4" parent="Ground/Plot/Buildings" unique_id=1769339889 instance=ExtResource("15_knlt2")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 31.649996, 0, -69.75)
+property_id = &"hood_east_house_4"
 
 [node name="Alleys" type="Node3D" parent="Ground/Plot" unique_id=547023799]
 

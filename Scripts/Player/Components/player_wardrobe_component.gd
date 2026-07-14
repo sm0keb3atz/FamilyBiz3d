@@ -85,7 +85,8 @@ func get_outfit_state() -> Dictionary:
 		equipped_data[String(category)] = String(_equipped[category])
 	var color_data := {}
 	for clothing_id in _colors:
-		color_data[String(clothing_id)] = get_item_color(clothing_id).to_html(true)
+		var color := get_item_color(clothing_id)
+		color_data[String(clothing_id)] = [color.r, color.g, color.b, color.a]
 	return {
 		"equipped": equipped_data,
 		"colors": color_data,
@@ -153,7 +154,16 @@ func import_save_data(data: Dictionary) -> void:
 		var clothing_id := StringName(str(id_text))
 		var definition := ClothingCatalog.get_by_id(clothing_id)
 		if definition != null and definition.tintable:
-			_colors[clothing_id] = Color.from_string(str(color_data[id_text]), Color.WHITE)
+			var saved_color: Variant = color_data[id_text]
+			if saved_color is Array and saved_color.size() == 4:
+				_colors[clothing_id] = Color(
+					float(saved_color[0]),
+					float(saved_color[1]),
+					float(saved_color[2]),
+					float(saved_color[3])
+				)
+			else:
+				_colors[clothing_id] = Color.from_string(str(saved_color), Color.WHITE)
 	apply_equipped_outfit()
 
 

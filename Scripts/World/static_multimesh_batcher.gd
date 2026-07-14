@@ -1,6 +1,8 @@
 class_name StaticMultiMeshBatcher
 extends Node3D
 
+const EXCLUDE_GROUP := &"exclude_static_batch"
+
 ## Batches repeated static map meshes at runtime while keeping the authored
 ## MeshInstance3D nodes intact and editable in the territory scene.
 
@@ -68,6 +70,10 @@ func _can_batch(mesh_instance: MeshInstance3D) -> bool:
 func _has_runtime_visual_ancestor(node: Node) -> bool:
 	var current: Node = node
 	while current != null:
+		# Doors, signs, and other stateful visuals must remain as authored nodes.
+		# A MultiMesh copy cannot follow their animation or visibility changes.
+		if current.is_in_group(EXCLUDE_GROUP):
+			return true
 		# A batched copy cannot respond to a signal state change. Keep the pole,
 		# lenses, and glow meshes together as normal scene nodes instead.
 		if current is TrafficSignalVisual3D:
