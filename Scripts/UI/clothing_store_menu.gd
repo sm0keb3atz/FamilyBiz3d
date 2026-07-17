@@ -4,6 +4,7 @@ extends CanvasLayer
 const ACCENT := Color(0.73, 0.38, 0.96, 1.0)
 const GREEN := Color(0.39, 0.72, 0.26, 1.0)
 const PREVIEW_SCENE := preload("res://Scenes/PlayerVisualModular.tscn")
+const BusinessManagementPanelScript := preload("res://Scripts/UI/business_management_panel.gd")
 const COLOR_OPTIONS := [
 	{"name": "White", "color": Color("f4f1e8")},
 	{"name": "Cream", "color": Color("e8dcc4")},
@@ -40,12 +41,14 @@ const COLOR_OPTIONS := [
 @export var appearance_component_path := NodePath("../Components/AppearanceComponent")
 @export var store_service_path := NodePath("../Components/ClothingStoreService")
 @export var menu_controller_path := NodePath("../Components/MenuController")
+@export var property_component_path := NodePath("../Components/PropertyComponent")
 
 @onready var wallet := get_node(wallet_component_path) as PlayerWalletComponent
 @onready var wardrobe := get_node(wardrobe_component_path) as PlayerWardrobeComponent
 @onready var appearance := get_node(appearance_component_path) as PlayerAppearanceComponent
 @onready var store := get_node(store_service_path) as ClothingStoreService
 @onready var menu_controller := get_node(menu_controller_path) as PlayerMenuController
+@onready var properties := get_node(property_component_path) as PlayerPropertyComponent
 
 var _root: Control
 var _title_label: Label
@@ -55,6 +58,12 @@ var _type_row: HBoxContainer
 var _brand_row: GridContainer
 var _browse_label: Label
 var _category_buttons: Dictionary[StringName, Button] = {}
+var _store_tabs: HBoxContainer
+var _categories: HBoxContainer
+var _shop_content: HBoxContainer
+var _business_panel: VBoxContainer
+var _shop_tab: Button
+var _business_tab: Button
 var _preview_pivot: Node3D
 var _preview_visual: Node3D
 var _preview_appearance: PlayerAppearanceComponent
@@ -112,6 +121,8 @@ func open_store() -> void:
 	_wardrobe_mode = false
 	_active_menu_id = &"clothing_store"
 	_title_label.text = "  CLOTHING SHOP"
+	_store_tabs.visible = true
+	_set_store_tab(false)
 	_select_first_for_category()
 	_is_open = true
 	_root.visible = true
@@ -125,6 +136,8 @@ func open_wardrobe() -> void:
 	_wardrobe_mode = true
 	_active_menu_id = &"wardrobe"
 	_title_label.text = "  HOME WARDROBE"
+	_store_tabs.visible = false
+	_set_store_tab(false)
 	_select_first_for_category()
 	_is_open = true
 	_root.visible = true
@@ -183,25 +196,44 @@ func _build_ui() -> void:
 	_style_button(close_button, Color(0.75, 0.23, 0.18))
 	close_button.pressed.connect(close)
 	header.add_child(close_button)
-	var categories := HBoxContainer.new()
-	categories.alignment = BoxContainer.ALIGNMENT_CENTER
-	categories.add_theme_constant_override("separation", 10)
-	page.add_child(categories)
+	_store_tabs = HBoxContainer.new()
+	_store_tabs.name = "StoreTabs"
+	_store_tabs.alignment = BoxContainer.ALIGNMENT_CENTER
+	_store_tabs.add_theme_constant_override("separation", 10)
+	page.add_child(_store_tabs)
+	_shop_tab = Button.new()
+	_shop_tab.name = "ShopTab"
+	_shop_tab.text = "SHOP"
+	_shop_tab.custom_minimum_size = Vector2(190, 42)
+	_shop_tab.pressed.connect(_set_store_tab.bind(false))
+	_store_tabs.add_child(_shop_tab)
+	_business_tab = Button.new()
+	_business_tab.name = "BusinessTab"
+	_business_tab.text = "BUSINESS"
+	_business_tab.custom_minimum_size = Vector2(190, 42)
+	_business_tab.pressed.connect(_set_store_tab.bind(true))
+	_store_tabs.add_child(_business_tab)
+	_categories = HBoxContainer.new()
+	_categories.name = "ShopCategories"
+	_categories.alignment = BoxContainer.ALIGNMENT_CENTER
+	_categories.add_theme_constant_override("separation", 10)
+	page.add_child(_categories)
 	for entry in [[ClothingCatalog.CATEGORY_TOP, "TOPS"], [ClothingCatalog.CATEGORY_BOTTOM, "BOTTOMS"], [ClothingCatalog.CATEGORY_SHOES, "SHOES"]]:
 		var button := Button.new()
 		button.text = entry[1]
 		button.custom_minimum_size = Vector2(180, 42)
 		_style_button(button, ACCENT)
 		button.pressed.connect(_select_category.bind(entry[0]))
-		categories.add_child(button)
+		_categories.add_child(button)
 		_category_buttons[entry[0]] = button
-	var content := HBoxContainer.new()
-	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	content.add_theme_constant_override("separation", 14)
-	page.add_child(content)
+	_shop_content = HBoxContainer.new()
+	_shop_content.name = "ShopContent"
+	_shop_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_shop_content.add_theme_constant_override("separation", 14)
+	page.add_child(_shop_content)
 	var left := _section("CATALOG")
 	left.custom_minimum_size.x = 290
-	content.add_child(left)
+	_shop_content.add_child(left)
 	var left_box := left.get_child(0) as VBoxContainer
 	_filter_box = VBoxContainer.new()
 	_filter_box.add_theme_constant_override("separation", 8)
@@ -237,7 +269,7 @@ func _build_ui() -> void:
 	scroll.add_child(_item_list)
 	var middle := _section("YOUR CHARACTER")
 	middle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_child(middle)
+	_shop_content.add_child(middle)
 	var middle_box := middle.get_child(0) as VBoxContainer
 	var viewport_container := SubViewportContainer.new()
 	viewport_container.custom_minimum_size = Vector2(440, 450)
@@ -276,7 +308,7 @@ func _build_ui() -> void:
 	middle_box.add_child(hint)
 	var right := _section("ITEM DETAILS")
 	right.custom_minimum_size.x = 325
-	content.add_child(right)
+	_shop_content.add_child(right)
 	var right_box := right.get_child(0) as VBoxContainer
 	_name_label = Label.new()
 	_name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -345,11 +377,37 @@ func _build_ui() -> void:
 	_style_button(_action_button, GREEN)
 	_action_button.pressed.connect(_perform_action)
 	right_box.add_child(_action_button)
+	_business_panel = BusinessManagementPanelScript.new()
+	page.add_child(_business_panel)
+	_business_panel.setup(PropertyCatalog.CLOTHING_STORE_ID, properties, wallet)
 	_feedback_label = Label.new()
 	_feedback_label.custom_minimum_size.y = 34
 	_feedback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_feedback_label.add_theme_font_size_override("font_size", 18)
 	page.add_child(_feedback_label)
+	_set_store_tab(false)
+
+
+func _set_store_tab(show_business: bool) -> void:
+	if _shop_content == null or _business_panel == null:
+		return
+	if _wardrobe_mode:
+		show_business = false
+	_categories.visible = not show_business
+	_shop_content.visible = not show_business
+	_business_panel.visible = show_business
+	_shop_tab.disabled = false
+	_business_tab.disabled = false
+	_style_button(_shop_tab, ACCENT)
+	_style_button(_business_tab, ACCENT)
+	var active_tab := _business_tab if show_business else _shop_tab
+	active_tab.add_theme_stylebox_override(
+		"normal",
+		_panel_style(ACCENT.darkened(0.55), ACCENT, 1, 5)
+	)
+	if show_business:
+		_feedback_label.text = ""
+		_business_panel.refresh()
 
 
 func _section(title_text: String) -> PanelContainer:

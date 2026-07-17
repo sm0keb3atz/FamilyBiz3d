@@ -41,7 +41,11 @@ func can_respond_to_solicitation() -> bool:
 	return (
 		npc.is_pool_active()
 		and not npc.is_defeated()
-		and npc.get_state_name() == "ROAMING"
+		and npc.get_state_name() in [
+			"ROAMING",
+			"TRAVELING_TO_ACTIVITY",
+			"PERFORMING_ACTIVITY",
+		]
 		and npc.is_solicitation_ready()
 		and product_wanted != null
 		and amount_wanted > 0

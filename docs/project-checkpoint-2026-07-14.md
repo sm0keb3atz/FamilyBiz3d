@@ -74,6 +74,50 @@ scripts produced results.
   changes overlap this work and must continue to be preserved.
 - Passes 1 and 2 are implemented with focused smoke coverage; the user will run
   the remaining Godot regression and in-editor presentation checks.
+- Pass 3 is implemented with focused smoke coverage. The four houses retain
+  stash-house behavior, while the Hood East gun and clothing stores now have
+  separate purchasable front-business definitions and persistent abstract
+  business state.
+- Pass 4 is implemented with focused smoke coverage. Both stores expose a
+  BUSINESS dashboard with real revenue, profit, sales, margin, seven-day
+  revenue, stock, and cash metrics. They accept atomic Dirty Cash restocks,
+  process deterministic abstract sales during operating hours, and deposit
+  pending Clean Cash before the ending day's report is captured.
+- Pass 5 provides reservable ambient activity spots, route-resuming civilian
+  activities, temporary conversations, safe interruption cleanup, and
+  instance-local female locomotion selection. Leaning and texting remain
+  disabled by default pending presentation-quality animations.
+- Pass 6 implementation is ready for user-run verification. Current-time
+  passive sales can create one transient nearby customer visit at each owned,
+  open, stocked store. Visitors reserve entrance, browse, counter, and exit
+  destinations as one itinerary; presentation never changes the ledger and
+  historical catch-up sales never create a visitor backlog. Visit assignment
+  also requires clear wall-free approach and return rays to the exterior
+  doorway markers because the current neighborhood navigation mesh does not
+  encode building walls.
+
+### July 17 Pass 6 Verification Handoff
+
+- Focused coverage is in `Tests/store_customer_visit_smoke_test.gd`.
+- The test covers both stores, operating/stock/ownership gates, ordered visit
+  stages, exclusive reservations, interruption cleanup, missing-animation
+  fallback, off-screen sales, and historical ledger catch-up.
+- Run it before the existing activity, passive-business, civilian, property,
+  and time smoke tests, with only one Godot process active at a time.
+- Pass 6 remains pending verification until the focused test completes without
+  script errors and prints `STORE_CUSTOMER_VISIT_SMOKE_TEST_PASS`.
+
+### July 14 Pass 3/4 Verification
+
+- `front_business_data_smoke_test.gd`, `passive_business_smoke_test.gd`,
+  `property_system_smoke_test.gd`, and `time_cycle_smoke_test.gd` pass.
+- Ten other sequential smoke tests print their expected PASS marker, for
+  fourteen clean PASS results total.
+- Existing out-of-scope regression exceptions remain: civilian and police tests
+  stop at timing assertions while ambient vehicle-impact null errors occur;
+  the girlfriend test stops at its default Aura assertion; and the vehicle test
+  prints PASS alongside the same vehicle-impact null error. No files in those
+  systems were changed by Passes 3/4.
 
 ### Prototype Quality / Needs Rework
 
@@ -110,7 +154,6 @@ scripts produced results.
 
 ## Immediate Next Move
 
-Have the user run the Pass 1/2 focused and full sequential smoke-test suite,
-then verify the signed Reputation meter and local Weed/Coke/Fent HUD quote row
-in the editor. After that verification, continue with Pass 3 property roles and
-front-business data; do not combine it with passive store operation from Pass 4.
+Have the user verify the Pass 1/2 HUD presentation and both store BUSINESS tabs
+in the editor. Keep the unrelated civilian/police/girlfriend/vehicle smoke-test
+exceptions as a separate repair checkpoint before beginning Pass 5.

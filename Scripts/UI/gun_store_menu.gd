@@ -3,16 +3,19 @@ extends CanvasLayer
 
 const ACCENT := Color(0.93, 0.68, 0.16, 1.0)
 const GREEN := Color(0.39, 0.72, 0.26, 1.0)
+const BusinessManagementPanelScript := preload("res://Scripts/UI/business_management_panel.gd")
 
 @export var wallet_component_path := NodePath("../Components/WalletComponent")
 @export var weapon_component_path := NodePath("../Components/WeaponComponent")
 @export var store_service_path := NodePath("../Components/GunStoreService")
 @export var menu_controller_path := NodePath("../Components/MenuController")
+@export var property_component_path := NodePath("../Components/PropertyComponent")
 
 @onready var wallet := get_node(wallet_component_path) as PlayerWalletComponent
 @onready var weapon := get_node(weapon_component_path) as PlayerWeaponComponent
 @onready var store := get_node(store_service_path) as GunStoreService
 @onready var menu_controller := get_node(menu_controller_path) as PlayerMenuController
+@onready var properties := get_node(property_component_path) as PlayerPropertyComponent
 
 var _root: Control
 var _weapon_list: VBoxContainer
@@ -26,6 +29,10 @@ var _feedback_label: Label
 var _purchase_button: Button
 var _ammo_button: Button
 var _attachment_list: VBoxContainer
+var _shop_content: HBoxContainer
+var _business_panel: VBoxContainer
+var _shop_tab: Button
+var _business_tab: Button
 var _selected: WeaponDefinition
 var _is_open := false
 var _dragging := false
@@ -63,6 +70,7 @@ func open_store() -> void:
 	_is_open = true
 	_root.visible = true
 	_feedback_label.text = ""
+	_set_store_tab(false)
 	_refresh()
 
 
@@ -117,15 +125,33 @@ func _build_ui() -> void:
 	_style_button(close_button, Color(0.75, 0.23, 0.18))
 	close_button.pressed.connect(close)
 	header.add_child(close_button)
+	var tabs := HBoxContainer.new()
+	tabs.name = "StoreTabs"
+	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
+	tabs.add_theme_constant_override("separation", 10)
+	page.add_child(tabs)
+	_shop_tab = Button.new()
+	_shop_tab.name = "ShopTab"
+	_shop_tab.text = "SHOP"
+	_shop_tab.custom_minimum_size = Vector2(190, 42)
+	_shop_tab.pressed.connect(_set_store_tab.bind(false))
+	tabs.add_child(_shop_tab)
+	_business_tab = Button.new()
+	_business_tab.name = "BusinessTab"
+	_business_tab.text = "BUSINESS"
+	_business_tab.custom_minimum_size = Vector2(190, 42)
+	_business_tab.pressed.connect(_set_store_tab.bind(true))
+	tabs.add_child(_business_tab)
 
-	var content := HBoxContainer.new()
-	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	content.add_theme_constant_override("separation", 14)
-	page.add_child(content)
+	_shop_content = HBoxContainer.new()
+	_shop_content.name = "ShopContent"
+	_shop_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_shop_content.add_theme_constant_override("separation", 14)
+	page.add_child(_shop_content)
 
 	var left := _section("WEAPONS")
 	left.custom_minimum_size.x = 280
-	content.add_child(left)
+	_shop_content.add_child(left)
 	_weapon_list = VBoxContainer.new()
 	_weapon_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_weapon_list.add_theme_constant_override("separation", 10)
@@ -133,7 +159,7 @@ func _build_ui() -> void:
 
 	var middle := _section("3D PREVIEW")
 	middle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_child(middle)
+	_shop_content.add_child(middle)
 	var middle_box := middle.get_child(0) as VBoxContainer
 	var viewport_container := SubViewportContainer.new()
 	viewport_container.custom_minimum_size = Vector2(440, 410)
@@ -174,7 +200,7 @@ func _build_ui() -> void:
 
 	var right := _section("DETAILS")
 	right.custom_minimum_size.x = 390
-	content.add_child(right)
+	_shop_content.add_child(right)
 	var right_box := right.get_child(0) as VBoxContainer
 	_name_label = Label.new()
 	_name_label.add_theme_font_size_override("font_size", 30)
@@ -211,12 +237,35 @@ func _build_ui() -> void:
 	_style_button(_ammo_button, ACCENT)
 	_ammo_button.pressed.connect(_buy_selected_ammo)
 	right_box.add_child(_ammo_button)
+	_business_panel = BusinessManagementPanelScript.new()
+	page.add_child(_business_panel)
+	_business_panel.setup(PropertyCatalog.GUN_STORE_ID, properties, wallet)
 
 	_feedback_label = Label.new()
 	_feedback_label.custom_minimum_size.y = 34
 	_feedback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_feedback_label.add_theme_font_size_override("font_size", 18)
 	page.add_child(_feedback_label)
+	_set_store_tab(false)
+
+
+func _set_store_tab(show_business: bool) -> void:
+	if _shop_content == null or _business_panel == null:
+		return
+	_shop_content.visible = not show_business
+	_business_panel.visible = show_business
+	_shop_tab.disabled = false
+	_business_tab.disabled = false
+	_style_button(_shop_tab, ACCENT)
+	_style_button(_business_tab, ACCENT)
+	var active_tab := _business_tab if show_business else _shop_tab
+	active_tab.add_theme_stylebox_override(
+		"normal",
+		_panel_style(ACCENT.darkened(0.55), ACCENT, 1, 5)
+	)
+	if show_business:
+		_feedback_label.text = ""
+		_business_panel.refresh()
 
 
 func _section(title_text: String) -> PanelContainer:

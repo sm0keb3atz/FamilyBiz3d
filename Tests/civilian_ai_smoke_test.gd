@@ -59,6 +59,26 @@ func _run() -> void:
 	assert(customer.animation_player.has_animation(&"Idle"))
 	assert(customer.animation_player.has_animation(&"Walk"))
 	assert(customer.animation_player.has_animation(&"Sprint"))
+	assert(customer.animation_player.has_animation(&"FemaleWalk"))
+	assert(customer.animation_player.has_animation(&"LeaningOnWall1"))
+	assert(customer.animation_player.has_animation(&"LeaningOnWall2"))
+	assert(customer.animation_player.has_animation(&"Talking"))
+	assert(customer.animation_player.has_animation(&"TextingWalking1"))
+	assert(customer.animation_player.has_animation(&"TextingWalking2"))
+	for animation_name in [
+		&"FemaleWalk",
+		&"LeaningOnWall1",
+		&"LeaningOnWall2",
+		&"Talking",
+		&"TextingWalking1",
+		&"TextingWalking2",
+	]:
+		assert(
+			customer.animation_player.get_animation(
+				animation_name
+			).get_track_count() > 30
+		)
+	assert(world.get_node("ActivitySpots").get_child_count() == 2)
 
 	var modular_skeleton := customer.get_node(
 		"Visual/PlayerTest2/Armature/GeneralSkeleton"
@@ -75,6 +95,11 @@ func _run() -> void:
 	customer.appearance_component.set_body_variant(
 		PlayerAppearanceComponent.BODY_VARIANT_FEMALE
 	)
+	assert(customer.animation_component.get_walk_variant() == &"FemaleWalk")
+	assert(
+		customer.animation_component.get_locomotion_walk_animation()
+		== &"FemaleWalk"
+	)
 	assert(not (modular_skeleton.get_node("BODY_Head") as MeshInstance3D).visible)
 	assert(
 		(
@@ -85,6 +110,8 @@ func _run() -> void:
 	customer.appearance_component.set_body_variant(
 		PlayerAppearanceComponent.BODY_VARIANT_MALE
 	)
+	assert(customer.animation_component.get_walk_variant() == &"Walk")
+	assert(customer.animation_component.get_locomotion_walk_animation() == &"Walk")
 	assert((modular_skeleton.get_node("BODY_Head") as MeshInstance3D).visible)
 	assert(
 		not (
@@ -177,12 +204,27 @@ func _run() -> void:
 	assert(customer.get_solicitation_outline_mesh_count() == 0)
 
 	var respawn_waypoint := network.get_waypoints()[0]
+	customer.texting_walk_chance = 1.0
 	customer.prepare_for_pool_spawn(network, respawn_waypoint, 12345)
 	assert(customer.is_pool_active())
 	assert(customer.damageable.health == customer.damageable.maximum_health)
 	assert(customer.get_current_waypoint() == respawn_waypoint)
 	assert(customer.is_in_group("customer_npc"))
 	assert(customer.animation_tree.active)
+	assert(
+		customer.get_roaming_walk_animation() in [
+			&"TextingWalking1",
+			&"TextingWalking2",
+		]
+	)
+	assert(
+		customer.animation_component.get_walk_variant()
+		== customer.get_roaming_walk_animation()
+	)
+	assert(
+		customer.animation_component.get_locomotion_walk_animation()
+		== customer.get_roaming_walk_animation()
+	)
 
 	customer.waiting_duration = 0.05
 	player.global_position = customer.global_position + Vector3(0.5, 0.0, 0.0)

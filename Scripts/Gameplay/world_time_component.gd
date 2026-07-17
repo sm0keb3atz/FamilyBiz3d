@@ -2,6 +2,8 @@ class_name WorldTimeComponent
 extends Node
 
 signal time_changed(date_text: String, time_text: String)
+signal minute_advanced(absolute_minute: int)
+signal day_ending(report_date: String)
 signal day_ended(report_date: String, earned: int, spent: int)
 
 const MINUTES_PER_DAY := 1440
@@ -32,6 +34,7 @@ var _wallet: PlayerWalletComponent
 
 
 func _ready() -> void:
+	add_to_group(&"world_time")
 	_update_visuals()
 	_emit_time_changed()
 
@@ -65,6 +68,7 @@ func advance_minutes(minutes: int) -> void:
 		minute_of_day += 1
 		if minute_of_day >= MINUTES_PER_DAY:
 			var report_date := get_formatted_date()
+			day_ending.emit(report_date)
 			minute_of_day = 0
 			_advance_date()
 			var earned := daily_earned
@@ -74,6 +78,7 @@ func advance_minutes(minutes: int) -> void:
 			_update_visuals()
 			_emit_time_changed()
 			day_ended.emit(report_date, earned, spent)
+		minute_advanced.emit(get_absolute_minute())
 	_update_visuals()
 	_emit_time_changed()
 
@@ -95,6 +100,16 @@ func get_formatted_date() -> String:
 
 func get_date_key() -> String:
 	return "%04d-%02d-%02d" % [year, month, day]
+
+
+func get_absolute_minute() -> int:
+	var elapsed_days := 0
+	for elapsed_year in range(1, year):
+		elapsed_days += 366 if _is_leap_year(elapsed_year) else 365
+	for elapsed_month in range(1, month):
+		elapsed_days += _days_in_month(elapsed_month, year)
+	elapsed_days += day - 1
+	return elapsed_days * MINUTES_PER_DAY + minute_of_day
 
 
 func get_formatted_time() -> String:
@@ -163,9 +178,13 @@ func _advance_date() -> void:
 
 
 func _days_in_month(value_month: int, value_year: int) -> int:
-	if value_month == 2 and (value_year % 400 == 0 or (value_year % 4 == 0 and value_year % 100 != 0)):
+	if value_month == 2 and _is_leap_year(value_year):
 		return 29
 	return MONTH_LENGTHS[value_month - 1]
+
+
+func _is_leap_year(value_year: int) -> bool:
+	return value_year % 400 == 0 or (value_year % 4 == 0 and value_year % 100 != 0)
 
 
 func _emit_time_changed() -> void:

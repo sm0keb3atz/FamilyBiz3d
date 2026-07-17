@@ -10,6 +10,7 @@ animation = &"Walk"
 animation = &"Sprint"
 
 [resource]
+resource_local_to_scene = true
 blend_point_0/node = SubResource("AnimationNodeAnimation_1iu4k")
 blend_point_0/pos = -1.0
 blend_point_0/name = &"Idle"

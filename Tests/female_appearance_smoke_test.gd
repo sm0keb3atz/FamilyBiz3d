@@ -85,39 +85,48 @@ func _run() -> void:
 			!= Color.WHITE
 		)
 
-	var npc_scene := load("res://Scenes/NPC/BaseNPC.tscn") as PackedScene
-	var npc := npc_scene.instantiate() as BaseNPC
-	root.add_child(npc)
+	var npc_scene := load("res://Scenes/NPC/CustomerNPC.tscn") as PackedScene
+	var police_scene := load("res://Scenes/NPC/PoliceNPC.tscn") as PackedScene
+	var female_npc := npc_scene.instantiate() as CustomerNPC
+	var male_npc := npc_scene.instantiate() as CustomerNPC
+	var police_npc := police_scene.instantiate() as PoliceNPC
+	root.add_child(female_npc)
+	root.add_child(male_npc)
+	root.add_child(police_npc)
 	await process_frame
-	assert(npc.animation_player.has_animation(&"FemaleWalk"))
-	var regular_walk := npc.animation_player.get_animation(&"Walk")
-	npc.appearance_component.set_body_variant(
+	assert(female_npc.animation_player.has_animation(&"FemaleWalk"))
+	var regular_walk := male_npc.animation_player.get_animation(&"Walk")
+	female_npc.appearance_component.set_body_variant(
 		PlayerAppearanceComponent.BODY_VARIANT_FEMALE
 	)
+	assert(female_npc.animation_player.get_animation(&"FemaleWalk").get_track_count() > 30)
+	assert(male_npc.animation_player.get_animation(&"Walk") == regular_walk)
+	assert(female_npc.animation_component.get_walk_variant() == &"FemaleWalk")
+	assert(male_npc.animation_component.get_walk_variant() == &"Walk")
+	assert(female_npc.animation_component.get_locomotion_walk_animation() == &"FemaleWalk")
+	assert(male_npc.animation_component.get_locomotion_walk_animation() == &"Walk")
+	assert(female_npc.animation_tree.tree_root != male_npc.animation_tree.tree_root)
+	assert(police_npc.animation_component.get_locomotion_walk_animation() == &"Walk")
+	assert(female_npc.animation_component.set_walk_variant(&"TextingWalking1"))
 	assert(
-		npc.animation_player.get_animation(&"Walk")
-		== regular_walk
+		female_npc.animation_component.get_locomotion_walk_animation()
+		== &"TextingWalking1"
 	)
-	assert(
-		npc.animation_player.get_animation(&"Walk").get_track_count() > 30
-	)
-	var tree := npc.animation_tree.tree_root as AnimationNodeBlendTree
-	var locomotion := tree.get_node(
-		&"BaseLocomotion"
-	) as AnimationNodeBlendSpace1D
-	var shared_walk_node := locomotion.get_blend_point_node(
-		1
-	) as AnimationNodeAnimation
-	assert(shared_walk_node.animation == &"Walk")
-	npc.appearance_component.set_body_variant(
+	assert(police_npc.animation_component.get_locomotion_walk_animation() == &"Walk")
+	female_npc.appearance_component.set_body_variant(
 		PlayerAppearanceComponent.BODY_VARIANT_MALE
 	)
-	assert(
-		npc.animation_player.get_animation(&"Walk")
-		== regular_walk
+	assert(female_npc.animation_component.get_locomotion_walk_animation() == &"Walk")
+	assert(male_npc.animation_player.get_animation(&"Walk") == regular_walk)
+	female_npc.appearance_component.set_body_variant(
+		PlayerAppearanceComponent.BODY_VARIANT_FEMALE
 	)
-	assert(shared_walk_node.animation == &"Walk")
-	npc.queue_free()
+	assert(female_npc.animation_component.get_walk_variant() == &"FemaleWalk")
+	assert(female_npc.animation_component.get_locomotion_walk_animation() == &"FemaleWalk")
+	assert(male_npc.animation_component.get_locomotion_walk_animation() == &"Walk")
+	female_npc.queue_free()
+	male_npc.queue_free()
+	police_npc.queue_free()
 	visual.queue_free()
 	await process_frame
 

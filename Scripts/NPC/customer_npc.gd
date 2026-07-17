@@ -7,6 +7,10 @@ enum State {
 	WAITING,
 	RETURNING,
 	PANICKING,
+	TRAVELING_TO_ACTIVITY,
+	PERFORMING_ACTIVITY,
+	TRAVELING_TO_STORE,
+	PERFORMING_STORE_VISIT,
 }
 
 const GIRLFRIEND_FOLLOWING := &"FOLLOWING"
@@ -18,6 +22,15 @@ const EVENT_RETURN_TO_ROUTE := &"return_to_route"
 const EVENT_RESUMED_ROUTE := &"resumed_route"
 const EVENT_GUNSHOT_HEARD := &"gunshot_heard"
 const EVENT_PANIC_FINISHED := &"panic_finished"
+const EVENT_ACTIVITY_SELECTED := &"activity_selected"
+const EVENT_ACTIVITY_REACHED := &"activity_reached"
+const EVENT_ACTIVITY_FINISHED := &"activity_finished"
+const EVENT_ACTIVITY_INTERRUPTED := &"activity_interrupted"
+const EVENT_STORE_VISIT_SELECTED := &"store_visit_selected"
+const EVENT_STORE_DESTINATION_REACHED := &"store_destination_reached"
+const EVENT_STORE_STAGE_FINISHED := &"store_stage_finished"
+const EVENT_STORE_VISIT_FINISHED := &"store_visit_finished"
+const EVENT_STORE_VISIT_INTERRUPTED := &"store_visit_interrupted"
 const CUSTOMER_OUTLINE_SHADER := preload(
 	"res://Assets/VFX/Shaders/target_lock_outline.gdshader"
 )
@@ -32,6 +45,26 @@ const CUSTOMER_OUTLINE_SHADER := preload(
 @export_range(0.05, 2.0, 0.05) var player_repath_interval := 0.25
 @export_range(0.1, 1.0, 0.05) var departure_turn_timeout := 0.45
 @export_range(2.0, 30.0, 1.0) var departure_facing_tolerance := 8.0
+
+@export_category("Ambient Activities")
+@export_range(0.0, 1.0, 0.01) var activity_attempt_chance := 0.25
+@export_range(1.0, 100.0, 0.5) var activity_search_radius := 20.0
+@export_range(0.0, 60.0, 0.5) var activity_retry_cooldown := 8.0
+@export_range(1.0, 60.0, 0.5) var activity_travel_timeout := 12.0
+@export_range(1.0, 60.0, 0.5) var store_visit_travel_timeout := 15.0
+@export_range(0.0, 1.0, 0.01) var lean_activity_weight := 0.0
+@export_range(0.0, 1.0, 0.01) var talk_activity_weight := 0.60
+@export_range(0.0, 1.0, 0.01) var stand_activity_weight := 0.40
+@export_range(1.0, 8.0, 0.1) var lean_wall_search_distance := 3.5
+@export_range(0.05, 1.0, 0.01) var lean_wall_offset := 0.24
+@export_flags_3d_physics var lean_wall_collision_mask := 1
+@export_range(1.0, 20.0, 0.5) var conversation_search_radius := 6.0
+@export_range(0.8, 3.0, 0.05) var conversation_spacing := 1.5
+@export_range(0.0, 1.0, 0.01) var texting_walk_chance := 0.0
+@export var texting_walk_animations: Array[StringName] = [
+	&"TextingWalking1",
+	&"TextingWalking2",
+]
 
 @export_category("Crowd Variation")
 @export_range(0.0, 2.0, 0.05) var route_lane_half_width := 1.1
@@ -58,6 +91,18 @@ const CUSTOMER_OUTLINE_SHADER := preload(
 @onready var waiting_state := $LimboHSM/Waiting as LimboState
 @onready var returning_state := $LimboHSM/Returning as LimboState
 @onready var panicking_state := $LimboHSM/Panicking as LimboState
+@onready var traveling_to_activity_state := (
+	$LimboHSM/TravelingToActivity as LimboState
+)
+@onready var performing_activity_state := (
+	$LimboHSM/PerformingActivity as LimboState
+)
+@onready var traveling_to_store_state := (
+	$LimboHSM/TravelingToStore as LimboState
+)
+@onready var performing_store_visit_state := (
+	$LimboHSM/PerformingStoreVisit as LimboState
+)
 @onready var role_label := $RoleLabel as Label3D
 @onready var role_component := (
 	$Components/RoleComponent as CivilianRoleComponent
@@ -98,6 +143,14 @@ var _panic_source_position := Vector3.ZERO
 var _cached_route_target_position := Vector3.ZERO
 var _cached_return_position := Vector3.ZERO
 var _departure_turn_remaining := 0.0
+var _activity_retry_remaining := 0.0
+var _activity_remaining := 0.0
+var _activity_spot: ActivitySpot3D
+var _activity_slot := -1
+var _store_visit: StoreCustomerVisit3D
+var _store_visit_stage := -1
+var _store_stage_remaining := 0.0
+var _roaming_walk_animation := &"Walk"
 var _solicitation_outline_material: ShaderMaterial
 var _solicitation_outline_overlays: Dictionary[int, Array] = {}
 var _girlfriend_roster: PlayerGirlfriendComponent
@@ -110,13 +163,19 @@ var _civilian_name := "Woman"
 
 func _ready() -> void:
 	super()
+	add_to_group(&"ambient_customer")
 	_home_position = global_position
 	_random.randomize()
 	_base_move_speed = move_speed
 	_base_walk_animation_speed_scale = walk_animation_speed_scale
 	_roaming_move_speed = move_speed
 	_roaming_animation_speed_scale = walk_animation_speed_scale
+	appearance_component.body_variant_changed.connect(
+		_on_civilian_body_variant_changed
+	)
 	appearance_component.randomize_civilian_appearance(_random)
+	_roll_roaming_walk_variant()
+	_apply_roaming_walk_variant()
 	role_component.initialize(self)
 	role_component.activate()
 	_initialize_solicitation_outline()
@@ -124,6 +183,12 @@ func _ready() -> void:
 	navigation_agent.target_desired_distance = route_stop_distance
 	navigation_agent.max_speed = move_speed
 	_initialize_state_machine()
+	damageable.damaged.connect(_on_customer_damaged)
+
+
+func _exit_tree() -> void:
+	cancel_activity(false)
+	cancel_store_visit(false)
 
 
 func can_respond_to_solicitation() -> bool:
@@ -168,6 +233,8 @@ func is_solicitation_ready() -> bool:
 
 
 func begin_solicitation(player: CharacterBody3D) -> void:
+	cancel_activity(false)
+	cancel_store_visit(false)
 	_target_player = player
 	_resume_waypoint = (
 		_route_target
@@ -238,6 +305,134 @@ func is_female_civilian() -> bool:
 	return appearance_component.get_body_variant() == PlayerAppearanceComponent.BODY_VARIANT_FEMALE
 
 
+func get_activity_role() -> StringName:
+	return &"civilian"
+
+
+func can_join_ambient_conversation() -> bool:
+	return (
+		_state == State.ROAMING
+		and _pool_active
+		and not is_defeated()
+		and _girlfriend_roster == null
+		and _activity_spot == null
+	)
+
+
+func try_begin_activity(spot: ActivitySpot3D) -> bool:
+	if (
+		spot == null
+		or _state != State.ROAMING
+		or not _pool_active
+		or is_defeated()
+	):
+		return false
+	var slot_index := spot.try_reserve(self)
+	if slot_index < 0:
+		return false
+	_resume_waypoint = (
+		_route_target
+		if is_instance_valid(_route_target)
+		else _current_waypoint
+	)
+	_resume_route_target = null
+	if _network != null and is_instance_valid(_resume_waypoint):
+		_resume_route_target = _network.get_next_waypoint(
+			_resume_waypoint,
+			_current_waypoint,
+			_random
+		)
+	_activity_spot = spot
+	_activity_slot = slot_index
+	_activity_retry_remaining = activity_retry_cooldown
+	hsm.dispatch(EVENT_ACTIVITY_SELECTED)
+	return true
+
+
+func cancel_activity(transition_to_route := true) -> void:
+	var was_in_activity := _state in [
+		State.TRAVELING_TO_ACTIVITY,
+		State.PERFORMING_ACTIVITY,
+	]
+	_release_activity_reservation()
+	animation_component.stop_activity_animation()
+	if transition_to_route and was_in_activity and hsm != null:
+		hsm.dispatch(EVENT_ACTIVITY_INTERRUPTED)
+
+
+func is_performing_activity() -> bool:
+	return _state == State.PERFORMING_ACTIVITY
+
+
+func get_current_activity_spot() -> ActivitySpot3D:
+	return _activity_spot
+
+
+func can_accept_store_visit() -> bool:
+	return (
+		_state == State.ROAMING
+		and _pool_active
+		and not is_defeated()
+		and _girlfriend_roster == null
+		and _activity_spot == null
+		and _store_visit == null
+	)
+
+
+func try_begin_store_visit(visit: StoreCustomerVisit3D) -> bool:
+	if visit == null or not can_accept_store_visit():
+		return false
+	if not visit.try_reserve_itinerary(self):
+		return false
+	_resume_waypoint = (
+		_route_target
+		if is_instance_valid(_route_target)
+		else _current_waypoint
+	)
+	_resume_route_target = null
+	if _network != null and is_instance_valid(_resume_waypoint):
+		_resume_route_target = _network.get_next_waypoint(
+			_resume_waypoint,
+			_current_waypoint,
+			_random
+		)
+	_store_visit = visit
+	_store_visit_stage = 0
+	_store_stage_remaining = 0.0
+	hsm.dispatch(EVENT_STORE_VISIT_SELECTED)
+	return true
+
+
+func cancel_store_visit(transition_to_route := true) -> void:
+	var was_visiting := _state in [
+		State.TRAVELING_TO_STORE,
+		State.PERFORMING_STORE_VISIT,
+	]
+	_release_store_visit()
+	animation_component.stop_activity_animation()
+	if transition_to_route and was_visiting and hsm != null:
+		hsm.dispatch(EVENT_STORE_VISIT_INTERRUPTED)
+
+
+func is_visiting_store() -> bool:
+	return _state in [
+		State.TRAVELING_TO_STORE,
+		State.PERFORMING_STORE_VISIT,
+	]
+
+
+func get_current_store_visit() -> StoreCustomerVisit3D:
+	return _store_visit
+
+
+func get_store_visit_stage() -> int:
+	return _store_visit_stage
+
+
+func get_roaming_walk_animation() -> StringName:
+	return _roaming_walk_animation
+
+
 func is_recruited_girlfriend() -> bool:
 	return _girlfriend_roster != null
 
@@ -260,6 +455,8 @@ func attempt_girlfriend_recruitment(player: CharacterBody3D) -> void:
 
 
 func begin_girlfriend_following(player: CharacterBody3D, roster: PlayerGirlfriendComponent, follow_slot: int) -> void:
+	cancel_activity(false)
+	cancel_store_visit(false)
 	_girlfriend_player = player
 	_girlfriend_roster = roster
 	_girlfriend_follow_slot = follow_slot
@@ -392,8 +589,13 @@ func prepare_for_pool_spawn(
 	_random.seed = random_seed
 	appearance_component.randomize_civilian_appearance(_random)
 	_apply_crowd_variation()
+	_roll_roaming_walk_variant()
+	_apply_roaming_walk_variant()
 	_target_player = null
 	_solicitation_cooldown = 0.0
+	_activity_retry_remaining = 0.0
+	_release_store_visit()
+	_state = State.ROAMING
 	assign_route(network, start_waypoint)
 	global_position = _get_route_start_position()
 	_home_position = global_position
@@ -407,6 +609,8 @@ func prepare_for_pool_recycle() -> void:
 	if not _pool_active or is_defeated():
 		return
 	_pool_active = false
+	cancel_activity(false)
+	cancel_store_visit(false)
 	hsm.set_active(false)
 	set_navigation_avoidance_enabled(false)
 	set_local_obstacle_steering_enabled(false)
@@ -436,7 +640,13 @@ func can_be_recycled() -> bool:
 		and _girlfriend_roster == null
 		and not is_defeated()
 		and _network != null
-		and _state == State.ROAMING
+		and _state in [
+			State.ROAMING,
+			State.TRAVELING_TO_ACTIVITY,
+			State.PERFORMING_ACTIVITY,
+			State.TRAVELING_TO_STORE,
+			State.PERFORMING_STORE_VISIT,
+		]
 	)
 
 
@@ -451,6 +661,8 @@ func hear_gunshot(source_position: Vector3, hearing_radius: float) -> void:
 		return
 	_panic_source_position = source_position
 	_target_player = null
+	cancel_activity(false)
+	cancel_store_visit(false)
 	if _state == State.PANICKING:
 		_state_elapsed = 0.0
 		_begin_panic_route()
@@ -518,6 +730,69 @@ func _initialize_state_machine() -> void:
 		roaming_state,
 		EVENT_PANIC_FINISHED
 	)
+	hsm.add_transition(
+		roaming_state,
+		traveling_to_activity_state,
+		EVENT_ACTIVITY_SELECTED
+	)
+	hsm.add_transition(
+		traveling_to_activity_state,
+		performing_activity_state,
+		EVENT_ACTIVITY_REACHED
+	)
+	for activity_state in [
+		traveling_to_activity_state,
+		performing_activity_state,
+	]:
+		hsm.add_transition(
+			activity_state,
+			returning_state,
+			EVENT_ACTIVITY_FINISHED
+		)
+		hsm.add_transition(
+			activity_state,
+			returning_state,
+			EVENT_ACTIVITY_INTERRUPTED
+		)
+		hsm.add_transition(
+			activity_state,
+			approaching_state,
+			EVENT_SOLICITED
+		)
+	hsm.add_transition(
+		roaming_state,
+		traveling_to_store_state,
+		EVENT_STORE_VISIT_SELECTED
+	)
+	hsm.add_transition(
+		traveling_to_store_state,
+		performing_store_visit_state,
+		EVENT_STORE_DESTINATION_REACHED
+	)
+	hsm.add_transition(
+		performing_store_visit_state,
+		traveling_to_store_state,
+		EVENT_STORE_STAGE_FINISHED
+	)
+	for store_state in [
+		traveling_to_store_state,
+		performing_store_visit_state,
+	]:
+		hsm.add_transition(
+			store_state,
+			returning_state,
+			EVENT_STORE_VISIT_FINISHED
+		)
+		hsm.add_transition(
+			store_state,
+			returning_state,
+			EVENT_STORE_VISIT_INTERRUPTED
+		)
+		hsm.add_transition(
+			store_state,
+			approaching_state,
+			EVENT_SOLICITED
+		)
 	hsm.initialize(self)
 	hsm.set_active(true)
 
@@ -527,6 +802,7 @@ func _limbo_state_enter(state_id: int) -> void:
 	_state_elapsed = 0.0
 	match _state:
 		State.ROAMING:
+			_apply_roaming_walk_variant()
 			_clear_solicitation_outline()
 			_target_player = null
 			_departure_turn_remaining = 0.0
@@ -540,6 +816,7 @@ func _limbo_state_enter(state_id: int) -> void:
 				set_navigation_avoidance_enabled(false)
 				clear_navigation_target()
 		State.APPROACHING:
+			animation_component.use_sex_appropriate_walk()
 			_apply_solicitation_outline()
 			navigation_agent.target_desired_distance = player_stop_distance
 			_repath_remaining = 0.0
@@ -547,11 +824,13 @@ func _limbo_state_enter(state_id: int) -> void:
 			_refresh_navigation_avoidance()
 			_update_player_navigation_target(true)
 		State.WAITING:
+			animation_component.use_sex_appropriate_walk()
 			_apply_solicitation_outline()
 			_waiting_remaining = waiting_duration
 			set_navigation_avoidance_enabled(false)
 			clear_navigation_target()
 		State.RETURNING:
+			animation_component.use_sex_appropriate_walk()
 			_clear_solicitation_outline()
 			_solicitation_cooldown = cooldown_duration
 			navigation_agent.target_desired_distance = route_stop_distance
@@ -561,6 +840,7 @@ func _limbo_state_enter(state_id: int) -> void:
 			set_navigation_avoidance_enabled(false)
 			set_local_obstacle_steering_enabled(false)
 		State.PANICKING:
+			animation_component.use_sex_appropriate_walk()
 			_clear_solicitation_outline()
 			_solicitation_cooldown = cooldown_duration
 			navigation_agent.target_desired_distance = route_stop_distance
@@ -570,6 +850,79 @@ func _limbo_state_enter(state_id: int) -> void:
 			set_local_obstacle_steering_enabled(true)
 			_refresh_navigation_avoidance()
 			_begin_panic_route()
+		State.TRAVELING_TO_ACTIVITY:
+			animation_component.use_sex_appropriate_walk()
+			navigation_agent.target_desired_distance = (
+				_activity_spot.arrival_radius
+				if is_instance_valid(_activity_spot)
+				else route_stop_distance
+			)
+			_refresh_navigation_avoidance()
+			if _has_valid_activity_reservation():
+				set_navigation_target(
+					_activity_spot.get_slot_position(_activity_slot)
+				)
+			else:
+				cancel_activity.call_deferred(true)
+		State.PERFORMING_ACTIVITY:
+			_activity_remaining = (
+				_activity_spot.get_random_duration(_random)
+				if _has_valid_activity_reservation()
+				else 0.0
+			)
+			set_navigation_avoidance_enabled(false)
+			set_local_obstacle_steering_enabled(false)
+			clear_navigation_target()
+			velocity = Vector3.ZERO
+			if _has_valid_activity_reservation():
+				global_position = _activity_spot.get_slot_position(
+					_activity_slot
+				)
+				visual.rotation.y = _activity_spot.get_slot_facing_y(
+					_activity_slot
+				)
+				animation_component.play_activity_animation(
+					_activity_spot.animation_name
+				)
+			else:
+				cancel_activity.call_deferred(true)
+		State.TRAVELING_TO_STORE:
+			animation_component.use_sex_appropriate_walk()
+			var destination := _get_store_destination()
+			navigation_agent.target_desired_distance = (
+				destination.arrival_radius
+				if destination != null
+				else route_stop_distance
+			)
+			_refresh_navigation_avoidance()
+			if _has_valid_store_visit():
+				set_navigation_target(
+					destination.get_slot_position(
+						destination.get_reserved_slot(self)
+					)
+				)
+			else:
+				cancel_store_visit.call_deferred(true)
+		State.PERFORMING_STORE_VISIT:
+			var destination := _get_store_destination()
+			_store_stage_remaining = (
+				destination.get_random_duration(_random)
+				if destination != null and _has_valid_store_visit()
+				else 0.0
+			)
+			set_navigation_avoidance_enabled(false)
+			set_local_obstacle_steering_enabled(false)
+			clear_navigation_target()
+			velocity = Vector3.ZERO
+			if destination != null and _has_valid_store_visit():
+				var slot := destination.get_reserved_slot(self)
+				global_position = destination.get_slot_position(slot)
+				visual.rotation.y = destination.get_slot_facing_y(slot)
+				animation_component.play_activity_animation(
+					destination.animation_name
+				)
+			else:
+				cancel_store_visit.call_deferred(true)
 
 
 func _limbo_state_update(state_id: int, delta: float) -> void:
@@ -577,6 +930,10 @@ func _limbo_state_update(state_id: int, delta: float) -> void:
 		return
 	_solicitation_cooldown = maxf(
 		_solicitation_cooldown - delta,
+		0.0
+	)
+	_activity_retry_remaining = maxf(
+		_activity_retry_remaining - delta,
 		0.0
 	)
 	_state_elapsed += delta
@@ -591,11 +948,24 @@ func _limbo_state_update(state_id: int, delta: float) -> void:
 			_update_returning(delta)
 		State.PANICKING:
 			_update_panicking(delta)
+		State.TRAVELING_TO_ACTIVITY:
+			_update_traveling_to_activity(delta)
+		State.PERFORMING_ACTIVITY:
+			_update_performing_activity(delta)
+		State.TRAVELING_TO_STORE:
+			_update_traveling_to_store(delta)
+		State.PERFORMING_STORE_VISIT:
+			_update_performing_store_visit(delta)
 
 
 func _limbo_state_exit(state_id: int) -> void:
 	if state_id in [State.APPROACHING, State.WAITING]:
 		_clear_solicitation_outline()
+	if state_id in [
+		State.PERFORMING_ACTIVITY,
+		State.PERFORMING_STORE_VISIT,
+	]:
+		animation_component.stop_activity_animation()
 	if state_id != State.PANICKING:
 		return
 	move_speed = _roaming_move_speed
@@ -622,6 +992,8 @@ func _update_roaming(delta: float) -> void:
 		_current_waypoint = _route_target
 		_route_stuck_elapsed = 0.0
 		_choose_next_route_target()
+		if _try_begin_random_activity():
+			return
 		if is_instance_valid(_route_target):
 			set_navigation_target(_get_route_target_position())
 	elif (
@@ -770,6 +1142,351 @@ func _update_panicking(delta: float) -> void:
 	advance_navigation(delta)
 
 
+func _update_traveling_to_activity(delta: float) -> void:
+	if not _has_valid_activity_reservation():
+		cancel_activity(true)
+		return
+	var target_position := _activity_spot.get_slot_position(_activity_slot)
+	var arrival_distance := maxf(_activity_spot.arrival_radius, 0.1)
+	if (
+		global_position.distance_squared_to(target_position)
+		<= arrival_distance * arrival_distance
+	):
+		hsm.dispatch(EVENT_ACTIVITY_REACHED)
+		return
+	if _state_elapsed >= activity_travel_timeout:
+		cancel_activity(true)
+		return
+	if (
+		_state_elapsed > 1.0
+		and navigation_agent.is_navigation_finished()
+		and not navigation_agent.is_target_reachable()
+	):
+		cancel_activity(true)
+		return
+	set_navigation_target(target_position)
+	advance_navigation(delta)
+
+
+func _update_performing_activity(delta: float) -> void:
+	if not _has_valid_activity_reservation():
+		cancel_activity(true)
+		return
+	stop_moving(delta)
+	_activity_remaining = maxf(_activity_remaining - delta, 0.0)
+	if is_zero_approx(_activity_remaining):
+		_release_activity_reservation()
+		hsm.dispatch(EVENT_ACTIVITY_FINISHED)
+
+
+func _update_traveling_to_store(delta: float) -> void:
+	if not _has_valid_store_visit():
+		cancel_store_visit(true)
+		return
+	var destination := _get_store_destination()
+	if destination == null:
+		cancel_store_visit(true)
+		return
+	var slot := destination.get_reserved_slot(self)
+	var target_position := destination.get_slot_position(slot)
+	var arrival_distance := maxf(destination.arrival_radius, 0.1)
+	if (
+		global_position.distance_squared_to(target_position)
+		<= arrival_distance * arrival_distance
+	):
+		hsm.dispatch(EVENT_STORE_DESTINATION_REACHED)
+		return
+	if _state_elapsed >= store_visit_travel_timeout:
+		cancel_store_visit(true)
+		return
+	if (
+		_state_elapsed > 1.0
+		and navigation_agent.is_navigation_finished()
+		and not navigation_agent.is_target_reachable()
+	):
+		cancel_store_visit(true)
+		return
+	set_navigation_target(target_position)
+	advance_navigation(delta)
+
+
+func _update_performing_store_visit(delta: float) -> void:
+	if not _has_valid_store_visit():
+		cancel_store_visit(true)
+		return
+	stop_moving(delta)
+	_store_stage_remaining = maxf(_store_stage_remaining - delta, 0.0)
+	if not is_zero_approx(_store_stage_remaining):
+		return
+	if _store_visit_stage >= 3:
+		_release_store_visit()
+		hsm.dispatch(EVENT_STORE_VISIT_FINISHED)
+		return
+	_store_visit_stage += 1
+	hsm.dispatch(EVENT_STORE_STAGE_FINISHED)
+
+
+func _try_begin_random_activity() -> bool:
+	if (
+		_activity_retry_remaining > 0.0
+		or activity_attempt_chance <= 0.0
+		or _random.randf() > activity_attempt_chance
+	):
+		return false
+	_activity_retry_remaining = activity_retry_cooldown
+	var total_activity_weight := (
+		lean_activity_weight + talk_activity_weight + stand_activity_weight
+	)
+	if total_activity_weight <= 0.0:
+		return false
+	var activity_roll := _random.randf_range(0.0, total_activity_weight)
+	if activity_roll < talk_activity_weight:
+		if _try_begin_conversation():
+			return true
+		if (
+			stand_activity_weight > 0.0
+			and _try_begin_authored_stand_activity()
+		):
+			return true
+		return lean_activity_weight > 0.0 and _try_begin_wall_lean()
+	activity_roll -= talk_activity_weight
+	if activity_roll < lean_activity_weight:
+		if _try_begin_wall_lean():
+			return true
+		if talk_activity_weight > 0.0 and _try_begin_conversation():
+			return true
+		return (
+			stand_activity_weight > 0.0
+			and _try_begin_authored_stand_activity()
+		)
+	if _try_begin_authored_stand_activity():
+		return true
+	if talk_activity_weight > 0.0 and _try_begin_conversation():
+		return true
+	return lean_activity_weight > 0.0 and _try_begin_wall_lean()
+
+
+func _try_begin_authored_stand_activity() -> bool:
+	var candidates: Array[ActivitySpot3D] = []
+	var total_weight := 0.0
+	var search_radius_squared := activity_search_radius * activity_search_radius
+	for node in get_tree().get_nodes_in_group(
+		ActivitySpot3D.ACTIVITY_SPOT_GROUP
+	):
+		var spot := node as ActivitySpot3D
+		if (
+			spot == null
+			or not spot.allow_random_selection
+			or spot.activity_type != &"stand_wait"
+			or not spot.is_role_allowed(self)
+			or spot.get_available_count() <= 0
+			or global_position.distance_squared_to(spot.global_position)
+			> search_radius_squared
+		):
+			continue
+		candidates.append(spot)
+		total_weight += maxf(spot.selection_weight, 0.01)
+	if candidates.is_empty():
+		return false
+	var roll := _random.randf_range(0.0, total_weight)
+	for spot in candidates:
+		roll -= maxf(spot.selection_weight, 0.01)
+		if roll <= 0.0:
+			return try_begin_activity(spot)
+	return try_begin_activity(candidates.back())
+
+
+func _try_begin_wall_lean() -> bool:
+	var wall_hit := _find_nearby_building_wall()
+	if wall_hit.is_empty():
+		return false
+	var target_position: Vector3 = wall_hit["position"]
+	for node in get_tree().get_nodes_in_group(&"runtime_activity_spot"):
+		var existing := node as ActivitySpot3D
+		if (
+			is_instance_valid(existing)
+			and existing.global_position.distance_squared_to(target_position)
+			< 1.5 * 1.5
+		):
+			return false
+	var wall_normal: Vector3 = wall_hit["normal"]
+	var spot := ActivitySpot3D.new()
+	spot.name = "RuntimeWallLean"
+	spot.activity_type = &"lean"
+	spot.animation_name = (
+		&"LeaningOnWall1" if _random.randf() < 0.5 else &"LeaningOnWall2"
+	)
+	spot.allow_random_selection = false
+	spot.auto_free_when_empty = true
+	spot.arrival_radius = 0.55
+	_add_runtime_activity_spot(spot)
+	spot.add_to_group(&"runtime_activity_spot")
+	spot.global_position = target_position
+	spot.global_rotation.y = atan2(wall_normal.x, wall_normal.z)
+	if try_begin_activity(spot):
+		return true
+	spot.queue_free()
+	return false
+
+
+func _find_nearby_building_wall() -> Dictionary:
+	var space_state := get_world_3d().direct_space_state
+	var ray_origin := global_position + Vector3.UP * 0.9
+	var best_result := {}
+	var best_distance_squared := INF
+	for ray_index in 12:
+		var angle := TAU * float(ray_index) / 12.0
+		var direction := Vector3(sin(angle), 0.0, cos(angle))
+		var query := PhysicsRayQueryParameters3D.create(
+			ray_origin,
+			ray_origin + direction * lean_wall_search_distance,
+			lean_wall_collision_mask
+		)
+		query.exclude = [get_rid()]
+		var result := space_state.intersect_ray(query)
+		if result.is_empty():
+			continue
+		var normal: Vector3 = result["normal"]
+		if absf(normal.y) > 0.25 or not _is_building_collider(result["collider"]):
+			continue
+		normal.y = 0.0
+		normal = normal.normalized()
+		var target: Vector3 = result["position"] + normal * lean_wall_offset
+		target.y = global_position.y
+		var navigation_map := navigation_agent.get_navigation_map()
+		if navigation_map.is_valid():
+			var navigation_position := NavigationServer3D.map_get_closest_point(
+				navigation_map,
+				target
+			)
+			if navigation_position.distance_squared_to(target) > 1.25 * 1.25:
+				continue
+			target.y = navigation_position.y
+		var distance_squared := global_position.distance_squared_to(target)
+		if distance_squared < best_distance_squared:
+			best_distance_squared = distance_squared
+			best_result = {"position": target, "normal": normal}
+	return best_result
+
+
+func _is_building_collider(collider: Object) -> bool:
+	var node := collider as Node
+	while node != null:
+		if node.name == &"Buildings" or String(node.name).contains("Building"):
+			return true
+		node = node.get_parent()
+	return false
+
+
+func _try_begin_conversation() -> bool:
+	var nearby: Array[CustomerNPC] = []
+	var search_distance_squared := (
+		conversation_search_radius * conversation_search_radius
+	)
+	for node in get_tree().get_nodes_in_group(&"customer_npc"):
+		var candidate := node as CustomerNPC
+		if (
+			candidate == null
+			or candidate == self
+			or not candidate.can_join_ambient_conversation()
+			or global_position.distance_squared_to(candidate.global_position)
+			> search_distance_squared
+		):
+			continue
+		nearby.append(candidate)
+	if nearby.is_empty():
+		return false
+	var partner := nearby[_random.randi_range(0, nearby.size() - 1)]
+	var pair_axis := partner.global_position - global_position
+	pair_axis.y = 0.0
+	if pair_axis.length_squared() < 0.01:
+		pair_axis = visual.global_basis.x
+	pair_axis = pair_axis.normalized()
+	var midpoint := (global_position + partner.global_position) * 0.5
+	var duration := _random.randf_range(5.0, 12.0)
+	var spot := ActivitySpot3D.new()
+	spot.name = "RuntimeConversation"
+	spot.activity_type = &"talk"
+	spot.animation_name = &"Talking"
+	spot.minimum_duration = duration
+	spot.maximum_duration = duration
+	spot.capacity = 2
+	spot.slot_spacing = conversation_spacing
+	spot.arrival_radius = 0.6
+	spot.face_slot_center = true
+	spot.allow_random_selection = false
+	spot.auto_free_when_empty = true
+	_add_runtime_activity_spot(spot)
+	spot.add_to_group(&"runtime_activity_spot")
+	spot.global_transform = Transform3D(
+		Basis(pair_axis, Vector3.UP, pair_axis.cross(Vector3.UP)),
+		midpoint
+	)
+	if not try_begin_activity(spot):
+		spot.queue_free()
+		return false
+	if partner.try_begin_activity(spot):
+		return true
+	cancel_activity(true)
+	if is_instance_valid(spot):
+		spot.queue_free()
+	return false
+
+
+func _add_runtime_activity_spot(spot: ActivitySpot3D) -> void:
+	var parent := get_tree().current_scene
+	if parent == null:
+		parent = get_parent()
+	parent.add_child(spot)
+
+
+func _has_valid_activity_reservation() -> bool:
+	return (
+		is_instance_valid(_activity_spot)
+		and _activity_slot >= 0
+		and _activity_spot.has_reservation(self)
+	)
+
+
+func _release_activity_reservation() -> void:
+	var spot := _activity_spot
+	var conversation_partners: Array[Node] = []
+	if is_instance_valid(spot):
+		if spot.activity_type == &"talk":
+			conversation_partners = spot.get_reserved_npcs()
+		spot.release(self)
+	_activity_spot = null
+	_activity_slot = -1
+	_activity_remaining = 0.0
+	for partner in conversation_partners:
+		if partner != self and is_instance_valid(partner):
+			partner.call_deferred("cancel_activity", true)
+
+
+func _get_store_destination() -> ActivitySpot3D:
+	if not is_instance_valid(_store_visit):
+		return null
+	return _store_visit.get_destination(_store_visit_stage)
+
+
+func _has_valid_store_visit() -> bool:
+	return (
+		is_instance_valid(_store_visit)
+		and _store_visit_stage >= 0
+		and _store_visit.has_complete_reservation(self)
+		and _get_store_destination() != null
+	)
+
+
+func _release_store_visit() -> void:
+	var visit := _store_visit
+	_store_visit = null
+	_store_visit_stage = -1
+	_store_stage_remaining = 0.0
+	if is_instance_valid(visit):
+		visit.release_itinerary(self)
+
+
 func _update_player_navigation_target(force: bool) -> void:
 	if not is_instance_valid(_target_player):
 		return
@@ -866,12 +1583,45 @@ func _apply_crowd_variation() -> void:
 	_roaming_animation_speed_scale = walk_animation_speed_scale
 
 
+func _roll_roaming_walk_variant() -> void:
+	_roaming_walk_animation = &"Walk"
+	if (
+		texting_walk_chance <= 0.0
+		or texting_walk_animations.is_empty()
+		or _random.randf() >= texting_walk_chance
+	):
+		return
+	var candidates: Array[StringName] = []
+	for animation_name in texting_walk_animations:
+		if animation_player.has_animation(animation_name):
+			candidates.append(animation_name)
+	if not candidates.is_empty():
+		_roaming_walk_animation = candidates[
+			_random.randi_range(0, candidates.size() - 1)
+		]
+
+
+func _apply_roaming_walk_variant() -> void:
+	if _roaming_walk_animation == &"Walk":
+		animation_component.use_sex_appropriate_walk()
+	elif not animation_component.set_walk_variant(_roaming_walk_animation):
+		animation_component.use_sex_appropriate_walk()
+
+
+func _on_civilian_body_variant_changed(_variant: StringName) -> void:
+	if _state == State.ROAMING:
+		_apply_roaming_walk_variant()
+	else:
+		animation_component.use_sex_appropriate_walk()
+
+
 func _refresh_navigation_avoidance() -> void:
 	var is_walking_state := (
 		_state == State.ROAMING
 		or _state == State.APPROACHING
 		or _state == State.RETURNING
 		or _state == State.PANICKING
+		or _state == State.TRAVELING_TO_ACTIVITY
 	)
 	set_navigation_avoidance_enabled(
 		(_crowd_detail_enabled or _state == State.PANICKING)
@@ -1072,6 +1822,8 @@ func _on_defeated(
 	hit_position: Vector3,
 	hit_direction: Vector3
 ) -> void:
+	cancel_activity(false)
+	cancel_store_visit(false)
 	if _girlfriend_roster != null:
 		var roster := _girlfriend_roster
 		_girlfriend_roster = null
@@ -1085,3 +1837,24 @@ func _on_defeated(
 	if hsm != null:
 		hsm.set_active(false)
 	super(source, hit_position, hit_direction)
+
+
+func _on_customer_damaged(
+	_amount: float,
+	remaining_health: float,
+	_source: Node,
+	_hit_position: Vector3,
+	_hit_direction: Vector3
+) -> void:
+	if remaining_health <= 0.0:
+		return
+	if _state in [
+		State.TRAVELING_TO_ACTIVITY,
+		State.PERFORMING_ACTIVITY,
+	]:
+		cancel_activity(true)
+	elif _state in [
+		State.TRAVELING_TO_STORE,
+		State.PERFORMING_STORE_VISIT,
+	]:
+		cancel_store_visit(true)

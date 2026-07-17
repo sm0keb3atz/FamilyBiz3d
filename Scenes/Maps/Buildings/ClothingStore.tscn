@@ -19,6 +19,8 @@
 [ext_resource type="PackedScene" uid="uid://dpdwmf6a702rv" path="res://Assets/MapStuff/Meshs/InteriorProps/Office/SM_Plant_01.glb" id="11_eubnv"]
 [ext_resource type="PackedScene" uid="uid://c2pinnr7874wp" path="res://Assets/MapStuff/Meshs/urban+clothing+sign+3d+model.glb" id="15_vtbjg"]
 [ext_resource type="Script" path="res://Scripts/Gameplay/clothing_store_interaction.gd" id="16_interaction"]
+[ext_resource type="Script" path="res://Scripts/NPC/AI/activity_spot_3d.gd" id="17_activity"]
+[ext_resource type="Script" path="res://Scripts/NPC/AI/store_customer_visit_3d.gd" id="18_visit"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gto2k"]
 albedo_color = Color(0.3254902, 0.3254902, 0.3254902, 1)
@@ -317,3 +319,44 @@ script = ExtResource("16_interaction")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3000002, 0.5, 0.19999981)
 shape = SubResource("BoxShape3D_8ythh")
 debug_color = Color(0.98937523, 0, 0.29748532, 1)
+
+[node name="CustomerVisit" type="Node3D" parent="."]
+script = ExtResource("18_visit")
+property_id = &"hood_east_clothing_store"
+
+[node name="Entrance" type="Marker3D" parent="CustomerVisit"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.2, 0.1, -2)
+script = ExtResource("17_activity")
+activity_type = &"store_entrance"
+minimum_duration = 0.1
+maximum_duration = 0.1
+allowed_roles = PackedStringArray("civilian")
+allow_random_selection = false
+
+[node name="Browse" type="Marker3D" parent="CustomerVisit"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -4, 0.1, -2.5)
+script = ExtResource("17_activity")
+activity_type = &"store_browse"
+minimum_duration = 3.0
+maximum_duration = 6.0
+allowed_roles = PackedStringArray("civilian")
+allow_random_selection = false
+
+[node name="Counter" type="Marker3D" parent="CustomerVisit"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -5.3, 0.1, -4.5)
+script = ExtResource("17_activity")
+activity_type = &"store_counter"
+animation_name = &"Talking"
+minimum_duration = 2.0
+maximum_duration = 4.0
+allowed_roles = PackedStringArray("civilian")
+allow_random_selection = false
+
+[node name="Exit" type="Marker3D" parent="CustomerVisit"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 1.2, 0.1, -2)
+script = ExtResource("17_activity")
+activity_type = &"store_exit"
+minimum_duration = 0.1
+maximum_duration = 0.1
+allowed_roles = PackedStringArray("civilian")
+allow_random_selection = false

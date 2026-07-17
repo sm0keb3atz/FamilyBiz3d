@@ -119,6 +119,10 @@ payout is a predictable Hustle markup over that local price.
 
 ## Pass 3 - Property Roles and Front-Business Data
 
+**Status:** Implemented July 14, 2026. Focused business-data and existing
+property smoke coverage passes; player-run presentation verification remains
+pending.
+
 ### Outcome
 
 Houses and stores share ownership infrastructure while retaining different
@@ -144,6 +148,10 @@ behavior.
 
 ## Pass 4 - Passive Store Operation
 
+**Status:** Implemented July 14, 2026. Focused passive-business, UI, property,
+and time smoke coverage passes; player-run presentation verification remains
+pending.
+
 ### Outcome
 
 The owned gun and clothing stores form the first Dirty-to-Clean business loop.
@@ -167,6 +175,14 @@ The owned gun and clothing stores form the first Dirty-to-Clean business loop.
 - Exact clothing and weapon SKUs remain outside business stock accounting.
 
 ## Pass 5 - Reusable NPC Activity Spots
+
+**Status:** Starter slice in progress July 16, 2026. Stand/wait remains an
+authored reservable spot, while civilians now discover nearby building walls
+for leaning and form temporary two-person conversations wherever they meet.
+Female walks use instance-local locomotion nodes. Civilian leaning and texting
+are temporarily disabled by default: leaning is being reserved for dealer
+hangout groups, and the current texting clips need corrected arm/hand poses.
+Additional activity animations remain incremental.
 
 ### Outcome
 
@@ -194,6 +210,10 @@ schedules.
 - Existing solicitation and panic behavior remains intact.
 
 ## Pass 6 - Store Customer Visits
+
+**Status:** Implementation complete July 17, 2026; focused user-run verification
+is pending. Both Hood East stores now expose a one-customer reservable visit
+flow driven by transient presentation tickets from authoritative passive sales.
 
 ### Outcome
 

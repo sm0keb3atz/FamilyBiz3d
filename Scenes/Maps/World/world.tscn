@@ -12,21 +12,19 @@
 [ext_resource type="PackedScene" path="res://Scenes/NPC/PoliceNPC.tscn" id="10_police"]
 [ext_resource type="Script" uid="uid://4v6vf2ol38ey" path="res://Scripts/Traffic/traffic_network_3d.gd" id="11_traffic_network"]
 [ext_resource type="Script" uid="uid://eqf0y7pyekcp" path="res://Scripts/Traffic/traffic_population_manager.gd" id="12_traffic_population"]
-[ext_resource type="Script" path="res://Scripts/NPC/dealer_spawner.gd" id="13_dealer_spawner"]
-[ext_resource type="Script" path="res://Scripts/Gameplay/world_time_component.gd" id="14_world_time"]
-[ext_resource type="Shader" path="res://Assets/VFX/Shaders/customizable_sky.gdshader" id="15_sky_shader"]
-[ext_resource type="Script" path="res://Scripts/Gameplay/territory_market_service.gd" id="16_market"]
+[ext_resource type="Script" uid="uid://cgep5rqjyy14b" path="res://Scripts/NPC/dealer_spawner.gd" id="13_dealer_spawner"]
+[ext_resource type="Script" uid="uid://c164fk21ta16x" path="res://Scripts/Gameplay/world_time_component.gd" id="14_world_time"]
+[ext_resource type="Shader" uid="uid://hknjq3pk7gho" path="res://Assets/VFX/Shaders/customizable_sky.gdshader" id="15_sky_shader"]
+[ext_resource type="Script" uid="uid://bmfjtfxj7hnsa" path="res://Scripts/Gameplay/territory_market_service.gd" id="16_market"]
+[ext_resource type="Script" uid="uid://bns54ehh1ni0v" path="res://Scripts/NPC/AI/activity_spot_3d.gd" id="17_activity_spot"]
 
 [sub_resource type="FastNoiseLite" id="CloudNoiseA"]
 seed = 3191
 frequency = 0.018
-fractal_octaves = 5
 
 [sub_resource type="NoiseTexture2D" id="CloudTextureA"]
-seamless = true
-width = 512
-height = 512
 noise = SubResource("CloudNoiseA")
+seamless = true
 
 [sub_resource type="FastNoiseLite" id="CloudNoiseB"]
 seed = 8807
@@ -34,37 +32,43 @@ frequency = 0.032
 fractal_octaves = 4
 
 [sub_resource type="NoiseTexture2D" id="CloudTextureB"]
-seamless = true
-width = 512
-height = 512
 noise = SubResource("CloudNoiseB")
+seamless = true
 
 [sub_resource type="FastNoiseLite" id="StarNoiseA"]
 seed = 2249
 frequency = 0.12
 
 [sub_resource type="NoiseTexture2D" id="StarTextureA"]
-seamless = true
-width = 512
-height = 512
 noise = SubResource("StarNoiseA")
+seamless = true
 
 [sub_resource type="FastNoiseLite" id="StarNoiseB"]
 seed = 6113
 frequency = 0.04
 
 [sub_resource type="NoiseTexture2D" id="StarTextureB"]
-seamless = true
-width = 512
-height = 512
 noise = SubResource("StarNoiseB")
+seamless = true
 
 [sub_resource type="ShaderMaterial" id="SkyMaterial"]
 shader = ExtResource("15_sky_shader")
+shader_parameter/sky_day = Color(0, 0.3, 0.7, 1)
+shader_parameter/horizon_day = Color(0.75, 0.85, 0.85, 1)
+shader_parameter/horizon_sunset = Color(0.9, 0.4, 0.1, 1)
+shader_parameter/sky_sunset = Color(0.15, 0.2, 0.4, 1)
+shader_parameter/horizon_night = Color(0.1, 0.15, 0.2, 1)
+shader_parameter/sky_night = Color(0.015, 0.03, 0.08, 1)
 shader_parameter/cloud_tex_01 = SubResource("CloudTextureA")
 shader_parameter/cloud_tex_02 = SubResource("CloudTextureB")
 shader_parameter/night_noise_01 = SubResource("StarTextureA")
 shader_parameter/night_noise_02 = SubResource("StarTextureB")
+shader_parameter/cloud_color = Color(0.8, 0.8, 0.8, 1)
+shader_parameter/wind_speed = Vector2(0.025, 0.012)
+shader_parameter/cloud_density = 0.7
+shader_parameter/sun_scale = 0.05
+shader_parameter/sun_strength = 15.0
+shader_parameter/sun_color = Color(1, 0.9, 0, 1)
 
 [sub_resource type="Sky" id="Sky"]
 sky_material = SubResource("SkyMaterial")
@@ -110,6 +114,7 @@ transform = Transform3D(1, 0, 1.7484555e-07, 0, 1, 0, -1.7484555e-07, 0, 1, 2, 0
 navigation_mesh = SubResource("EastNavigation")
 
 [node name="HoodWestNavigation" type="NavigationRegion3D" parent="Navigation" unique_id=893856441]
+visible = false
 navigation_mesh = SubResource("WestNavigation")
 
 [node name="HoodEastPedestrianNetwork" parent="Navigation" unique_id=1230090308 instance=ExtResource("8_pedestrian_network")]
@@ -123,9 +128,9 @@ scan_root_paths = Array[NodePath]([NodePath("../../Territories/HoodEast")])
 
 [node name="HoodWestTrafficNetwork" type="Node3D" parent="Navigation" unique_id=1232254990]
 script = ExtResource("11_traffic_network")
-allow_empty_network = true
 debug_draw_in_editor = false
 scan_root_paths = Array[NodePath]([NodePath("../../Territories/HoodWest")])
+allow_empty_network = true
 
 [node name="SpawnPoints" type="Node3D" parent="." unique_id=1801510180]
 
@@ -133,13 +138,13 @@ scan_root_paths = Array[NodePath]([NodePath("../../Territories/HoodWest")])
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0.1, 0)
 
 [node name="EastDealerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=881174143]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0.1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50.278175, 0.1, -80.69298)
 script = ExtResource("13_dealer_spawner")
 dealer_scene = ExtResource("4_dealer")
 dealer_container_path = NodePath("../../Gameplay")
 territory_id = &"hood_east"
-dealer_count = 3
-dealer_levels = PackedInt32Array(2, 3, 4)
+dealer_count = 4
+dealer_levels = PackedInt32Array(2, 3, 4, 1)
 
 [node name="WestDealerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=624407290]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0.1, -256)
@@ -147,8 +152,19 @@ script = ExtResource("13_dealer_spawner")
 dealer_scene = ExtResource("4_dealer")
 dealer_container_path = NodePath("../../Gameplay")
 territory_id = &"hood_west"
-dealer_count = 3
 dealer_levels = PackedInt32Array(2, 3, 4)
+
+[node name="ActivitySpots" type="Node3D" parent="." unique_id=706299139]
+
+[node name="StandWaitNorthWest" type="Marker3D" parent="ActivitySpots" unique_id=672379560]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0.1, -16)
+script = ExtResource("17_activity_spot")
+allowed_roles = PackedStringArray("civilian")
+
+[node name="StandWaitNorthEast" type="Marker3D" parent="ActivitySpots" unique_id=2016617643]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 90, 0.1, -17.274593)
+script = ExtResource("17_activity_spot")
+allowed_roles = PackedStringArray("civilian")
 
 [node name="Gameplay" type="Node3D" parent="." unique_id=319354138]
 
@@ -171,10 +187,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, -256)
 [node name="WorldController" type="Node" parent="." unique_id=185472791]
 script = ExtResource("6_controller")
 
-[node name="WorldTimeComponent" type="Node" parent="."]
+[node name="WorldTimeComponent" type="Node" parent="." unique_id=1834229075]
 script = ExtResource("14_world_time")
 
-[node name="TerritoryMarketService" type="Node" parent="."]
+[node name="TerritoryMarketService" type="Node" parent="." unique_id=2063368603]
 script = ExtResource("16_market")
 
 [node name="CivilianPopulationManager" type="Node3D" parent="." unique_id=872426728]

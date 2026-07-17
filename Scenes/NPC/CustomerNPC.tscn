@@ -38,6 +38,22 @@ state_id = 3
 script = ExtResource("12_state")
 state_id = 4
 
+[node name="TravelingToActivity" type="LimboState" parent="LimboHSM"]
+script = ExtResource("12_state")
+state_id = 5
+
+[node name="PerformingActivity" type="LimboState" parent="LimboHSM"]
+script = ExtResource("12_state")
+state_id = 6
+
+[node name="TravelingToStore" type="LimboState" parent="LimboHSM"]
+script = ExtResource("12_state")
+state_id = 7
+
+[node name="PerformingStoreVisit" type="LimboState" parent="LimboHSM"]
+script = ExtResource("12_state")
+state_id = 8
+
 [node name="RoleLabel" parent="." index="2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
 modulate = Color(0.3, 0.9, 1, 1)

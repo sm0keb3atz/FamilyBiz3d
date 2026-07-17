@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 6
+const SAVE_VERSION := 7
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -41,7 +41,10 @@ const SAVE_PATH := "user://family_business_save.json"
 func _ready() -> void:
 	world_time.connect_wallet(wallet)
 	world_time.time_changed.connect(hud.update_clock)
+	world_time.minute_advanced.connect(properties.process_businesses_to)
+	world_time.day_ending.connect(_on_day_ending)
 	world_time.day_ended.connect(_on_day_ended)
+	properties.process_businesses_to(world_time.get_absolute_minute())
 	territory_market.ensure_quotes(world_time.get_date_key())
 	hud.update_clock(world_time.get_formatted_date(), world_time.get_formatted_time())
 
@@ -58,6 +61,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func save_game() -> bool:
+	properties.process_businesses_to(world_time.get_absolute_minute())
 	var territories := {}
 	for node in get_tree().get_nodes_in_group("territory_boundaries"):
 		var boundary := node as TerritoryBoundary
@@ -131,6 +135,7 @@ func load_game() -> bool:
 		player_data.get("properties", {}) as Dictionary
 	)
 	world_time.import_save_data(data.get("world_time", {}) as Dictionary)
+	properties.process_businesses_to(world_time.get_absolute_minute())
 	var position_data := player_data.get("position", []) as Array
 	if position_data.size() == 3:
 		player.global_position = Vector3(
@@ -193,6 +198,10 @@ func _is_valid_save(value: Variant) -> bool:
 func _on_day_ended(report_date: String, earned: int, spent: int) -> void:
 	territory_market.ensure_quotes(world_time.get_date_key())
 	hud.show_daily_report(report_date, earned, spent)
+
+
+func _on_day_ending(_report_date: String) -> void:
+	properties.settle_business_earnings()
 
 
 func _vector_to_array(value: Vector3) -> Array[float]:

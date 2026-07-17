@@ -4,7 +4,9 @@ extends Node
 static var _shared_runtime_animation_library: AnimationLibrary
 
 const LOOPING_ANIMATIONS := [
-	&"Idle", &"Walk", &"Sprint", &"LeftStrafe", &"RightStrafe", &"PistolAim",
+	&"Idle", &"Walk", &"FemaleWalk", &"Sprint", &"LeftStrafe",
+	&"RightStrafe", &"PistolAim", &"LeaningOnWall1", &"LeaningOnWall2",
+	&"Talking", &"TextingWalking1", &"TextingWalking2",
 ]
 const HIT_REACTION_ANIMATIONS := [&"Hit_Head", &"Hit_Chest"]
 const HIT_REACTION_INCLUDED_BONES := [
@@ -29,6 +31,12 @@ const HIPS_TRACK := NodePath("%GeneralSkeleton:Hips")
 const SPINE_TRACK := NodePath("%GeneralSkeleton:Spine")
 const LEFT_UP_LEG_TRACK := NodePath("%GeneralSkeleton:LeftUpperLeg")
 const RIGHT_UP_LEG_TRACK := NodePath("%GeneralSkeleton:RightUpperLeg")
+const TEXTING_ARM_BLEND := {
+	&"LeftShoulder": 0.72,
+	&"RightShoulder": 0.72,
+	&"LeftUpperArm": 0.86,
+	&"RightUpperArm": 0.86,
+}
 
 @export_category("Locomotion")
 @export var locomotion_blend_parameter := (
@@ -75,6 +83,10 @@ var npc
 var _hit_reaction_remaining := 0.0
 var _hit_reaction_player: AnimationPlayer
 var _combat_animation_player: AnimationPlayer
+var _activity_animation_player: AnimationPlayer
+var _instance_runtime_animation_library: AnimationLibrary
+var _locomotion_walk_node: AnimationNodeAnimation
+var _current_walk_variant := &"Walk"
 var _last_locomotion_blend := INF
 var _last_locomotion_scale := INF
 var _combat_aiming := false
@@ -90,7 +102,9 @@ func initialize(owner_npc: CharacterBody3D) -> void:
 	npc = owner_npc
 	_apply_character_visual_scale()
 	_configure_looping_animations()
+	_configure_instance_animation_tree()
 	_create_hit_reaction_layer()
+	_create_activity_animation_layer()
 	_cache_combat_aim_bones()
 	npc.animation_tree.active = true
 	update_locomotion_animation()
@@ -154,10 +168,81 @@ func set_visual_animation_active(enabled: bool) -> void:
 	npc.animation_tree.active = enabled and not npc.is_defeated()
 	if not npc.animation_tree.active:
 		npc.animation_player.stop()
+		if _activity_animation_player != null:
+			_activity_animation_player.stop()
 		_last_locomotion_blend = INF
 		_last_locomotion_scale = INF
 	else:
 		update_locomotion_animation()
+	_refresh_animation_processing()
+
+
+func set_walk_variant(animation_name: StringName) -> bool:
+	if (
+		_instance_runtime_animation_library == null
+		or _locomotion_walk_node == null
+		or not _instance_runtime_animation_library.has_animation(animation_name)
+	):
+		return false
+	if (
+		_current_walk_variant == animation_name
+		and _locomotion_walk_node.animation == animation_name
+	):
+		return true
+	_locomotion_walk_node.animation = animation_name
+	_current_walk_variant = animation_name
+	_last_locomotion_blend = INF
+	update_locomotion_animation()
+	return true
+
+
+func use_sex_appropriate_walk() -> void:
+	var animation_name := &"Walk"
+	if (
+		npc.appearance_component.get_body_variant()
+		== PlayerAppearanceComponent.BODY_VARIANT_FEMALE
+	):
+		animation_name = &"FemaleWalk"
+	if not set_walk_variant(animation_name):
+		set_walk_variant(&"Walk")
+
+
+func get_walk_variant() -> StringName:
+	return _current_walk_variant
+
+
+func get_locomotion_walk_animation() -> StringName:
+	return (
+		_locomotion_walk_node.animation
+		if _locomotion_walk_node != null
+		else &""
+	)
+
+
+func play_activity_animation(animation_name: StringName) -> StringName:
+	if _activity_animation_player == null:
+		return &""
+	var selected := animation_name
+	if not _activity_animation_player.has_animation(selected):
+		selected = &"Idle"
+	if not _activity_animation_player.has_animation(selected):
+		return &""
+	npc.animation_tree.active = false
+	npc.animation_player.stop()
+	_activity_animation_player.play(selected, 0.15)
+	_activity_animation_player.seek(0.0, true)
+	_refresh_animation_processing()
+	return selected
+
+
+func stop_activity_animation() -> void:
+	if _activity_animation_player != null:
+		_activity_animation_player.stop()
+	if npc.is_defeated():
+		return
+	npc.animation_tree.active = true
+	_last_locomotion_blend = INF
+	_last_locomotion_scale = INF
 	_refresh_animation_processing()
 
 
@@ -284,6 +369,8 @@ func stop_all() -> void:
 		_hit_reaction_player.stop()
 	if _combat_animation_player != null:
 		_combat_animation_player.stop()
+	if _activity_animation_player != null:
+		_activity_animation_player.stop()
 	_combat_aiming = false
 	set_process(false)
 
@@ -297,6 +384,8 @@ func reset_for_reuse() -> void:
 		_hit_reaction_player.stop()
 	if _combat_animation_player != null:
 		_combat_animation_player.stop()
+	if _activity_animation_player != null:
+		_activity_animation_player.stop()
 	_combat_aiming = false
 	_combat_aim_pitch = 0.0
 	_combat_recoil_pitch = 0.0
@@ -349,6 +438,19 @@ func _create_hit_reaction_layer() -> void:
 	npc.animation_player.get_parent().add_child(_hit_reaction_player)
 	_hit_reaction_player.root_node = npc.animation_player.root_node
 	_hit_reaction_player.add_animation_library(&"", runtime_library)
+
+
+func _create_activity_animation_layer() -> void:
+	var runtime_library: AnimationLibrary = (
+		npc.animation_player.get_animation_library(&"")
+	)
+	if runtime_library == null:
+		return
+	_activity_animation_player = AnimationPlayer.new()
+	_activity_animation_player.name = "ActivityAnimationPlayer"
+	npc.animation_player.get_parent().add_child(_activity_animation_player)
+	_activity_animation_player.root_node = npc.animation_player.root_node
+	_activity_animation_player.add_animation_library(&"", runtime_library)
 
 
 func _create_combat_animation_layer() -> void:
@@ -519,7 +621,15 @@ func _configure_looping_animations() -> void:
 				and source_library.has_animation(&"Idle")
 				else source_library.get_animation(
 					animation_name
-				).duplicate(true) as Animation
+					).duplicate(true) as Animation
+				)
+			if (
+				animation_name in [&"TextingWalking1", &"TextingWalking2"]
+				and source_library.has_animation(&"Idle")
+			):
+				animation = _create_relaxed_in_place_texting_walk(
+					animation,
+					source_library.get_animation(&"Idle")
 				)
 			animation.loop_mode = Animation.LOOP_LINEAR
 			_remove_armature_scale_tracks(animation)
@@ -545,10 +655,102 @@ func _configure_looping_animations() -> void:
 				cleaned_animation
 			)
 		_shared_runtime_animation_library = runtime_library
+	_instance_runtime_animation_library = (
+		_shared_runtime_animation_library.duplicate(false) as AnimationLibrary
+	)
 	npc.animation_player.remove_animation_library(&"")
 	npc.animation_player.add_animation_library(
-		&"", _shared_runtime_animation_library
+		&"", _instance_runtime_animation_library
 	)
+
+
+func _configure_instance_animation_tree() -> void:
+	var source_root: AnimationRootNode = npc.animation_tree.tree_root
+	if source_root == null:
+		return
+	npc.animation_tree.tree_root = (
+		source_root.duplicate(true) as AnimationRootNode
+	)
+	var blend_tree := (
+		npc.animation_tree.tree_root as AnimationNodeBlendTree
+	)
+	if blend_tree == null:
+		return
+	var locomotion := (
+		blend_tree.get_node(&"BaseLocomotion") as AnimationNodeBlendSpace1D
+	)
+	if locomotion == null:
+		return
+	for point_index in locomotion.get_blend_point_count():
+		var animation_node := (
+			locomotion.get_blend_point_node(point_index)
+			as AnimationNodeAnimation
+		)
+		if animation_node != null and animation_node.animation == &"Walk":
+			_locomotion_walk_node = animation_node
+			break
+
+
+func _create_relaxed_in_place_texting_walk(
+	source_animation: Animation,
+	idle_animation: Animation
+) -> Animation:
+	var corrected := source_animation.duplicate(true) as Animation
+	var hips_position_track := corrected.find_track(
+		HIPS_TRACK,
+		Animation.TYPE_POSITION_3D
+	)
+	if hips_position_track >= 0:
+		var start_position := corrected.position_track_interpolate(
+			hips_position_track,
+			0.0
+		)
+		for key_index in corrected.track_get_key_count(hips_position_track):
+			var position: Vector3 = corrected.track_get_key_value(
+				hips_position_track,
+				key_index
+			)
+			position.x = start_position.x
+			position.z = start_position.z
+			corrected.track_set_key_value(
+				hips_position_track,
+				key_index,
+				position
+			)
+	for bone_name in TEXTING_ARM_BLEND:
+		var track_path := NodePath(
+			"%GeneralSkeleton:" + String(bone_name)
+		)
+		var corrected_track := corrected.find_track(
+			track_path,
+			Animation.TYPE_ROTATION_3D
+		)
+		var idle_track := idle_animation.find_track(
+			track_path,
+			Animation.TYPE_ROTATION_3D
+		)
+		if corrected_track < 0 or idle_track < 0:
+			continue
+		var animation_weight := float(TEXTING_ARM_BLEND[bone_name])
+		for key_index in corrected.track_get_key_count(corrected_track):
+			var key_time := corrected.track_get_key_time(
+				corrected_track,
+				key_index
+			)
+			var idle_rotation := idle_animation.rotation_track_interpolate(
+				idle_track,
+				key_time
+			)
+			var texting_rotation: Quaternion = corrected.track_get_key_value(
+				corrected_track,
+				key_index
+			)
+			corrected.track_set_key_value(
+				corrected_track,
+				key_index,
+				idle_rotation.slerp(texting_rotation, animation_weight)
+			)
+	return corrected
 
 
 func _create_forward_facing_aim(
