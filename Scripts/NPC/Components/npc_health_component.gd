@@ -95,6 +95,7 @@ func handle_defeated(
 	npc.animation_component.stop_all()
 	var body_collision := npc.get_node("CollisionShape3D") as CollisionShape3D
 	body_collision.set_deferred("disabled", true)
+	_set_combat_hitboxes_enabled(false)
 	_attach_ragdoll_simulator()
 	if _simulator != null:
 		_set_physical_bone_collisions(_simulator, true)
@@ -137,6 +138,7 @@ func reset_for_reuse() -> void:
 	set_process(false)
 	var body_collision := npc.get_node("CollisionShape3D") as CollisionShape3D
 	body_collision.set_deferred("disabled", false)
+	_set_combat_hitboxes_enabled(true)
 	npc.damageable.restore_full_health()
 	if _simulator != null:
 		_simulator.physical_bones_stop_simulation()
@@ -315,3 +317,20 @@ func _set_physical_bone_collisions(
 			if enabled:
 				physical_bone.set_collision_layer_value(2, true)
 				physical_bone.set_collision_mask_value(1, true)
+
+
+func _set_combat_hitboxes_enabled(enabled: bool) -> void:
+	var hitboxes := npc.get_node_or_null("Hitboxes") as Node3D
+	if hitboxes == null:
+		return
+	for child in hitboxes.get_children():
+		if child is not CombatHitbox:
+			continue
+		var hitbox := child as CombatHitbox
+		hitbox.collision_layer = 4 if enabled else 0
+		for shape_child in hitbox.get_children():
+			if shape_child is CollisionShape3D:
+				(shape_child as CollisionShape3D).set_deferred(
+					"disabled",
+					not enabled
+				)

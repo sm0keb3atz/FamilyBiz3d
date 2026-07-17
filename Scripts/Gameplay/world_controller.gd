@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 7
+const SAVE_VERSION := 9
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -36,15 +36,23 @@ const SAVE_PATH := "user://family_business_save.json"
 @onready var territory_market := get_node(
 	"../TerritoryMarketService"
 ) as TerritoryMarketService
+@onready var territory_encounter := get_node(
+	"../TerritoryEncounterController"
+) as TerritoryEncounterController
+@onready var territory_dealers := get_node(
+	"../TerritoryDealerService"
+) as TerritoryDealerService
 
 
 func _ready() -> void:
 	world_time.connect_wallet(wallet)
 	world_time.time_changed.connect(hud.update_clock)
 	world_time.minute_advanced.connect(properties.process_businesses_to)
+	world_time.minute_advanced.connect(territory_dealers.process_to)
 	world_time.day_ending.connect(_on_day_ending)
 	world_time.day_ended.connect(_on_day_ended)
 	properties.process_businesses_to(world_time.get_absolute_minute())
+	territory_dealers.process_to(world_time.get_absolute_minute())
 	territory_market.ensure_quotes(world_time.get_date_key())
 	hud.update_clock(world_time.get_formatted_date(), world_time.get_formatted_time())
 
@@ -62,6 +70,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func save_game() -> bool:
 	properties.process_businesses_to(world_time.get_absolute_minute())
+	territory_dealers.process_to(world_time.get_absolute_minute())
 	var territories := {}
 	for node in get_tree().get_nodes_in_group("territory_boundaries"):
 		var boundary := node as TerritoryBoundary
@@ -72,13 +81,25 @@ func save_game() -> bool:
 	var dealers := {}
 	for node in get_tree().get_nodes_in_group("dealer_npc"):
 		var dealer := node as DealerNPC
-		if dealer != null:
+		if (
+			dealer != null
+			and dealer.activity_zone == null
+			and not dealer.is_temporary_war_attacker
+		):
 			dealers[String(dealer.get_path())] = dealer.export_save_data()
+	var dealer_zones := {}
+	for node in get_tree().get_nodes_in_group(&"dealer_activity_zone"):
+		var zone := node as DealerActivityZone3D
+		if zone != null:
+			dealer_zones[String(zone.zone_id)] = zone.export_save_data()
 
 	var data := {
 		"version": SAVE_VERSION,
 		"world_time": world_time.export_save_data(),
 		"territory_market": territory_market.export_save_data(),
+		"territory_encounter": territory_encounter.export_save_data(),
+		"territory_dealers": territory_dealers.export_save_data(),
+		"dealer_zones": dealer_zones,
 		"player": {
 			"position": _vector_to_array(
 				vehicle_component.get_effective_position()
@@ -159,6 +180,25 @@ func load_game() -> bool:
 	territory_market.import_save_data(
 		data.get("territory_market", {}) as Dictionary,
 		world_time.get_date_key()
+	)
+	var zone_data := data.get("dealer_zones", {}) as Dictionary
+	for node in get_tree().get_nodes_in_group(&"dealer_activity_zone"):
+		var zone := node as DealerActivityZone3D
+		if zone != null and zone_data.has(String(zone.zone_id)):
+			zone.import_save_data(zone_data[String(zone.zone_id)] as Dictionary)
+		if zone != null:
+			var zone_stats := zone.get_territory_stats()
+			if (
+				zone_stats != null
+				and zone_stats.owner_faction
+				== TerritoryStatsComponent.OwnerFaction.PLAYER
+			):
+				zone.set_faction(TerritoryStatsComponent.OwnerFaction.PLAYER)
+	territory_encounter.import_save_data(
+		data.get("territory_encounter", {}) as Dictionary
+	)
+	territory_dealers.import_save_data(
+		data.get("territory_dealers", {}) as Dictionary
 	)
 	var dealer_data := data.get("dealers", {}) as Dictionary
 	for path_text in dealer_data.keys():

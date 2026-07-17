@@ -34,6 +34,7 @@ source_roots = Array[NodePath]([NodePath("../HoodEastBlock1"), NodePath("../Hood
 [node name="TerritoryStats" type="Node" parent="." unique_id=156318492]
 script = ExtResource("10_stats")
 territory_id = &"hood_east"
+starting_owner_faction = 1
 
 [node name="TerritoryBoundary" type="Area3D" parent="." unique_id=1647238682]
 script = ExtResource("11_boundary")

@@ -60,6 +60,7 @@ func open_for(dealer: DealerNPC) -> void:
 	_dealer = dealer
 	_is_open = true
 	menu_root.visible = true
+	_dealer.begin_shop_interaction(player)
 	feedback_label.text = ""
 	_refresh()
 	close_button.grab_focus()
@@ -69,9 +70,12 @@ func close() -> void:
 	if not _is_open or not menu_controller.close(&"dealer_shop"):
 		return
 
+	var closing_dealer := _dealer
 	_is_open = false
 	_dealer = null
 	menu_root.visible = false
+	if is_instance_valid(closing_dealer):
+		closing_dealer.end_shop_interaction()
 
 
 func _purchase(product: ProductDefinition, amount: int) -> void:
@@ -97,6 +101,13 @@ func _refresh() -> void:
 	cooldown_label.text = "Restocking in %ds" % ceili(cooldown)
 
 	var items := _dealer.get_stock_items()
+	if _dealer.can_purchase_territory():
+		var takeover_button := Button.new()
+		takeover_button.text = "BUY HOOD EAST - $100,000 DIRTY CASH"
+		takeover_button.disabled = not wallet.can_spend_dirty(100000)
+		_style_button(takeover_button, Color(0.8, 0.2, 0.16, 1.0))
+		takeover_button.pressed.connect(_purchase_territory)
+		stock_list.add_child(takeover_button)
 	if items.is_empty():
 		var empty_label := Label.new()
 		empty_label.text = "No stock right now."
@@ -111,6 +122,13 @@ func _refresh() -> void:
 		var quantity := int(item.get("quantity", 0))
 		var unit_price := int(item.get("unit_price", product.dealer_price))
 		stock_list.add_child(_create_stock_row(product, quantity, unit_price, cooldown))
+
+
+func _purchase_territory() -> void:
+	if _dealer == null:
+		return
+	feedback_label.text = _dealer.purchase_territory(player)
+	_refresh()
 
 
 func _create_stock_row(

@@ -215,6 +215,59 @@ func get_stashed_product_quantity(property_id: StringName, product: ProductDefin
 	return int(products.get(String(product.product_id), 0))
 
 
+func get_territory_stashed_product_quantity(territory_id: StringName, product: ProductDefinition) -> int:
+	var total := 0
+	for definition in PropertyCatalog.get_all():
+		if definition.territory_id == territory_id and definition.is_stash_house() and owns(definition.property_id):
+			total += get_stashed_product_quantity(definition.property_id, product)
+	return total
+
+
+func get_territory_stash_summary(territory_id: StringName, products: Array[ProductDefinition]) -> Dictionary:
+	var result := {"dirty_cash": 0, "product_units": 0, "products": {}, "stashes": []}
+	var totals := result.products as Dictionary
+	var stashes := result.stashes as Array
+	for definition in PropertyCatalog.get_all():
+		if definition.territory_id != territory_id or not definition.is_stash_house() or not owns(definition.property_id):
+			continue
+		var entry := {"property_id": definition.property_id, "display_name": definition.display_name,
+			"dirty_cash": get_stashed_dirty_cash(definition.property_id), "products": {}}
+		result.dirty_cash += int(entry.dirty_cash)
+		var entry_products := entry.products as Dictionary
+		for product in products:
+			if product == null:
+				continue
+			var quantity := get_stashed_product_quantity(definition.property_id, product)
+			entry_products[String(product.product_id)] = quantity
+			totals[String(product.product_id)] = int(totals.get(String(product.product_id), 0)) + quantity
+			result.product_units += quantity
+		stashes.append(entry)
+	return result
+
+
+func process_territory_dealer_sale(territory_id: StringName, product: ProductDefinition,
+	amount: int, net_dirty_cash: int) -> StringName:
+	if product == null or amount <= 0 or net_dirty_cash < 0:
+		return &""
+	for definition in PropertyCatalog.get_all():
+		if definition.territory_id != territory_id or not definition.is_stash_house() or not owns(definition.property_id):
+			continue
+		var stash := _ensure_stash(definition.property_id)
+		var products := stash.get("products", {}) as Dictionary
+		var key := String(product.product_id)
+		var stored := int(products.get(key, 0))
+		if stored < amount:
+			continue
+		products[key] = stored - amount
+		if int(products[key]) <= 0:
+			products.erase(key)
+		stash.products = products
+		stash.dirty_cash = int(stash.get("dirty_cash", 0)) + net_dirty_cash
+		stash_changed.emit(definition.property_id)
+		return definition.property_id
+	return &""
+
+
 func transfer_product(property_id: StringName, product: ProductDefinition, requested_amount: int, to_stash: bool) -> int:
 	if not owns(property_id) or not _is_stash_house(property_id) or product == null or requested_amount <= 0:
 		return 0

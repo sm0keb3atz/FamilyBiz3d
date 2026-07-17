@@ -23,11 +23,25 @@ var _world_time: WorldTimeComponent
 var _player: CharacterBody3D
 var _ticket_remaining := 0.0
 var _visitor: WeakRef
+var _external_host: DealerNPC
+
+
+func configure_external_dealer_visit(host: DealerNPC) -> void:
+	_external_host = host
+
+
+func offer_external_ticket() -> void:
+	if is_instance_valid(_external_host) and not is_busy():
+		_ticket_remaining = ticket_lifetime
 
 
 func _ready() -> void:
-	add_to_group(&"store_customer_visit")
-	call_deferred("_resolve_dependencies")
+	if is_instance_valid(_external_host):
+		add_to_group(&"dealer_customer_visit")
+		call_deferred("_resolve_external_dependencies")
+	else:
+		add_to_group(&"store_customer_visit")
+		call_deferred("_resolve_dependencies")
 
 
 func _process(delta: float) -> void:
@@ -41,6 +55,8 @@ func _process(delta: float) -> void:
 	if customer != null and customer.try_begin_store_visit(self):
 		_visitor = weakref(customer)
 		_ticket_remaining = 0.0
+		if is_instance_valid(_external_host):
+			_external_host.begin_shop_interaction(customer)
 
 
 func try_reserve_itinerary(npc: Node) -> bool:
@@ -70,6 +86,8 @@ func release_itinerary(npc: Node) -> void:
 	var current := get_active_visitor()
 	if current == null or current == npc:
 		_visitor = null
+		if is_instance_valid(_external_host):
+			_external_host.end_shop_interaction()
 
 
 func has_complete_reservation(npc: Node) -> bool:
@@ -144,6 +162,11 @@ func _resolve_dependencies() -> void:
 		_properties.business_sale_processed.connect(_on_business_sale_processed)
 
 
+func _resolve_external_dependencies() -> void:
+	_player = get_tree().get_first_node_in_group(&"player") as CharacterBody3D
+	_world_time = get_tree().get_first_node_in_group(&"world_time") as WorldTimeComponent
+
+
 func _on_business_sale_processed(
 	sale_property_id: StringName,
 	sale_absolute_minute: int
@@ -160,6 +183,16 @@ func _on_business_sale_processed(
 
 
 func _can_present_visit(require_stock := true) -> bool:
+	if is_instance_valid(_external_host):
+		return (
+			_player != null
+			and not _external_host.is_defeated()
+			and not _external_host.is_hostile()
+			and _external_host.activity_zone != null
+			and _external_host.activity_zone.faction == TerritoryStatsComponent.OwnerFaction.PLAYER
+			and _player.global_position.distance_squared_to(_external_host.global_position)
+			<= presentation_radius * presentation_radius
+		)
 	if _player == null or _properties == null or _world_time == null:
 		return false
 	if not _properties.owns(property_id):

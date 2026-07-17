@@ -136,6 +136,18 @@ func _execute(command: String) -> void:
 			_give_money(parts, 1, false)
 		"give_clean_money":
 			_give_money(parts, 1, true)
+		"give_rep":
+			_change_reputation(parts, 1, false)
+		"set_rep":
+			_change_reputation(parts, 1, true)
+		"territory_status":
+			_print_territory_status(parts, 1)
+		"start_gang_war":
+			_start_gang_war(parts, 1)
+		"end_gang_war":
+			_end_gang_war(parts, 1)
+		"clear_gang_war_cooldown":
+			_clear_gang_war_cooldown()
 		"give":
 			_execute_spaced_give(parts)
 		"set_time":
@@ -143,6 +155,18 @@ func _execute(command: String) -> void:
 		"set":
 			if parts.size() >= 3 and parts[1].to_lower() == "time":
 				_set_time(" ".join(parts.slice(2)))
+			elif parts.size() >= 3 and parts[1].to_lower() == "rep":
+				_change_reputation(parts, 2, true)
+			else:
+				_print_error("Unknown command. Type help.")
+		"start":
+			if parts.size() >= 3 and parts[1].to_lower() == "gang" and parts[2].to_lower() == "war":
+				_start_gang_war(parts, 3)
+			else:
+				_print_error("Unknown command. Type help.")
+		"end":
+			if parts.size() >= 3 and parts[1].to_lower() == "gang" and parts[2].to_lower() == "war":
+				_end_gang_war(parts, 3)
 			else:
 				_print_error("Unknown command. Type help.")
 		_:
@@ -154,8 +178,10 @@ func _execute_spaced_give(parts: PackedStringArray) -> void:
 		_give_money(parts, 2, false)
 	elif parts.size() >= 4 and parts[1].to_lower() == "clean" and parts[2].to_lower() == "money":
 		_give_money(parts, 3, true)
+	elif parts.size() >= 3 and parts[1].to_lower() == "rep":
+		_change_reputation(parts, 2, false)
 	else:
-		_print_error("Use: give money <amount> or give clean money <amount>")
+		_print_error("Use: give money <amount>, give clean money <amount>, or give rep <amount>")
 
 
 func _give_money(parts: PackedStringArray, amount_index: int, clean: bool) -> void:
@@ -207,6 +233,124 @@ func _set_time(value: String) -> void:
 	_print_success("Time set to %s." % time_component.get_formatted_time())
 
 
+func _change_reputation(
+	parts: PackedStringArray,
+	value_index: int,
+	set_value: bool
+) -> void:
+	if parts.size() <= value_index or not parts[value_index].is_valid_float():
+		_print_error("Reputation must be a number from -100 to 100.")
+		return
+	var boundary := _get_territory_boundary(
+		parts[value_index + 1] if parts.size() > value_index + 1 else ""
+	)
+	if boundary == null or boundary.stats == null:
+		_print_error("No territory found. Use hood_east or hood_west.")
+		return
+	var amount := float(parts[value_index])
+	if set_value:
+		boundary.stats.set_reputation(amount)
+	else:
+		boundary.stats.add_reputation(amount)
+	_print_success("%s Rep is now %.1f." % [
+		String(boundary.territory_id).replace("_", " ").capitalize(),
+		boundary.stats.reputation,
+	])
+
+
+func _start_gang_war(parts: PackedStringArray, tier_index: int) -> void:
+	var encounter := _get_territory_encounter()
+	if encounter == null:
+		_print_error("Territory encounter controller was not found.")
+		return
+	var tier := 0
+	if parts.size() > tier_index:
+		if not parts[tier_index].is_valid_int():
+			_print_error("Gang-war tier must be 1, 2, 3, or 4.")
+			return
+		tier = int(parts[tier_index])
+		if tier < 1 or tier > 4:
+			_print_error("Gang-war tier must be 1, 2, 3, or 4.")
+			return
+	if not encounter.debug_start_gang_war(tier):
+		_print_error("A gang war is already active or could not be started.")
+		return
+	_print_success("Gang war started at tier %d." % encounter.get_active_tier())
+	close()
+
+
+func _end_gang_war(parts: PackedStringArray, result_index: int) -> void:
+	if parts.size() <= result_index:
+		_print_error("Use: end_gang_war win or end_gang_war lose")
+		return
+	var result := parts[result_index].to_lower()
+	if result not in ["win", "won", "lose", "loss", "lost"]:
+		_print_error("Result must be win or lose.")
+		return
+	var encounter := _get_territory_encounter()
+	if encounter == null or not encounter.debug_finish_gang_war(result in ["win", "won"]):
+		_print_error("There is no active gang war.")
+		return
+	_print_success("Gang war ended as a %s." % ("win" if result in ["win", "won"] else "loss"))
+
+
+func _clear_gang_war_cooldown() -> void:
+	var encounter := _get_territory_encounter()
+	if encounter == null:
+		_print_error("Territory encounter controller was not found.")
+		return
+	encounter.debug_clear_gang_war_cooldown()
+	_print_success("Hood East gang-war cooldown cleared.")
+
+
+func _print_territory_status(parts: PackedStringArray, territory_index: int) -> void:
+	var boundary := _get_territory_boundary(
+		parts[territory_index] if parts.size() > territory_index else ""
+	)
+	if boundary == null or boundary.stats == null:
+		_print_error("No territory found. Use hood_east or hood_west.")
+		return
+	var encounter := _get_territory_encounter()
+	var wins := encounter.get_war_wins(boundary.territory_id) if encounter != null else 0
+	var cooldown := encounter.get_cooldown_minutes(boundary.territory_id) if encounter != null else 0
+	_print_info("[b]%s[/b] - Rep %.1f, Heat %.1f, Owner %d, War wins %d/3, Cooldown %d min" % [
+		boundary.display_name,
+		boundary.stats.reputation,
+		boundary.stats.heat,
+		int(boundary.stats.owner_faction),
+		wins,
+		cooldown,
+	])
+
+
+func _get_territory_boundary(requested: String) -> TerritoryBoundary:
+	var territory_id := requested.strip_edges().to_lower()
+	if territory_id == "east":
+		territory_id = "hood_east"
+	elif territory_id == "west":
+		territory_id = "hood_west"
+	if territory_id.is_empty():
+		var current_player := wallet.get_parent().get_parent() as CharacterBody3D
+		if current_player == null:
+			return null
+		return TerritoryBoundary.find_at_position(
+			get_tree(), current_player.global_position
+		)
+	for node in get_tree().get_nodes_in_group(&"territory_boundaries"):
+		var boundary := node as TerritoryBoundary
+		if boundary != null and String(boundary.territory_id) == territory_id:
+			return boundary
+	return null
+
+
+func _get_territory_encounter() -> TerritoryEncounterController:
+	if get_tree().current_scene == null:
+		return null
+	return get_tree().current_scene.get_node_or_null(
+		"TerritoryEncounterController"
+	) as TerritoryEncounterController
+
+
 func _get_world_time() -> WorldTimeComponent:
 	if get_tree().current_scene == null:
 		return null
@@ -226,6 +370,12 @@ func _print_help() -> void:
 	_print_info("[b]give_clean_money 500[/b]  - add clean bank money")
 	_print_info("[b]set_time 14:30[/b] or [b]set_time 2:30 PM[/b]")
 	_print_info("Spaced forms also work: [b]give money 500[/b], [b]give clean money 500[/b], [b]set time 14:30[/b]")
+	_print_info("[b]set_rep -50 [hood_east][/b]  - set territory Rep")
+	_print_info("[b]give_rep 15 [hood_east][/b]  - add or subtract Rep")
+	_print_info("[b]territory_status [hood_east][/b]  - show territory state")
+	_print_info("[b]start_gang_war [1-4][/b]  - force a gang war and close console")
+	_print_info("[b]end_gang_war win|lose[/b]  - force the active result")
+	_print_info("[b]clear_gang_war_cooldown[/b]  - allow another war")
 	_print_info("[b]clear[/b]  - clear console output")
 
 

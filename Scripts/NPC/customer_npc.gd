@@ -1218,7 +1218,7 @@ func _update_performing_store_visit(delta: float) -> void:
 	_store_stage_remaining = maxf(_store_stage_remaining - delta, 0.0)
 	if not is_zero_approx(_store_stage_remaining):
 		return
-	if _store_visit_stage >= 3:
+	if _store_visit_stage >= _store_visit.get_destinations().size() - 1:
 		_release_store_visit()
 		hsm.dispatch(EVENT_STORE_VISIT_FINISHED)
 		return

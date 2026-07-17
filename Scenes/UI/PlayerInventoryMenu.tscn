@@ -15,7 +15,7 @@ corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [node name="PlayerInventoryMenu" type="CanvasLayer"]
-layer = 10
+layer = 40
 script = ExtResource("1_menu")
 
 [node name="MenuRoot" type="Control" parent="."]
@@ -45,23 +45,23 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -360.0
-offset_top = -270.0
-offset_right = 360.0
-offset_bottom = 270.0
+offset_left = -600.0
+offset_top = -360.0
+offset_right = 600.0
+offset_bottom = 360.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="Margin" type="MarginContainer" parent="MenuRoot/Panel"]
-theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
 
 [node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="Title" type="Label" parent="MenuRoot/Panel/Margin/Content"]
 layout_mode = 2
@@ -137,6 +137,25 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Territory" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 8
+
+[node name="TerritoryScroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Territory"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 0
+
+[node name="TerritoryList" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Territory/TerritoryScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 12
 
 [node name="FeedbackLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]

@@ -16,6 +16,9 @@ func _initialize() -> void:
 	assert(time.get_formatted_time() == "8:00 AM")
 	time.minute_of_day = 0
 	time.advance_real_seconds(600.0)
+	assert(time.day == 1)
+	assert(time.minute_of_day == 12 * 60)
+	time.advance_real_seconds(600.0)
 	assert(time.day == 2)
 	assert(time.get_date_key() == "0001-01-02")
 	assert(time.weekday == 1)

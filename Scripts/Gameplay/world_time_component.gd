@@ -7,6 +7,8 @@ signal day_ending(report_date: String)
 signal day_ended(report_date: String, earned: int, spent: int)
 
 const MINUTES_PER_DAY := 1440
+const SUNRISE_HOUR := 6.0
+const SUNSET_HOUR := 19.5
 const MONTH_NAMES := [
 	"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
 	"JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
@@ -14,7 +16,7 @@ const MONTH_NAMES := [
 const WEEKDAY_NAMES := ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
 const MONTH_LENGTHS := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
-@export_range(1.0, 3600.0, 1.0) var real_seconds_per_day := 600.0
+@export_range(1.0, 3600.0, 1.0) var real_seconds_per_day := 1200.0
 @export var sun_path := NodePath("../Environment/Sun")
 @export var world_environment_path := NodePath("../Environment/WorldEnvironment")
 
@@ -165,6 +167,10 @@ func _on_transaction_completed(dirty_delta: int, clean_delta: int) -> void:
 		daily_spent += -total_delta
 
 
+func record_external_transaction(dirty_delta: int, clean_delta: int) -> void:
+	_on_transaction_completed(dirty_delta, clean_delta)
+
+
 func _advance_date() -> void:
 	weekday = (weekday + 1) % 7
 	day += 1
@@ -196,12 +202,19 @@ func _emit_time_changed() -> void:
 
 func _update_visuals() -> void:
 	var hour := float(minute_of_day) / 60.0
-	var daylight := clampf(sin((hour - 6.0) / 12.0 * PI), 0.0, 1.0)
+	var daylight_duration := SUNSET_HOUR - SUNRISE_HOUR
+	var daylight_progress := clampf((hour - SUNRISE_HOUR) / daylight_duration, 0.0, 1.0)
+	var daylight := sin(daylight_progress * PI) if hour >= SUNRISE_HOUR and hour <= SUNSET_HOUR else 0.0
 	if _sun != null:
 		# DirectionalLight3D shines down its local -Z axis. Rotating the other
 		# way made LIGHT0_DIRECTION negative during the day, so the sky shader
 		# rendered stars and night colors while the clock showed morning.
-		_sun.rotation_degrees = Vector3(90.0 - hour * 15.0, -30.0, 0.0)
+		var sun_arc_progress := daylight_progress
+		if hour < SUNRISE_HOUR:
+			sun_arc_progress = 1.0 + (hour + 24.0 - SUNSET_HOUR) / (24.0 - SUNSET_HOUR + SUNRISE_HOUR)
+		elif hour > SUNSET_HOUR:
+			sun_arc_progress = 1.0 + (hour - SUNSET_HOUR) / (24.0 - SUNSET_HOUR + SUNRISE_HOUR)
+		_sun.rotation_degrees = Vector3(-180.0 * sun_arc_progress, -30.0, 0.0)
 		_sun.light_energy = lerpf(0.03, 1.15, pow(daylight, 0.65))
 		_sun.light_color = Color(1.0, 0.48, 0.3).lerp(Color(1.0, 0.96, 0.86), daylight)
 	if _world_environment != null and _world_environment.environment != null:

@@ -282,7 +282,11 @@ func _update_landing_splats() -> void:
 			Color(0.3, 0.003, 0.006, 0.9)
 		)
 		splat.name = "BloodDropletSplat"
-		_attach_mark(splat, landing.collider as Node3D)
+		var landing_collider: Variant = landing.get("collider")
+		var target: Node3D = null
+		if is_instance_valid(landing_collider):
+			target = landing_collider as Node3D
+		_attach_mark(splat, target)
 		_pending_landing_splats.remove_at(index)
 
 

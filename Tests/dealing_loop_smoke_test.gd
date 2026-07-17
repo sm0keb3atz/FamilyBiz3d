@@ -132,20 +132,37 @@ func _run() -> void:
 	assert(is_equal_approx(east.stats.heat, failed_heat))
 
 	# Every territory has deterministic L2/L3/L4 progression suppliers.
-	var east_spawner := world.get_node(
-		"SpawnPoints/EastDealerSpawn"
-	) as DealerSpawner
+	var east_zone := world.get_node(
+		"SpawnPoints/EastDealerZoneNorth"
+	) as DealerActivityZone3D
 	var progression_levels: Array[int] = []
-	for spawned_dealer in east_spawner.get_spawned_dealers():
+	for spawned_dealer in east_zone.get_spawned_dealers():
 		progression_levels.append(
 			spawned_dealer.get_role_component().dealer_level
 		)
 	progression_levels.sort()
 	assert(progression_levels == [2, 3, 4])
-	var level_two := east_spawner.get_spawned_dealers()[0]
-	var level_three := east_spawner.get_spawned_dealers()[1]
+	var level_two: DealerNPC
+	var level_three: DealerNPC
+	for progression_dealer in east_zone.get_spawned_dealers():
+		var progression_level := progression_dealer.get_role_component().dealer_level
+		if progression_level == 2:
+			level_two = progression_dealer
+		elif progression_level == 3:
+			level_three = progression_dealer
+	assert(level_two != null and level_three != null)
 	assert(level_two.get_interaction_prompt(player).contains("15"))
 	assert(level_three.get_interaction_prompt(player).contains("40"))
+	var level_two_weed := level_two.get_stock_quantity(EconomyCatalog.WEED_1G)
+	var level_two_coke := level_two.get_stock_quantity(EconomyCatalog.COKE_1G)
+	assert(level_two_weed >= 60 and level_two_weed <= 80)
+	assert(level_two_coke >= 8 and level_two_coke <= 15)
+	assert(level_two.get_stock_quantity(EconomyCatalog.FENT_1G) == 0)
+	var level_three_coke := level_three.get_stock_quantity(EconomyCatalog.COKE_1G)
+	var level_three_fent := level_three.get_stock_quantity(EconomyCatalog.FENT_1G)
+	assert(level_three.get_stock_quantity(EconomyCatalog.WEED_1G) == 0)
+	assert(level_three_coke >= 60 and level_three_coke <= 80)
+	assert(level_three_fent >= 8 and level_three_fent <= 15)
 	assert(east.stats.add_reputation(15.0 - east.stats.reputation))
 	assert(level_two.get_interaction_prompt(player) == "E - Shop")
 	assert(level_three.get_interaction_prompt(player).contains("40"))
@@ -153,7 +170,27 @@ func _run() -> void:
 	var level_one := world.get_node("Gameplay/EastDealer") as DealerNPC
 	level_one.configure_dealer(1, false)
 	var level_one_stock := level_one.get_stock_quantity(EconomyCatalog.WEED_1G)
-	assert(level_one_stock >= 25 and level_one_stock <= 35)
+	assert(level_one_stock >= 40 and level_one_stock <= 50)
+
+	# Legacy dealer stock rerolls once, then the upgraded stock remains stable.
+	var legacy_stock := level_two.export_save_data()
+	legacy_stock.erase("stock_data_version")
+	var legacy_quantities := legacy_stock["stock"] as Dictionary
+	for product_id in legacy_quantities.keys():
+		legacy_quantities[product_id] = 1
+	level_two.import_save_data(legacy_stock)
+	assert(level_two.get_stock_quantity(EconomyCatalog.WEED_1G) >= 60)
+	assert(level_two.get_stock_quantity(EconomyCatalog.COKE_1G) >= 8)
+	var upgraded_stock := level_two.export_save_data()
+	assert(
+		int(upgraded_stock["stock_data_version"])
+		== DealerRoleComponent.STOCK_DATA_VERSION
+	)
+	var preserved_weed := level_two.get_stock_quantity(EconomyCatalog.WEED_1G)
+	var preserved_coke := level_two.get_stock_quantity(EconomyCatalog.COKE_1G)
+	level_two.import_save_data(upgraded_stock)
+	assert(level_two.get_stock_quantity(EconomyCatalog.WEED_1G) == preserved_weed)
+	assert(level_two.get_stock_quantity(EconomyCatalog.COKE_1G) == preserved_coke)
 	level_one.get_role_component().territory_id = &"hood_east"
 	level_one.configure_dealer(1, true)
 	assert(level_one.get_role_component().get_required_reputation() == 100.0)

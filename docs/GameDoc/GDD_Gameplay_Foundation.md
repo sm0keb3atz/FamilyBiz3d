@@ -7,10 +7,22 @@ environment, Hood East and Hood West, navigation, stable spawn points, gameplay
 actors, and the save/load controller.
 
 Each territory owns a permanent ID, boundary, Heat, signed `-100..100`
-Reputation, ownership state, rival-pressure tier, and takeover availability.
+Reputation, ownership state, rival-pressure tier, dealer-zone state, gang-war
+progress, and `+100` takeover availability.
 Current IDs are `hood_east` and `hood_west`. Saved data uses these IDs, not
 scene paths. Older saves migrate to neutral ownership without losing positive
-Reputation.
+Reputation. Hood East dealer attacks cost `5` Reputation on the first damaging
+hit and another `10` on death, except at `+100` or after player ownership.
+
+Negative Hood East Reputation rolls an hourly gang-war chance from 5% to 50%.
+Surviving three 60-second wars claims the territory. At `+100`, the player may
+instead spend `$100,000` Dirty Cash through a dealer or kill every permanent
+rival zone member. Every route sets player ownership and `+100` Reputation.
+
+Permanent dealer kills award level-scaled EXP immediately. Their remaining
+stock and level-scaled Dirty Cash must be searched from the body within 20
+seconds. Defeated permanent dealers respawn after one in-game hour unless the
+territory is at `100` Reputation. Temporary war attackers award EXP only.
 
 ## Trading Rules
 
@@ -53,6 +65,21 @@ level chances are `88% / 11% / 1% / 0%`, while at Hustle 10 they are
 `$45/g` Coke, and `$30/g` Fent. Their randomized local dealer prices appear
 beside the icons in the territory HUD. Reputation price adjustments are
 deferred.
+
+## Developer Command Console
+
+Press backtick to open the developer console. Territory testing commands are:
+
+- `set_rep -50 [hood_east|hood_west]`
+- `give_rep 15 [hood_east|hood_west]`
+- `territory_status [hood_east|hood_west]`
+- `start_gang_war [1-4]`
+- `end_gang_war win|lose`
+- `clear_gang_war_cooldown`
+
+When a territory argument is omitted, Reputation and status commands use the
+territory containing the player. Forced gang wars bypass normal eligibility;
+the regular hourly system still enforces Rep, ownership, location, and cooldown.
 
 ## Saving
 

@@ -24,6 +24,7 @@ extends Node
 
 @export_category("Stamina")
 @export_range(0.0, 1000.0, 0.1) var sprint_stamina_per_second := 20.0
+@export_range(0.1, 1000.0, 0.1) var sprint_resume_stamina := 10.0
 
 @export_category("Crouching")
 @export var crouch_action := &"crouch"
@@ -85,8 +86,8 @@ func _physics_process(delta: float) -> void:
 	_is_aiming = weapon_component.is_aiming()
 	if (
 		_sprint_exhausted
-		and is_equal_approx(
-			stats_component.stamina,
+		and stats_component.stamina >= minf(
+			sprint_resume_stamina,
 			stats_component.get_max_stamina()
 		)
 	):

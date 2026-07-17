@@ -14,6 +14,9 @@
 [node name="DealerNPC" unique_id=1638533300 instance=ExtResource("1_base")]
 script = ExtResource("2_dealer")
 
+[node name="HealthComponent" parent="Components" index="2"]
+body_cleanup_delay = 20.0
+
 [node name="RoleComponent" type="Node" parent="Components" index="3"]
 script = ExtResource("4_role")
 product = ExtResource("3_product")

@@ -3,6 +3,7 @@ extends NPCRoleComponent
 
 const DEALER_REP_REQUIREMENTS := [0.0, 15.0, 40.0, 80.0]
 const WHOLESALER_REP_REQUIREMENT := 100.0
+const STOCK_DATA_VERSION := 2
 
 signal stock_changed
 signal cooldown_changed(remaining: float)
@@ -19,6 +20,7 @@ var _products: Dictionary[StringName, ProductDefinition] = {}
 var _cooldown_remaining := 0.0
 var _random := RandomNumberGenerator.new()
 var _fixed_progression_level := 0
+var _player_operated := false
 
 
 func _ready() -> void:
@@ -161,6 +163,11 @@ func restock() -> void:
 	_stock.clear()
 	_products.clear()
 	_cooldown_remaining = 0.0
+	if _player_operated:
+		product = null
+		stock_changed.emit()
+		cooldown_changed.emit(_cooldown_remaining)
+		return
 	if is_wholesaler:
 		_stock_product(EconomyCatalog.WEED_BRICK, _random.randi_range(8, 15))
 		_stock_product(EconomyCatalog.COKE_BRICK, _random.randi_range(8, 15))
@@ -168,13 +175,13 @@ func restock() -> void:
 	else:
 		match dealer_level:
 			1:
-				_stock_product(EconomyCatalog.WEED_1G, _random.randi_range(25, 35))
+				_stock_product(EconomyCatalog.WEED_1G, _random.randi_range(40, 50))
 			2:
-				_stock_product(EconomyCatalog.WEED_1G, _random.randi_range(14, 28))
-				_stock_product(EconomyCatalog.COKE_1G, _random.randi_range(2, 6))
+				_stock_product(EconomyCatalog.WEED_1G, _random.randi_range(60, 80))
+				_stock_product(EconomyCatalog.COKE_1G, _random.randi_range(8, 15))
 			3:
-				_stock_product(EconomyCatalog.COKE_1G, _random.randi_range(10, 22))
-				_stock_product(EconomyCatalog.FENT_1G, _random.randi_range(2, 6))
+				_stock_product(EconomyCatalog.COKE_1G, _random.randi_range(60, 80))
+				_stock_product(EconomyCatalog.FENT_1G, _random.randi_range(8, 15))
 			4:
 				var bricks := EconomyCatalog.get_brick_products()
 				_stock_product(bricks[_random.randi_range(0, bricks.size() - 1)], _random.randi_range(1, 3))
@@ -219,6 +226,20 @@ func get_stock_quantity(stock_product: ProductDefinition) -> int:
 	return _stock.get(stock_product.product_id, 0)
 
 
+func take_all_stock() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for product_id in _products.keys():
+		var stock_product := _products[product_id] as ProductDefinition
+		var quantity := int(_stock.get(product_id, 0))
+		if stock_product != null and quantity > 0:
+			result.append({"product": stock_product, "quantity": quantity})
+	_stock.clear()
+	_products.clear()
+	product = null
+	stock_changed.emit()
+	return result
+
+
 func get_primary_product() -> ProductDefinition:
 	if not _products.is_empty():
 		return _products[_products.keys()[0]]
@@ -235,11 +256,22 @@ func get_cooldown_remaining() -> float:
 	return _cooldown_remaining
 
 
+func set_player_operated(enabled: bool) -> void:
+	_player_operated = enabled
+	if enabled:
+		_stock.clear()
+		_products.clear()
+		product = null
+		_cooldown_remaining = 0.0
+		stock_changed.emit()
+
+
 func export_save_data() -> Dictionary:
 	var stock_data := {}
 	for product_id in _stock.keys():
 		stock_data[String(product_id)] = _stock[product_id]
 	return {
+		"stock_data_version": STOCK_DATA_VERSION,
 		"dealer_level": dealer_level,
 		"is_wholesaler": is_wholesaler,
 		"cooldown_remaining": _cooldown_remaining,
@@ -263,6 +295,9 @@ func import_save_data(data: Dictionary) -> void:
 	else:
 		dealer_level = imported_level
 		is_wholesaler = imported_wholesaler
+	if int(data.get("stock_data_version", 0)) < STOCK_DATA_VERSION:
+		restock()
+		return
 	_cooldown_remaining = maxf(float(data.get("cooldown_remaining", 0.0)), 0.0)
 	_stock.clear()
 	_products.clear()

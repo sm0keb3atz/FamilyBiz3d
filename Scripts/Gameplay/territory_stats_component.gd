@@ -6,6 +6,8 @@ signal heat_changed(current: float)
 signal owner_faction_changed(current: OwnerFaction)
 signal pressure_tier_changed(current: RivalPressureTier)
 signal takeover_availability_changed(available: bool)
+signal purchase_availability_changed(available: bool)
+signal wipe_availability_changed(available: bool)
 
 enum OwnerFaction {
 	NEUTRAL,
@@ -58,6 +60,8 @@ func _ready() -> void:
 	owner_faction_changed.emit(_owner_faction)
 	pressure_tier_changed.emit(_pressure_tier)
 	takeover_availability_changed.emit(_takeover_available)
+	purchase_availability_changed.emit(_takeover_available)
+	wipe_availability_changed.emit(_takeover_available)
 
 
 func _process(delta: float) -> void:
@@ -101,6 +105,14 @@ func get_pressure_tier() -> RivalPressureTier:
 
 
 func is_takeover_available() -> bool:
+	return _takeover_available
+
+
+func can_purchase_territory() -> bool:
+	return _takeover_available
+
+
+func can_wipe_dealers_for_takeover() -> bool:
 	return _takeover_available
 
 
@@ -153,6 +165,8 @@ func import_save_data(data: Dictionary) -> void:
 	owner_faction_changed.emit(_owner_faction)
 	pressure_tier_changed.emit(_pressure_tier)
 	takeover_availability_changed.emit(_takeover_available)
+	purchase_availability_changed.emit(_takeover_available)
+	wipe_availability_changed.emit(_takeover_available)
 	set_heat(float(data.get("heat", starting_heat)))
 
 
@@ -170,10 +184,12 @@ func _refresh_derived_state(emit_changes := true) -> void:
 			pressure_tier_changed.emit(_pressure_tier)
 
 	var next_takeover := (
-		_reputation >= 60.0
+		_reputation >= 100.0
 		and _owner_faction != OwnerFaction.PLAYER
 	)
 	if next_takeover != _takeover_available:
 		_takeover_available = next_takeover
 		if emit_changes:
 			takeover_availability_changed.emit(_takeover_available)
+			purchase_availability_changed.emit(_takeover_available)
+			wipe_availability_changed.emit(_takeover_available)

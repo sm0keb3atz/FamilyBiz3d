@@ -87,6 +87,7 @@ var _market_products: Array[ProductDefinition] = []
 var _market: TerritoryMarketService
 var _current_territory_id: StringName = &""
 var _territory_refresh_remaining := 0.0
+var _territory_control_label: Label
 
 
 func _ready() -> void:
@@ -113,6 +114,13 @@ func _ready() -> void:
 	report_continue_button.pressed.connect(_close_daily_report)
 	_market_products = EconomyCatalog.get_gram_products()
 	_build_market_quote_row()
+	_territory_control_label = Label.new()
+	_territory_control_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_territory_control_label.add_theme_font_size_override("font_size", 14)
+	_territory_control_label.add_theme_color_override(
+		"font_color", Color(1.0, 0.72, 0.22)
+	)
+	reputation_title.get_parent().add_child(_territory_control_label)
 	_refresh_all()
 	_refresh_territory()
 
@@ -144,6 +152,7 @@ func _refresh_territory() -> void:
 		_set_label_text(heat_title, "OUTSIDE TERRITORY — HEAT")
 		reputation_bar.value = 0.0
 		heat_bar.value = 0.0
+		_set_label_text(_territory_control_label, "")
 		_set_label_text(reputation_value, "—")
 		_set_label_text(heat_value, "—")
 		if not _current_territory_id.is_empty():
@@ -166,12 +175,45 @@ func _refresh_territory() -> void:
 		reputation_text = "+%d" % reputation_number
 	_set_label_text(reputation_value, "%s / 100" % reputation_text)
 	_set_label_text(heat_value, "%d / 100" % roundi(boundary.stats.heat))
+	_refresh_territory_control(boundary)
 	var territory_changed := boundary.territory_id != _current_territory_id
 	var market_was_missing := not is_instance_valid(_market)
 	_current_territory_id = boundary.territory_id
 	var market := _get_market()
 	if territory_changed or (market_was_missing and market != null):
 		_refresh_market_quotes(_current_territory_id)
+
+
+func _refresh_territory_control(boundary: TerritoryBoundary) -> void:
+	var owner_names := ["NEUTRAL", "RIVAL", "PLAYER"]
+	var text := "OWNER: %s" % owner_names[int(boundary.stats.owner_faction)]
+	var encounter := get_tree().get_first_node_in_group(
+		&"territory_encounter"
+	) as TerritoryEncounterController
+	if (
+		encounter != null
+		and boundary.territory_id == TerritoryEncounterController.TARGET_TERRITORY
+	):
+		if encounter.is_war_active(boundary.territory_id):
+			text += "  |  GANG WAR: %ds" % ceili(
+				encounter.get_war_remaining()
+			)
+		else:
+			var tier := encounter.get_risk_tier(boundary.stats.reputation)
+			var risk_names := ["NONE", "VERY LOW", "LOW", "MEDIUM", "HIGH"]
+			text += "  |  WAR RISK: %s  |  WINS: %d/3" % [
+				risk_names[tier],
+				encounter.get_war_wins(boundary.territory_id),
+			]
+			var cooldown := encounter.get_cooldown_minutes(
+				boundary.territory_id
+			)
+			if cooldown > 0:
+				text += "  |  COOLDOWN: %dh %02dm" % [
+					cooldown / 60,
+					cooldown % 60,
+				]
+	_set_label_text(_territory_control_label, text)
 
 
 func _build_market_quote_row() -> void:

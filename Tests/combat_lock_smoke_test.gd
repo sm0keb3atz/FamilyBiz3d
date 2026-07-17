@@ -61,6 +61,12 @@ func _run() -> void:
 		Vector3.FORWARD
 	))
 	assert(npc.damageable.is_depleted())
+	assert(body_hitbox.collision_layer == 0)
+	assert(head_hitbox.collision_layer == 0)
+
+	npc.reset_for_reuse()
+	assert(body_hitbox.collision_layer == 4)
+	assert(head_hitbox.collision_layer == 4)
 
 	print("COMBAT_LOCK_SMOKE_TEST_PASS")
 	quit(0)

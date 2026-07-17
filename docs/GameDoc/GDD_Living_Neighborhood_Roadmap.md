@@ -21,7 +21,8 @@ reference territory and:
 4. Buy the gun and clothing stores with Clean Cash.
 5. Restock both stores with Dirty Cash and receive passive Clean Cash revenue.
 6. Move Reputation above and below zero and see the correct event tier.
-7. Complete a takeover after reaching `+60` Reputation.
+7. Claim Hood East through three gang-war wins or one of the deliberate
+   `+100` Reputation takeover routes.
 8. Supply converted player dealers from territory stash inventory.
 9. Trigger a cruiser response that arrives through the traffic network and
    releases officers into the existing foot response.
@@ -72,7 +73,7 @@ dealer factions yet.
 - Change Reputation to a `-100` to `100` range.
 - Preserve existing positive Reputation during save migration.
 - Add persistent owner faction with neutral/rival/player values.
-- Add takeover availability at `+60` Reputation.
+- Reserve deliberate takeover availability for `+100` Reputation.
 - Add rival-pressure tiers at `-25`, `-50`, and `-75`.
 - Expose clear query methods and change signals for UI and later systems.
 - Keep existing positive dealer unlock gates at `0`, `15`, `40`, `80`, and
@@ -238,6 +239,8 @@ the authoritative ledger.
 
 ## Pass 7 - Dealer Activity Zones
 
+**Status:** Implemented July 17, 2026; focused user-run verification pending.
+
 ### Outcome
 
 Dealer sites are authored groups with varied presentation and stable identity.
@@ -245,9 +248,20 @@ Dealer sites are authored groups with varied presentation and stable identity.
 ### Work
 
 - Replace simple circular placement with persistent dealer activity zones.
+- Retire the legacy `DealerSpawner`. `DealerActivityZone3D` is the single
+  spawning and persistence system for permanent street dealers.
+- Author exactly two zones per territory with 3–5 members in each zone and at
+  least one level-1 dealer somewhere in every territory.
 - Configure each zone with territory, faction, group size, dealer levels,
   standing/activity spots, and one required interactable dealer position.
 - Use different available activities across group members.
+- Pair talking members so they face one another. Leaning members navigate to
+  the nearest reachable building wall and fall back to Idle when none is safe.
+- Alert nearby same-territory dealers when the player damages a member so the
+  group joins the fight instead of ignoring an attack beside them.
+- Respawn defeated permanent dealers after one in-game hour unless the
+  territory is at `100` Reputation. Clamp older longer deadlines when
+  migrating existing saves.
 - Add faction-change hooks but do not connect stash supply until Pass 9.
 
 ### Acceptance
@@ -259,47 +273,81 @@ Dealer sites are authored groups with varied presentation and stable identity.
 
 ## Pass 8 - Territory Takeover Event
 
+**Status:** Implemented July 17, 2026; focused user-run verification pending.
+
 ### Outcome
 
-High Reputation unlocks a deliberate territory claim instead of automatic
-ownership.
+Hood East supports recurring negative-Reputation gang wars and three deliberate
+territory-claim routes without silently granting ownership from Reputation.
 
 ### Work
 
-- Expose the takeover event only at `+60` Reputation while not already owned.
-- Build one focused Hood East confrontation/mission using existing combat and
-  dealer-zone systems.
-- On success, set the territory owner to player and convert its dealer zones.
-- On failure, keep rival ownership and apply a documented Reputation penalty.
-- Keep territory loss and large recurring gang wars deferred.
+- Roll hourly gang-war risk at `5%`, `15%`, `30%`, or `50%` as negative
+  Reputation crosses `-1`, `-25`, `-50`, and `-75`.
+- Run three dealer waves over 60 real seconds. A win adds `15` Reputation and a
+  loss subtracts `10`; three saved wins claim the territory.
+- Suspend wanted-level escalation for the 60-second war so gunshots and dealer
+  casualties cannot pull police into the encounter. Restore any wanted level
+  the player already had when the war ends, including across save/load.
+- At `+100` Reputation, allow a `$100,000` Dirty Cash purchase or a complete
+  wipe of all permanent rival dealer-zone members.
+- Route every success through one claim operation that sets player ownership,
+  sets Reputation to `+100`, and converts the dealer zones exactly once.
+- Award dealer-kill EXP immediately; require a corpse search within 20 seconds
+  to collect permanent dealers' Dirty Cash and remaining stock.
 
 ### Acceptance
 
-- Reaching `+60` alone does not silently change ownership.
-- Completing the event converts the territory exactly once.
-- Failure and success state survive save/load.
+- Reputation alone never silently changes ownership.
+- Gang-war wins, cooldown, active encounter state, dealer-zone state, and
+  ownership survive save/load.
+- Temporary gang-war attackers award EXP but cannot be farmed for cash or stock.
+- Completing any route converts the territory exactly once.
 
 ## Pass 9 - Stash-Supplied Player Dealers
 
+**Status:** Implementation complete July 17, 2026; focused user-run verification pending.
+
 ### Outcome
 
-Owned territory dealers sell only product supplied through local stash houses.
+Claimed-territory dealer sites become player-managed crews whose authoritative
+sales consume local stash supply and return net Dirty Cash to the source stash.
 
 ### Work
 
-- Query owned stash houses by territory ID.
-- Present combined available product as the territory dealer supply pool.
-- Make player-faction dealer stock reservations and sales consume that supply
-  atomically.
-- Prevent double-selling when several dealers access the same pool.
-- Show an out-of-stock state when territory stashes are empty.
+- Begin claimed Hood East with all six permanent dealer slots vacant, then let
+  the player hire and fire each slot from a Territory inventory tab.
+- Hire every player dealer at Level 1 for `$500` Dirty Cash, then upgrade that
+  employee to Levels 2–4 for `$1,000`, `$2,000`, and `$4,000`. Higher levels
+  attempt sales every `120`, `90`, `60`, or `45` in-game minutes.
+- Combine stashed 1g weed, coke, and fent across owned local stash houses.
+  Bricks remain wholesale inventory until broken down.
+- Consume product and deposit sale revenue atomically in the same source stash.
+  Dealers retain a 10% commission; passive sales award no EXP, Reputation,
+  Heat, wanted response, or carried-wallet cash.
+- Process sales authoritatively even when the player is away. Nearby ambient
+  customers may present a completed sale by approaching the hired dealer,
+  performing a short exchange, and returning to their route.
+- Show supply, per-stash cash, staffing, sale intervals, out-of-stock state,
+  daily/lifetime gross, commission, and net revenue in the Territory tab. Keep
+  a save-safe seven-day net-revenue history and render it as a line graph.
+- Persist employment, schedules, and revenue. Fired or killed employees vacate
+  their slots and must be hired again.
 
 ### Acceptance
 
-- Player dealers cannot create product through timed restocking.
-- Total dealer sales never exceed stored territory supply.
-- Moving product into or out of local stashes updates dealer availability.
-- Rival and wholesaler stock behavior remains unchanged.
+- Claiming or migrating an already-owned territory never grants free employees.
+- Player dealers cannot create product through timed restocking, and concurrent
+  sales never exceed eligible territory stash supply.
+- Every sale removes one gram product and deposits its net Dirty Cash into the
+  same stash; moving stock updates availability immediately.
+- Visible customer presentation cannot create, cancel, or duplicate revenue and
+  releases reservations on every interruption path.
+- Hiring, firing, dealer death, schedules, supply, and revenue survive save/load.
+- The Territory menu renders above the gameplay HUD, needs no scrolling, and
+  shows today immediately on its seven-day revenue graph.
+- Rival and wholesaler stock, interaction, restocking, and respawn behavior
+  remains unchanged.
 
 ## Pass 10 - One-Territory Pedestrian and Traffic Rebuild
 
@@ -376,6 +424,6 @@ without manual state injection.
 - Exact front-business merchandise inventory.
 - Civilian car ownership and general NPC vehicle entry/exit.
 - Vehicle chases, ramming, roadblocks, SWAT, and coordinated cruiser tactics.
-- Territory loss, large gang wars, wholesale logistics, crew management,
+- Territory loss, citywide gang wars, wholesale logistics, crew management,
   business audits, and executive management interfaces.
 - Final animation volume, onboarding, broad balance, and presentation polish.

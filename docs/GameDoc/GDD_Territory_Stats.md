@@ -11,7 +11,7 @@ The city is divided into multiple distinct territories (e.g., Slums, Suburbs, Do
 | Stat | Range | Default | Purpose | How it is Modified |
 | :--- | :--- | :--- | :--- | :--- |
 | **Heat** | `0.0` to `100.0` | `0.0` | Represents police awareness and activity in this specific district. High Heat triggers police patrols, roadblocks, and search warrants. | **Increase**: Selling product, walking around with visible weapons, getting into fights, or running from local officers in this zone.<br>**Decrease**: Automatically decays slowly when the player lays low (stops selling in this zone), or instantly by paying bribes to local crooked cops. |
-| **Reputation (Rep)** | `0.0` to `100.0` | `0.0` | Represents the player's street respect and control within the territory. High Rep decreases buying prices from wholesalers, increases street customer buying prices, and secures territory loyalty. | **Increase**: Completing successful deals, defending territory from rivals, buying local properties, and spending money in local businesses.<br>**Decrease**: Getting arrested, failing deals, letting rival dealers sell in the territory, or abandoning territory tasks. |
+| **Reputation (Rep)** | `-100.0` to `100.0` | `0.0` | Represents the player's street standing and control within the territory. Negative Hood East Rep raises gang-war risk; `+100` enables peaceful purchase or dealer-wipe takeover routes. | **Increase**: Successful deals and gang-war wins.<br>**Decrease**: First damaging a permanent rival dealer (`-5`), killing that dealer (`-10` more), and losing a gang war (`-10`). |
 
 ---
 
@@ -63,7 +63,9 @@ Reputation dictates the player's economic leverage and control over a neighborho
   `40`, Level 4 at `80`, and wholesalers at `100`.
 * Locked suppliers remain visible and show their local Reputation requirement.
 * Each territory provides deterministic Level 2, 3, and 4 progression dealers
-  alongside its starting Level 1 dealer. Level 1 dealers stock `25-35g` Weed.
+  alongside its starting Level 1 dealer. Level 1 dealers stock `40-50g` Weed;
+  Level 2 dealers stock `60-80g` Weed and `8-15g` Coke; Level 3 dealers stock
+  `60-80g` Coke and `8-15g` Fent with no Weed. Level 4 remains brick-tier.
 
 ## Current Wanted Response
 
