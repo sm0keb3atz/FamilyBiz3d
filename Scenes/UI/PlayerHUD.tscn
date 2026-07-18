@@ -64,6 +64,53 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sale_panel"]
+bg_color = Color(0.025, 0.032, 0.04, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.12, 0.72, 0.34, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.05, 0.55, 0.22, 0.28)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sale_action"]
+bg_color = Color(0.08, 0.23, 0.14, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sale_key"]
+bg_color = Color(0.025, 0.035, 0.045, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.29, 0.34, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_feedback_panel"]
+bg_color = Color(0.025, 0.032, 0.04, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.62, 0.95, 0.85)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0, 0, 0, 0.38)
+shadow_size = 6
+
 [node name="PlayerHUD" type="CanvasLayer" unique_id=1330545521]
 process_mode = 3
 layer = 20
@@ -615,7 +662,7 @@ text = "×"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="FeedbackLabel" type="Label" parent="." unique_id=1615015869]
+[node name="FeedbackPanel" type="PanelContainer" parent="."]
 unique_name_in_owner = true
 visible = false
 anchors_preset = 7
@@ -623,20 +670,68 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -360.0
-offset_top = -150.0
-offset_right = 360.0
-offset_bottom = -112.0
+offset_left = -270.0
+offset_top = -204.0
+offset_right = 270.0
+offset_bottom = -140.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_offset_x = 2
-theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 19
-text = "Feedback"
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_feedback_panel")
+
+[node name="Row" type="HBoxContainer" parent="FeedbackPanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="FeedbackAccent" type="ColorRect" parent="FeedbackPanel/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(5, 0)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.25, 0.62, 0.95, 1)
+
+[node name="Margin" type="MarginContainer" parent="FeedbackPanel/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 9
+
+[node name="Content" type="HBoxContainer" parent="FeedbackPanel/Row/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FeedbackIcon" type="Label" parent="FeedbackPanel/Row/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.62, 0.95, 1)
+theme_override_font_sizes/font_size = 24
+text = "i"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Text" type="VBoxContainer" parent="FeedbackPanel/Row/Margin/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="FeedbackTitle" type="Label" parent="FeedbackPanel/Row/Margin/Content/Text"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.62, 0.95, 1)
+theme_override_font_sizes/font_size = 12
+text = "NOTICE"
+
+[node name="FeedbackLabel" type="Label" parent="FeedbackPanel/Row/Margin/Content/Text" unique_id=1615015869]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.96, 0.98, 1)
+theme_override_font_sizes/font_size = 16
+text = "Feedback"
+text_overrun_behavior = 3
 
 [node name="InteractionPrompt" type="Label" parent="." unique_id=840096146]
 unique_name_in_owner = true
@@ -659,6 +754,117 @@ theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 23
 text = "E — Interact"
 horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SaleInteractionPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -280.0
+offset_top = -126.0
+offset_right = 280.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sale_panel")
+
+[node name="Margin" type="MarginContainer" parent="SaleInteractionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="Content" type="HBoxContainer" parent="SaleInteractionPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="SaleProductIcon" type="TextureRect" parent="SaleInteractionPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ProductInfo" type="VBoxContainer" parent="SaleInteractionPanel/Margin/Content"]
+custom_minimum_size = Vector2(174, 0)
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="OrderCaption" type="Label" parent="SaleInteractionPanel/Margin/Content/ProductInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.56, 0.62, 1)
+theme_override_font_sizes/font_size = 11
+text = "CUSTOMER ORDER"
+
+[node name="SaleProductName" type="Label" parent="SaleInteractionPanel/Margin/Content/ProductInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "PRODUCT"
+text_overrun_behavior = 3
+
+[node name="Divider" type="ColorRect" parent="SaleInteractionPanel/Margin/Content"]
+custom_minimum_size = Vector2(1, 58)
+layout_mode = 2
+color = Color(0.2, 0.27, 0.31, 0.8)
+
+[node name="Action" type="PanelContainer" parent="SaleInteractionPanel/Margin/Content"]
+custom_minimum_size = Vector2(132, 56)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sale_action")
+
+[node name="Margin" type="MarginContainer" parent="SaleInteractionPanel/Margin/Content/Action"]
+layout_mode = 2
+theme_override_constants/margin_left = 9
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 7
+
+[node name="Row" type="HBoxContainer" parent="SaleInteractionPanel/Margin/Content/Action/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Key" type="PanelContainer" parent="SaleInteractionPanel/Margin/Content/Action/Margin/Row"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sale_key")
+
+[node name="Label" type="Label" parent="SaleInteractionPanel/Margin/Content/Action/Margin/Row/Key"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 19
+text = "E"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SaleInteractionPanel/Margin/Content/Action/Margin/Row"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.86, 0.45, 1)
+theme_override_font_sizes/font_size = 19
+text = "SELL"
+vertical_alignment = 1
+
+[node name="SalePrice" type="Label" parent="SaleInteractionPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(92, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.25, 0.86, 0.45, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 28
+text = "$20"
+horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="FeedbackTimer" type="Timer" parent="." unique_id=2102303189]

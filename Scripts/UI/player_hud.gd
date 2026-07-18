@@ -35,6 +35,14 @@ signal daily_report_closed
 @onready var report_net_label := %ReportNetLabel as Label
 @onready var report_continue_button := %ReportContinueButton as Button
 @onready var interaction_prompt := %InteractionPrompt as Label
+@onready var sale_interaction_panel := %SaleInteractionPanel as PanelContainer
+@onready var sale_product_icon := %SaleProductIcon as TextureRect
+@onready var sale_product_name := %SaleProductName as Label
+@onready var sale_price := %SalePrice as Label
+@onready var feedback_panel := %FeedbackPanel as PanelContainer
+@onready var feedback_accent := %FeedbackAccent as ColorRect
+@onready var feedback_icon := %FeedbackIcon as Label
+@onready var feedback_title := %FeedbackTitle as Label
 @onready var feedback_label := %FeedbackLabel as Label
 @onready var feedback_timer := %FeedbackTimer as Timer
 @onready var crosshair := %Crosshair as Label
@@ -81,6 +89,7 @@ var _dirty_cash_tween: Tween
 var _clean_cash_tween: Tween
 var _dirty_cash_pulse_tween: Tween
 var _clean_cash_pulse_tween: Tween
+var _feedback_tween: Tween
 var _transaction_float_index := 0
 var _market_price_labels: Dictionary = {}
 var _market_products: Array[ProductDefinition] = []
@@ -322,7 +331,8 @@ func _refresh_all() -> void:
 	_set_displayed_money(wallet.dirty_cash, wallet.clean_cash)
 	state_label.visible = is_zero_approx(stats.health)
 	interaction_prompt.visible = false
-	feedback_label.visible = false
+	sale_interaction_panel.visible = false
+	feedback_panel.visible = false
 	hit_marker.visible = false
 	daily_report_overlay.visible = false
 	_on_weapon_changed(weapon.get_equipped_weapon())
@@ -363,17 +373,107 @@ func _on_health_depleted() -> void:
 	state_label.visible = true
 
 
-func set_interaction_prompt(prompt: String) -> void:
+func set_interaction_prompt(prompt: String, sale_data: Dictionary = {}) -> void:
+	var show_sale_card := not sale_data.is_empty()
+	sale_interaction_panel.visible = show_sale_card
+	if show_sale_card:
+		sale_product_icon.texture = sale_data.get("icon") as Texture2D
+		var grams := int(sale_data.get("grams", 1))
+		sale_product_name.text = "%s %d%s" % [
+			String(sale_data.get("product_name", "PRODUCT")).to_upper(),
+			grams,
+			"G" if grams == 1 else "GS",
+		]
+		sale_price.text = "$%d" % int(sale_data.get("payout", 0))
 	_set_label_text(interaction_prompt, prompt)
-	var should_be_visible := not prompt.is_empty()
+	var should_be_visible := not prompt.is_empty() and not show_sale_card
 	if interaction_prompt.visible != should_be_visible:
 		interaction_prompt.visible = should_be_visible
 
 
 func show_feedback(message: String, duration := 2.5) -> void:
+	if message.is_empty():
+		feedback_panel.visible = false
+		feedback_timer.stop()
+		return
+	var presentation := _get_feedback_presentation(message)
 	feedback_label.text = message
-	feedback_label.visible = not message.is_empty()
+	feedback_title.text = presentation.title
+	feedback_icon.text = presentation.icon
+	_apply_feedback_color(presentation.color)
+	if _feedback_tween != null and _feedback_tween.is_valid():
+		_feedback_tween.kill()
+	feedback_panel.visible = true
+	feedback_panel.modulate.a = 0.0
+	feedback_panel.scale = Vector2(0.97, 0.97)
+	feedback_panel.pivot_offset = feedback_panel.size * 0.5
+	_feedback_tween = create_tween().set_parallel(true)
+	_feedback_tween.tween_property(
+		feedback_panel, "modulate:a", 1.0, 0.14
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_feedback_tween.tween_property(
+		feedback_panel, "scale", Vector2.ONE, 0.18
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	feedback_timer.start(maxf(duration, 0.1))
+
+
+func _get_feedback_presentation(message: String) -> Dictionary:
+	var lower := message.to_lower()
+	if lower.begins_with("sold "):
+		return {
+			"title": "SALE COMPLETE",
+			"icon": "$",
+			"color": Color(0.25, 0.86, 0.45),
+		}
+	if "customer is coming" in lower or "customers are coming" in lower:
+		return {
+			"title": "CUSTOMER INBOUND",
+			"icon": ">",
+			"color": Color(0.25, 0.68, 1.0),
+		}
+	if "no customers" in lower:
+		return {
+			"title": "NO BUYERS",
+			"icon": "!",
+			"color": Color(1.0, 0.72, 0.22),
+		}
+	var warning_words := [
+		"failed", "could not", "damaged", "not enough", "rejected",
+		"died", "killed", "arrested", "broke up", "no save",
+	]
+	for word in warning_words:
+		if word in lower:
+			return {
+				"title": "WARNING",
+				"icon": "!",
+				"color": Color(1.0, 0.35, 0.25),
+			}
+	var success_words := [
+		"saved", "loaded", "purchased", "claimed", "appreciated",
+		"i'd love to", "hired", "upgraded",
+	]
+	for word in success_words:
+		if word in lower:
+			return {
+				"title": "SUCCESS",
+				"icon": "+",
+				"color": Color(0.25, 0.86, 0.45),
+			}
+	return {
+		"title": "NOTICE",
+		"icon": "i",
+		"color": Color(0.35, 0.68, 1.0),
+	}
+
+
+func _apply_feedback_color(color: Color) -> void:
+	feedback_accent.color = color
+	feedback_icon.add_theme_color_override("font_color", color)
+	feedback_title.add_theme_color_override("font_color", color)
+	var style := feedback_panel.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
+	style.border_color = Color(color.r, color.g, color.b, 0.82)
+	style.shadow_color = Color(color.r, color.g, color.b, 0.16)
+	feedback_panel.add_theme_stylebox_override("panel", style)
 
 
 func update_clock(date_text: String, time_text: String) -> void:
@@ -547,7 +647,18 @@ func _spawn_transaction_float(delta: int) -> void:
 
 
 func _on_feedback_timeout() -> void:
-	feedback_label.visible = false
+	if _feedback_tween != null and _feedback_tween.is_valid():
+		_feedback_tween.kill()
+	_feedback_tween = create_tween().set_parallel(true)
+	_feedback_tween.tween_property(
+		feedback_panel, "modulate:a", 0.0, 0.16
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_feedback_tween.tween_property(
+		feedback_panel, "scale", Vector2(0.98, 0.98), 0.16
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_feedback_tween.chain().tween_callback(
+		func() -> void: feedback_panel.visible = false
+	)
 
 
 func _on_weapon_changed(definition: WeaponDefinition) -> void:

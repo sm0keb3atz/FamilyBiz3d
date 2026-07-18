@@ -18,10 +18,17 @@ func _process(_delta: float) -> void:
 		return
 
 	_current_target = _find_nearest_interactable()
+	var sale_data: Dictionary = {}
+	if (
+		_current_target != null
+		and _current_target.has_method("get_sale_interaction_data")
+	):
+		sale_data = _current_target.call("get_sale_interaction_data", player)
 	hud.set_interaction_prompt(
 		String(_current_target.call("get_interaction_prompt", player))
 		if _current_target != null
-		else ""
+		else "",
+		sale_data
 	)
 
 

@@ -85,7 +85,9 @@ func get_interaction_prompt(player: CharacterBody3D) -> String:
 		npc.global_position
 	)
 	if trade_service == null or territory == null:
-		return "E - Sell %d %s" % [amount_wanted, product_wanted.display_name]
+		return "E - Sell %s" % product_wanted.get_quantity_display_name(
+			amount_wanted
+		)
 	var pricing := trade_service.get_sale_pricing(
 		product_wanted,
 		territory.territory_id,
@@ -103,13 +105,41 @@ func get_interaction_prompt(player: CharacterBody3D) -> String:
 		_cached_prompt_amount = amount_wanted
 		_cached_prompt_unit_price = pricing.x
 		_cached_prompt_total = pricing.y
-		_cached_trade_prompt = "E - Sell %d %s | Dealer $%d/g | Payout $%d" % [
-			amount_wanted,
-			product_wanted.display_name,
+		_cached_trade_prompt = "E - Sell %s | Dealer $%d/g | Payout $%d" % [
+			product_wanted.get_quantity_display_name(amount_wanted),
 			pricing.x,
 			pricing.y,
 		]
 	return _cached_trade_prompt
+
+
+func get_sale_interaction_data(player: CharacterBody3D) -> Dictionary:
+	if (
+		product_wanted == null
+		or not npc.is_waiting_for_customer_trade(player)
+		or npc.can_attempt_girlfriend_recruitment(player)
+	):
+		return {}
+	var payout := product_wanted.sale_price * amount_wanted
+	var trade_service := player.get_node_or_null(
+		"Components/TradeService"
+	) as TradeService
+	var territory := TerritoryBoundary.find_at_position(
+		get_tree(),
+		npc.global_position
+	)
+	if trade_service != null and territory != null:
+		payout = trade_service.get_sale_pricing(
+			product_wanted,
+			territory.territory_id,
+			amount_wanted
+		).y
+	return {
+		"product_name": product_wanted.get_short_display_name(),
+		"grams": amount_wanted * product_wanted.package_size_grams,
+		"payout": payout,
+		"icon": product_wanted.icon,
+	}
 
 
 func interact(player: CharacterBody3D) -> void:
@@ -134,7 +164,7 @@ func interact(player: CharacterBody3D) -> void:
 func get_demand_text() -> String:
 	if product_wanted == null:
 		return ""
-	return "%d %s" % [amount_wanted, product_wanted.display_name]
+	return product_wanted.get_quantity_display_name(amount_wanted)
 
 
 func can_player_fill_order(player: CharacterBody3D) -> bool:

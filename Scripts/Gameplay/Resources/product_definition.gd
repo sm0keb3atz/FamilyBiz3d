@@ -33,3 +33,20 @@ func is_brick() -> bool:
 
 func can_break_down() -> bool:
 	return is_brick() and breakdown_product != null and breakdown_amount > 0
+
+
+func get_short_display_name() -> String:
+	if package_kind != PackageKind.GRAM:
+		return display_name
+	return String(DrugType.keys()[drug_type]).capitalize()
+
+
+func get_quantity_display_name(amount: int) -> String:
+	if package_kind != PackageKind.GRAM:
+		return "%d %s" % [amount, display_name]
+	var grams := amount * package_size_grams
+	return "%s %d%s" % [
+		get_short_display_name(),
+		grams,
+		"g" if grams == 1 else "gs",
+	]

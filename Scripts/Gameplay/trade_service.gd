@@ -62,7 +62,7 @@ func sell_product(
 		return TradeResult.failed("Invalid sale amount.")
 	if not inventory.has_product(product, amount):
 		return TradeResult.failed(
-			"You need %d %s to sell." % [amount, product.display_name]
+			"You need %s to sell." % product.get_quantity_display_name(amount)
 		)
 
 	var territory := TerritoryBoundary.find_at_position(
@@ -104,10 +104,9 @@ func sell_product(
 	result.reputation_delta = total_reputation
 	result.heat_delta = total_heat
 	result.message = (
-		"Sold %d %s for $%d | +%d EXP | +%.0f Rep | +%.0f Heat"
+		"Sold %s for $%d | +%d EXP | +%.0f Rep | +%.0f Heat"
 		% [
-			amount,
-			product.display_name,
+			product.get_quantity_display_name(amount),
 			total_sale_price,
 			roundi(total_experience),
 			total_reputation,

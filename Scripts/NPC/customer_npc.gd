@@ -274,6 +274,12 @@ func get_interaction_prompt(player: CharacterBody3D) -> String:
 	return role_component.get_interaction_prompt(player)
 
 
+func get_sale_interaction_data(player: CharacterBody3D) -> Dictionary:
+	if can_receive_gift(player):
+		return {}
+	return role_component.get_sale_interaction_data(player)
+
+
 func interact(player: CharacterBody3D) -> void:
 	if can_receive_gift(player):
 		var gift_menu := player.get_node_or_null("GirlfriendGiftMenu")
