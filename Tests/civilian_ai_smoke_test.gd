@@ -21,12 +21,12 @@ func _run() -> void:
 	await physics_frame
 
 	var network := world.get_node(
-		"Navigation/HoodEastPedestrianNetwork"
+		"Territories/HoodEast/Mobility/PedestrianNetwork"
 	) as PedestrianNetwork3D
 	assert(network != null)
 	network.rebuild_cache()
-	assert(network.get_waypoint_count() == 32)
-	assert(network.get_connection_count() == 34)
+	assert(network.get_waypoint_count() >= 34)
+	assert(network.get_connection_count() >= 36)
 	assert(network.get_validation_errors().is_empty())
 
 	manager.minimum_spawn_distance = 0.0

@@ -602,9 +602,11 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12, 
 
 [node name="Intersection5" parent="Roads" unique_id=1070683106 instance=ExtResource("3_607st")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 120)
+intersection_id = &"hood_east_north_west"
 
 [node name="Intersection6" parent="Roads" unique_id=572012062 instance=ExtResource("7_wi2nh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116, 0, 120)
+intersection_id = &"hood_east_north_east"
 
 [node name="Alleyway" type="Node3D" parent="." unique_id=1534005581]
 

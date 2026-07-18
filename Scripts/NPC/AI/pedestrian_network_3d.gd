@@ -25,6 +25,7 @@ var _cache_dirty := true
 var _debug_dirty := true
 var _editor_refresh_remaining := 0.0
 var _debug_mesh_instance: MeshInstance3D
+var _crossings: Array[PedestrianCrossing3D] = []
 
 
 func _ready() -> void:
@@ -46,7 +47,9 @@ func rebuild_cache() -> void:
 	_waypoint_lookup.clear()
 	_adjacency.clear()
 	_spatial_cells.clear()
+	_crossings.clear()
 	_collect_waypoints(self)
+	_collect_crossings(self)
 
 	for waypoint in _waypoints:
 		_waypoint_lookup[waypoint] = true
@@ -204,6 +207,69 @@ func get_next_waypoint(
 	return neighbors[candidate_index] as PedestrianWaypoint3D
 
 
+func find_path(
+	start: PedestrianWaypoint3D,
+	goal: PedestrianWaypoint3D
+) -> Array[PedestrianWaypoint3D]:
+	_ensure_cache()
+	var empty: Array[PedestrianWaypoint3D] = []
+	if start == null or goal == null or not has_waypoint(start) or not has_waypoint(goal):
+		return empty
+	var pending: Array[PedestrianWaypoint3D] = [start]
+	var visited := {start: true}
+	var came_from := {}
+	while not pending.is_empty():
+		var current := pending.pop_front() as PedestrianWaypoint3D
+		if current == goal:
+			return _reconstruct_path(came_from, current)
+		for neighbor: PedestrianWaypoint3D in _adjacency.get(current, []):
+			if visited.has(neighbor):
+				continue
+			visited[neighbor] = true
+			came_from[neighbor] = current
+			pending.append(neighbor)
+	return empty
+
+
+func is_reachable(
+	start: PedestrianWaypoint3D,
+	goal: PedestrianWaypoint3D
+) -> bool:
+	return not find_path(start, goal).is_empty()
+
+
+func get_crossing_between(
+	from_waypoint: PedestrianWaypoint3D,
+	to_waypoint: PedestrianWaypoint3D
+) -> PedestrianCrossing3D:
+	_ensure_cache()
+	for crossing in _crossings:
+		if is_instance_valid(crossing) and crossing.connects(from_waypoint, to_waypoint):
+			return crossing
+	return null
+
+
+func can_traverse(
+	from_waypoint: PedestrianWaypoint3D,
+	to_waypoint: PedestrianWaypoint3D,
+	pedestrian: Node = null
+) -> bool:
+	var crossing := get_crossing_between(from_waypoint, to_waypoint)
+	if crossing == null:
+		return true
+	crossing.request_walk()
+	if pedestrian != null:
+		return crossing.try_begin_traversal(pedestrian)
+	return crossing.can_enter()
+
+
+func path_requires_crossing(path: Array[PedestrianWaypoint3D]) -> bool:
+	for index in range(path.size() - 1):
+		if get_crossing_between(path[index], path[index + 1]) != null:
+			return true
+	return false
+
+
 func get_waypoint_away_from(
 	current: PedestrianWaypoint3D,
 	previous: PedestrianWaypoint3D,
@@ -243,9 +309,25 @@ func get_validation_errors() -> PackedStringArray:
 	if _waypoints.is_empty():
 		warnings.append("Pedestrian network has no waypoint children.")
 		return warnings
+	var destination_ids := {}
 	for waypoint in _waypoints:
 		if (_adjacency.get(waypoint, []) as Array).is_empty():
 			warnings.append("Waypoint '%s' has no valid connections." % waypoint.name)
+		if waypoint.has_role(PedestrianWaypoint3D.WaypointRole.DESTINATION) and waypoint.destination_id == &"":
+			warnings.append("Destination waypoint '%s' has no destination_id." % waypoint.name)
+		elif waypoint.has_role(PedestrianWaypoint3D.WaypointRole.DESTINATION):
+			if destination_ids.has(waypoint.destination_id):
+				warnings.append("Duplicate pedestrian destination ID '%s'." % waypoint.destination_id)
+			destination_ids[waypoint.destination_id] = waypoint
+	var crossing_ids := {}
+	for crossing in _crossings:
+		if crossing_ids.has(crossing.crossing_id):
+			warnings.append("Duplicate pedestrian crossing ID '%s'." % crossing.crossing_id)
+		crossing_ids[crossing.crossing_id] = crossing
+		if crossing.get_curb_a() == null or crossing.get_curb_b() == null:
+			warnings.append("Crossing '%s' has invalid curb waypoints." % crossing.name)
+		elif not has_waypoint(crossing.get_curb_a()) or not has_waypoint(crossing.get_curb_b()):
+			warnings.append("Crossing '%s' references curbs outside this network." % crossing.name)
 
 	var visited := {}
 	var pending: Array[PedestrianWaypoint3D] = [_waypoints[0]]
@@ -262,6 +344,12 @@ func get_validation_errors() -> PackedStringArray:
 			"Pedestrian network is disconnected: %d of %d waypoints are reachable."
 			% [visited.size(), _waypoints.size()]
 		)
+	for waypoint in _waypoints:
+		if (
+			waypoint.has_role(PedestrianWaypoint3D.WaypointRole.DESTINATION)
+			and not visited.has(waypoint)
+		):
+			warnings.append("Destination '%s' is unreachable." % waypoint.name)
 	return warnings
 
 
@@ -276,6 +364,24 @@ func _collect_waypoints(node: Node) -> void:
 		if child is PedestrianWaypoint3D:
 			_waypoints.append(child as PedestrianWaypoint3D)
 		_collect_waypoints(child)
+
+
+func _collect_crossings(node: Node) -> void:
+	for child in node.get_children():
+		if child is PedestrianCrossing3D:
+			_crossings.append(child as PedestrianCrossing3D)
+		_collect_crossings(child)
+
+
+func _reconstruct_path(
+	came_from: Dictionary,
+	current: PedestrianWaypoint3D
+) -> Array[PedestrianWaypoint3D]:
+	var path: Array[PedestrianWaypoint3D] = [current]
+	while came_from.has(current):
+		current = came_from[current] as PedestrianWaypoint3D
+		path.push_front(current)
+	return path
 
 
 func _add_link(

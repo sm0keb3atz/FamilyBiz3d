@@ -27,6 +27,14 @@ extends Node3D
 		allow_empty_network = value
 		_cache_dirty = true
 
+@export var discover_territory_mobility := true:
+	set(value):
+		discover_territory_mobility = value
+		_cache_dirty = true
+
+@export_range(0.5, 50.0, 0.5) var connector_stitch_distance := 8.0
+@export_range(-1.0, 1.0, 0.05) var connector_facing_min_dot := 0.5
+
 var _waypoints: Array[TrafficWaypoint3D] = []
 var _waypoint_lookup := {}
 var _adjacency := {}
@@ -57,6 +65,13 @@ func rebuild_cache() -> void:
 	_adjacency.clear()
 	_spatial_cells.clear()
 	_collect_waypoints(self)
+	if discover_territory_mobility and is_inside_tree():
+		for node in get_tree().get_nodes_in_group(TerritoryMobility3D.MOBILITY_GROUP):
+			var mobility := node as TerritoryMobility3D
+			if mobility != null:
+				var routes := mobility.get_traffic_routes()
+				if routes != null:
+					_collect_waypoints(routes)
 	for root_path in scan_root_paths:
 		var root := get_node_or_null(root_path)
 		if root != null and root != self:
@@ -82,6 +97,7 @@ func rebuild_cache() -> void:
 			):
 				continue
 			_add_link(waypoint, target)
+	_stitch_external_connectors()
 
 	_cache_dirty = false
 	_debug_dirty = true
@@ -148,6 +164,81 @@ func get_spawn_candidates(
 				if maximum_results > 0 and results.size() >= maximum_results:
 					return results
 	return results
+
+
+func get_entry_waypoints() -> Array[TrafficWaypoint3D]:
+	_ensure_cache()
+	var results: Array[TrafficWaypoint3D] = []
+	for waypoint in _waypoints:
+		if waypoint.is_entry():
+			results.append(waypoint)
+	return results
+
+
+func get_exit_waypoints() -> Array[TrafficWaypoint3D]:
+	_ensure_cache()
+	var results: Array[TrafficWaypoint3D] = []
+	for waypoint in _waypoints:
+		if waypoint.is_exit():
+			results.append(waypoint)
+	return results
+
+
+func get_dispatch_candidates() -> Array[TrafficWaypoint3D]:
+	_ensure_cache()
+	var results: Array[TrafficWaypoint3D] = []
+	for waypoint in _waypoints:
+		if waypoint.is_dispatch_point() and waypoint.is_entry():
+			results.append(waypoint)
+	return results
+
+
+func get_reachable_exits(
+	start: TrafficWaypoint3D
+) -> Array[TrafficWaypoint3D]:
+	_ensure_cache()
+	var results: Array[TrafficWaypoint3D] = []
+	for exit_waypoint in get_exit_waypoints():
+		if exit_waypoint != start and not find_route(start, exit_waypoint).is_empty():
+			results.append(exit_waypoint)
+	return results
+
+
+func choose_reachable_exit(
+	start: TrafficWaypoint3D,
+	random: RandomNumberGenerator
+) -> TrafficWaypoint3D:
+	var exits := get_reachable_exits(start)
+	if exits.is_empty():
+		return null
+	return exits[random.randi_range(0, exits.size() - 1)]
+
+
+func find_route(
+	start: TrafficWaypoint3D,
+	goal: TrafficWaypoint3D
+) -> Array[TrafficWaypoint3D]:
+	_ensure_cache()
+	var empty: Array[TrafficWaypoint3D] = []
+	if start == null or goal == null or not has_waypoint(start) or not has_waypoint(goal):
+		return empty
+	var frontier: Array[TrafficWaypoint3D] = [start]
+	var costs := {start: 0.0}
+	var came_from := {}
+	while not frontier.is_empty():
+		var current := _pop_lowest_cost(frontier, costs)
+		if current == goal:
+			return _reconstruct_route(came_from, current)
+		for neighbor: TrafficWaypoint3D in _adjacency.get(current, []):
+			var distance := current.global_position.distance_to(neighbor.global_position)
+			var edge_cost := distance / maxf(neighbor.route_weight, 0.05)
+			var new_cost := float(costs[current]) + edge_cost
+			if not costs.has(neighbor) or new_cost < float(costs[neighbor]):
+				costs[neighbor] = new_cost
+				came_from[neighbor] = current
+				if neighbor not in frontier:
+					frontier.append(neighbor)
+	return empty
 
 
 func get_nearest_waypoint(
@@ -250,6 +341,22 @@ func get_validation_errors() -> PackedStringArray:
 				warnings.append(
 					"Stop line '%s' uses an unknown signal group." % waypoint.name
 				)
+		if waypoint.can_spawn_traffic() and (
+			waypoint.is_stop_line
+			or waypoint.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_ENTRY)
+			or waypoint.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_EXIT)
+		):
+			warnings.append("Traffic spawn '%s' is inside an intersection." % waypoint.name)
+	var exits := get_exit_waypoints()
+	if not exits.is_empty():
+		for waypoint in _waypoints:
+			if (
+				waypoint.is_entry()
+				or waypoint.can_spawn_traffic()
+				or waypoint.is_dispatch_point()
+			) and get_reachable_exits(waypoint).is_empty():
+				warnings.append("Traffic origin '%s' cannot reach an exit." % waypoint.name)
+	_validate_connectors(warnings)
 	return warnings
 
 
@@ -264,6 +371,126 @@ func _collect_waypoints(node: Node) -> void:
 		if child is TrafficWaypoint3D:
 			_waypoints.append(child as TrafficWaypoint3D)
 		_collect_waypoints(child)
+
+
+func _stitch_external_connectors() -> void:
+	var by_id := {}
+	for waypoint in _waypoints:
+		if not waypoint.is_external_connector or waypoint.connector_id == &"":
+			continue
+		if not by_id.has(waypoint.connector_id):
+			by_id[waypoint.connector_id] = []
+		(by_id[waypoint.connector_id] as Array).append(waypoint)
+	for connectors: Array in by_id.values():
+		for from_waypoint: TrafficWaypoint3D in connectors:
+			if from_waypoint.connector_direction != TrafficWaypoint3D.ConnectorDirection.EXIT:
+				continue
+			for to_waypoint: TrafficWaypoint3D in connectors:
+				if (
+					to_waypoint != from_waypoint
+					and to_waypoint.connector_direction == TrafficWaypoint3D.ConnectorDirection.ENTRY
+					and _ports_are_compatible(from_waypoint, to_waypoint)
+				):
+					_add_link(from_waypoint, to_waypoint)
+
+
+func _validate_connectors(warnings: PackedStringArray) -> void:
+	var by_key := {}
+	for waypoint in _waypoints:
+		if not waypoint.is_external_connector:
+			continue
+		if waypoint.connector_id == &"":
+			warnings.append("External connector '%s' has no connector_id." % waypoint.name)
+			continue
+		var key := "%s:%d" % [waypoint.connector_id, waypoint.connector_direction]
+		if by_key.has(key):
+			warnings.append("Duplicate directed connector '%s'." % key)
+		by_key[key] = waypoint
+		if waypoint.connector_direction == TrafficWaypoint3D.ConnectorDirection.NONE:
+			warnings.append("External connector '%s' has no direction." % waypoint.name)
+		elif not waypoint.allow_unpaired_connector:
+			var complementary := (
+				TrafficWaypoint3D.ConnectorDirection.EXIT
+				if waypoint.connector_direction == TrafficWaypoint3D.ConnectorDirection.ENTRY
+				else TrafficWaypoint3D.ConnectorDirection.ENTRY
+			)
+			var pair_key := "%s:%d" % [waypoint.connector_id, complementary]
+			if not by_key.has(pair_key):
+				# A later connector in the list may be the matching side. Validate in a
+				# second pass below instead of reporting order-dependent warnings.
+				pass
+	for waypoint in _waypoints:
+		if (
+			waypoint.is_external_connector
+			and not waypoint.allow_unpaired_connector
+			and waypoint.connector_id != &""
+		):
+			var complementary := (
+				TrafficWaypoint3D.ConnectorDirection.EXIT
+				if waypoint.connector_direction == TrafficWaypoint3D.ConnectorDirection.ENTRY
+				else TrafficWaypoint3D.ConnectorDirection.ENTRY
+			)
+			if not by_key.has("%s:%d" % [waypoint.connector_id, complementary]):
+				warnings.append("Connector '%s' has no complementary port." % waypoint.name)
+	for connectors: Array in _group_connectors_by_id().values():
+		for exit_port: TrafficWaypoint3D in connectors:
+			if exit_port.connector_direction != TrafficWaypoint3D.ConnectorDirection.EXIT:
+				continue
+			for entry_port: TrafficWaypoint3D in connectors:
+				if entry_port.connector_direction != TrafficWaypoint3D.ConnectorDirection.ENTRY:
+					continue
+				if not _ports_are_compatible(exit_port, entry_port):
+					warnings.append(
+						"Connector '%s' ports exceed stitch distance or face different travel directions."
+						% exit_port.connector_id
+					)
+
+
+func _group_connectors_by_id() -> Dictionary:
+	var grouped := {}
+	for waypoint in _waypoints:
+		if not waypoint.is_external_connector or waypoint.connector_id == &"":
+			continue
+		if not grouped.has(waypoint.connector_id):
+			grouped[waypoint.connector_id] = []
+		(grouped[waypoint.connector_id] as Array).append(waypoint)
+	return grouped
+
+
+func _ports_are_compatible(
+	exit_port: TrafficWaypoint3D,
+	entry_port: TrafficWaypoint3D
+) -> bool:
+	if exit_port.global_position.distance_to(entry_port.global_position) > connector_stitch_distance:
+		return false
+	var exit_forward := exit_port.global_basis.z.normalized()
+	var entry_forward := entry_port.global_basis.z.normalized()
+	return exit_forward.dot(entry_forward) >= connector_facing_min_dot
+
+
+func _pop_lowest_cost(
+	frontier: Array[TrafficWaypoint3D],
+	costs: Dictionary
+) -> TrafficWaypoint3D:
+	var best_index := 0
+	var best_cost := float(costs[frontier[0]])
+	for index in range(1, frontier.size()):
+		var cost := float(costs[frontier[index]])
+		if cost < best_cost:
+			best_index = index
+			best_cost = cost
+	return frontier.pop_at(best_index) as TrafficWaypoint3D
+
+
+func _reconstruct_route(
+	came_from: Dictionary,
+	current: TrafficWaypoint3D
+) -> Array[TrafficWaypoint3D]:
+	var route: Array[TrafficWaypoint3D] = [current]
+	while came_from.has(current):
+		current = came_from[current] as TrafficWaypoint3D
+		route.push_front(current)
+	return route
 
 
 func _add_link(

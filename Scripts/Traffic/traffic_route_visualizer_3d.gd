@@ -63,6 +63,13 @@ func _process(delta: float) -> void:
 func _refresh_preview() -> void:
 	if not is_inside_tree():
 		return
+	# Generated routes rebuild during gameplay too, but their line mesh is an
+	# editor authoring aid and must never be created or shown in the running game.
+	if not Engine.is_editor_hint():
+		if _preview_mesh_instance != null:
+			_preview_mesh_instance.visible = false
+			_preview_mesh_instance.mesh = null
+		return
 	if not preview_enabled:
 		if _preview_mesh_instance != null:
 			_preview_mesh_instance.visible = false

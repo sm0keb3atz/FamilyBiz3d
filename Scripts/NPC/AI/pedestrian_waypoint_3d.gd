@@ -2,6 +2,13 @@
 class_name PedestrianWaypoint3D
 extends Marker3D
 
+enum WaypointRole {
+	SIDEWALK = 0,
+	CURB = 1,
+	DESTINATION = 2,
+	EXTERNAL = 4,
+}
+
 @export var connections: Array[NodePath] = []:
 	set(value):
 		connections = value
@@ -9,6 +16,12 @@ extends Marker3D
 
 @export var spawn_allowed := true
 @export_range(0.1, 10.0, 0.1) var spawn_weight := 1.0
+@export_flags("Curb:1", "Destination:2", "External:4") var role_flags := 0
+@export var destination_id: StringName
+
+
+func has_role(role: int) -> bool:
+	return (role_flags & role) != 0
 
 
 func _get_configuration_warnings() -> PackedStringArray:

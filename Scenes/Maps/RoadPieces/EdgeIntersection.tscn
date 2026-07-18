@@ -4,11 +4,31 @@
 [ext_resource type="ArrayMesh" uid="uid://rx4v88ha1ltc" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_corner.glb" id="2_fwrh2"]
 [ext_resource type="ArrayMesh" uid="uid://ciqwe8yur35ny" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_04_quarter.glb" id="3_yx7sq"]
 [ext_resource type="ArrayMesh" uid="uid://bskyinaat4ttr" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01.glb" id="4_kq6g6"]
-[ext_resource type="Script" path="res://Scripts/Traffic/traffic_signal_controller_3d.gd" id="5_signal"]
+[ext_resource type="Script" uid="uid://xob22vxpyovk" path="res://Scripts/Traffic/traffic_signal_controller_3d.gd" id="5_signal"]
+[ext_resource type="PackedScene" uid="uid://dwkg45a13qkts" path="res://Scenes/Maps/RoadPieces/TrafficLightPost.tscn" id="6_light_post"]
+[ext_resource type="Script" uid="uid://dui875xkki6k1" path="res://Scripts/Traffic/traffic_intersection_visual_3d.gd" id="7_visual_root"]
+
 [node name="Intersection" type="Node3D" unique_id=1070683106]
+script = ExtResource("7_visual_root")
 
 [node name="SignalController" type="Node3D" parent="." unique_id=1616904744]
 script = ExtResource("5_signal")
+
+[node name="TrafficLights" type="Node3D" parent="." unique_id=397023031]
+
+[node name="MainLightA" parent="TrafficLights" unique_id=587203723 instance=ExtResource("6_light_post")]
+transform = Transform3D(-0.05854386, 0, 0.99828494, 0, 1, 0, -0.99828494, 0, -0.05854386, -2.6517928, 0, -19.06147)
+metadata/authored_signal_group = &"north_south"
+
+[node name="MainLightB" parent="TrafficLights" unique_id=1847789757 instance=ExtResource("6_light_post")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, -19)
+signal_group = &"east_west"
+metadata/authored_signal_group = &"east_west"
+
+[node name="StemLight" parent="TrafficLights" unique_id=1799304290 instance=ExtResource("6_light_post")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -3, 0, 3)
+signal_group = &"east_west"
+metadata/authored_signal_group = &"east_west"
 
 [node name="SmRoad00" type="MeshInstance3D" parent="." unique_id=658026147]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 16, 0, 0)

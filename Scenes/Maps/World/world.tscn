@@ -81,8 +81,8 @@ sky = SubResource("Sky")
 glow_enabled = true
 
 [sub_resource type="NavigationMesh" id="EastNavigation"]
-vertices = PackedVector3Array(-4, 0.05, -125, 132, 0.05, -125, 132, 0.05, 120, -4, 0.05, 120)
-polygons = [PackedInt32Array(0, 1, 2), PackedInt32Array(0, 2, 3)]
+vertices = PackedVector3Array(14, 0.05, -119, 118, 0.05, -119, 118, 0.05, -15, 14, 0.05, -15, 14, 0.05, 1, 118, 0.05, 1, 118, 0.05, 104, 14, 0.05, 104)
+polygons = [PackedInt32Array(0, 1, 2), PackedInt32Array(0, 2, 3), PackedInt32Array(4, 5, 6), PackedInt32Array(4, 6, 7)]
 agent_height = 1.8
 agent_radius = 0.45
 
@@ -119,20 +119,18 @@ navigation_mesh = SubResource("EastNavigation")
 visible = false
 navigation_mesh = SubResource("WestNavigation")
 
-[node name="HoodEastPedestrianNetwork" parent="Navigation" unique_id=1230090308 instance=ExtResource("8_pedestrian_network")]
-
 [node name="HoodWestPedestrianNetwork" parent="Navigation" unique_id=878643702 instance=ExtResource("8_pedestrian_network")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -240.04152)
 
-[node name="HoodEastTrafficNetwork" type="Node3D" parent="Navigation" unique_id=1996900601]
+[node name="CityTrafficNetwork" type="Node3D" parent="Navigation" unique_id=1996900601]
 script = ExtResource("11_traffic_network")
-scan_root_paths = Array[NodePath]([NodePath("../../Territories/HoodEast")])
 
 [node name="HoodWestTrafficNetwork" type="Node3D" parent="Navigation" unique_id=1232254990]
 script = ExtResource("11_traffic_network")
 debug_draw_in_editor = false
 scan_root_paths = Array[NodePath]([NodePath("../../Territories/HoodWest")])
 allow_empty_network = true
+discover_territory_mobility = false
 
 [node name="SpawnPoints" type="Node3D" parent="." unique_id=1801510180]
 
@@ -243,7 +241,7 @@ dealer_scene = ExtResource("4_dealer")
 script = ExtResource("9_population")
 customer_scene = ExtResource("5_customer")
 police_scene = ExtResource("10_police")
-network_path = NodePath("../Navigation/HoodEastPedestrianNetwork")
+network_path = NodePath("../Territories/HoodEast/Mobility/PedestrianNetwork")
 player_path = NodePath("../Gameplay/Player")
 npc_container_path = NodePath("../Gameplay/Civilians")
 
@@ -258,7 +256,7 @@ npc_container_path = NodePath("../Gameplay/Civilians")
 [node name="TrafficPopulationManager" type="Node3D" parent="." unique_id=1691622919]
 script = ExtResource("12_traffic_population")
 vehicle_scene = ExtResource("7_muscle_car")
-network_path = NodePath("../Navigation/HoodEastTrafficNetwork")
+network_path = NodePath("../Navigation/CityTrafficNetwork")
 player_path = NodePath("../Gameplay/Player")
 vehicle_container_path = NodePath("../Gameplay/TrafficVehicles")
 

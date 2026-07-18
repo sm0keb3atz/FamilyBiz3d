@@ -5,7 +5,22 @@
 [ext_resource type="ArrayMesh" uid="uid://ciqwe8yur35ny" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_04_quarter.glb" id="3_21fxs"]
 [ext_resource type="ArrayMesh" uid="uid://cjau7jq3foioe" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_cornerIn.glb" id="4_1v5va"]
 [ext_resource type="ArrayMesh" uid="uid://bskyinaat4ttr" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01.glb" id="5_gvxyq"]
+[ext_resource type="PackedScene" uid="uid://dwkg45a13qkts" path="res://Scenes/Maps/RoadPieces/TrafficLightPost.tscn" id="6_light_post"]
+[ext_resource type="Script" uid="uid://dui875xkki6k1" path="res://Scripts/Traffic/traffic_intersection_visual_3d.gd" id="7_visual_root"]
+
 [node name="Intersection" type="Node3D" unique_id=1070683106]
+script = ExtResource("7_visual_root")
+
+[node name="TrafficLights" type="Node3D" parent="." unique_id=2118954843]
+
+[node name="BendLightA" parent="TrafficLights" unique_id=127302004 instance=ExtResource("6_light_post")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19, 0, -18.539543)
+metadata/authored_signal_group = &"north_south"
+
+[node name="BendLightB" parent="TrafficLights" unique_id=612696796 instance=ExtResource("6_light_post")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3, 0, -18.82198)
+signal_group = &"east_west"
+metadata/authored_signal_group = &"east_west"
 
 [node name="SmRoad00" type="MeshInstance3D" parent="." unique_id=658026147]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 16, 0, 0)

@@ -11,6 +11,7 @@ var previous_waypoint: PedestrianWaypoint3D
 var target_waypoint: PedestrianWaypoint3D
 var _random := RandomNumberGenerator.new()
 var _lane_offset := 0.0
+var _active_crossing: PedestrianCrossing3D
 
 
 func initialize(owner_npc: BaseNPC) -> void:
@@ -22,6 +23,7 @@ func assign_route(
 	start_waypoint: PedestrianWaypoint3D,
 	random_seed: int
 ) -> void:
+	_release_active_crossing()
 	network = pedestrian_network
 	current_waypoint = start_waypoint
 	previous_waypoint = null
@@ -40,6 +42,19 @@ func tick_patrol(delta: float) -> void:
 		if not is_instance_valid(target_waypoint):
 			npc.stop_moving(delta)
 			return
+	var crossing := network.get_crossing_between(current_waypoint, target_waypoint)
+	if crossing != null:
+		if crossing != _active_crossing:
+			if not network.can_traverse(
+				current_waypoint,
+				target_waypoint,
+				npc
+			):
+				npc.stop_moving(delta)
+				return
+			_active_crossing = crossing
+	else:
+		_release_active_crossing()
 	var target_position := _get_target_position()
 	if (
 		npc.global_position.distance_squared_to(target_position)
@@ -47,6 +62,7 @@ func tick_patrol(delta: float) -> void:
 	):
 		previous_waypoint = current_waypoint
 		current_waypoint = target_waypoint
+		_release_active_crossing()
 		_choose_next()
 		target_position = _get_target_position()
 	npc.set_navigation_target(target_position)
@@ -65,10 +81,17 @@ func get_spawn_position() -> Vector3:
 
 
 func clear() -> void:
+	_release_active_crossing()
 	network = null
 	current_waypoint = null
 	previous_waypoint = null
 	target_waypoint = null
+
+
+func _release_active_crossing() -> void:
+	if is_instance_valid(_active_crossing):
+		_active_crossing.finish_traversal(npc)
+	_active_crossing = null
 
 
 func _choose_next() -> void:

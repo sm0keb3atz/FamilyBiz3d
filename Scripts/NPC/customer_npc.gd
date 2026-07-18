@@ -123,6 +123,7 @@ var _network: PedestrianNetwork3D
 var _previous_waypoint: PedestrianWaypoint3D
 var _current_waypoint: PedestrianWaypoint3D
 var _route_target: PedestrianWaypoint3D
+var _active_route_crossing: PedestrianCrossing3D
 var _resume_waypoint: PedestrianWaypoint3D
 var _resume_route_target: PedestrianWaypoint3D
 var _waiting_remaining := 0.0
@@ -570,6 +571,7 @@ func assign_route(
 	network: PedestrianNetwork3D,
 	start_waypoint: PedestrianWaypoint3D
 ) -> void:
+	_release_active_route_crossing()
 	_network = network
 	_current_waypoint = start_waypoint
 	_previous_waypoint = null
@@ -625,6 +627,7 @@ func prepare_for_pool_recycle() -> void:
 	velocity = Vector3.ZERO
 	_target_player = null
 	_panic_source_position = Vector3.ZERO
+	_release_active_route_crossing()
 	_network = null
 	_previous_waypoint = null
 	_current_waypoint = null
@@ -698,6 +701,10 @@ func get_current_waypoint() -> PedestrianWaypoint3D:
 
 func get_route_target() -> PedestrianWaypoint3D:
 	return _route_target
+
+
+func get_pedestrian_network() -> PedestrianNetwork3D:
+	return _network
 
 
 func _initialize_state_machine() -> void:
@@ -985,6 +992,10 @@ func _update_roaming(delta: float) -> void:
 		set_navigation_avoidance_enabled(false)
 		stop_moving(delta)
 		return
+	if not _can_traverse_route_segment():
+		stop_moving(delta)
+		_route_stuck_elapsed = 0.0
+		return
 	var route_target_position := _get_route_target_position()
 	var arrival_distance := maxf(
 		route_stop_distance,
@@ -996,6 +1007,7 @@ func _update_roaming(delta: float) -> void:
 	):
 		_previous_waypoint = _current_waypoint
 		_current_waypoint = _route_target
+		_release_active_route_crossing()
 		_route_stuck_elapsed = 0.0
 		_choose_next_route_target()
 		if _try_begin_random_activity():
@@ -1012,6 +1024,32 @@ func _update_roaming(delta: float) -> void:
 	else:
 		_route_stuck_elapsed = 0.0
 	advance_navigation(delta)
+
+
+func _can_traverse_route_segment() -> bool:
+	if _network == null:
+		return false
+	var crossing := _network.get_crossing_between(
+		_current_waypoint,
+		_route_target
+	)
+	if crossing == null:
+		_release_active_route_crossing()
+		return true
+	# WALK grants entry. Once committed, the pedestrian must keep moving through
+	# clearance instead of rechecking the signal and stopping in the roadway.
+	if crossing == _active_route_crossing:
+		return true
+	if not _network.can_traverse(_current_waypoint, _route_target, self):
+		return false
+	_active_route_crossing = crossing
+	return true
+
+
+func _release_active_route_crossing() -> void:
+	if is_instance_valid(_active_route_crossing):
+		_active_route_crossing.finish_traversal(self)
+	_active_route_crossing = null
 
 
 func _update_approaching(delta: float) -> void:

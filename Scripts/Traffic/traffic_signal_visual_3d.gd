@@ -1,7 +1,9 @@
+@tool
 class_name TrafficSignalVisual3D
 extends Node3D
 
 @export var signal_controller_path: NodePath
+@export var signal_controller_id: StringName
 @export var signal_group: StringName = &"north_south"
 @export var red_lamp_path := NodePath("Lamps/RedLamp")
 @export var yellow_lamp_path := NodePath("Lamps/YellowLamp")
@@ -12,6 +14,14 @@ var _controller: TrafficSignalController3D
 
 
 func _ready() -> void:
+	if Engine.is_editor_hint():
+		# Territory controllers can be placeholders while Godot imports/open scenes.
+		# Never query them from the editor preview: doing so once per light per frame
+		# floods the Output panel and can make the editor unusable.
+		_controller = null
+		_set_no_signal_state()
+		set_process(false)
+		return
 	_bind_controller()
 	_apply_current_state()
 	call_deferred("_refresh_binding_and_state")
@@ -24,6 +34,18 @@ func _process(_delta: float) -> void:
 
 
 func _refresh_binding_and_state() -> void:
+	if Engine.is_editor_hint():
+		return
+	_bind_controller()
+	_apply_current_state()
+
+
+func refresh_controller_binding() -> void:
+	if Engine.is_editor_hint():
+		_controller = null
+		_set_no_signal_state()
+		set_process(false)
+		return
 	_bind_controller()
 	_apply_current_state()
 
@@ -44,6 +66,8 @@ func _bind_controller() -> void:
 
 
 func _apply_current_state() -> void:
+	if Engine.is_editor_hint():
+		return
 	if _controller == null:
 		_set_no_signal_state()
 		return
@@ -67,7 +91,11 @@ func _set_state(state: int) -> void:
 			_set_lamp_visible(green_lamp_path, true)
 		_:
 			_set_lamp_visible(red_lamp_path, true)
-	_set_blocker_enabled(state == TrafficSignalController3D.SignalState.RED)
+	# Vehicle AI already obeys the authored stop-line waypoint and intersection
+	# reservation. A physical/raycast blocker at every lamp can be seen by a car
+	# that is already clearing or turning through the junction, causing it to stop
+	# in the conflict area and deadlock the rest of traffic.
+	_set_blocker_enabled(false)
 
 
 func _set_no_signal_state() -> void:
@@ -90,6 +118,12 @@ func _set_blocker_enabled(enabled: bool) -> void:
 
 
 func get_signal_controller() -> TrafficSignalController3D:
+	if signal_controller_id != &"":
+		var registered := TrafficSignalController3D.find(
+			get_tree(), signal_controller_id
+		)
+		if registered != null:
+			return registered
 	if signal_controller_path.is_empty():
 		return null
 	return get_node_or_null(signal_controller_path) as TrafficSignalController3D
@@ -105,8 +139,8 @@ func get_active_state() -> int:
 
 func _get_configuration_warnings() -> PackedStringArray:
 	var warnings := PackedStringArray()
-	if signal_controller_path.is_empty():
-		warnings.append("Traffic light needs an explicit signal controller path.")
+	if signal_controller_path.is_empty() and signal_controller_id == &"":
+		warnings.append("Traffic light needs a signal controller path or ID.")
 	if signal_group == &"":
 		warnings.append("Traffic light needs a signal group.")
 	return warnings

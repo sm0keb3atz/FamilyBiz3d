@@ -77,7 +77,7 @@ func _physics_process(delta: float) -> void:
 				% maxi(obstacle_raycast_interval, 1)
 			) == 0
 			ai.tick_traffic(delta, _get_nearby_vehicles(vehicle), allow_raycast)
-			if ai.wants_recycle():
+			if ai.wants_recycle() and _can_recycle_without_pop(vehicle):
 				recycle_requests.append(vehicle)
 	for vehicle in recycle_requests:
 		if is_instance_valid(vehicle):
@@ -256,6 +256,17 @@ func _is_spawn_occupied(position: Vector3) -> bool:
 		):
 			return true
 	return false
+
+
+func _can_recycle_without_pop(vehicle: BaseVehicle) -> bool:
+	if vehicle == null or player == null:
+		return true
+	if vehicle.global_position.distance_to(player.global_position) > high_detail_distance:
+		return true
+	var camera := get_viewport().get_camera_3d()
+	return camera == null or not camera.is_position_in_frustum(
+		vehicle.global_position + Vector3.UP
+	)
 
 
 func _get_grounded_spawn_transform(spawn_transform: Transform3D) -> Transform3D:

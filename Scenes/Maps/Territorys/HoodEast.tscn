@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://daq7qgwhbofw5" path="res://Scripts/Gameplay/territory_stats_component.gd" id="10_stats"]
 [ext_resource type="Script" uid="uid://cqkqgrwcoxm7u" path="res://Scripts/Gameplay/territory_boundary.gd" id="11_boundary"]
 [ext_resource type="Script" uid="uid://dnmxrkmpfo7s8" path="res://Scripts/World/static_multimesh_batcher.gd" id="12_batcher"]
+[ext_resource type="PackedScene" path="res://Scenes/Maps/Territorys/HoodEastMobility.tscn" id="13_mobility"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lcq4g"]
 size = Vector3(147, 0.001, 264)
@@ -13,6 +14,9 @@ size = Vector3(147, 0.001, 264)
 size = Vector3(146, 20, 253)
 
 [node name="HoodEast" type="Node3D" unique_id=1815818858]
+
+[node name="Mobility" parent="." unique_id=1486368606 instance=ExtResource("13_mobility")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.90000004, 0, -3.9)
 
 [node name="HoodEastBlock2" parent="." unique_id=177450189 instance=ExtResource("1_cutl6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 125)

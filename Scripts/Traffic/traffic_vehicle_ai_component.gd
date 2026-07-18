@@ -2,6 +2,8 @@ class_name TrafficVehicleAIComponent
 extends Node
 
 @export_range(0.5, 8.0, 0.1) var arrival_distance := 3.0
+@export_range(3.0, 10.0, 0.25) var intersection_arrival_distance := 6.0
+@export_range(1.0, 10.0, 0.5) var intersection_target_timeout := 4.0
 @export_range(1.0, 60.0, 0.5) var look_ahead_distance := 35.0
 @export_range(1.0, 60.0, 0.5) var following_distance := 35.0
 @export_range(1.0, 60.0, 0.5) var steering_sensitivity_degrees := 32.0
@@ -17,6 +19,8 @@ extends Node
 @export_range(0.5, 4.0, 0.1) var following_time := 2.1
 @export_range(0.5, 4.0, 0.1) var pedestrian_probe_half_width := 1.35
 @export_flags_3d_physics var obstacle_mask := 3
+@export_range(2.0, 60.0, 1.0) var blocked_reroute_seconds := 12.0
+@export_range(5.0, 120.0, 1.0) var blocked_recycle_seconds := 25.0
 
 var vehicle: BaseVehicle
 var network: TrafficNetwork3D
@@ -27,6 +31,7 @@ var _random := RandomNumberGenerator.new()
 var _lane_offset := 0.0
 var _enabled := false
 var _blocked_elapsed := 0.0
+var _reroute_attempted := false
 var _last_raycast_blocked := false
 var _last_raycast_requires_full_stop := false
 var _last_raycast_distance := INF
@@ -34,6 +39,12 @@ var _last_obstacle_blocked := false
 var _recycle_requested := false
 var _ignore_stale_blockers_remaining := 0.0
 var _hard_stop_active := false
+var _planned_route: Array[TrafficWaypoint3D] = []
+var _planned_route_index := 0
+var _trip_exit: TrafficWaypoint3D
+var _reserved_intersection: TrafficIntersection3D
+var _tracked_target_id := 0
+var _target_elapsed := 0.0
 
 
 func initialize(owner_vehicle: BaseVehicle) -> void:
@@ -56,6 +67,7 @@ func assign_route(
 	)
 	_enabled = true
 	_blocked_elapsed = 0.0
+	_reroute_attempted = false
 	_last_raycast_blocked = false
 	_last_raycast_requires_full_stop = false
 	_last_raycast_distance = INF
@@ -63,6 +75,13 @@ func assign_route(
 	_recycle_requested = false
 	_ignore_stale_blockers_remaining = 0.0
 	_hard_stop_active = false
+	_planned_route.clear()
+	_planned_route_index = 0
+	_trip_exit = network.choose_reachable_exit(start_waypoint, _random)
+	_tracked_target_id = 0
+	_target_elapsed = 0.0
+	if _trip_exit != null:
+		_planned_route = network.find_route(start_waypoint, _trip_exit)
 	_choose_next()
 
 
@@ -73,6 +92,7 @@ func clear() -> void:
 	previous_waypoint = null
 	target_waypoint = null
 	_blocked_elapsed = 0.0
+	_reroute_attempted = false
 	_last_raycast_blocked = false
 	_last_raycast_requires_full_stop = false
 	_last_raycast_distance = INF
@@ -80,6 +100,12 @@ func clear() -> void:
 	_recycle_requested = false
 	_ignore_stale_blockers_remaining = 0.0
 	_hard_stop_active = false
+	_release_intersection_reservation()
+	_planned_route.clear()
+	_planned_route_index = 0
+	_trip_exit = null
+	_tracked_target_id = 0
+	_target_elapsed = 0.0
 	if vehicle != null:
 		vehicle.drive_component.clear_ai_control()
 
@@ -102,6 +128,12 @@ func tick_traffic(
 		if not is_instance_valid(target_waypoint):
 			_stop_vehicle()
 			return
+	var target_id := int(target_waypoint.get_instance_id())
+	if target_id != _tracked_target_id:
+		_tracked_target_id = target_id
+		_target_elapsed = 0.0
+	else:
+		_target_elapsed += delta
 
 	var forward_speed := maxf(
 		vehicle.linear_velocity.dot(vehicle.global_basis.z),
@@ -115,10 +147,22 @@ func tick_traffic(
 		target_distance,
 		forward_speed
 	)
-	if not should_hold_at_signal and target_distance <= arrival_distance:
+	var should_hold_for_intersection := not _try_reserve_target_intersection(traffic_cars)
+	if (
+		not should_hold_at_signal
+		and not should_hold_for_intersection
+		and _has_reached_target(target_distance)
+	):
 		previous_waypoint = current_waypoint
 		current_waypoint = target_waypoint
+		_tracked_target_id = 0
+		_target_elapsed = 0.0
+		if current_waypoint.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_EXIT):
+			_release_intersection_reservation()
 		_choose_next()
+		if _recycle_requested:
+			_stop_vehicle()
+			return
 		target_position = _get_target_position()
 		target_distance = vehicle.global_position.distance_to(target_position)
 		signal_state = _get_target_signal_state()
@@ -127,6 +171,7 @@ func tick_traffic(
 			target_distance,
 			forward_speed
 		)
+		should_hold_for_intersection = not _try_reserve_target_intersection(traffic_cars)
 
 	var obstacle := _get_obstacle_ahead(
 		traffic_cars,
@@ -135,9 +180,13 @@ func tick_traffic(
 	)
 	var stopping_distance := INF
 	var hard_stop_blocked := false
+	var hold_stopping_distance := _get_hold_stopping_distance(target_distance)
 	if should_hold_at_signal:
-		stopping_distance = target_distance
+		stopping_distance = hold_stopping_distance
 		hard_stop_blocked = signal_state == TrafficSignalController3D.SignalState.RED
+	if should_hold_for_intersection and hold_stopping_distance < stopping_distance:
+		stopping_distance = hold_stopping_distance
+		hard_stop_blocked = true
 	if bool(obstacle.get("blocked", false)):
 		var obstacle_distance := float(obstacle.get("distance", INF))
 		if obstacle_distance < stopping_distance:
@@ -162,11 +211,18 @@ func tick_traffic(
 		hard_stop_blocked,
 		steering
 	)
-	if is_finite(stopping_distance):
+	var legitimate_hold := should_hold_at_signal or should_hold_for_intersection
+	if is_finite(stopping_distance) and not legitimate_hold and forward_speed < 0.35:
 		_blocked_elapsed += delta
 	else:
 		_blocked_elapsed = maxf(_blocked_elapsed - delta * 2.0, 0.0)
-	_ignore_stale_blockers_remaining = 0.0
+		if _blocked_elapsed <= 0.0:
+			_reroute_attempted = false
+	if _blocked_elapsed >= blocked_reroute_seconds and not _reroute_attempted:
+		_reroute_attempted = true
+		_try_rebuild_trip_route()
+	if _blocked_elapsed >= blocked_recycle_seconds:
+		_recycle_requested = true
 	vehicle.drive_component.set_ai_control(
 		float(controls.get("throttle", 0.0)),
 		float(controls.get("brake", 0.0)),
@@ -220,11 +276,82 @@ func _choose_next() -> void:
 	if network == null or not is_instance_valid(current_waypoint):
 		target_waypoint = null
 		return
-	target_waypoint = network.get_next_waypoint(
-		current_waypoint,
-		previous_waypoint,
-		_random
-	)
+	if not _planned_route.is_empty():
+		if _planned_route_index < _planned_route.size() and _planned_route[_planned_route_index] != current_waypoint:
+			_planned_route_index = _planned_route.find(current_waypoint)
+		_planned_route_index += 1
+		if _planned_route_index >= 0 and _planned_route_index < _planned_route.size():
+			target_waypoint = _planned_route[_planned_route_index]
+			return
+		target_waypoint = null
+		_recycle_requested = current_waypoint == _trip_exit or current_waypoint.is_exit()
+		return
+	target_waypoint = network.get_next_waypoint(current_waypoint, previous_waypoint, _random)
+	if target_waypoint == null and current_waypoint.is_exit():
+		_recycle_requested = true
+
+
+func _try_rebuild_trip_route() -> void:
+	if network == null or current_waypoint == null or _trip_exit == null:
+		return
+	var rebuilt := network.find_route(current_waypoint, _trip_exit)
+	if rebuilt.size() < 2:
+		return
+	_planned_route = rebuilt
+	_planned_route_index = 0
+	target_waypoint = rebuilt[1]
+
+
+func _try_reserve_target_intersection(
+	traffic_cars: Array[BaseVehicle]
+) -> bool:
+	if not is_instance_valid(target_waypoint):
+		return true
+	if not target_waypoint.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_ENTRY):
+		return true
+	if _reserved_intersection != null:
+		return true
+	if not _downstream_lane_is_clear(traffic_cars):
+		return false
+	var intersection := TrafficIntersection3D.find(get_tree(), target_waypoint.intersection_id)
+	if intersection == null:
+		return false
+	var controller := intersection.get_signal_controller()
+	if (
+		controller != null
+		and (
+			controller.get_signal_state(target_waypoint.signal_group)
+			!= TrafficSignalController3D.SignalState.GREEN
+			or not controller.is_vehicle_green_allowed()
+		)
+	):
+		return false
+	if not intersection.try_reserve(vehicle, target_waypoint.movement_group):
+		return false
+	_reserved_intersection = intersection
+	return true
+
+
+func _downstream_lane_is_clear(traffic_cars: Array[BaseVehicle]) -> bool:
+	var movement_index := _planned_route.find(target_waypoint)
+	if movement_index < 0 or movement_index + 1 >= _planned_route.size():
+		return true
+	var downstream := _planned_route[movement_index + 1]
+	if not downstream.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_EXIT):
+		return true
+	var clear_distance := standstill_gap + downstream.lane_half_width * 2.0
+	for other in traffic_cars:
+		if other == null or other == vehicle or not is_instance_valid(other):
+			continue
+		if other.global_position.distance_to(downstream.global_position) < clear_distance:
+			return false
+	return true
+
+
+func _release_intersection_reservation() -> void:
+	if _reserved_intersection != null:
+		_reserved_intersection.release(vehicle)
+	_reserved_intersection = null
 
 
 func _get_target_position() -> Vector3:
@@ -234,6 +361,62 @@ func _get_target_position() -> Vector3:
 		target_waypoint.global_position
 		+ _get_lane_offset(current_waypoint, target_waypoint)
 	)
+
+
+func _get_hold_stopping_distance(target_distance: float) -> float:
+	# After arriving at a stop line, the next route target is inside the
+	# intersection. If entry is denied, braking relative to that internal target
+	# pulls the vehicle into the conflict area. It is already at the authored
+	# hold point, so request an immediate stop instead.
+	if (
+		is_instance_valid(current_waypoint)
+		and is_instance_valid(target_waypoint)
+		and current_waypoint.has_role(TrafficWaypoint3D.WaypointRole.STOP_LINE)
+		and target_waypoint.has_role(
+			TrafficWaypoint3D.WaypointRole.INTERSECTION_ENTRY
+		)
+		and not is_instance_valid(_reserved_intersection)
+	):
+		return 0.0
+	return target_distance
+
+
+func _has_reached_target(distance: float) -> bool:
+	if not is_instance_valid(target_waypoint):
+		return false
+	var threshold := arrival_distance
+	if (
+		target_waypoint.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_ENTRY)
+		or target_waypoint.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_EXIT)
+	):
+		threshold = maxf(threshold, intersection_arrival_distance)
+	if distance <= threshold:
+		return true
+	if _has_passed_intersection_target():
+		return true
+	return (
+		target_waypoint.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_ENTRY)
+		and _target_elapsed >= intersection_target_timeout
+		and distance <= intersection_arrival_distance * 2.0
+	)
+
+
+func _has_passed_intersection_target() -> bool:
+	if not is_instance_valid(current_waypoint) or not is_instance_valid(target_waypoint):
+		return false
+	if not (
+		target_waypoint.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_ENTRY)
+		or target_waypoint.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_EXIT)
+	):
+		return false
+	var segment := target_waypoint.global_position - current_waypoint.global_position
+	segment.y = 0.0
+	var segment_length_squared := segment.length_squared()
+	if segment_length_squared <= 0.01:
+		return false
+	var traveled := vehicle.global_position - current_waypoint.global_position
+	traveled.y = 0.0
+	return traveled.dot(segment) / segment_length_squared >= 0.9
 
 
 func _get_lane_offset(
@@ -291,6 +474,11 @@ func _should_hold_at_signal(
 	distance: float,
 	forward_speed: float
 ) -> bool:
+	# The signal grants entry at the stop line. Once this vehicle owns the
+	# intersection reservation, changing phases must not strand it in the
+	# conflict area; obstacle detection still remains active while it clears.
+	if is_instance_valid(_reserved_intersection):
+		return false
 	if distance > maxf(look_ahead_distance, _get_stopping_distance(forward_speed)):
 		return false
 	if state == TrafficSignalController3D.SignalState.RED:
@@ -353,7 +541,16 @@ func _calculate_speed_controls(
 	):
 		throttle = 0.0
 		brake = 1.0 if forward_speed > 0.35 else 0.35
-	if hard_stop:
+	# A hard-stop obstacle means the vehicle must eventually reach zero speed;
+	# it does not mean throttle must be cut the instant a probe sees one. Probes
+	# can see a pedestrian or a car queued at the next light from well beyond the
+	# intersection. Cutting throttle at that range can strand this vehicle in the
+	# conflict area and create a network-wide jam.
+	if (
+		hard_stop
+		and is_finite(stopping_distance)
+		and stopping_distance <= _get_stopping_distance(forward_speed)
+	):
 		throttle = 0.0
 	return {"throttle": throttle, "brake": brake}
 
@@ -435,13 +632,12 @@ func _get_obstacle_ahead(
 		if collider == null or collider == vehicle:
 			continue
 		var is_human := _is_human_obstacle(collider)
-		var is_signal_blocker := collider.is_in_group("traffic_signal_blocker")
 		var is_vehicle := collider is BaseVehicle or collider.is_in_group("traffic_vehicle")
-		if not (is_human or is_signal_blocker or is_vehicle):
+		if not (is_human or is_vehicle):
 			continue
 		var hit_position := hit.get("position") as Vector3
 		var hit_distance := maxf((hit_position - probe_origin).dot(forward), 0.0)
-		var is_hard_stop := is_human or is_signal_blocker
+		var is_hard_stop := is_human
 		_record_obstacle(result, hit_distance, is_hard_stop)
 		_last_raycast_blocked = true
 		_last_raycast_requires_full_stop = (

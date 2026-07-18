@@ -239,22 +239,42 @@ func _find_nearest_eligible_customer() -> CustomerNPC:
 func _has_clear_store_route(customer: CustomerNPC) -> bool:
 	if customer == null or not is_instance_valid(entrance):
 		return false
-	if not _has_clear_path(
-		customer.global_position,
-		entrance.global_position,
-		customer
-	):
+	var network := customer.get_pedestrian_network()
+	if network == null:
 		return false
+	var current_anchor := customer.get_current_waypoint()
+	if not is_instance_valid(current_anchor):
+		current_anchor = network.get_nearest_waypoint(customer.global_position)
+	var entrance_anchor := network.get_nearest_waypoint(
+		entrance.global_position,
+		30.0
+	)
+	var exit_anchor := network.get_nearest_waypoint(
+		exit_destination.global_position,
+		30.0
+	)
 	var resume_waypoint := customer.get_route_target()
 	if not is_instance_valid(resume_waypoint):
 		resume_waypoint = customer.get_current_waypoint()
-	if not is_instance_valid(resume_waypoint):
+	if (
+		not is_instance_valid(current_anchor)
+		or not is_instance_valid(entrance_anchor)
+		or not is_instance_valid(exit_anchor)
+		or not is_instance_valid(resume_waypoint)
+	):
 		return false
-	return _has_clear_path(
-		exit_destination.global_position,
-		resume_waypoint.global_position,
-		customer
-	)
+	var approach := network.find_path(current_anchor, entrance_anchor)
+	var return_path := network.find_path(exit_anchor, resume_waypoint)
+	if approach.is_empty() or return_path.is_empty():
+		return false
+	# Store travel uses a direct final approach, so only choose visitors whose
+	# authored approach stays on the same side of every driving lane.
+	if (
+		network.path_requires_crossing(approach)
+		or network.path_requires_crossing(return_path)
+	):
+		return false
+	return true
 
 
 func _has_clear_path(

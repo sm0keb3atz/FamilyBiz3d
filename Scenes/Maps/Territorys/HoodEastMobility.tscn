@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://kuehpe27hrod"]
+
+[ext_resource type="Script" uid="uid://by5swr2mfngb6" path="res://Scripts/Traffic/territory_mobility_3d.gd" id="1_mobility"]
+[ext_resource type="Script" uid="uid://dv7fvbxp6s2" path="res://Scripts/Traffic/hood_east_traffic_routes_3d.gd" id="2_routes"]
+[ext_resource type="PackedScene" uid="uid://b5hevxt2pn7d8" path="res://Scenes/NPC/HoodEastPedestrianNetwork.tscn" id="3_pedestrians"]
+[ext_resource type="Script" uid="uid://b04trswaduehc" path="res://Scripts/Traffic/traffic_intersection_3d.gd" id="4_intersection"]
+[ext_resource type="Script" uid="uid://xob22vxpyovk" path="res://Scripts/Traffic/traffic_signal_controller_3d.gd" id="5_signal"]
+
+[node name="Mobility" type="Node3D" unique_id=1912965859]
+script = ExtResource("1_mobility")
+territory_id = &"hood_east"
+
+[node name="TrafficRoutes" type="Node3D" parent="." unique_id=1260216560]
+editor_description = "Generates Hood East's incoming and outgoing lanes. In Lane Layout, Lane Center Offset is the distance from the road center to each direction; the total separation is twice that value."
+script = ExtResource("2_routes")
+
+[node name="PedestrianNetwork" parent="." unique_id=1010086313 instance=ExtResource("3_pedestrians")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.6000001)
+
+[node name="Intersections" type="Node3D" parent="." unique_id=1479394020]
+
+[node name="SouthWest" type="Node3D" parent="Intersections" unique_id=183774372]
+script = ExtResource("4_intersection")
+intersection_id = &"hood_east_south_west"
+
+[node name="SignalController" type="Node3D" parent="Intersections/SouthWest" unique_id=1896430175]
+script = ExtResource("5_signal")
+controller_id = &"hood_east_south_west"
+
+[node name="SouthEast" type="Node3D" parent="Intersections" unique_id=1286804167]
+script = ExtResource("4_intersection")
+intersection_id = &"hood_east_south_east"
+
+[node name="SignalController" type="Node3D" parent="Intersections/SouthEast" unique_id=1479475980]
+script = ExtResource("5_signal")
+controller_id = &"hood_east_south_east"
+
+[node name="MidWest" type="Node3D" parent="Intersections" unique_id=1001835119]
+script = ExtResource("4_intersection")
+intersection_id = &"hood_east_mid_west"
+
+[node name="SignalController" type="Node3D" parent="Intersections/MidWest" unique_id=1944265588]
+script = ExtResource("5_signal")
+controller_id = &"hood_east_mid_west"
+
+[node name="MidEast" type="Node3D" parent="Intersections" unique_id=1894376711]
+script = ExtResource("4_intersection")
+intersection_id = &"hood_east_mid_east"
+
+[node name="SignalController" type="Node3D" parent="Intersections/MidEast" unique_id=903006715]
+script = ExtResource("5_signal")
+controller_id = &"hood_east_mid_east"
+
+[node name="NorthWest" type="Node3D" parent="Intersections" unique_id=1966538443]
+script = ExtResource("4_intersection")
+intersection_id = &"hood_east_north_west"
+
+[node name="SignalController" type="Node3D" parent="Intersections/NorthWest" unique_id=624399121]
+script = ExtResource("5_signal")
+controller_id = &"hood_east_north_west"
+
+[node name="NorthEast" type="Node3D" parent="Intersections" unique_id=1668770488]
+script = ExtResource("4_intersection")
+intersection_id = &"hood_east_north_east"
+
+[node name="SignalController" type="Node3D" parent="Intersections/NorthEast" unique_id=1138597418]
+script = ExtResource("5_signal")
+controller_id = &"hood_east_north_east"

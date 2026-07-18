@@ -80,10 +80,10 @@ func _run() -> void:
 	var customers := east_manager.get_active_customers()
 	assert(customers.size() == 2)
 	var network := world.get_node(
-		"Navigation/HoodEastPedestrianNetwork"
+		"Territories/HoodEast/Mobility/PedestrianNetwork"
 	) as PedestrianNetwork3D
 	var clothing_side_waypoint := network.get_node(
-		"SouthSouth2"
+		"ClothingStoreDestination"
 	) as PedestrianWaypoint3D
 	for customer in customers:
 		customer.activity_attempt_chance = 0.0
@@ -132,6 +132,7 @@ func _run() -> void:
 		for _frame in range(4):
 			await physics_frame
 	assert(clothing_visit.get_reserved_destination_count() == 0)
+	visitor.global_position = visitor.get_route_target().global_position
 	for _frame in range(8):
 		await physics_frame
 	assert(visitor.get_state_name() == "ROAMING")
@@ -220,7 +221,7 @@ func _run() -> void:
 	# The second store receives the same current-time presentation signal.
 	other.assign_route(
 		network,
-		network.get_node("SouthSouth3") as PedestrianWaypoint3D
+		network.get_node("GunStoreDestination") as PedestrianWaypoint3D
 	)
 	other.global_position = gun_visit.entrance.global_position
 	player.global_position = gun_visit.global_position

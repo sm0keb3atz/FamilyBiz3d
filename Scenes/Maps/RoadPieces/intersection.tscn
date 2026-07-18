@@ -5,8 +5,10 @@
 [ext_resource type="ArrayMesh" uid="uid://ciqwe8yur35ny" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_04_quarter.glb" id="3_dfo8n"]
 [ext_resource type="Script" path="res://Scripts/Traffic/traffic_signal_controller_3d.gd" id="4_signal"]
 [ext_resource type="PackedScene" path="res://Scenes/Maps/RoadPieces/TrafficLightPost.tscn" id="5_light_post"]
+[ext_resource type="Script" path="res://Scripts/Traffic/traffic_intersection_visual_3d.gd" id="6_visual_root"]
 
 [node name="Intersection" type="Node3D" unique_id=1070683106]
+script = ExtResource("6_visual_root")
 
 [node name="SignalController" type="Node3D" parent="." unique_id=1663037016]
 script = ExtResource("4_signal")
