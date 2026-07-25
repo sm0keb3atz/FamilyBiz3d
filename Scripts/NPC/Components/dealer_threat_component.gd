@@ -10,17 +10,23 @@ signal provoked(source: Node, world_position: Vector3)
 @export_flags_3d_physics var sight_collision_mask := 3
 
 var npc: DealerNPC
-var player: CharacterBody3D
+var target_actor: Node3D
 var player_weapon: PlayerWeaponComponent
 var _aim_time := 0.0
 
 
-func initialize(owner_npc: DealerNPC, target_player: CharacterBody3D) -> void:
+func initialize(owner_npc: DealerNPC, initial_target: Node3D) -> void:
 	npc = owner_npc
-	player = target_player
-	player_weapon = player.get_node_or_null(
-		"Components/WeaponComponent"
-	) as PlayerWeaponComponent
+	set_target(initial_target)
+
+
+func set_target(next_target: Node3D) -> void:
+	target_actor = next_target
+	player_weapon = (
+		target_actor.get_node_or_null("Components/WeaponComponent") as PlayerWeaponComponent
+		if is_instance_valid(target_actor) and target_actor.is_in_group(&"player")
+		else null
+	)
 	if (
 		player_weapon != null
 		and not player_weapon.shot_resolved.is_connected(_on_shot_resolved)
@@ -29,22 +35,26 @@ func initialize(owner_npc: DealerNPC, target_player: CharacterBody3D) -> void:
 
 
 func _process(delta: float) -> void:
-	if npc == null or player == null or npc.is_hostile() or npc.is_defeated():
+	if npc == null or target_actor == null or npc.is_hostile() or npc.is_defeated():
 		_aim_time = 0.0
 		return
 	if _is_player_aiming_at_dealer() and can_see_player():
 		_aim_time += delta
 		if _aim_time >= aim_confirmation_time:
-			provoked.emit(player, player.global_position)
+			provoked.emit(target_actor, target_actor.global_position)
 	else:
 		_aim_time = 0.0
 
 
 func can_see_player() -> bool:
-	if npc == null or player == null:
+	return can_see_target()
+
+
+func can_see_target() -> bool:
+	if npc == null or not is_instance_valid(target_actor):
 		return false
 	var origin := npc.global_position + Vector3.UP * 1.35
-	var target := player.global_position + Vector3.UP
+	var target := target_actor.global_position + Vector3.UP
 	var offset := target - origin
 	if offset.length_squared() > threat_range * threat_range:
 		return false
@@ -58,7 +68,7 @@ func can_see_player() -> bool:
 	query.exclude = [npc.get_rid()]
 	query.collision_mask = sight_collision_mask
 	var hit := npc.get_world_3d().direct_space_state.intersect_ray(query)
-	return hit.is_empty() or _is_node_or_descendant(hit.get("collider") as Node, player)
+	return hit.is_empty() or _is_node_or_descendant(hit.get("collider") as Node, target_actor)
 
 
 func _is_player_aiming_at_dealer() -> bool:
@@ -77,7 +87,7 @@ func _on_shot_resolved(
 	if npc == null or npc.is_hostile() or npc.is_defeated():
 		return
 	if target == npc or _is_node_or_descendant(target, npc):
-		provoked.emit(player, hit_position)
+		provoked.emit(target_actor, hit_position)
 
 
 func _is_node_or_descendant(node: Node, ancestor: Node) -> bool:

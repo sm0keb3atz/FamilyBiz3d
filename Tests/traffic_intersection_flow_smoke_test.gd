@@ -42,14 +42,18 @@ func _run() -> void:
 	manager.maximum_spawn_distance = 500.0
 	manager.high_detail_distance = 500.0
 	manager.recycle_distance = 500.0
-	manager.active_target = 6
-	manager.pool_capacity = 8
+	manager.spawn_separation = 1.0
+	manager.active_target = 10
+	manager.pool_capacity = 12
 	var requested_seed := OS.get_environment("TRAFFIC_TEST_SEED")
 	manager._random.seed = (
 		int(requested_seed) if requested_seed.is_valid_int() else 12345
 	)
 	manager.set_population_enabled(true)
-	assert(manager.populate_immediately(6) == 6)
+	var populated := manager.populate_immediately(10)
+	if populated != 10:
+		_fail_test("Could only populate %d of 10 traffic vehicles" % populated)
+		return
 	await physics_frame
 
 	var changes := {}
@@ -142,7 +146,7 @@ func _run() -> void:
 				]
 			)
 			return
-	if progressing_vehicles < 3:
+	if progressing_vehicles < 5:
 		_fail_test("Too few vehicles advanced: %s" % str(changes))
 		return
 	print("TRAFFIC_INTERSECTION_FLOW_SMOKE_TEST_PASS")

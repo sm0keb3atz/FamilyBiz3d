@@ -124,7 +124,13 @@ func apply_vehicle_impact(source: Node, impact_velocity: Vector3) -> void:
 		hit_direction
 	)
 	var effect := BLOOD_IMPACT_VFX.instantiate() as BloodImpactVFX
-	npc.get_tree().current_scene.add_child(effect)
+	var effect_parent: Node = npc.get_tree().current_scene
+	if effect_parent == null:
+		effect_parent = npc.get_parent()
+	if effect_parent == null:
+		effect.queue_free()
+		return
+	effect_parent.add_child(effect)
 	effect.setup_blood_hit(
 		hit_position, -hit_direction, hit_direction, npc, true
 	)

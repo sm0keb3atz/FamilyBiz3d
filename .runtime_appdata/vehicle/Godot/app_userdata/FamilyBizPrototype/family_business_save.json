@@ -1,0 +1,352 @@
+{
+	"dealer_zones": {
+		"hood_east_north": {
+			"faction": 1,
+			"members": {
+				"north_l2": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 2,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"coke_1g": 13,
+							"weed_1g": 62
+						},
+						"stock_data_version": 2
+					}
+				},
+				"north_l3": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 3,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"coke_1g": 74,
+							"fent_1g": 10
+						},
+						"stock_data_version": 2
+					}
+				},
+				"north_l4": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 4,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"fent_brick": 3
+						},
+						"stock_data_version": 2
+					}
+				}
+			}
+		},
+		"hood_east_south": {
+			"faction": 1,
+			"members": {
+				"south_l1_lean": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 2,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"coke_1g": 10,
+							"weed_1g": 63
+						},
+						"stock_data_version": 2
+					}
+				},
+				"south_l1_primary": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 1,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"weed_1g": 44
+						},
+						"stock_data_version": 2
+					}
+				},
+				"south_l3_idle": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 3,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"coke_1g": 70,
+							"fent_1g": 9
+						},
+						"stock_data_version": 2
+					}
+				}
+			}
+		},
+		"hood_west_north": {
+			"faction": 0,
+			"members": {
+				"north_l1_primary": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 1,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"weed_1g": 49
+						},
+						"stock_data_version": 2
+					}
+				},
+				"north_l2_talker": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 2,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"coke_1g": 9,
+							"weed_1g": 66
+						},
+						"stock_data_version": 2
+					}
+				},
+				"north_l4_talker": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 4,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"weed_brick": 3
+						},
+						"stock_data_version": 2
+					}
+				}
+			}
+		},
+		"hood_west_south": {
+			"faction": 0,
+			"members": {
+				"south_l1_lean": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 1,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"weed_1g": 50
+						},
+						"stock_data_version": 2
+					}
+				},
+				"south_l3_primary": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 3,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"coke_1g": 68,
+							"fent_1g": 13
+						},
+						"stock_data_version": 2
+					}
+				},
+				"south_l4_idle": {
+					"dealer": {
+						"cooldown_remaining": 0.0,
+						"dealer_level": 4,
+						"first_player_hit_recorded": false,
+						"is_wholesaler": false,
+						"stock": {
+							"fent_brick": 2
+						},
+						"stock_data_version": 2
+					}
+				}
+			}
+		}
+	},
+	"dealers": {
+		"/root/World/Gameplay/WestDealer": {
+			"cooldown_remaining": 0.0,
+			"dealer_level": 1,
+			"first_player_hit_recorded": false,
+			"is_wholesaler": false,
+			"stock": {
+				"weed_1g": 41
+			},
+			"stock_data_version": 2
+		}
+	},
+	"player": {
+		"inventory": {
+			"coke_1g": 0,
+			"coke_brick": 0,
+			"fent_1g": 0,
+			"fent_brick": 0,
+			"weed_1g": 0,
+			"weed_brick": 0
+		},
+		"position": [
+			60.0,
+			0.183918058872223,
+			-5.0
+		],
+		"properties": {
+			"businesses": {},
+			"owned_ids": [],
+			"stashes": {}
+		},
+		"rotation_y": 0.0,
+		"stats": {
+			"experience": 0.0,
+			"health": 100.0,
+			"hustle": 1,
+			"level": 1,
+			"skill_points": 0,
+			"stamina": 100.0,
+			"strength": 1
+		},
+		"wallet": {
+			"atm_deposit_date": "",
+			"atm_deposited_today": 0,
+			"clean_cash": 0,
+			"dirty_cash": 100
+		},
+		"wanted": {
+			"active_incident": {},
+			"gang_war_suppressed": false,
+			"next_incident_id": 1,
+			"suspended_incident": {},
+			"suspended_trigger_territory_id": "",
+			"suspended_wanted_level": 0,
+			"trigger_territory_id": "",
+			"wanted_level": 0
+		},
+		"wardrobe": {
+			"colors": {
+				"base_hoodie": [
+					1.0,
+					1.0,
+					1.0,
+					1.0
+				]
+			},
+			"equipped": {
+				"bottom": "jeans",
+				"shoes": "sneakers",
+				"top": "base_hoodie"
+			},
+			"owned": [
+				"base_hoodie",
+				"tshirt_white",
+				"jeans",
+				"sweatpants",
+				"sneakers"
+			]
+		},
+		"weapons": {
+			"attachment_states": {},
+			"attachment_unlocks": {},
+			"equipped_weapon_id": "",
+			"magazine_ammo": {},
+			"owned_weapon_ids": [],
+			"reserve_ammo": {}
+		}
+	},
+	"territories": {
+		"hood_east": {
+			"heat": 0.0,
+			"owner_faction": 1,
+			"reputation": 0.0
+		},
+		"hood_west": {
+			"heat": 0.0,
+			"owner_faction": 0,
+			"reputation": 0.0
+		}
+	},
+	"territory_dealers": {},
+	"territory_encounter": {
+		"active_territory": "",
+		"active_tier": 0,
+		"attackers": [],
+		"cooldown_until": {},
+		"war_remaining": 0.0,
+		"war_wins": {},
+		"waves_spawned": 0
+	},
+	"territory_market": {
+		"generated_date": "0001-01-01",
+		"quotes": {
+			"hood_east": {
+				"coke_1g": {
+					"buy": 52,
+					"sell": 52
+				},
+				"coke_brick": {
+					"buy": 3648,
+					"sell": 3648
+				},
+				"fent_1g": {
+					"buy": 34,
+					"sell": 34
+				},
+				"fent_brick": {
+					"buy": 2116,
+					"sell": 2116
+				},
+				"weed_1g": {
+					"buy": 9,
+					"sell": 9
+				},
+				"weed_brick": {
+					"buy": 553,
+					"sell": 553
+				}
+			},
+			"hood_west": {
+				"coke_1g": {
+					"buy": 51,
+					"sell": 51
+				},
+				"coke_brick": {
+					"buy": 2990,
+					"sell": 2990
+				},
+				"fent_1g": {
+					"buy": 27,
+					"sell": 27
+				},
+				"fent_brick": {
+					"buy": 1858,
+					"sell": 1858
+				},
+				"weed_1g": {
+					"buy": 7,
+					"sell": 7
+				},
+				"weed_brick": {
+					"buy": 438,
+					"sell": 438
+				}
+			}
+		}
+	},
+	"version": 11,
+	"world_time": {
+		"daily_earned": 0,
+		"daily_spent": 0,
+		"day": 1,
+		"minute_accumulator": 0.4,
+		"minute_of_day": 480,
+		"month": 1,
+		"weekday": 0,
+		"year": 1
+	}
+}

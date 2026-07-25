@@ -18,6 +18,7 @@ const MONTH_LENGTHS := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 @export_range(1.0, 3600.0, 1.0) var real_seconds_per_day := 1200.0
 @export var sun_path := NodePath("../Environment/Sun")
+@export var moon_path := NodePath("../Environment/Moon")
 @export var world_environment_path := NodePath("../Environment/WorldEnvironment")
 
 var year := 1
@@ -32,6 +33,7 @@ var _minute_accumulator := 0.0
 var _last_emitted_minute := -1
 var _wallet: PlayerWalletComponent
 @onready var _sun := get_node_or_null(sun_path) as DirectionalLight3D
+@onready var _moon := get_node_or_null(moon_path) as DirectionalLight3D
 @onready var _world_environment := get_node_or_null(world_environment_path) as WorldEnvironment
 
 
@@ -124,6 +126,11 @@ func get_formatted_time() -> String:
 	return "%d:%02d %s" % [hour_12, minute, suffix]
 
 
+func is_nighttime() -> bool:
+	var hour := float(minute_of_day) / 60.0
+	return hour < SUNRISE_HOUR or hour >= SUNSET_HOUR
+
+
 func set_time_of_day(hour: int, minute: int) -> bool:
 	if hour < 0 or hour > 23 or minute < 0 or minute > 59:
 		return false
@@ -205,21 +212,26 @@ func _update_visuals() -> void:
 	var daylight_duration := SUNSET_HOUR - SUNRISE_HOUR
 	var daylight_progress := clampf((hour - SUNRISE_HOUR) / daylight_duration, 0.0, 1.0)
 	var daylight := sin(daylight_progress * PI) if hour >= SUNRISE_HOUR and hour <= SUNSET_HOUR else 0.0
+	var night_strength := 1.0 - smoothstep(0.0, 0.22, daylight)
+	var sun_arc_progress := daylight_progress
+	if hour < SUNRISE_HOUR:
+		sun_arc_progress = 1.0 + (hour + 24.0 - SUNSET_HOUR) / (24.0 - SUNSET_HOUR + SUNRISE_HOUR)
+	elif hour > SUNSET_HOUR:
+		sun_arc_progress = 1.0 + (hour - SUNSET_HOUR) / (24.0 - SUNSET_HOUR + SUNRISE_HOUR)
 	if _sun != null:
 		# DirectionalLight3D shines down its local -Z axis. Rotating the other
 		# way made LIGHT0_DIRECTION negative during the day, so the sky shader
 		# rendered stars and night colors while the clock showed morning.
-		var sun_arc_progress := daylight_progress
-		if hour < SUNRISE_HOUR:
-			sun_arc_progress = 1.0 + (hour + 24.0 - SUNSET_HOUR) / (24.0 - SUNSET_HOUR + SUNRISE_HOUR)
-		elif hour > SUNSET_HOUR:
-			sun_arc_progress = 1.0 + (hour - SUNSET_HOUR) / (24.0 - SUNSET_HOUR + SUNRISE_HOUR)
 		_sun.rotation_degrees = Vector3(-180.0 * sun_arc_progress, -30.0, 0.0)
 		_sun.light_energy = lerpf(0.03, 1.15, pow(daylight, 0.65))
 		_sun.light_color = Color(1.0, 0.48, 0.3).lerp(Color(1.0, 0.96, 0.86), daylight)
+	if _moon != null:
+		var moon_arc_progress := fposmod(sun_arc_progress - 1.0, 2.0)
+		_moon.rotation_degrees = Vector3(-180.0 * moon_arc_progress, 28.0, 0.0)
+		_moon.light_energy = 0.13 * pow(night_strength, 0.7)
 	if _world_environment != null and _world_environment.environment != null:
 		var environment := _world_environment.environment
 		environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-		environment.ambient_light_color = Color(0.035, 0.055, 0.11).lerp(Color(0.72, 0.78, 0.9), daylight)
-		environment.ambient_light_energy = lerpf(0.2, 0.75, daylight)
+		environment.ambient_light_color = Color(0.18, 0.24, 0.38).lerp(Color(0.72, 0.78, 0.9), daylight)
+		environment.ambient_light_energy = lerpf(0.25, 0.75, daylight)
 		environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY

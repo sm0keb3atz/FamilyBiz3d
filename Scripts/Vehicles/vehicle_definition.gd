@@ -2,10 +2,19 @@ class_name VehicleDefinition
 extends Resource
 
 @export_category("Identity")
+@export var vehicle_id: StringName = &"vehicle"
 @export var display_name := "Vehicle"
 @export var visual_scene: PackedScene
 @export var visual_rotation_degrees := Vector3(0.0, -90.0, 0.0)
 @export var visual_offset := Vector3.ZERO
+
+@export_category("Geometry")
+@export var collision_size := Vector3(1.9, 0.8, 4.7)
+@export var collision_offset := Vector3(0.0, 0.83, 0.0)
+@export var front_left_wheel_anchor := Vector3(0.806, 0.48, 1.517)
+@export var front_right_wheel_anchor := Vector3(-0.806, 0.48, 1.517)
+@export var rear_left_wheel_anchor := Vector3(0.806, 0.48, -1.523)
+@export var rear_right_wheel_anchor := Vector3(-0.806, 0.48, -1.523)
 
 @export_category("Chassis")
 @export_range(100.0, 5000.0, 10.0) var mass := 1250.0

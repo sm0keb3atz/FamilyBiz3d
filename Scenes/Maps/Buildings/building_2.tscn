@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://bx50bub5cglpj" path="res://Assets/MapStuff/Meshs/StreetProps/SM_airCondition_01.gltf" id="15_thc6l"]
 [ext_resource type="PackedScene" uid="uid://e7egmbnldb1c" path="res://Assets/MapStuff/Meshs/StreetProps/SM_camera.gltf" id="16_4knqk"]
 [ext_resource type="PackedScene" uid="uid://dqrbcvivapabq" path="res://Assets/MapStuff/Meshs/StreetProps/SM_mailbox_2.gltf" id="17_1siws"]
+[ext_resource type="Script" path="res://Scripts/World/building_window_lights.gd" id="18_window_lights"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_86gvs"]
 transparency = 1
@@ -26,6 +27,22 @@ roughness = 0.22
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1c86s"]
 size = Vector3(16.5, 7.5, 12.400001)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_window_glow"]
+resource_name = "Warm Window Glow"
+transparency = 1
+shading_mode = 0
+cull_mode = 2
+albedo_color = Color(1, 0.7, 0.34, 0.58)
+emission_enabled = true
+emission = Color(1, 0.5, 0.12, 1)
+emission_energy_multiplier = 5.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_1c86s"]
+material = SubResource("StandardMaterial3D_window_glow")
+
+[sub_resource type="QuadMesh" id="QuadMesh_1w0wj"]
+material = SubResource("StandardMaterial3D_window_glow")
 
 [node name="Building1" type="Node3D" unique_id=1313747676]
 
@@ -575,3 +592,119 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 0, -2.3000002)
 
 [node name="SM_mailbox_5" parent="Props" unique_id=100650060 instance=ExtResource("17_1siws")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 0, -2.8000002)
+
+[node name="WindowLights" type="Node3D" parent="." groups=["exclude_static_batch"] unique_id=1757950368]
+visible = false
+script = ExtResource("18_window_lights")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WindowLights" unique_id=2001808240]
+transform = Transform3D(1.1924881e-08, 0, 1, 0, 1.7, 0, -1, 0, 1.1924881e-08, 0.90000004, 1.6000001, 4.0000005)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="WindowLights" unique_id=205045652]
+transform = Transform3D(1.1924881e-08, 0, 1, 0, 1.7, 0, -1, 0, 1.1924881e-08, 0.90000004, 1.6000001, -4.0999994)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="WindowLights" unique_id=278304296]
+transform = Transform3D(1.1924881e-08, 0, 1, 0, 1.7, 0, -1, 0, 1.1924881e-08, 0.90000004, 4.6000004, -3.9999995)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="WindowLights" unique_id=815400673]
+transform = Transform3D(1.1924881e-08, 0, 1, 0, 1.7, 0, -1, 0, 1.1924881e-08, 0.90000004, 4.6000004, -1.1999996)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="WindowLights" unique_id=1460066749]
+transform = Transform3D(1.1924881e-08, 0, 1, 0, 1.7, 0, -1, 0, 1.1924881e-08, 0.90000004, 4.6000004, 1.2000005)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="WindowLights" unique_id=1541840081]
+transform = Transform3D(1.1924881e-08, 0, 1, 0, 1.7, 0, -1, 0, 1.1924881e-08, 0.90000004, 4.6000004, 4.0000005)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="WindowLights" unique_id=1984621932]
+transform = Transform3D(1.1924881e-08, 0, 1, 0, 1.7, 0, -1, 0, 1.1924881e-08, 0.90000004, 7.6000004, -3.9999995)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="WindowLights" unique_id=1464283817]
+transform = Transform3D(1.1924881e-08, 0, 1, 0, 1.7, 0, -1, 0, 1.1924881e-08, 0.90000004, 7.6000004, -1.1999996)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D9" type="MeshInstance3D" parent="WindowLights" unique_id=1109527925]
+transform = Transform3D(1.1924881e-08, 0, 1, 0, 1.7, 0, -1, 0, 1.1924881e-08, 0.90000004, 7.6000004, 1.2000005)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D10" type="MeshInstance3D" parent="WindowLights" unique_id=1083101162]
+transform = Transform3D(1.1924881e-08, 0, 1, 0, 1.7, 0, -1, 0, 1.1924881e-08, 0.90000004, 7.6000004, 4.0000005)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D11" type="MeshInstance3D" parent="WindowLights" unique_id=1079156047]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1.7, 0, 1, 0, -4.371139e-08, -14.900001, 7.6000004, 4.0000005)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D12" type="MeshInstance3D" parent="WindowLights" unique_id=590761408]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1.7, 0, 1, 0, -4.371139e-08, -14.900001, 7.6000004, 4.7683716e-07)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D13" type="MeshInstance3D" parent="WindowLights" unique_id=602177378]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1.7, 0, 1, 0, -4.371139e-08, -14.900001, 7.6000004, -3.9999995)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D14" type="MeshInstance3D" parent="WindowLights" unique_id=569246653]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1.7, 0, 1, 0, -4.371139e-08, -14.900001, 4.6000004, 4.0000005)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D15" type="MeshInstance3D" parent="WindowLights" unique_id=631372491]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1.7, 0, 1, 0, -4.371139e-08, -14.900001, 4.6000004, 4.7683716e-07)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D16" type="MeshInstance3D" parent="WindowLights" unique_id=1983202643]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1.7, 0, 1, 0, -4.371139e-08, -14.900001, 4.6000004, -3.9999995)
+mesh = SubResource("QuadMesh_1c86s")
+
+[node name="MeshInstance3D17" type="MeshInstance3D" parent="WindowLights" unique_id=2033738622]
+transform = Transform3D(-1.3999999, 0, 8.7422755e-08, 0, 1.6999999, 0, -1.2239187e-07, 0, -0.9999999, -13.000001, 4.6000004, -5.8999996)
+mesh = SubResource("QuadMesh_1w0wj")
+
+[node name="MeshInstance3D18" type="MeshInstance3D" parent="WindowLights" unique_id=1723033501]
+transform = Transform3D(-1.3999999, 0, 8.7422755e-08, 0, 1.6999999, 0, -1.2239187e-07, 0, -0.9999999, -5.000001, 4.6000004, -5.8999996)
+mesh = SubResource("QuadMesh_1w0wj")
+
+[node name="MeshInstance3D27" type="MeshInstance3D" parent="WindowLights" unique_id=532420903]
+transform = Transform3D(-1.3999999, 0, 8.7422755e-08, 0, 1.6999999, 0, -1.2239187e-07, 0, -0.9999999, -13.000001, 1.5000005, -5.8999996)
+mesh = SubResource("QuadMesh_1w0wj")
+
+[node name="MeshInstance3D28" type="MeshInstance3D" parent="WindowLights" unique_id=1086550886]
+transform = Transform3D(-1.3999999, 0, 8.7422755e-08, 0, 1.6999999, 0, -1.2239187e-07, 0, -0.9999999, -5.000001, 1.5000005, -5.8999996)
+mesh = SubResource("QuadMesh_1w0wj")
+
+[node name="MeshInstance3D19" type="MeshInstance3D" parent="WindowLights" unique_id=1778432512]
+transform = Transform3D(-1.3999999, 0, 8.7422755e-08, 0, 1.6999999, 0, -1.2239187e-07, 0, -0.9999999, -13.000001, 7.6000004, -5.8999996)
+mesh = SubResource("QuadMesh_1w0wj")
+
+[node name="MeshInstance3D20" type="MeshInstance3D" parent="WindowLights" unique_id=1433200680]
+transform = Transform3D(-1.3999999, 0, 8.7422755e-08, 0, 1.6999999, 0, -1.2239187e-07, 0, -0.9999999, -5.000001, 7.6000004, -5.8999996)
+mesh = SubResource("QuadMesh_1w0wj")
+
+[node name="MeshInstance3D21" type="MeshInstance3D" parent="WindowLights" unique_id=202768963]
+transform = Transform3D(1.3999999, 0, 0, 0, 1.6999999, 0, 0, 0, 0.9999999, -13.000001, 4.6000004, 5.9000006)
+mesh = SubResource("QuadMesh_1w0wj")
+
+[node name="MeshInstance3D22" type="MeshInstance3D" parent="WindowLights" unique_id=2086688336]
+transform = Transform3D(1.3999999, 0, 0, 0, 1.6999999, 0, 0, 0, 0.9999999, -5.000001, 4.6000004, 5.9000006)
+mesh = SubResource("QuadMesh_1w0wj")
+
+[node name="MeshInstance3D23" type="MeshInstance3D" parent="WindowLights" unique_id=787076639]
+transform = Transform3D(1.3999999, 0, 0, 0, 1.6999999, 0, 0, 0, 0.9999999, -13.000001, 7.6000004, 5.9000006)
+mesh = SubResource("QuadMesh_1w0wj")
+
+[node name="MeshInstance3D24" type="MeshInstance3D" parent="WindowLights" unique_id=408467704]
+transform = Transform3D(1.3999999, 0, 0, 0, 1.6999999, 0, 0, 0, 0.9999999, -5.000001, 7.6000004, 5.9000006)
+mesh = SubResource("QuadMesh_1w0wj")
+
+[node name="MeshInstance3D25" type="MeshInstance3D" parent="WindowLights" unique_id=1063258570]
+transform = Transform3D(1.3999999, 0, 0, 0, 1.6999999, 0, 0, 0, 0.9999999, -13.000001, 1.5000005, 5.9000006)
+mesh = SubResource("QuadMesh_1w0wj")
+
+[node name="MeshInstance3D26" type="MeshInstance3D" parent="WindowLights" unique_id=604204012]
+transform = Transform3D(1.3999999, 0, 0, 0, 1.6999999, 0, 0, 0, 0.9999999, -5.000001, 1.5000005, 5.9000006)
+mesh = SubResource("QuadMesh_1w0wj")

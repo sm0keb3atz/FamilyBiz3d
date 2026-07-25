@@ -204,12 +204,20 @@ func try_fire_at(target_position: Vector3, spread_degrees: float) -> bool:
 	_play_gunshot()
 	if _muzzle_particles != null:
 		_muzzle_particles.restart()
-	npc.get_tree().call_group(
-		&"gunshot_listener",
-		&"hear_gunshot",
-		origin,
-		45.0
-	)
+	var event_bus := WorldEventBus.find(npc.get_tree())
+	if event_bus != null:
+		var faction := (
+			StringName(npc.call("get_faction_id"))
+			if npc.has_method("get_faction_id") else &"unknown"
+		)
+		event_bus.publish_gunshot(npc, origin, 45.0, faction)
+	else:
+		npc.get_tree().call_group(
+			&"gunshot_listener",
+			&"hear_gunshot",
+			origin,
+			45.0
+		)
 	fired.emit(hit_position)
 	return true
 

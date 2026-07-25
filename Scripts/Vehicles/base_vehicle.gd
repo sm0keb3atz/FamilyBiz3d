@@ -94,6 +94,31 @@ var _tailpipe_idle_exhausts: Array[GPUParticles3D] = []
 var _tailpipe_startup_exhausts: Array[GPUParticles3D] = []
 var _soft_smoke_texture: GradientTexture2D
 var _traffic_detail_enabled := true
+var _traffic_color_materials: Array[BaseMaterial3D] = []
+
+
+func configure_definition_before_tree(new_definition: VehicleDefinitionResource) -> void:
+	definition = new_definition
+	if definition == null:
+		return
+	var wheel_positions := {
+		front_left_wheel_path: definition.front_left_wheel_anchor,
+		front_right_wheel_path: definition.front_right_wheel_anchor,
+		rear_left_wheel_path: definition.rear_left_wheel_anchor,
+		rear_right_wheel_path: definition.rear_right_wheel_anchor,
+	}
+	for wheel_path in wheel_positions:
+		var wheel := get_node_or_null(wheel_path) as VehicleWheel3D
+		if wheel != null:
+			wheel.position = wheel_positions[wheel_path] as Vector3
+	var collision := get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if collision != null:
+		collision.position = definition.collision_offset
+		var source_box := collision.shape as BoxShape3D
+		if source_box != null:
+			var local_box := source_box.duplicate() as BoxShape3D
+			local_box.size = definition.collision_size
+			collision.shape = local_box
 
 
 func _ready() -> void:
@@ -112,8 +137,9 @@ func _ready() -> void:
 	powertrain_component.setup(self)
 	stability_component.setup(self)
 	drive_component.setup(self)
-	_cache_wheel_anchors()
 	_apply_definition()
+	wheel_visual_component.bind_bones()
+	_cache_wheel_anchors()
 	_create_skid_mark_emitters()
 	_create_tailpipe_exhaust()
 	effects_component.setup(self)
@@ -313,6 +339,7 @@ func _apply_definition() -> void:
 			model.position = definition.visual_offset
 			model.rotation_degrees = definition.visual_rotation_degrees
 			visual_root.add_child(model)
+	_apply_definition_geometry()
 	for wheel in _get_wheels():
 		wheel.wheel_radius = definition.wheel_radius
 		wheel.wheel_rest_length = definition.suspension_rest_length
@@ -322,18 +349,70 @@ func _apply_definition() -> void:
 		wheel.damping_relaxation = definition.damping_relaxation
 		wheel.suspension_max_force = definition.suspension_max_force
 		wheel.wheel_roll_influence = definition.wheel_roll_influence
-	front_left_wheel.wheel_friction_slip = (
-		definition.front_wheel_friction_slip
-	)
-	front_right_wheel.wheel_friction_slip = (
-		definition.front_wheel_friction_slip
-	)
+	front_left_wheel.wheel_friction_slip = definition.front_wheel_friction_slip
+	front_right_wheel.wheel_friction_slip = definition.front_wheel_friction_slip
 	rear_left_wheel.wheel_friction_slip = definition.rear_wheel_friction_slip
 	rear_right_wheel.wheel_friction_slip = definition.rear_wheel_friction_slip
 	front_left_wheel.use_as_steering = true
 	front_right_wheel.use_as_steering = true
 	rear_left_wheel.use_as_traction = true
 	rear_right_wheel.use_as_traction = true
+
+
+func get_vehicle_id() -> StringName:
+	return definition.vehicle_id if definition != null else &""
+
+
+func get_grounded_spawn_height() -> float:
+	if front_left_wheel == null:
+		return 0.1
+	return maxf(
+		front_left_wheel.wheel_radius
+		+ front_left_wheel.wheel_rest_length
+		- front_left_wheel.position.y
+		+ 0.02,
+		0.02
+	)
+
+
+func apply_traffic_body_color(color: Color) -> int:
+	if _traffic_color_materials.is_empty():
+		_collect_traffic_color_materials(visual_root)
+	for material in _traffic_color_materials:
+		material.albedo_color = color
+	return _traffic_color_materials.size()
+
+
+func _apply_definition_geometry() -> void:
+	var collision := get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if collision != null:
+		collision.position = definition.collision_offset
+		var box := collision.shape as BoxShape3D
+		if box != null:
+			box = box.duplicate() as BoxShape3D
+			box.size = definition.collision_size
+			collision.shape = box
+	front_left_wheel.position = definition.front_left_wheel_anchor
+	front_right_wheel.position = definition.front_right_wheel_anchor
+	rear_left_wheel.position = definition.rear_left_wheel_anchor
+	rear_right_wheel.position = definition.rear_right_wheel_anchor
+
+
+func _collect_traffic_color_materials(node: Node) -> void:
+	if node is MeshInstance3D:
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance.mesh != null:
+			for surface_index in mesh_instance.mesh.get_surface_count():
+				var source := mesh_instance.mesh.surface_get_material(surface_index)
+				if source == null or not source.resource_name.begins_with("MI_glossy"):
+					continue
+				var local := source.duplicate() as BaseMaterial3D
+				if local == null:
+					continue
+				mesh_instance.set_surface_override_material(surface_index, local)
+				_traffic_color_materials.append(local)
+	for child in node.get_children():
+		_collect_traffic_color_materials(child)
 
 
 func _create_skid_mark_emitters() -> void:

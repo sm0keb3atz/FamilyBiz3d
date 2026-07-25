@@ -60,7 +60,7 @@ const TEXTING_ARM_BLEND := {
 @export_range(0.1, 10.0, 0.1) var animation_walk_reference_speed := 2.5
 @export_range(0.2, 15.0, 0.1) var animation_sprint_reference_speed := 6.5
 @export_range(0.1, 3.0, 0.05) var aim_movement_animation_speed_scale := 1.35
-@export_range(0.1, 30.0, 0.1) var aim_direction_blend_speed := 8.0
+@export_range(0.1, 30.0, 0.1) var aim_direction_blend_speed := 14.0
 
 @export_category("Damage Reactions")
 @export_range(0.5, 3.0, 0.05) var head_hit_height := 1.45
@@ -308,18 +308,14 @@ func update_locomotion_animation() -> void:
 		)
 		_last_locomotion_scale = playback_scale
 	if _combat_aiming:
-		var local_velocity: Vector3 = (
-			npc.visual.global_basis.inverse()
-			* Vector3(npc.velocity.x, 0.0, npc.velocity.z)
-		)
 		var reference_speed: float = maxf(npc.move_speed, 0.01)
 		var aim_speed_ratio := clampf(
 			horizontal_speed / reference_speed,
 			0.45,
 			1.2
 		)
-		_target_aim_direction = AimStrafeBlend.from_local_velocity(
-			local_velocity,
+		_target_aim_direction = get_aim_direction_for_world_velocity(
+			Vector3(npc.velocity.x, 0.0, npc.velocity.z),
 			reference_speed
 		)
 		npc.animation_tree.set(
@@ -328,6 +324,18 @@ func update_locomotion_animation() -> void:
 			if horizontal_speed > 0.01
 			else 1.0
 		)
+
+
+func get_aim_direction_for_world_velocity(
+	world_velocity: Vector3,
+	reference_speed: float
+) -> Vector2:
+	# The visual is uniformly scaled for the imported character. Using the raw
+	# inverse basis scales velocity down and leaves lateral movement blended with
+	# idle, which reads as forward-running foot slide. Strip scale first.
+	var facing_basis: Basis = npc.visual.global_basis.orthonormalized()
+	var local_velocity: Vector3 = facing_basis.inverse() * world_velocity
+	return AimStrafeBlend.from_local_velocity(local_velocity, reference_speed)
 
 
 func handle_damaged(

@@ -1,0 +1,41 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://wr4q5ob4avu5"]
+
+[ext_resource type="Script" uid="uid://dr3nxvf7e5w7k" path="res://Scripts/NPC/AI/dealer_hostile_condition.gd" id="1_hostile"]
+[ext_resource type="Script" uid="uid://bd76pbkhc4ltm" path="res://Scripts/NPC/AI/dealer_visual_contact_condition.gd" id="2_visual"]
+[ext_resource type="Script" uid="uid://dj52rgwhjnp0b" path="res://Scripts/NPC/AI/dealer_mode_action.gd" id="3_action"]
+
+[sub_resource type="BTCondition" id="HostileCombat"]
+script = ExtResource("1_hostile")
+
+[sub_resource type="BTCondition" id="VisualCombat"]
+script = ExtResource("2_visual")
+
+[sub_resource type="BTAction" id="CombatAction"]
+script = ExtResource("3_action")
+mode = 1
+
+[sub_resource type="BTSequence" id="CombatSequence"]
+custom_name = "Commit to visible hostile target"
+children = [SubResource("HostileCombat"), SubResource("VisualCombat"), SubResource("CombatAction")]
+
+[sub_resource type="BTCondition" id="HostileSearch"]
+script = ExtResource("1_hostile")
+
+[sub_resource type="BTAction" id="SearchAction"]
+script = ExtResource("3_action")
+mode = 2
+
+[sub_resource type="BTSequence" id="SearchSequence"]
+custom_name = "Search for hostile target"
+children = [SubResource("HostileSearch"), SubResource("SearchAction")]
+
+[sub_resource type="BTAction" id="NeutralAction"]
+script = ExtResource("3_action")
+
+[sub_resource type="BTDynamicSelector" id="RootSelector"]
+custom_name = "Dealer combat priority"
+children = [SubResource("CombatSequence"), SubResource("SearchSequence"), SubResource("NeutralAction")]
+
+[resource]
+description = "Dealer-specific combat decisions backed by shared combat and movement components."
+root_task = SubResource("RootSelector")

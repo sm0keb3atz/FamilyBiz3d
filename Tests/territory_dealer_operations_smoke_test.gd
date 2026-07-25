@@ -59,9 +59,11 @@ func _run() -> void:
 	service.process_to(sale_minute)
 	assert(properties.get_stashed_product_quantity(&"hood_east_house_1", EconomyCatalog.WEED_1G) == 1)
 	assert(properties.get_stashed_product_quantity(&"hood_east_house_1", EconomyCatalog.WEED_BRICK) == 1)
-	var gross := player.get_node("Components/TradeService").get_sale_pricing(
+	var gross: int = player.get_node("Components/TradeService").get_sale_pricing(
 		EconomyCatalog.WEED_1G, &"hood_east", 1).y
-	var net := gross - roundi(float(gross) * TerritoryDealerService.COMMISSION_RATE)
+	var net: int = gross - roundi(
+		float(gross) * TerritoryDealerService.COMMISSION_RATE
+	)
 	assert(properties.get_stashed_dirty_cash(&"hood_east_house_1") == stash_cash_before + net)
 	assert(wallet.dirty_cash == dirty_before - 1500)
 	assert(east.stats.reputation == 100.0)
@@ -96,6 +98,77 @@ func _run() -> void:
 	assert(properties.get_stashed_product_quantity(&"hood_east_house_1", EconomyCatalog.WEED_BRICK) == 1)
 	assert(int(service.get_supply_summary(&"hood_east").product_units) == 0)
 
+	# Every hired dealer can be called. While following, sale clocks pause,
+	# stash supply is untouched, and the assignment survives save/import.
+	assert(inventory.add_product(EconomyCatalog.WEED_1G, 2))
+	assert(properties.transfer_product(
+		&"hood_east_house_1", EconomyCatalog.WEED_1G, 2, true
+	) == 2)
+	assert(service.call_dealer(
+		&"hood_east", &"hood_east_north", &"north_l2"
+	))
+	assert(service.call_dealer(
+		&"hood_east", &"hood_east_north", &"north_l3"
+	))
+	assert(service.get_following_dealers().size() == 2)
+	assert(north.get_member_dealer(&"north_l2").is_bodyguard_following())
+	assert(north.get_member_dealer(&"north_l3").is_bodyguard_following())
+	var paused_supply := properties.get_stashed_product_quantity(
+		&"hood_east_house_1", EconomyCatalog.WEED_1G
+	)
+	var paused_cash := properties.get_stashed_dirty_cash(
+		&"hood_east_house_1"
+	)
+	service.process_to(world_time.get_absolute_minute() + 1000)
+	assert(properties.get_stashed_product_quantity(
+		&"hood_east_house_1", EconomyCatalog.WEED_1G
+	) == paused_supply)
+	assert(properties.get_stashed_dirty_cash(
+		&"hood_east_house_1"
+	) == paused_cash)
+	var following_save := service.export_save_data()
+	service.import_save_data(following_save)
+	await process_frame
+	await process_frame
+	assert(service.get_following_dealers().size() == 2)
+	assert(bool(_find_entry(
+		service.get_roster(&"hood_east"), &"north_l2"
+	).following))
+	var menu := player.get_node("PlayerInventoryMenu") as PlayerInventoryMenu
+	menu.set_menu_open(true)
+	(menu.get_node(
+		"MenuRoot/Panel/Margin/Content/DashboardBody/TabContainer"
+	) as TabContainer).current_tab = 4
+	for _frame in 3:
+		await process_frame
+	assert(_has_button_text(menu, "MANAGE  >"))
+	menu._select_owned_territory(&"hood_east")
+	await process_frame
+	assert(_has_button_text(menu, "SEND BACK"))
+	assert(_has_button_text(menu, "<  ALL TERRITORIES"))
+	menu._show_owned_territory_list()
+	await process_frame
+	assert(_has_button_text(menu, "MANAGE  >"))
+	menu.set_menu_open(false)
+
+	var paused_l2 := int((
+		(following_save["hood_east"] as Dictionary)["slots"] as Dictionary
+	)["hood_east_north/north_l2"].get("paused_sale_minutes", -1))
+	assert(service.send_dealer_back(
+		&"hood_east", &"hood_east_north", &"north_l2"
+	))
+	hired = _find_entry(service.get_roster(&"hood_east"), &"north_l2")
+	assert(not bool(hired.following))
+	assert(int(hired.next_sale_minute) == (
+		world_time.get_absolute_minute() + paused_l2
+	))
+	service.process_to(int(hired.next_sale_minute))
+	assert(properties.get_stashed_product_quantity(
+		&"hood_east_house_1", EconomyCatalog.WEED_1G
+	) == paused_supply - 1)
+	assert(service.send_dealer_back(
+		&"hood_east", &"hood_east_north", &"north_l3"
+	))
 	assert(service.fire_dealer(&"hood_east", &"hood_east_north", &"north_l3"))
 	var fired := _find_entry(service.get_roster(&"hood_east"), &"north_l3")
 	assert(not bool(fired.employed))
@@ -104,18 +177,44 @@ func _run() -> void:
 	var south := _find_zone(&"hood_east_south")
 	var employee := south.get_member_dealer(&"south_l1_primary")
 	assert(employee != null)
-	south.handle_member_defeated(employee, false)
+	assert(service.call_dealer(
+		&"hood_east", &"hood_east_south", &"south_l1_primary"
+	))
+	employee.damageable.apply_damage(
+		employee.damageable.maximum_health,
+		null,
+		employee.global_position + Vector3.UP,
+		Vector3.FORWARD
+	)
+	await process_frame
 	assert(not bool(_find_entry(service.get_roster(&"hood_east"), &"south_l1_primary").employed))
 	assert(south.get_member_dealer(&"south_l1_primary") == null)
+	var replacement_cash := wallet.dirty_cash
+	assert(service.hire_dealer(
+		&"hood_east", &"hood_east_south", &"south_l1_primary"
+	))
+	assert(wallet.dirty_cash == replacement_cash - TerritoryDealerService.HIRE_FEE)
 
 	var saved := service.export_save_data()
 	service.import_save_data(saved)
 	assert(bool(_find_entry(service.get_roster(&"hood_east"), &"north_l2").employed))
+	var legacy := saved.duplicate(true)
+	var legacy_slots := (
+		(legacy["hood_east"] as Dictionary)["slots"] as Dictionary
+	)
+	for slot_state in legacy_slots.values():
+		(slot_state as Dictionary).erase("duty")
+		(slot_state as Dictionary).erase("paused_sale_minutes")
+		(slot_state as Dictionary).erase("follow_slot")
+	service.import_save_data(legacy)
+	await process_frame
+	assert(not bool(_find_entry(
+		service.get_roster(&"hood_east"), &"north_l2"
+	).following))
 	service.import_save_data({})
 	for entry in service.get_roster(&"hood_east"):
 		assert(not bool(entry.employed))
 
-	var menu := player.get_node("PlayerInventoryMenu") as PlayerInventoryMenu
 	assert(menu.layer == 40)
 	assert(menu.get_node("MenuRoot/Panel/Margin/Content/DashboardBody") != null)
 	assert(menu.get_node("MenuRoot/Panel/Margin/Content/DashboardBody/Navigation") != null)
@@ -124,7 +223,6 @@ func _run() -> void:
 		"MenuRoot/Panel/Margin/Content/DashboardBody/TabContainer/Territory/TerritoryScroll"
 	) as ScrollContainer
 	assert(territory_scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED)
-	assert(territory_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED)
 	menu.set_menu_open(true)
 	var panel := menu.get_node("MenuRoot/Panel") as PanelContainer
 	var normal_width := panel.size.x
@@ -132,6 +230,11 @@ func _run() -> void:
 	for _frame in 30:
 		await process_frame
 	assert(panel.size.x > normal_width)
+	assert(territory_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO)
+	assert(_has_button_text(menu, "MANAGE  >"))
+	menu._select_owned_territory(&"hood_east")
+	await process_frame
+	assert(territory_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED)
 	assert(menu.find_child("TerritoryRevenueChart", true, false) != null)
 	menu.set_menu_open(false)
 	print("TERRITORY_DEALER_OPERATIONS_SMOKE_TEST_PASS")
@@ -151,3 +254,11 @@ func _find_zone(zone_id: StringName) -> DealerActivityZone3D:
 		if zone != null and zone.zone_id == zone_id:
 			return zone
 	return null
+
+
+func _has_button_text(root_node: Node, button_text: String) -> bool:
+	for node in root_node.find_children("*", "Button", true, false):
+		var button := node as Button
+		if button != null and button.text == button_text:
+			return true
+	return false

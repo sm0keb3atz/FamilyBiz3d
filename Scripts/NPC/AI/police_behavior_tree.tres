@@ -7,6 +7,7 @@
 [sub_resource type="BTCondition" id="BTCondition_combat_wanted"]
 script = ExtResource("1_wanted")
 minimum_level = 2
+require_force_authorized = true
 
 [sub_resource type="BTCondition" id="BTCondition_combat_visual"]
 script = ExtResource("2_visual")
@@ -22,6 +23,7 @@ children = [SubResource("BTCondition_combat_wanted"), SubResource("BTCondition_c
 [sub_resource type="BTCondition" id="BTCondition_combat_search_wanted"]
 script = ExtResource("1_wanted")
 minimum_level = 2
+require_force_authorized = true
 
 [sub_resource type="BTAction" id="BTAction_combat_search"]
 script = ExtResource("3_action")
@@ -30,6 +32,37 @@ mode = 4
 [sub_resource type="BTSequence" id="BTSequence_combat_search"]
 custom_name = "Search for armed suspect"
 children = [SubResource("BTCondition_combat_search_wanted"), SubResource("BTAction_combat_search")]
+
+[sub_resource type="BTCondition" id="BTCondition_challenge_wanted"]
+script = ExtResource("1_wanted")
+minimum_level = 2
+maximum_level = 2
+require_force_not_authorized = true
+
+[sub_resource type="BTCondition" id="BTCondition_challenge_visual"]
+script = ExtResource("2_visual")
+
+[sub_resource type="BTAction" id="BTAction_challenge"]
+script = ExtResource("3_action")
+mode = 5
+
+[sub_resource type="BTSequence" id="BTSequence_challenge"]
+custom_name = "Challenge wanted suspect"
+children = [SubResource("BTCondition_challenge_wanted"), SubResource("BTCondition_challenge_visual"), SubResource("BTAction_challenge")]
+
+[sub_resource type="BTCondition" id="BTCondition_challenge_search_wanted"]
+script = ExtResource("1_wanted")
+minimum_level = 2
+maximum_level = 2
+require_force_not_authorized = true
+
+[sub_resource type="BTAction" id="BTAction_challenge_search"]
+script = ExtResource("3_action")
+mode = 6
+
+[sub_resource type="BTSequence" id="BTSequence_challenge_search"]
+custom_name = "Search and challenge suspect"
+children = [SubResource("BTCondition_challenge_search_wanted"), SubResource("BTAction_challenge_search")]
 
 [sub_resource type="BTCondition" id="BTCondition_arrest_wanted"]
 script = ExtResource("1_wanted")
@@ -63,9 +96,9 @@ children = [SubResource("BTCondition_arrest_search_wanted"), SubResource("BTActi
 [sub_resource type="BTAction" id="BTAction_patrol"]
 script = ExtResource("3_action")
 
-[sub_resource type="BTSelector" id="BTSelector_root"]
+[sub_resource type="BTDynamicSelector" id="BTSelector_root"]
 custom_name = "Police response priority"
-children = [SubResource("BTSequence_combat"), SubResource("BTSequence_combat_search"), SubResource("BTSequence_arrest"), SubResource("BTSequence_arrest_search"), SubResource("BTAction_patrol")]
+children = [SubResource("BTSequence_combat"), SubResource("BTSequence_combat_search"), SubResource("BTSequence_challenge"), SubResource("BTSequence_challenge_search"), SubResource("BTSequence_arrest"), SubResource("BTSequence_arrest_search"), SubResource("BTAction_patrol")]
 
 [resource]
 description = "Police engage visible suspects, coordinate searches after losing sight, and otherwise patrol."

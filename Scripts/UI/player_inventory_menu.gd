@@ -69,6 +69,10 @@ class TerritoryRevenueChart extends Control:
 @onready var weapon_list := %WeaponList as VBoxContainer
 @onready var girlfriend_list := %GirlfriendList as VBoxContainer
 @onready var property_list := %PropertyList as VBoxContainer
+@onready var territory_scroll := (
+	$MenuRoot/Panel/Margin/Content/TabContainer/Territory/TerritoryScroll
+	as ScrollContainer
+)
 @onready var territory_list := %TerritoryList as VBoxContainer
 @onready var feedback_label := %FeedbackLabel as Label
 @onready var inventory := (
@@ -89,6 +93,7 @@ var _territory_dealers: TerritoryDealerService
 var _navigation_buttons: Dictionary[int, Button] = {}
 var _body: HBoxContainer
 var _resize_tween: Tween
+var _selected_territory_id: StringName = &""
 
 
 func _ready() -> void:
@@ -173,7 +178,11 @@ func _build_inventory_shell() -> void:
 
 
 func _select_sidebar_tab(index: int) -> void:
+	if index == 4:
+		_selected_territory_id = &""
 	tab_container.current_tab = index
+	if index == 4 and _is_open:
+		_refresh_territory()
 	_update_navigation_styles()
 
 
@@ -257,6 +266,8 @@ func set_menu_open(open: bool) -> void:
 	_is_open = open
 	menu_root.visible = _is_open
 	if _is_open:
+		if tab_container.current_tab == 4:
+			_selected_territory_id = &""
 		_refresh()
 		if tab_container.current_tab == 4:
 			_animate_panel_for_tab(false, 0)
@@ -284,16 +295,181 @@ func _resolve_territory_dealers() -> void:
 func _refresh_territory() -> void:
 	for child in territory_list.get_children():
 		child.queue_free()
+	territory_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	territory_scroll.scroll_vertical = 0
 	if _territory_dealers == null:
 		_resolve_territory_dealers()
 	if _territory_dealers == null:
 		territory_list.add_child(_create_empty_dashboard("TERRITORY MANAGEMENT UNAVAILABLE", "The territory service could not be found."))
 		return
-	var player := get_parent() as CharacterBody3D
-	var boundary := TerritoryBoundary.find_at_position(get_tree(), player.global_position) if player != null else null
-	if boundary == null or boundary.stats == null or boundary.stats.owner_faction != TerritoryStatsComponent.OwnerFaction.PLAYER:
-		territory_list.add_child(_create_empty_dashboard("NO OWNED TERRITORY", "Enter territory you control to manage its dealers and income."))
+	var owned_territories := _get_owned_territories()
+	if owned_territories.is_empty():
+		_selected_territory_id = &""
+		territory_list.add_child(_create_empty_dashboard(
+			"NO OWNED TERRITORIES",
+			"Claim a territory to manage its dealers, supply, and income here."
+		))
 		return
+	var selected := _find_owned_territory(
+		owned_territories,
+		_selected_territory_id
+	)
+	if selected == null:
+		_selected_territory_id = &""
+		_render_owned_territory_list(owned_territories)
+		return
+	_render_territory_dashboard(selected)
+
+
+func _get_owned_territories() -> Array[TerritoryBoundary]:
+	var result: Array[TerritoryBoundary] = []
+	for node in get_tree().get_nodes_in_group(&"territory_boundaries"):
+		var boundary := node as TerritoryBoundary
+		if (
+			boundary != null
+			and boundary.stats != null
+			and boundary.stats.owner_faction
+			== TerritoryStatsComponent.OwnerFaction.PLAYER
+		):
+			result.append(boundary)
+	result.sort_custom(
+		func(a: TerritoryBoundary, b: TerritoryBoundary) -> bool:
+			return String(a.display_name) < String(b.display_name)
+	)
+	return result
+
+
+func _find_owned_territory(
+	owned_territories: Array[TerritoryBoundary],
+	territory_id: StringName
+) -> TerritoryBoundary:
+	if territory_id.is_empty():
+		return null
+	for boundary in owned_territories:
+		if boundary.territory_id == territory_id:
+			return boundary
+	return null
+
+
+func _render_owned_territory_list(
+	owned_territories: Array[TerritoryBoundary]
+) -> void:
+	territory_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	var header := VBoxContainer.new()
+	header.custom_minimum_size.y = 92
+	var title := Label.new()
+	title.text = "OWNED TERRITORIES"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 30)
+	title.add_theme_color_override("font_color", Color(0.94, 0.97, 0.98))
+	header.add_child(title)
+	var subtitle := Label.new()
+	subtitle.text = (
+		"Choose a territory to manage its dealers from anywhere in the city."
+	)
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.add_theme_color_override(
+		"font_color",
+		Color(0.58, 0.66, 0.72)
+	)
+	header.add_child(subtitle)
+	territory_list.add_child(header)
+	var player := get_parent() as CharacterBody3D
+	var current_boundary := (
+		TerritoryBoundary.find_at_position(get_tree(), player.global_position)
+		if player != null else null
+	)
+	for boundary in owned_territories:
+		territory_list.add_child(_create_owned_territory_card(
+			boundary,
+			current_boundary != null
+			and current_boundary.territory_id == boundary.territory_id
+		))
+
+
+func _create_owned_territory_card(
+	boundary: TerritoryBoundary,
+	is_current_location: bool
+) -> Control:
+	var earnings := _territory_dealers.get_earnings_summary(
+		boundary.territory_id
+	)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size.y = 112
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.035, 0.05, 0.06, 0.98),
+			Color(0.18, 0.58, 0.64, 0.8)
+			if is_current_location
+			else Color(0.12, 0.22, 0.25, 0.9)
+		)
+	)
+	var margin := MarginContainer.new()
+	for side in [
+		"margin_left", "margin_top", "margin_right", "margin_bottom"
+	]:
+		margin.add_theme_constant_override(side, 14)
+	panel.add_child(margin)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 18)
+	margin.add_child(row)
+	var details := VBoxContainer.new()
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.add_theme_constant_override("separation", 5)
+	row.add_child(details)
+	var title := Label.new()
+	title.text = boundary.display_name.to_upper()
+	title.add_theme_font_size_override("font_size", 23)
+	title.add_theme_color_override("font_color", Color(0.9, 0.96, 0.98))
+	details.add_child(title)
+	var location := _detail_label(
+		"CURRENT LOCATION" if is_current_location else "OWNED TERRITORY"
+	)
+	location.add_theme_color_override(
+		"font_color",
+		Color(0.22, 0.86, 0.92)
+		if is_current_location else Color(0.58, 0.66, 0.72)
+	)
+	details.add_child(location)
+	details.add_child(_detail_label(
+		"Reputation %d / 100  •  Heat %d / 100  •  Dealers %d / %d"
+		% [
+			roundi(boundary.stats.reputation),
+			roundi(boundary.stats.heat),
+			int(earnings.staffed),
+			int(earnings.total_slots),
+		]
+	))
+	details.add_child(_detail_label(
+		"Today $%s net  •  Lifetime $%s"
+		% [
+			_money(int(earnings.today_net)),
+			_money(int(earnings.lifetime_net)),
+		]
+	))
+	var open_button := Button.new()
+	open_button.text = "MANAGE  >"
+	open_button.custom_minimum_size = Vector2(150, 48)
+	open_button.pressed.connect(
+		_select_owned_territory.bind(boundary.territory_id)
+	)
+	_style_button(open_button, Color(0.22, 0.72, 0.78))
+	row.add_child(open_button)
+	return panel
+
+
+func _select_owned_territory(territory_id: StringName) -> void:
+	_selected_territory_id = territory_id
+	_refresh_territory()
+
+
+func _show_owned_territory_list() -> void:
+	_selected_territory_id = &""
+	_refresh_territory()
+
+
+func _render_territory_dashboard(boundary: TerritoryBoundary) -> void:
 	var territory_id := boundary.territory_id
 	var supply := _territory_dealers.get_supply_summary(territory_id)
 	var earnings := _territory_dealers.get_earnings_summary(territory_id)
@@ -316,7 +492,7 @@ func _refresh_territory() -> void:
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	left.size_flags_stretch_ratio = 0.95
 	left.add_theme_constant_override("separation", 10)
-	left.add_child(_create_revenue_panel(earnings))
+	left.add_child(_create_revenue_panel(territory_id, earnings))
 	left.add_child(_create_territory_details_panel(supply, earnings))
 	workspace.add_child(left)
 	var dealer_panel := _create_section_panel("DEALER MANAGEMENT")
@@ -330,7 +506,12 @@ func _refresh_territory() -> void:
 		var zone_id := StringName(entry.zone_id)
 		if zone_id != current_zone:
 			current_zone = zone_id
-			var heading := _detail_label(String(zone_id).replace("hood_east_", "").replace("_", " ").to_upper() + " ZONE")
+			var heading := _detail_label(
+				String(zone_id).replace(
+					"%s_" % String(territory_id),
+					""
+				).replace("_", " ").to_upper() + " ZONE"
+			)
 			heading.add_theme_color_override("font_color", Color(0.24, 0.8, 0.86))
 			dealer_box.add_child(heading)
 		dealer_box.add_child(_create_dealer_management_row(territory_id, entry, int(supply.product_units)))
@@ -340,13 +521,29 @@ func _refresh_territory() -> void:
 
 func _create_territory_header(display_name: String) -> Control:
 	var box := VBoxContainer.new()
-	box.custom_minimum_size.y = 76
+	box.custom_minimum_size.y = 82
+	box.add_theme_constant_override("separation", 3)
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 12)
+	box.add_child(title_row)
+	var back_button := Button.new()
+	back_button.text = "<  ALL TERRITORIES"
+	back_button.custom_minimum_size = Vector2(190, 34)
+	back_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	back_button.pressed.connect(_show_owned_territory_list)
+	_style_button(back_button, Color(0.22, 0.68, 0.74))
+	title_row.add_child(back_button)
 	var title := Label.new()
 	title.text = display_name.to_upper()
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 30)
 	title.add_theme_color_override("font_color", Color(0.94, 0.97, 0.98))
-	box.add_child(title)
+	title_row.add_child(title)
+	var balance := Control.new()
+	balance.custom_minimum_size.x = 190
+	title_row.add_child(balance)
 	var subtitle := Label.new()
 	subtitle.text = "Manage your territory, dealers, supply, and income."
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -408,7 +605,10 @@ func _create_section_panel(section_title: String) -> PanelContainer:
 	return panel
 
 
-func _create_revenue_panel(earnings: Dictionary) -> Control:
+func _create_revenue_panel(
+	territory_id: StringName,
+	earnings: Dictionary
+) -> Control:
 	var panel := _create_section_panel("INCOME OVER TIME  •  LAST 7 DAYS")
 	var box := panel.get_meta("content") as VBoxContainer
 	var chart := TerritoryRevenueChart.new()
@@ -416,7 +616,7 @@ func _create_revenue_panel(earnings: Dictionary) -> Control:
 	chart.custom_minimum_size.y = 185
 	chart.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chart.set_values(_territory_dealers.get_recent_daily_net(
-		_get_current_territory_id(), 7
+		territory_id, 7
 	))
 	box.add_child(chart)
 	var values := HBoxContainer.new()
@@ -427,14 +627,6 @@ func _create_revenue_panel(earnings: Dictionary) -> Control:
 	box.add_child(values)
 	box.add_child(_detail_label("Revenue is deposited directly into the stash that supplied each sale."))
 	return panel
-
-
-func _get_current_territory_id() -> StringName:
-	var player := get_parent() as CharacterBody3D
-	var boundary := TerritoryBoundary.find_at_position(
-		get_tree(), player.global_position
-	) if player != null else null
-	return boundary.territory_id if boundary != null else &""
 
 
 func _create_metric(label_text: String, value: String, accent: Color) -> Control:
@@ -490,8 +682,8 @@ func _create_dealer_table_header(earnings: Dictionary) -> Control:
 	row.add_child(label)
 	row.add_child(_table_value("LEVEL", 56, Color(0.55, 0.62, 0.67)))
 	row.add_child(_table_value("DAILY NET", 76, Color(0.55, 0.62, 0.67)))
-	row.add_child(_table_value("STATUS", 68, Color(0.55, 0.62, 0.67)))
-	row.add_child(_table_value("ACTION", 160, Color(0.55, 0.62, 0.67)))
+	row.add_child(_table_value("STATUS", 76, Color(0.55, 0.62, 0.67)))
+	row.add_child(_table_value("ACTION", 238, Color(0.55, 0.62, 0.67)))
 	row.tooltip_text = "%d / %d dealers hired" % [int(earnings.staffed), int(earnings.total_slots)]
 	return row
 
@@ -531,6 +723,7 @@ func _create_dealer_management_row(territory_id: StringName, entry: Dictionary, 
 	row.add_theme_constant_override("separation", 8)
 	panel.add_child(row)
 	var employed := bool(entry.employed)
+	var following := bool(entry.get("following", false))
 	var dealer_name := Label.new()
 	dealer_name.text = String(entry.member_id).replace("_", " ").capitalize()
 	dealer_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -540,13 +733,29 @@ func _create_dealer_management_row(territory_id: StringName, entry: Dictionary, 
 	row.add_child(level)
 	var daily := _table_value("$%s" % _money(int(entry.today_net)), 76, Color(0.36, 0.84, 0.42))
 	row.add_child(daily)
-	var status_text := "OUT" if employed and available_units <= 0 else ("ACTIVE" if employed else "VACANT")
-	var status_color := Color(0.95, 0.42, 0.28) if status_text == "OUT" else (Color(0.25, 0.85, 0.42) if employed else Color(0.55, 0.6, 0.63))
-	row.add_child(_table_value(status_text, 68, status_color))
+	var status_text := (
+		"FOLLOWING"
+		if following
+		else "OUT"
+		if employed and available_units <= 0
+		else "ACTIVE"
+		if employed
+		else "VACANT"
+	)
+	var status_color := (
+		Color(0.22, 0.68, 0.95)
+		if following
+		else Color(0.95, 0.42, 0.28)
+		if status_text == "OUT"
+		else Color(0.25, 0.85, 0.42)
+		if employed
+		else Color(0.55, 0.6, 0.63)
+	)
+	row.add_child(_table_value(status_text, 76, status_color))
 	var button := Button.new()
 	if not employed:
 		button.text = "HIRE  $%s" % _money(int(entry.hire_fee))
-		button.custom_minimum_size = Vector2(160, 34)
+		button.custom_minimum_size = Vector2(238, 34)
 		button.disabled = not wallet.can_spend_dirty(int(entry.hire_fee))
 		button.tooltip_text = "Hire this dealer at Level 1"
 		button.pressed.connect(_hire_dealer.bind(territory_id, entry.zone_id, entry.member_id))
@@ -554,17 +763,36 @@ func _create_dealer_management_row(territory_id: StringName, entry: Dictionary, 
 		row.add_child(button)
 	else:
 		var actions := HBoxContainer.new()
-		actions.custom_minimum_size.x = 160
+		actions.custom_minimum_size.x = 238
 		actions.add_theme_constant_override("separation", 4)
 		var max_level := bool(entry.max_level)
 		button.text = "MAX LEVEL" if max_level else "UPGRADE $%s" % _money(int(entry.upgrade_cost))
-		button.custom_minimum_size = Vector2(112, 34)
+		button.custom_minimum_size = Vector2(104, 34)
 		button.disabled = max_level or not wallet.can_spend_dirty(int(entry.upgrade_cost))
 		button.tooltip_text = "Level 4 reached" if max_level else "Upgrade to Level %d for faster sales" % (int(entry.level) + 1)
 		if not max_level:
 			button.pressed.connect(_upgrade_dealer.bind(territory_id, entry.zone_id, entry.member_id))
 		_style_button(button, Color(0.2, 0.68, 0.84))
 		actions.add_child(button)
+		var duty_button := Button.new()
+		duty_button.text = "SEND BACK" if following else "CALL"
+		duty_button.custom_minimum_size = Vector2(82, 34)
+		duty_button.tooltip_text = (
+			"Return this dealer to work and resume their paused sale timer"
+			if following
+			else "Call this dealer as a bodyguard; income pauses while following"
+		)
+		duty_button.pressed.connect(
+			_send_dealer_back.bind(
+				territory_id, entry.zone_id, entry.member_id
+			)
+			if following
+			else _call_dealer.bind(
+				territory_id, entry.zone_id, entry.member_id
+			)
+		)
+		_style_button(duty_button, Color(0.25, 0.65, 0.85))
+		actions.add_child(duty_button)
 		var fire_button := Button.new()
 		fire_button.text = "FIRE"
 		fire_button.custom_minimum_size = Vector2(44, 34)
@@ -608,6 +836,42 @@ func _upgrade_dealer(territory_id: StringName, zone_id: StringName, member_id: S
 func _fire_dealer(territory_id: StringName, zone_id: StringName, member_id: StringName) -> void:
 	var success := _territory_dealers.fire_dealer(territory_id, zone_id, member_id)
 	feedback_label.text = "Dealer fired." if success else "Could not fire that dealer."
+	_refresh_territory()
+
+
+func _call_dealer(
+	territory_id: StringName,
+	zone_id: StringName,
+	member_id: StringName
+) -> void:
+	var success := _territory_dealers.call_dealer(
+		territory_id,
+		zone_id,
+		member_id
+	)
+	feedback_label.text = (
+		"Dealer is following you. Their income is paused."
+		if success
+		else "Could not call that dealer."
+	)
+	_refresh_territory()
+
+
+func _send_dealer_back(
+	territory_id: StringName,
+	zone_id: StringName,
+	member_id: StringName
+) -> void:
+	var success := _territory_dealers.send_dealer_back(
+		territory_id,
+		zone_id,
+		member_id
+	)
+	feedback_label.text = (
+		"Dealer returned to work."
+		if success
+		else "Could not send that dealer back."
+	)
 	_refresh_territory()
 
 

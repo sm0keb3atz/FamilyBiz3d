@@ -36,7 +36,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_contact_remaining = maxf(_contact_remaining - delta, 0.0)
 	var can_progress := (
-		wanted_component.wanted_level == 1
+		wanted_component.can_attempt_arrest()
 		and _contact_remaining > 0.0
 	)
 	var previous := _progress
@@ -64,7 +64,7 @@ func _process(delta: float) -> void:
 
 
 func report_police_contact() -> void:
-	if wanted_component.wanted_level == 1:
+	if wanted_component.can_attempt_arrest():
 		_contact_remaining = contact_grace
 
 
@@ -89,5 +89,5 @@ func _complete_arrest() -> void:
 
 
 func _on_wanted_level_changed(_previous: int, current: int) -> void:
-	if current != 1:
+	if current == 0 or not wanted_component.can_attempt_arrest():
 		reset_progress()

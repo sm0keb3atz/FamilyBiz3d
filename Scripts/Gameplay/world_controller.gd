@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 9
+const SAVE_VERSION := 11
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -42,6 +42,9 @@ const SAVE_PATH := "user://family_business_save.json"
 @onready var territory_dealers := get_node(
 	"../TerritoryDealerService"
 ) as TerritoryDealerService
+@onready var police_dispatch := get_node_or_null(
+	"../PoliceDispatchController"
+)
 
 
 func _ready() -> void:
@@ -141,6 +144,8 @@ func load_game() -> bool:
 	var data := parsed as Dictionary
 	var player_data := data.get("player", {}) as Dictionary
 	vehicle_component.prepare_for_load()
+	if police_dispatch != null:
+		police_dispatch.reset_for_load()
 	wallet.import_save_data(player_data.get("wallet", {}) as Dictionary)
 	inventory.import_save_data(player_data.get("inventory", {}) as Dictionary)
 	wardrobe.import_save_data(player_data.get("wardrobe", {}) as Dictionary)
@@ -166,6 +171,7 @@ func load_game() -> bool:
 		)
 	player.rotation.y = float(player_data.get("rotation_y", 0.0))
 	player.velocity = Vector3.ZERO
+	wanted.rehydrate_incident_after_load()
 
 	var territory_data := data.get("territories", {}) as Dictionary
 	for node in get_tree().get_nodes_in_group("territory_boundaries"):

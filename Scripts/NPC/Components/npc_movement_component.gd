@@ -5,6 +5,11 @@ extends Node
 @export_range(0.1, 20.0, 0.1) var move_speed := 2.5
 @export_range(0.1, 30.0, 0.1) var acceleration := 10.0
 @export_range(0.1, 30.0, 0.1) var turn_speed := 8.0
+@export_category("Navigation Intent")
+@export_range(0.1, 5.0, 0.1) var minimum_retarget_distance := 1.5
+@export_range(0.05, 2.0, 0.05) var minimum_retarget_interval := 0.25
+@export_range(0.5, 10.0, 0.25) var navigation_stuck_timeout := 2.5
+@export_range(0.05, 1.0, 0.05) var navigation_progress_distance := 0.2
 
 @export_category("Local Obstacle Steering")
 @export_range(0.5, 4.0, 0.1) var obstacle_probe_distance := 1.6
@@ -26,10 +31,19 @@ var _local_obstacle_steering_enabled := true
 var _obstacle_query: PhysicsRayQueryParameters3D
 var _facing_override_enabled := false
 var _facing_override_position := Vector3.ZERO
+var _intent_owner: StringName = &"none"
+var _intent_priority := -1
+var _intent_revision := 0
+var _retarget_remaining := 0.0
+var _progress_position := Vector3.ZERO
+var _progress_elapsed := 0.0
+var _stuck_attempts := 0
+var _is_navigation_stuck := false
 
 
 func initialize(owner_npc: CharacterBody3D) -> void:
 	npc = owner_npc
+	_progress_position = npc.global_position
 	_obstacle_query = PhysicsRayQueryParameters3D.new()
 	_obstacle_query.collision_mask = npc.obstacle_probe_collision_mask
 	_obstacle_query.exclude = [npc.get_rid()]
@@ -40,12 +54,46 @@ func initialize(owner_npc: CharacterBody3D) -> void:
 
 
 func set_navigation_target(target: Vector3) -> bool:
+	return set_navigation_intent(target, &"legacy", 0)
+
+
+func set_navigation_intent(
+	target: Vector3,
+	owner: StringName,
+	priority := 0,
+	force := false
+) -> bool:
 	if npc.is_defeated():
 		return false
-	if _has_navigation_target and _navigation_target.is_equal_approx(target):
+	if not target.is_finite():
+		return false
+	if _has_navigation_target and not force and priority < _intent_priority:
+		return false
+	var target_shift_squared := _navigation_target.distance_squared_to(target)
+	if (
+		_has_navigation_target
+		and not force
+		and owner == _intent_owner
+		and target_shift_squared <= 0.01
+	):
+		# Reassigning an identical destination restarts the NavigationAgent path.
+		# Police commonly hold a fixed last-known position for several seconds;
+		# restarting that path every quarter-second made them reverse or hesitate.
+		return false
+	if (
+		_has_navigation_target
+		and not force
+		and owner == _intent_owner
+		and _retarget_remaining > 0.0
+		and target_shift_squared < minimum_retarget_distance * minimum_retarget_distance
+	):
 		return false
 	_navigation_target = target
 	_has_navigation_target = true
+	_intent_owner = owner
+	_intent_priority = priority
+	_intent_revision += 1
+	_retarget_remaining = minimum_retarget_interval
 	_navigation_target_update_count += 1
 	_obstacle_probe_remaining = 0.0
 	_cached_steering_direction = Vector3.ZERO
@@ -56,10 +104,28 @@ func set_navigation_target(target: Vector3) -> bool:
 func clear_navigation_target() -> void:
 	_has_navigation_target = false
 	_navigation_target = npc.global_position
+	_intent_owner = &"none"
+	_intent_priority = -1
+	_progress_elapsed = 0.0
+	_is_navigation_stuck = false
 
 
 func get_navigation_target_update_count() -> int:
 	return _navigation_target_update_count
+
+
+func get_navigation_debug_state() -> Dictionary:
+	return {
+		"owner": String(_intent_owner),
+		"priority": _intent_priority,
+		"revision": _intent_revision,
+		"target": _navigation_target,
+		"has_target": _has_navigation_target,
+		"path_finished": npc.navigation_agent.is_navigation_finished(),
+		"target_reachable": npc.navigation_agent.is_target_reachable(),
+		"stuck": _is_navigation_stuck,
+		"stuck_attempts": _stuck_attempts,
+	}
 
 
 func set_navigation_avoidance_enabled(enabled: bool) -> void:
@@ -100,12 +166,48 @@ func move_toward_navigation_target(target: Vector3, delta: float) -> void:
 	advance_navigation(delta)
 
 
+func move_in_world_direction(
+	direction: Vector3,
+	speed: float,
+	delta: float
+) -> void:
+	if npc.is_defeated():
+		return
+	direction.y = 0.0
+	if direction.length_squared() <= 0.001 or speed <= 0.0:
+		stop_moving(delta)
+		return
+	var normalized_direction := direction.normalized()
+	if (
+		not _cached_steering_direction.is_zero_approx()
+		and _cached_steering_direction.dot(normalized_direction) < 0.75
+	):
+		# Do not reuse a cached forward/pursuit detour when combat switches to
+		# lateral motion; that produces one conspicuous forward slide.
+		_obstacle_probe_remaining = 0.0
+	var steered_direction := _get_obstacle_steered_direction(
+		normalized_direction,
+		delta
+	)
+	var target_velocity := steered_direction * speed
+	var desired_velocity := Vector3.ZERO
+	desired_velocity.x = move_toward(
+		npc.velocity.x, target_velocity.x, npc.acceleration * delta
+	)
+	desired_velocity.z = move_toward(
+		npc.velocity.z, target_velocity.z, npc.acceleration * delta
+	)
+	_submit_horizontal_movement(desired_velocity, delta)
+
+
 func advance_navigation(delta: float) -> void:
 	if npc.is_defeated():
 		return
 	if not _has_navigation_target:
 		stop_moving(delta)
 		return
+	_retarget_remaining = maxf(_retarget_remaining - delta, 0.0)
+	_update_navigation_progress(delta)
 	var next_position: Vector3 = (
 		npc.navigation_agent.get_next_path_position()
 	)
@@ -156,7 +258,33 @@ func reset_for_reuse() -> void:
 	_cached_steering_direction = Vector3.ZERO
 	_local_obstacle_steering_enabled = true
 	_facing_override_enabled = false
+	_stuck_attempts = 0
+	_progress_position = npc.global_position
 	clear_navigation_target()
+
+
+func _update_navigation_progress(delta: float) -> void:
+	if npc.global_position.distance_squared_to(_progress_position) >= navigation_progress_distance * navigation_progress_distance:
+		_progress_position = npc.global_position
+		_progress_elapsed = 0.0
+		_is_navigation_stuck = false
+		return
+	if npc.navigation_agent.is_navigation_finished():
+		_progress_elapsed = 0.0
+		return
+	_progress_elapsed += delta
+	if _progress_elapsed < navigation_stuck_timeout:
+		return
+	_is_navigation_stuck = true
+	_stuck_attempts += 1
+	_progress_elapsed = 0.0
+	var navigation_map: RID = npc.navigation_agent.get_navigation_map()
+	if not navigation_map.is_valid():
+		return
+	var side: Vector3 = Vector3.RIGHT.rotated(Vector3.UP, float(_stuck_attempts) * 1.7)
+	var candidate: Vector3 = npc.global_position + side * minf(1.0 + _stuck_attempts * 0.5, 3.0)
+	var reachable: Vector3 = NavigationServer3D.map_get_closest_point(navigation_map, candidate)
+	set_navigation_intent(reachable, _intent_owner, _intent_priority, true)
 
 
 func _apply_gravity(delta: float) -> void:

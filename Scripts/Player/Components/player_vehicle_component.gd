@@ -112,6 +112,14 @@ func get_effective_position() -> Vector3:
 	)
 
 
+func get_effective_velocity() -> Vector3:
+	return (
+		_current_vehicle.linear_velocity
+		if _current_vehicle != null
+		else body.velocity
+	)
+
+
 func prepare_for_load() -> void:
 	if _current_vehicle == null:
 		return

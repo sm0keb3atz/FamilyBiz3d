@@ -503,6 +503,34 @@ func _run() -> void:
 	assert(east_network.get_entry_waypoints().size() >= 5)
 	assert(east_network.get_exit_waypoints().size() >= 5)
 	assert(east_network.get_dispatch_candidates().size() >= 5)
+	assert(get_nodes_in_group(&"police_staging_point").is_empty())
+	var dynamic_route_start := east_network.get_dispatch_candidates()[0]
+	var dynamic_road_target := east_network.find_reachable_road_target(
+		dynamic_route_start,
+		Vector3(67.0, 0.2, -63.0),
+		dynamic_route_start.global_position,
+		10.0
+	)
+	assert(not dynamic_road_target.is_empty())
+	var projected_response_position := (
+		dynamic_road_target.get("position") as Vector3
+	)
+	assert(projected_response_position.is_finite())
+	assert(
+		projected_response_position.distance_to(Vector3(67.0, 0.2, -63.0))
+		> 5.0
+	)
+	assert((dynamic_road_target.get("route") as Array).size() >= 1)
+	assert(
+		east_network.get_last_reachable_target_graph_visit_count() > 0
+		and east_network.get_last_reachable_target_graph_visit_count()
+		<= east_network.get_waypoint_count(),
+		"Dynamic road targeting revisited the graph excessively: %d visits for %d waypoints"
+		% [
+			east_network.get_last_reachable_target_graph_visit_count(),
+			east_network.get_waypoint_count(),
+		]
+	)
 	var eastbound_lane := east_routes.get_node(
 		"Road_SW_SE_E"
 	) as TrafficWaypoint3D
@@ -544,9 +572,10 @@ func _run() -> void:
 	var pedestrian_route := pedestrian_network.find_path(south_curb, north_curb)
 	assert(pedestrian_route.size() == 2)
 	assert(pedestrian_network.path_requires_crossing(pedestrian_route))
-	if west_network.get_waypoint_count() > 0:
-		assert(west_network.get_connection_count() > 0)
-		assert(west_network.get_validation_errors().is_empty())
+	assert(west_network.get_waypoint_count() > 0)
+	assert(west_network.get_connection_count() > 0)
+	assert(west_network.get_dispatch_candidates().size() >= 5)
+	assert(west_network.get_validation_errors().is_empty())
 
 	var player := world.get_node("Gameplay/Player") as CharacterBody3D
 	var parked_vehicle: BaseVehicle = world.get_node("Gameplay/MuscleCar")
@@ -569,14 +598,30 @@ func _run() -> void:
 	east_manager.minimum_spawn_distance = 0.0
 	east_manager.maximum_spawn_distance = 500.0
 	east_manager.recycle_distance = 500.0
-	east_manager.active_target = 2
-	east_manager.pool_capacity = 4
-	assert(east_manager.populate_immediately(2) == 2)
-	assert(east_manager.get_active_count() == 2)
+	east_manager.active_target = 10
+	east_manager.pool_capacity = 14
+	east_manager.spawn_separation = 1.0
+	east_manager.set_random_seed(11014)
+	assert(east_manager.get_catalog_variant_count() == 14)
+	var catalog_variants: Array[Resource] = []
+	catalog_variants.assign(east_manager.vehicle_catalog.call("get_variants"))
+	var excluded_ids := [&"police_sedan", &"police_suv", &"truck_01", &"truck_trailer_01"]
+	for variant in catalog_variants:
+		assert(variant.is_valid())
+		assert(variant.variant_id not in excluded_ids)
+		var definition := variant.definition as VehicleDefinition
+		assert(definition.collision_size.x > 0.0)
+		assert(definition.collision_size.y > 0.0)
+		assert(definition.collision_size.z > 0.0)
+		assert(definition.front_left_wheel_anchor != definition.rear_left_wheel_anchor)
+		assert(definition.front_right_wheel_anchor != definition.rear_right_wheel_anchor)
+	assert(east_manager.populate_immediately(10) == 10)
+	assert(east_manager.get_active_count() == 10)
 	assert(east_manager.get_live_pool_count() <= east_manager.pool_capacity)
 	await process_frame
 	await physics_frame
 
+	var variant_counts := {}
 	for traffic_vehicle in east_manager.get_active_vehicles():
 		assert(traffic_vehicle is BaseVehicle)
 		assert(traffic_vehicle.is_managed_traffic())
@@ -589,6 +634,43 @@ func _run() -> void:
 		assert(ai.has_route())
 		assert(ai.get_current_waypoint() != null)
 		assert(ai.get_target_waypoint() != null)
+		var wheel_visual := traffic_vehicle.get_node(
+			"Components/WheelVisualComponent"
+		) as VehicleWheelVisualComponent
+		if not wheel_visual.has_valid_bones():
+			push_error("Missing wheel bones for %s" % traffic_vehicle.get_vehicle_id())
+			quit(1)
+			return
+		var alignment_error := wheel_visual.get_maximum_rest_alignment_error()
+		if alignment_error >= 0.01:
+			push_error(
+				"Wheel alignment error for %s: %.4f; %s"
+				% [
+					traffic_vehicle.get_vehicle_id(),
+					alignment_error,
+					str(wheel_visual.get_rest_alignment_diagnostics()),
+				]
+			)
+			quit(1)
+			return
+		var variant_id := traffic_vehicle.get_vehicle_id()
+		variant_counts[variant_id] = int(variant_counts.get(variant_id, 0)) + 1
+		assert((traffic_vehicle.get("_traffic_color_materials") as Array).size() > 0)
+	assert(variant_counts.size() >= 5)
+	for count in variant_counts.values():
+		assert(int(count) <= 3)
+
+	var pooled_vehicle := east_manager.get_active_vehicles()[0]
+	var pooled_variant_id := pooled_vehicle.get_vehicle_id()
+	east_manager.call("_recycle_vehicle", pooled_vehicle)
+	var matching_variant := east_manager.vehicle_catalog.call(
+		"get_variant", pooled_variant_id
+	) as Resource
+	var reused_vehicle := east_manager.call(
+		"_acquire_vehicle", matching_variant
+	) as BaseVehicle
+	assert(reused_vehicle == pooled_vehicle)
+	assert(reused_vehicle.get_vehicle_id() == pooled_variant_id)
 
 	print("TRAFFIC_SMOKE_TEST_PASS")
 	quit(0)

@@ -43,6 +43,7 @@ var _cache_dirty := true
 var _debug_dirty := true
 var _editor_refresh_remaining := 0.0
 var _debug_mesh_instance: MeshInstance3D
+var _last_reachable_target_graph_visit_count := 0
 
 
 func _ready() -> void:
@@ -239,6 +240,199 @@ func find_route(
 				if neighbor not in frontier:
 					frontier.append(neighbor)
 	return empty
+
+
+func find_reachable_road_target(
+	start: TrafficWaypoint3D,
+	world_position: Vector3,
+	approach_origin: Vector3 = Vector3.INF,
+	stand_off_distance := 0.0,
+	excluded_positions: Array[Vector3] = [],
+	minimum_separation := 0.0
+) -> Dictionary:
+	_ensure_cache()
+	_last_reachable_target_graph_visit_count = 0
+	if start == null or not has_waypoint(start) or not world_position.is_finite():
+		return {}
+	var path_tree := _build_shortest_path_tree(start)
+	var costs := path_tree.get("costs", {}) as Dictionary
+	var route_distances := path_tree.get("route_distances", {}) as Dictionary
+	var came_from := path_tree.get("came_from", {}) as Dictionary
+	var best := {}
+	var best_score := INF
+	for lane_start in _waypoints:
+		if not costs.has(lane_start):
+			continue
+		for lane_end: TrafficWaypoint3D in _adjacency.get(lane_start, []):
+			if not _is_response_road_segment(lane_start, lane_end):
+				continue
+			var segment := lane_end.global_position - lane_start.global_position
+			segment.y = 0.0
+			var segment_length := segment.length()
+			if segment_length <= 4.0:
+				continue
+			var direction := segment / segment_length
+			var target_offset := world_position - lane_start.global_position
+			target_offset.y = 0.0
+			var projected_progress := clampf(
+				target_offset.dot(direction),
+				0.0,
+				segment_length
+			)
+			var edge_margin := minf(2.0, segment_length * 0.2)
+			var stop_progress := clampf(
+				projected_progress - maxf(stand_off_distance, 0.0),
+				edge_margin,
+				segment_length - edge_margin
+			)
+			if lane_start == start and approach_origin.is_finite():
+				var origin_offset := approach_origin - lane_start.global_position
+				origin_offset.y = 0.0
+				var origin_progress := origin_offset.dot(direction)
+				if stop_progress < origin_progress + 3.0:
+					continue
+			var stop_position := lane_start.global_position + direction * stop_progress
+			var separated := true
+			for excluded in excluded_positions:
+				if (
+					excluded.is_finite()
+					and excluded.distance_squared_to(stop_position)
+					< minimum_separation * minimum_separation
+				):
+					separated = false
+					break
+			if not separated:
+				continue
+			var route_distance := float(route_distances.get(lane_start, 0.0)) + stop_progress
+			var target_distance := Vector2(
+				world_position.x - stop_position.x,
+				world_position.z - stop_position.z
+			).length()
+			var score := target_distance * 4.0 + route_distance * 0.05
+			if score >= best_score:
+				continue
+			best_score = score
+			best = {
+				"position": stop_position,
+				"approach_direction": direction,
+				"segment_start": lane_start,
+				"segment_end": lane_end,
+				"route_distance": route_distance,
+				"target_distance": target_distance,
+			}
+	if best.is_empty():
+		return best
+	var best_segment_start := best.get("segment_start") as TrafficWaypoint3D
+	best["route"] = _reconstruct_route(came_from, best_segment_start)
+	return best
+
+
+func get_last_reachable_target_graph_visit_count() -> int:
+	return _last_reachable_target_graph_visit_count
+
+
+func find_route_avoiding(
+	start: TrafficWaypoint3D,
+	goal: TrafficWaypoint3D,
+	blocked_waypoints: Array[TrafficWaypoint3D]
+) -> Array[TrafficWaypoint3D]:
+	_ensure_cache()
+	var empty: Array[TrafficWaypoint3D] = []
+	if (
+		start == null
+		or goal == null
+		or not has_waypoint(start)
+		or not has_waypoint(goal)
+	):
+		return empty
+	var blocked := {}
+	for waypoint in blocked_waypoints:
+		if waypoint != null and waypoint != start and waypoint != goal:
+			blocked[waypoint] = true
+	var frontier: Array[TrafficWaypoint3D] = [start]
+	var costs := {start: 0.0}
+	var came_from := {}
+	while not frontier.is_empty():
+		var current := _pop_lowest_cost(frontier, costs)
+		if current == goal:
+			return _reconstruct_route(came_from, current)
+		for neighbor: TrafficWaypoint3D in _adjacency.get(current, []):
+			if blocked.has(neighbor):
+				continue
+			var distance := current.global_position.distance_to(
+				neighbor.global_position
+			)
+			var edge_cost := distance / maxf(neighbor.route_weight, 0.05)
+			var new_cost := float(costs[current]) + edge_cost
+			if not costs.has(neighbor) or new_cost < float(costs[neighbor]):
+				costs[neighbor] = new_cost
+				came_from[neighbor] = current
+				if neighbor not in frontier:
+					frontier.append(neighbor)
+	return empty
+
+
+func find_adjacent_lane_target(
+	world_position: Vector3,
+	travel_direction: Vector3,
+	lookahead := 16.0,
+	minimum_lane_separation := 2.5,
+	maximum_lane_separation := 9.5
+) -> Dictionary:
+	_ensure_cache()
+	travel_direction.y = 0.0
+	if travel_direction.is_zero_approx():
+		return {}
+	travel_direction = travel_direction.normalized()
+	var best := {}
+	var best_score := INF
+	for lane_start in _waypoints:
+		for lane_end: TrafficWaypoint3D in _adjacency.get(lane_start, []):
+			var segment := lane_end.global_position - lane_start.global_position
+			segment.y = 0.0
+			var segment_length := segment.length()
+			if segment_length < lookahead * 0.6:
+				continue
+			var authored_direction := segment / segment_length
+			var alignment := authored_direction.dot(travel_direction)
+			if absf(alignment) < 0.72:
+				continue
+			var from_start := world_position - lane_start.global_position
+			from_start.y = 0.0
+			var progress := clampf(
+				from_start.dot(authored_direction),
+				0.0,
+				segment_length
+			)
+			var closest := lane_start.global_position + authored_direction * progress
+			var separation := Vector2(
+				world_position.x - closest.x,
+				world_position.z - closest.z
+			).length()
+			if (
+				separation < minimum_lane_separation
+				or separation > maximum_lane_separation
+			):
+				continue
+			var pass_direction := (
+				authored_direction if alignment >= 0.0 else -authored_direction
+			)
+			var available := (
+				segment_length - progress if alignment >= 0.0 else progress
+			)
+			if available < lookahead * 0.65:
+				continue
+			var target := closest + pass_direction * minf(lookahead, available - 0.5)
+			var score := separation + (1.0 - absf(alignment)) * 8.0
+			if score < best_score:
+				best_score = score
+				best = {
+					"target": target,
+					"direction": pass_direction,
+					"lane_start": lane_start,
+					"lane_end": lane_end,
+				}
+	return best
 
 
 func get_nearest_waypoint(
@@ -482,6 +676,36 @@ func _pop_lowest_cost(
 	return frontier.pop_at(best_index) as TrafficWaypoint3D
 
 
+func _build_shortest_path_tree(start: TrafficWaypoint3D) -> Dictionary:
+	var frontier: Array[TrafficWaypoint3D] = [start]
+	var costs := {start: 0.0}
+	var route_distances := {start: 0.0}
+	var came_from := {}
+	while not frontier.is_empty():
+		var current := _pop_lowest_cost(frontier, costs)
+		_last_reachable_target_graph_visit_count += 1
+		for neighbor: TrafficWaypoint3D in _adjacency.get(current, []):
+			var distance := current.global_position.distance_to(
+				neighbor.global_position
+			)
+			var new_cost := (
+				float(costs[current])
+				+ distance / maxf(neighbor.route_weight, 0.05)
+			)
+			if costs.has(neighbor) and new_cost >= float(costs[neighbor]):
+				continue
+			costs[neighbor] = new_cost
+			route_distances[neighbor] = float(route_distances[current]) + distance
+			came_from[neighbor] = current
+			if neighbor not in frontier:
+				frontier.append(neighbor)
+	return {
+		"costs": costs,
+		"route_distances": route_distances,
+		"came_from": came_from,
+	}
+
+
 func _reconstruct_route(
 	came_from: Dictionary,
 	current: TrafficWaypoint3D
@@ -491,6 +715,18 @@ func _reconstruct_route(
 		current = came_from[current] as TrafficWaypoint3D
 		route.push_front(current)
 	return route
+
+
+func _is_response_road_segment(
+	lane_start: TrafficWaypoint3D,
+	lane_end: TrafficWaypoint3D
+) -> bool:
+	if lane_start == null or lane_end == null:
+		return false
+	return not (
+		lane_start.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_ENTRY)
+		or lane_end.has_role(TrafficWaypoint3D.WaypointRole.INTERSECTION_ENTRY)
+	)
 
 
 func _add_link(

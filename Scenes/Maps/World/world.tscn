@@ -2,16 +2,24 @@
 
 [ext_resource type="PackedScene" uid="uid://chfupylvwjkco" path="res://Scenes/Maps/Territorys/HoodEast.tscn" id="1_east"]
 [ext_resource type="PackedScene" uid="uid://blrfy38pd5dw2" path="res://Scenes/Maps/Territorys/HoodWest.tscn" id="2_west"]
+[ext_resource type="PackedScene" path="res://Scenes/Maps/Territorys/HoodWestMobility.tscn" id="2_west_mobility"]
 [ext_resource type="PackedScene" uid="uid://b7lu430qitjcu" path="res://Scenes/Player.tscn" id="3_player"]
 [ext_resource type="PackedScene" uid="uid://b0tcbblin3k4b" path="res://Scenes/NPC/DealerNPC.tscn" id="4_dealer"]
 [ext_resource type="PackedScene" uid="uid://lbnphh8gm20q" path="res://Scenes/NPC/CustomerNPC.tscn" id="5_customer"]
 [ext_resource type="Script" uid="uid://drakbifufadbe" path="res://Scripts/Gameplay/world_controller.gd" id="6_controller"]
 [ext_resource type="PackedScene" uid="uid://cmyoinaojjcgt" path="res://Scenes/Vehicles/MuscleCar.tscn" id="7_muscle_car"]
+[ext_resource type="PackedScene" uid="uid://cyreq2x33fsli" path="res://Scenes/Vehicles/BaseVehicle.tscn" id="7_traffic_base"]
+[ext_resource type="Resource" path="res://Scripts/Traffic/Resources/default_traffic_vehicle_catalog.tres" id="7_traffic_catalog"]
 [ext_resource type="PackedScene" uid="uid://b5hevxt2pn7d8" path="res://Scenes/NPC/HoodEastPedestrianNetwork.tscn" id="8_pedestrian_network"]
 [ext_resource type="Script" uid="uid://bxw71y4t6qpfj" path="res://Scripts/NPC/civilian_population_manager.gd" id="9_population"]
 [ext_resource type="PackedScene" path="res://Scenes/NPC/PoliceNPC.tscn" id="10_police"]
 [ext_resource type="Script" uid="uid://4v6vf2ol38ey" path="res://Scripts/Traffic/traffic_network_3d.gd" id="11_traffic_network"]
 [ext_resource type="Script" uid="uid://eqf0y7pyekcp" path="res://Scripts/Traffic/traffic_population_manager.gd" id="12_traffic_population"]
+[ext_resource type="Script" path="res://Scripts/Traffic/traffic_world_coordinator.gd" id="12_traffic_coordinator"]
+[ext_resource type="Script" path="res://Scripts/NPC/police_dispatch_controller.gd" id="12_police_dispatch"]
+[ext_resource type="PackedScene" path="res://Scenes/Vehicles/PoliceCruiser.tscn" id="12_police_cruiser"]
+[ext_resource type="Script" path="res://Scripts/NPC/police_response_profile.gd" id="12_response_profile"]
+[ext_resource type="Script" path="res://Scripts/NPC/police_dispatch_zone.gd" id="12_dispatch_zone"]
 [ext_resource type="Script" uid="uid://c164fk21ta16x" path="res://Scripts/Gameplay/world_time_component.gd" id="14_world_time"]
 [ext_resource type="Shader" uid="uid://hknjq3pk7gho" path="res://Assets/VFX/Shaders/customizable_sky.gdshader" id="15_sky_shader"]
 [ext_resource type="Script" uid="uid://bmfjtfxj7hnsa" path="res://Scripts/Gameplay/territory_market_service.gd" id="16_market"]
@@ -19,6 +27,9 @@
 [ext_resource type="Script" uid="uid://b1atse36lmtdu" path="res://Scripts/NPC/dealer_activity_zone_3d.gd" id="18_dealer_zone"]
 [ext_resource type="Script" uid="uid://d0ndv2i7pclhl" path="res://Scripts/Gameplay/territory_encounter_controller.gd" id="19_encounter"]
 [ext_resource type="Script" path="res://Scripts/Gameplay/territory_dealer_service.gd" id="20_territory_dealers"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/world_event_bus.gd" id="21_world_events"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/evidence_service.gd" id="22_evidence"]
+[ext_resource type="Script" path="res://Scripts/UI/public_safety_debug_overlay.gd" id="23_public_safety_debug"]
 
 [sub_resource type="FastNoiseLite" id="CloudNoiseA"]
 seed = 3191
@@ -92,6 +103,21 @@ polygons = [PackedInt32Array(0, 1, 2), PackedInt32Array(0, 2, 3)]
 agent_height = 1.8
 agent_radius = 0.45
 
+[sub_resource type="Resource" id="PoliceResponseProfile_default"]
+script = ExtResource("12_response_profile")
+
+[sub_resource type="Resource" id="PoliceDispatchZone_east"]
+script = ExtResource("12_dispatch_zone")
+territory_id = &"hood_east"
+traffic_network_path = NodePath("../Navigation/CityTrafficNetwork")
+population_manager_path = NodePath("../CivilianPopulationManager")
+
+[sub_resource type="Resource" id="PoliceDispatchZone_west"]
+script = ExtResource("12_dispatch_zone")
+territory_id = &"hood_west"
+traffic_network_path = NodePath("../Navigation/HoodWestTrafficNetwork")
+population_manager_path = NodePath("../WestPopulationManager")
+
 [node name="World" type="Node3D" unique_id=285916361]
 
 [node name="Environment" type="Node3D" parent="." unique_id=2006113920]
@@ -101,6 +127,13 @@ environment = SubResource("Environment")
 
 [node name="Sun" type="DirectionalLight3D" parent="Environment" unique_id=2092839663]
 transform = Transform3D(0.8660254, 0.43301272, -0.24999999, 0, 0.49999997, 0.86602545, 0.5, -0.75, 0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Moon" type="DirectionalLight3D" parent="Environment"]
+rotation_degrees = Vector3(-55, 28, 0)
+light_color = Color(0.48, 0.62, 1, 1)
+light_energy = 0.0
+light_indirect_energy = 0.65
 shadow_enabled = true
 
 [node name="Territories" type="Node3D" parent="." unique_id=271447831]
@@ -122,13 +155,16 @@ navigation_mesh = SubResource("WestNavigation")
 [node name="HoodWestPedestrianNetwork" parent="Navigation" unique_id=878643702 instance=ExtResource("8_pedestrian_network")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -240.04152)
 
+[node name="HoodWestMobility" parent="Navigation" instance=ExtResource("2_west_mobility")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -240)
+
 [node name="CityTrafficNetwork" type="Node3D" parent="Navigation" unique_id=1996900601]
 script = ExtResource("11_traffic_network")
 
 [node name="HoodWestTrafficNetwork" type="Node3D" parent="Navigation" unique_id=1232254990]
 script = ExtResource("11_traffic_network")
 debug_draw_in_editor = false
-scan_root_paths = Array[NodePath]([NodePath("../../Territories/HoodWest")])
+scan_root_paths = Array[NodePath]([NodePath("../HoodWestMobility/TrafficRoutes")])
 allow_empty_network = true
 discover_territory_mobility = false
 
@@ -224,6 +260,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, -256)
 [node name="TerritoryDealerService" type="Node" parent="."]
 script = ExtResource("20_territory_dealers")
 
+[node name="WorldEventBus" type="Node" parent="."]
+script = ExtResource("21_world_events")
+
+[node name="EvidenceService" type="Node" parent="."]
+script = ExtResource("22_evidence")
+
+[node name="PublicSafetyDebugOverlay" type="CanvasLayer" parent="."]
+script = ExtResource("23_public_safety_debug")
+
 [node name="WorldController" type="Node" parent="." unique_id=185472791]
 script = ExtResource("6_controller")
 
@@ -253,16 +298,34 @@ network_path = NodePath("../Navigation/HoodWestPedestrianNetwork")
 player_path = NodePath("../Gameplay/Player")
 npc_container_path = NodePath("../Gameplay/Civilians")
 
+[node name="TrafficWorldCoordinator" type="Node3D" parent="."]
+script = ExtResource("12_traffic_coordinator")
+
 [node name="TrafficPopulationManager" type="Node3D" parent="." unique_id=1691622919]
 script = ExtResource("12_traffic_population")
-vehicle_scene = ExtResource("7_muscle_car")
+vehicle_scene = ExtResource("7_traffic_base")
+vehicle_catalog = ExtResource("7_traffic_catalog")
 network_path = NodePath("../Navigation/CityTrafficNetwork")
 player_path = NodePath("../Gameplay/Player")
 vehicle_container_path = NodePath("../Gameplay/TrafficVehicles")
+traffic_coordinator_path = NodePath("../TrafficWorldCoordinator")
 
 [node name="WestTrafficPopulationManager" type="Node3D" parent="." unique_id=552145384]
 script = ExtResource("12_traffic_population")
-vehicle_scene = ExtResource("7_muscle_car")
+vehicle_scene = ExtResource("7_traffic_base")
+vehicle_catalog = ExtResource("7_traffic_catalog")
 network_path = NodePath("../Navigation/HoodWestTrafficNetwork")
 player_path = NodePath("../Gameplay/Player")
 vehicle_container_path = NodePath("../Gameplay/TrafficVehicles")
+traffic_coordinator_path = NodePath("../TrafficWorldCoordinator")
+
+[node name="PoliceDispatchController" type="Node3D" parent="."]
+script = ExtResource("12_police_dispatch")
+cruiser_scene = ExtResource("12_police_cruiser")
+player_path = NodePath("../Gameplay/Player")
+response_profile = SubResource("PoliceResponseProfile_default")
+zones = Array[ExtResource("12_dispatch_zone")]([SubResource("PoliceDispatchZone_east"), SubResource("PoliceDispatchZone_west")])
+traffic_network_path = NodePath("../Navigation/CityTrafficNetwork")
+traffic_container_path = NodePath("../Gameplay/TrafficVehicles")
+traffic_coordinator_path = NodePath("../TrafficWorldCoordinator")
+police_population_manager_path = NodePath("../CivilianPopulationManager")

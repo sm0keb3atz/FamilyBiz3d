@@ -203,6 +203,31 @@ func get_member_dealer(member_id: StringName) -> DealerNPC:
 	return dealer if is_instance_valid(dealer) else null
 
 
+func return_member_to_post(member_id: StringName) -> void:
+	var dealer := get_member_dealer(member_id)
+	var index := member_ids.find(String(member_id))
+	if dealer == null or index < 0 or dealer.is_defeated():
+		return
+	var post_position := global_transform * _get_member_position(index)
+	var navigation_map := dealer.navigation_agent.get_navigation_map()
+	if (
+		navigation_map.is_valid()
+		and NavigationServer3D.map_get_iteration_id(navigation_map) > 0
+	):
+		var reachable := NavigationServer3D.map_get_closest_point(
+			navigation_map,
+			post_position
+		)
+		if reachable.distance_to(post_position) <= 3.0:
+			post_position = reachable
+	dealer.clear_navigation_target()
+	dealer.velocity = Vector3.ZERO
+	dealer.navigation_agent.set_velocity_forced(Vector3.ZERO)
+	dealer.global_position = post_position
+	dealer.global_rotation.y = _get_member_world_yaw(index)
+	_schedule_group_presentation()
+
+
 func set_member_employed(member_id: StringName, employed: bool) -> void:
 	var index := member_ids.find(String(member_id))
 	if index < 0 or faction != TerritoryStatsComponent.OwnerFaction.PLAYER:
@@ -391,6 +416,7 @@ func _configure_group_presentation() -> void:
 		if (
 			is_instance_valid(dealer)
 			and not dealer.is_defeated()
+			and not dealer.is_bodyguard_following()
 			and not dealer.is_hostile()
 			and not dealer.is_shop_interaction_active()
 		):

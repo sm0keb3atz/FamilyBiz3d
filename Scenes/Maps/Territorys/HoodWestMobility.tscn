@@ -1,0 +1,59 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Traffic/territory_mobility_3d.gd" id="1_mobility"]
+[ext_resource type="Script" path="res://Scripts/Traffic/hood_east_traffic_routes_3d.gd" id="2_routes"]
+[ext_resource type="Script" path="res://Scripts/Traffic/traffic_intersection_3d.gd" id="3_intersection"]
+[ext_resource type="Script" path="res://Scripts/Traffic/traffic_signal_controller_3d.gd" id="4_signal"]
+
+[node name="HoodWestMobility" type="Node3D"]
+script = ExtResource("1_mobility")
+territory_id = &"hood_west"
+pedestrian_network_path = NodePath("../HoodWestPedestrianNetwork")
+
+[node name="TrafficRoutes" type="Node3D" parent="."]
+script = ExtResource("2_routes")
+territory_id = &"hood_west"
+
+[node name="Intersections" type="Node3D" parent="."]
+
+[node name="SouthWest" type="Node3D" parent="Intersections"]
+script = ExtResource("3_intersection")
+intersection_id = &"hood_west_south_west"
+[node name="SignalController" type="Node3D" parent="Intersections/SouthWest"]
+script = ExtResource("4_signal")
+controller_id = &"hood_west_south_west"
+
+[node name="SouthEast" type="Node3D" parent="Intersections"]
+script = ExtResource("3_intersection")
+intersection_id = &"hood_west_south_east"
+[node name="SignalController" type="Node3D" parent="Intersections/SouthEast"]
+script = ExtResource("4_signal")
+controller_id = &"hood_west_south_east"
+
+[node name="MidWest" type="Node3D" parent="Intersections"]
+script = ExtResource("3_intersection")
+intersection_id = &"hood_west_mid_west"
+[node name="SignalController" type="Node3D" parent="Intersections/MidWest"]
+script = ExtResource("4_signal")
+controller_id = &"hood_west_mid_west"
+
+[node name="MidEast" type="Node3D" parent="Intersections"]
+script = ExtResource("3_intersection")
+intersection_id = &"hood_west_mid_east"
+[node name="SignalController" type="Node3D" parent="Intersections/MidEast"]
+script = ExtResource("4_signal")
+controller_id = &"hood_west_mid_east"
+
+[node name="NorthWest" type="Node3D" parent="Intersections"]
+script = ExtResource("3_intersection")
+intersection_id = &"hood_west_north_west"
+[node name="SignalController" type="Node3D" parent="Intersections/NorthWest"]
+script = ExtResource("4_signal")
+controller_id = &"hood_west_north_west"
+
+[node name="NorthEast" type="Node3D" parent="Intersections"]
+script = ExtResource("3_intersection")
+intersection_id = &"hood_west_north_east"
+[node name="SignalController" type="Node3D" parent="Intersections/NorthEast"]
+script = ExtResource("4_signal")
+controller_id = &"hood_west_north_east"

@@ -134,10 +134,25 @@ func set_ai_control(
 	_ai_control_enabled = true
 	_ai_throttle = clampf(throttle, 0.0, 1.0)
 	_ai_brake = clampf(brake, 0.0, 1.0)
+	var forward_speed := absf(
+		vehicle.linear_velocity.dot(vehicle.global_basis.z)
+	)
+	var speed_ratio := clampf(
+		forward_speed / maxf(vehicle.definition.max_forward_speed, 0.1),
+		0.0,
+		1.0
+	)
+	var steering_limit := deg_to_rad(
+		vehicle.definition.max_steering_degrees
+	) * lerpf(
+		1.0,
+		vehicle.definition.high_speed_steering_ratio,
+		speed_ratio
+	)
 	_ai_steering = clampf(
 		steering,
-		-deg_to_rad(vehicle.definition.max_steering_degrees),
-		deg_to_rad(vehicle.definition.max_steering_degrees)
+		-steering_limit,
+		steering_limit
 	)
 	_ai_handbrake = clampf(handbrake, 0.0, 1.0)
 

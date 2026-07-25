@@ -10,6 +10,8 @@ const DIRECTIONS := {
 }
 const OPPOSITE := {"E": "W", "W": "E", "N": "S", "S": "N"}
 
+@export var territory_id: StringName = &"hood_east"
+
 @export_category("Lane Layout")
 @export_range(1.5, 5.0, 0.1) var lane_center_offset := 3.2:
 	set(value):
@@ -53,12 +55,12 @@ func _build_reference_network() -> void:
 	if get_node_or_null("SW_In_N") != null:
 		return
 	var intersections := {
-		"SW": {"position": Vector3(7, 0.2, -123), "arms": ["N", "E", "S"], "id": &"hood_east_south_west"},
-		"SE": {"position": Vector3(127, 0.2, -123), "arms": ["N", "E", "S", "W"], "id": &"hood_east_south_east"},
-		"MW": {"position": Vector3(7, 0.2, -3), "arms": ["N", "E", "S"], "id": &"hood_east_mid_west"},
-		"ME": {"position": Vector3(127, 0.2, -3), "arms": ["N", "E", "S", "W"], "id": &"hood_east_mid_east"},
-		"NW": {"position": Vector3(7, 0.2, 117), "arms": ["E", "S"], "id": &"hood_east_north_west"},
-		"NE": {"position": Vector3(127, 0.2, 117), "arms": ["E", "S", "W"], "id": &"hood_east_north_east"},
+		"SW": {"position": Vector3(7, 0.2, -123), "arms": ["N", "E", "S"], "id": _territory_name("south_west")},
+		"SE": {"position": Vector3(127, 0.2, -123), "arms": ["N", "E", "S", "W"], "id": _territory_name("south_east")},
+		"MW": {"position": Vector3(7, 0.2, -3), "arms": ["N", "E", "S"], "id": _territory_name("mid_west")},
+		"ME": {"position": Vector3(127, 0.2, -3), "arms": ["N", "E", "S", "W"], "id": _territory_name("mid_east")},
+		"NW": {"position": Vector3(7, 0.2, 117), "arms": ["E", "S"], "id": _territory_name("north_west")},
+		"NE": {"position": Vector3(127, 0.2, 117), "arms": ["E", "S", "W"], "id": _territory_name("north_east")},
 	}
 	for key: String in intersections:
 		_build_intersection(key, intersections[key])
@@ -187,7 +189,7 @@ func _add_boundary_pair(
 		)
 		exit.spawn_allowed = false
 		exit.is_external_connector = true
-		exit.connector_id = &"hood_east_%s_out" % port_name
+		exit.connector_id = StringName("%s_%s_out" % [territory_id, port_name])
 		exit.connector_direction = TrafficWaypoint3D.ConnectorDirection.EXIT
 		exit.allow_unpaired_connector = true
 		_connect(outbound, exit)
@@ -200,7 +202,7 @@ func _add_boundary_pair(
 			| TrafficWaypoint3D.WaypointRole.DISPATCH
 		)
 		entry.is_external_connector = true
-		entry.connector_id = &"hood_east_%s_in" % port_name
+		entry.connector_id = StringName("%s_%s_in" % [territory_id, port_name])
 		entry.connector_direction = TrafficWaypoint3D.ConnectorDirection.ENTRY
 		entry.allow_unpaired_connector = true
 		entry.spawn_weight = 2.0
@@ -262,3 +264,7 @@ func _movement_group(inbound: String, outbound: String) -> StringName:
 	if cross.y > 0.0:
 		return &"%s_left" % _signal_group_for_direction(inbound)
 	return _signal_group_for_direction(inbound)
+
+
+func _territory_name(suffix: String) -> StringName:
+	return StringName("%s_%s" % [territory_id, suffix])

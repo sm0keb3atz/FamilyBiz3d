@@ -79,6 +79,13 @@ const CUSTOMER_OUTLINE_SHADER := preload(
 @export_range(0.5, 30.0, 0.5) var panic_minimum_duration := 4.0
 @export_range(1.0, 60.0, 0.5) var panic_maximum_duration := 12.0
 
+@export_category("Crime Witness")
+@export_range(2.0, 40.0, 0.5) var crime_witness_range := 18.0
+@export_range(30.0, 180.0, 1.0) var crime_witness_fov_degrees := 120.0
+@export_range(0.5, 10.0, 0.25) var report_delay_minimum := 2.0
+@export_range(0.5, 10.0, 0.25) var report_delay_maximum := 5.0
+@export_flags_3d_physics var crime_witness_collision_mask := 3
+
 @export_category("Solicitation Outline")
 @export var solicitation_outline_color := Color(1.0, 0.78, 0.18, 1.0)
 @export_range(0.0, 0.3, 0.005) var solicitation_outline_thickness := 0.028
@@ -160,11 +167,14 @@ var _girlfriend_status := &""
 var _girlfriend_follow_slot := 0
 var _girlfriend_repath_remaining := 0.0
 var _civilian_name := "Woman"
+var _pending_crime_report: CrimeReport
+var _pending_report_remaining := 0.0
 
 
 func _ready() -> void:
 	super()
 	add_to_group(&"ambient_customer")
+	add_to_group(&"world_event_listener")
 	_home_position = global_position
 	_random.randomize()
 	_base_move_speed = move_speed
@@ -600,6 +610,8 @@ func prepare_for_pool_spawn(
 	_roll_roaming_walk_variant()
 	_apply_roaming_walk_variant()
 	_target_player = null
+	_pending_crime_report = null
+	_pending_report_remaining = 0.0
 	_solicitation_cooldown = 0.0
 	_activity_retry_remaining = 0.0
 	_release_store_visit()
@@ -617,6 +629,7 @@ func prepare_for_pool_recycle() -> void:
 	if not _pool_active or is_defeated():
 		return
 	_pool_active = false
+	_interrupt_pending_report()
 	cancel_activity(false)
 	cancel_store_visit(false)
 	hsm.set_active(false)
@@ -646,6 +659,7 @@ func prepare_for_pool_recycle() -> void:
 func can_be_recycled() -> bool:
 	return (
 		_pool_active
+		and _pending_crime_report == null
 		and _girlfriend_roster == null
 		and not is_defeated()
 		and _network != null
@@ -677,6 +691,41 @@ func hear_gunshot(source_position: Vector3, hearing_radius: float) -> void:
 		_begin_panic_route()
 		return
 	hsm.dispatch(EVENT_GUNSHOT_HEARD)
+
+
+func handle_world_event(event: WorldEvent) -> void:
+	if event == null or not _pool_active or is_defeated():
+		return
+	var reaction_radius := maxf(event.audible_radius, crime_witness_range)
+	if global_position.distance_squared_to(event.world_position) > reaction_radius * reaction_radius:
+		return
+	match event.event_type:
+		WorldEvent.Type.GUNSHOT:
+			if _can_identify_event_source(event):
+				_schedule_crime_report(event)
+			hear_gunshot(event.world_position, event.audible_radius)
+		WorldEvent.Type.VISIBLE_CRIME, WorldEvent.Type.ACTOR_ATTACKED, WorldEvent.Type.OFFICER_DOWN:
+			if _can_identify_event_source(event):
+				_schedule_crime_report(event)
+			hear_gunshot(event.world_position, reaction_radius)
+		WorldEvent.Type.BODY_DISCOVERED:
+			hear_gunshot(event.world_position, reaction_radius)
+		WorldEvent.Type.SIREN:
+			# Sirens clear nearby civilians from the emergency approach.
+			hear_gunshot(event.world_position, event.audible_radius)
+		WorldEvent.Type.POLICE_PRESENCE:
+			# Visible police interrupt vulnerable ambient activities without
+			# inventing a crime report or suspect.
+			cancel_activity(false)
+			cancel_store_visit(false)
+
+
+func has_pending_crime_report() -> bool:
+	return _pending_crime_report != null
+
+
+func get_pending_report_remaining() -> float:
+	return _pending_report_remaining
 
 
 func is_pool_active() -> bool:
@@ -941,6 +990,7 @@ func _limbo_state_enter(state_id: int) -> void:
 func _limbo_state_update(state_id: int, delta: float) -> void:
 	if is_defeated() or not _pool_active or state_id != _state:
 		return
+	_update_pending_crime_report(delta)
 	_solicitation_cooldown = maxf(
 		_solicitation_cooldown - delta,
 		0.0
@@ -1866,6 +1916,7 @@ func _on_defeated(
 	hit_position: Vector3,
 	hit_direction: Vector3
 ) -> void:
+	_interrupt_pending_report()
 	cancel_activity(false)
 	cancel_store_visit(false)
 	if _girlfriend_roster != null:
@@ -1881,6 +1932,75 @@ func _on_defeated(
 	if hsm != null:
 		hsm.set_active(false)
 	super(source, hit_position, hit_direction)
+
+
+func _can_identify_event_source(event: WorldEvent) -> bool:
+	var source := event.get_source_actor() as Node3D
+	if source == null or not source.is_in_group(&"player"):
+		return false
+	var origin := global_position + Vector3.UP * 1.35
+	var target := source.global_position + Vector3.UP
+	var offset := target - origin
+	if offset.length_squared() > crime_witness_range * crime_witness_range:
+		return false
+	var flat_offset := Vector3(offset.x, 0.0, offset.z).normalized()
+	var forward := visual.global_basis.z.normalized()
+	if forward.dot(flat_offset) < cos(deg_to_rad(crime_witness_fov_degrees * 0.5)):
+		return false
+	var query := PhysicsRayQueryParameters3D.create(origin, target)
+	query.exclude = [get_rid()]
+	query.collision_mask = crime_witness_collision_mask
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty():
+		return true
+	var collider := hit.get("collider") as Node
+	while collider != null:
+		if collider == source:
+			return true
+		collider = collider.get_parent()
+	return false
+
+
+func _schedule_crime_report(event: WorldEvent) -> void:
+	var report := CrimeReport.new()
+	report.event_id = event.event_id
+	report.reporter = self
+	report.suspect = event.get_source_actor()
+	report.observation_position = event.world_position
+	report.observed_at_seconds = event.created_at_seconds
+	report.confidence = 0.85
+	match event.event_type:
+		WorldEvent.Type.ACTOR_ATTACKED:
+			report.crime_type = PoliceIncident.CrimeType.HOMICIDE
+		WorldEvent.Type.OFFICER_DOWN:
+			report.crime_type = PoliceIncident.CrimeType.OFFICER_DOWN
+		_:
+			report.crime_type = PoliceIncident.CrimeType.WEAPON_DISCHARGE
+	report.severity = maxi(event.severity, 2)
+	_pending_crime_report = report
+	_pending_report_remaining = _random.randf_range(
+		report_delay_minimum,
+		maxf(report_delay_maximum, report_delay_minimum)
+	)
+
+
+func _update_pending_crime_report(delta: float) -> void:
+	if _pending_crime_report == null:
+		return
+	_pending_report_remaining = maxf(_pending_report_remaining - delta, 0.0)
+	if _pending_report_remaining > 0.0:
+		return
+	var bus := WorldEventBus.find(get_tree())
+	if bus != null:
+		bus.submit_crime_report(_pending_crime_report)
+	_pending_crime_report = null
+
+
+func _interrupt_pending_report() -> void:
+	if _pending_crime_report != null:
+		_pending_crime_report.interrupted = true
+	_pending_crime_report = null
+	_pending_report_remaining = 0.0
 
 
 func _on_customer_damaged(

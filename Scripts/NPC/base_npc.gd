@@ -112,6 +112,20 @@ func set_navigation_target(target: Vector3) -> bool:
 	return movement_component.set_navigation_target(target)
 
 
+func set_navigation_intent(
+	target: Vector3,
+	owner: StringName,
+	priority := 0,
+	force := false
+) -> bool:
+	return movement_component.set_navigation_intent(
+		target,
+		owner,
+		priority,
+		force
+	)
+
+
 func clear_navigation_target() -> void:
 	movement_component.clear_navigation_target()
 
@@ -148,6 +162,14 @@ func move_toward_navigation_target(target: Vector3, delta: float) -> void:
 	movement_component.move_toward_navigation_target(target, delta)
 
 
+func move_in_world_direction(
+	direction: Vector3,
+	speed: float,
+	delta: float
+) -> void:
+	movement_component.move_in_world_direction(direction, speed, delta)
+
+
 func advance_navigation(delta: float) -> void:
 	movement_component.advance_navigation(delta)
 
@@ -165,11 +187,15 @@ func get_horizontal_speed_squared() -> float:
 
 
 func is_defeated() -> bool:
-	return health_component.is_defeated()
+	return (
+		not is_instance_valid(health_component)
+		or health_component.is_defeated()
+	)
 
 
 func apply_vehicle_impact(source: Node, impact_velocity: Vector3) -> void:
-	health_component.apply_vehicle_impact(source, impact_velocity)
+	if is_instance_valid(health_component):
+		health_component.apply_vehicle_impact(source, impact_velocity)
 
 
 func reset_for_reuse() -> void:
@@ -205,5 +231,27 @@ func _on_defeated(
 	hit_position: Vector3,
 	hit_direction: Vector3
 ) -> void:
+	var bus := WorldEventBus.find(get_tree())
+	if bus != null:
+		var own_faction := &"unknown"
+		if has_method("get_faction_id"):
+			own_faction = StringName(call("get_faction_id"))
+		var event_type := (
+			WorldEvent.Type.OFFICER_DOWN
+			if own_faction == &"police"
+			else WorldEvent.Type.ACTOR_ATTACKED
+		)
+		var source_faction := &"unknown"
+		if is_instance_valid(source) and source.has_method("get_faction_id"):
+			source_faction = StringName(source.call("get_faction_id"))
+		bus.publish_spatial_event(
+			event_type,
+			source,
+			hit_position if hit_position.is_finite() else global_position,
+			24.0,
+			3,
+			source_faction,
+			{"victim_actor_id": get_instance_id(), "victim_faction": String(own_faction)}
+		)
 	remove_from_group(&"lock_target")
 	health_component.handle_defeated(source, hit_position, hit_direction)

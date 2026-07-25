@@ -9,7 +9,6 @@ var wheel_spin: Dictionary = {}
 
 func setup(owner_vehicle: BaseVehicle) -> void:
 	vehicle = owner_vehicle
-	call_deferred("bind_bones")
 
 
 func has_valid_bones() -> bool:
@@ -37,24 +36,74 @@ func bind_bones() -> void:
 			continue
 		wheel_bones[wheel] = bone_index
 		wheel_spin[wheel] = 0.0
+	_align_physics_wheels_to_bones()
+
+
+func get_maximum_rest_alignment_error() -> float:
+	if not has_valid_bones():
+		return INF
+	var maximum_error := 0.0
+	for wheel in wheel_bones:
+		var bone_index := int(wheel_bones[wheel])
+		var rest_center: Vector3 = vehicle.to_local(
+			skeleton.global_transform * skeleton.get_bone_global_rest(bone_index).origin
+		)
+		var horizontal_error := Vector2(
+			wheel.position.x - rest_center.x,
+			wheel.position.z - rest_center.z
+		).length()
+		var radius_error := absf(wheel.wheel_radius - rest_center.y)
+		maximum_error = maxf(maximum_error, maxf(horizontal_error, radius_error))
+	return maximum_error
+
+
+func get_rest_alignment_diagnostics() -> Array[Dictionary]:
+	var results: Array[Dictionary] = []
+	if not has_valid_bones():
+		return results
+	for wheel in wheel_bones:
+		var bone_index := int(wheel_bones[wheel])
+		var rest_center: Vector3 = vehicle.to_local(
+			skeleton.global_transform * skeleton.get_bone_global_rest(bone_index).origin
+		)
+		results.append({
+			"wheel": wheel.name,
+			"rest_center": rest_center,
+			"anchor": wheel.position,
+			"rest_length": wheel.wheel_rest_length,
+			"radius": wheel.wheel_radius,
+		})
+	return results
+
+
+func _align_physics_wheels_to_bones() -> void:
+	if not has_valid_bones():
+		return
+	for wheel in wheel_bones:
+		var bone_index := int(wheel_bones[wheel])
+		var rest_center: Vector3 = vehicle.to_local(
+			skeleton.global_transform * skeleton.get_bone_global_rest(bone_index).origin
+		)
+		wheel.position = rest_center + Vector3.UP * wheel.wheel_rest_length
+		# These assets are authored on a zero-height ground plane, so the wheel
+		# bone's rest height is also its model-specific tire radius.
+		wheel.wheel_radius = clampf(rest_center.y, 0.1, 1.0)
+	vehicle._cache_wheel_anchors()
 
 
 func update(delta: float) -> void:
 	if skeleton == null or wheel_bones.is_empty():
 		return
 	var skeleton_inverse := skeleton.global_transform.affine_inverse()
-	var down := -vehicle.global_basis.y
 	for wheel in wheel_bones:
 		var bone_index := int(wheel_bones[wheel])
 		wheel_spin[wheel] = float(wheel_spin[wheel]) + (
 			wheel.get_rpm() * TAU / 60.0 * delta
 		)
-		var center: Vector3 = wheel.global_position + (
-			down * vehicle.definition.suspension_rest_length
-		)
+		var center: Vector3 = wheel.global_position
 		if wheel.is_in_contact():
 			center = wheel.get_contact_point() + (
-				wheel.get_contact_normal() * vehicle.definition.wheel_radius
+				wheel.get_contact_normal() * wheel.wheel_radius
 			)
 		var rest := skeleton.get_bone_global_rest(bone_index)
 		var steer_angle := (

@@ -60,7 +60,7 @@ const STORE_ATTACHMENT_IDS: Array[StringName] = [
 @export var previous_weapon_action := &"weapon_previous"
 
 @export_category("World Response")
-@export_range(1.0, 200.0, 1.0) var gunshot_alert_radius := 45.0
+@export_range(1.0, 250.0, 1.0) var gunshot_alert_radius := 150.0
 @export_range(0.02, 0.3, 0.01) var tracer_lifetime := 0.08
 @export_range(0.5, 8.0, 0.1) var tracer_length := 2.4
 @export_range(100.0, 2000.0, 50.0) var tracer_speed := 900.0
@@ -1013,6 +1013,15 @@ func _play_gunshot() -> void:
 
 
 func _broadcast_gunshot() -> void:
+	var event_bus := WorldEventBus.find(get_tree())
+	if event_bus != null:
+		event_bus.publish_gunshot(
+			body,
+			_get_muzzle_position(),
+			gunshot_alert_radius,
+			&"player"
+		)
+		return
 	get_tree().call_group(
 		&"gunshot_listener",
 		&"hear_gunshot",

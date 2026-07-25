@@ -30,8 +30,7 @@ const MODE_SEARCH_COMBAT := 4
 @export_range(0.0, 15.0, 0.1) var shot_spread_degrees := 3.5
 
 var npc: DealerNPC
-var player: CharacterBody3D
-var player_health: PlayerHealthComponent
+var target_actor: Node3D
 var perception: Node
 var combat: NPCCombatComponent
 var _random := RandomNumberGenerator.new()
@@ -52,12 +51,9 @@ var _search_pause_remaining := 0.0
 var _search_pause_pending := false
 
 
-func initialize(owner_npc: DealerNPC, target_player: CharacterBody3D) -> void:
+func initialize(owner_npc: DealerNPC, initial_target: Node3D) -> void:
 	npc = owner_npc
-	player = target_player
-	player_health = player.get_node(
-		"Components/HealthComponent"
-	) as PlayerHealthComponent
+	target_actor = initial_target
 	perception = npc.get_node("Components/ThreatComponent")
 	combat = npc.get_node(
 		"Components/CombatComponent"
@@ -66,10 +62,17 @@ func initialize(owner_npc: DealerNPC, target_player: CharacterBody3D) -> void:
 	reset_for_reuse()
 
 
+func set_combat_target(next_target: Node3D) -> void:
+	target_actor = next_target
+	if perception != null and perception.has_method("set_target"):
+		perception.call("set_target", next_target)
+
+
 func tick_mode(mode: int, delta: float) -> void:
-	if npc == null or npc.is_defeated() or player == null:
+	if npc == null or npc.is_defeated() or not is_instance_valid(target_actor):
 		return
 	if mode != _last_mode:
+		_trace_mode_transition(_last_mode, mode)
 		_enter_mode(mode)
 		_last_mode = mode
 	match mode:
@@ -79,6 +82,20 @@ func tick_mode(mode: int, delta: float) -> void:
 			_tick_search(delta)
 		_:
 			_tick_neutral(delta)
+
+
+func _trace_mode_transition(previous_mode: int, next_mode: int) -> void:
+	var bus := WorldEventBus.find(npc.get_tree())
+	if bus == null:
+		return
+	bus.record_state_transition(
+		&"dealer_ai",
+		npc,
+		previous_mode,
+		next_mode,
+		&"behavior_tree_selection",
+		{"target_actor_id": target_actor.get_instance_id() if is_instance_valid(target_actor) else 0}
+	)
 
 
 func note_incident(world_position: Vector3) -> void:
@@ -110,8 +127,8 @@ func _enter_mode(mode: int) -> void:
 	_pause_remaining = 0.0
 	_movement_decision_remaining = 0.0
 	if mode == MODE_COMBAT or mode == MODE_SEARCH_COMBAT:
-		if perception.call("can_see_player"):
-			_set_search_center(player.global_position)
+		if perception.call("can_see_target"):
+			_set_search_center(target_actor.global_position)
 		_reaction_remaining = _random.randf_range(0.35, 0.8)
 		combat.set_equipped(true)
 	else:
@@ -127,24 +144,24 @@ func _tick_neutral(delta: float) -> void:
 
 func _tick_combat(delta: float) -> void:
 	combat.set_equipped(true)
-	if not player_health.is_alive():
+	if not _is_target_alive():
 		npc.clear_hostility()
 		combat.clear_aim()
 		npc.stop_moving(delta)
 		return
-	var target_position := player.global_position + Vector3.UP
-	if perception.call("can_see_player"):
-		_set_search_center(player.global_position)
+	var target_position := target_actor.global_position + Vector3.UP
+	if perception.call("can_see_target"):
+		_set_search_center(target_actor.global_position)
 	else:
 		_tick_search(delta)
 		return
-	var combat_distance := npc.global_position.distance_to(player.global_position)
+	var combat_distance := npc.global_position.distance_to(target_actor.global_position)
 	var advance_threshold := preferred_combat_distance * 1.25
 	if combat_distance > advance_threshold:
 		npc.move_speed = pursuit_speed
 		combat.clear_aim()
 		_has_reposition_target = false
-		npc.set_navigation_target(player.global_position)
+		npc.set_navigation_target(target_actor.global_position)
 		npc.set_facing_override(target_position)
 		npc.advance_navigation(delta)
 		return
@@ -168,7 +185,7 @@ func _tick_combat(delta: float) -> void:
 		_burst_remaining = _get_next_burst_size()
 	if _shot_remaining > 0.0:
 		return
-	if not combat.has_line_of_fire(player, target_position):
+	if not combat.has_line_of_fire(target_actor, target_position):
 		if not _has_reposition_target:
 			_choose_reposition()
 		return
@@ -240,7 +257,7 @@ func _choose_aggressive_reposition(combat_distance: float) -> void:
 	)
 	var roll := _random.randf()
 	if combat_distance > preferred_combat_distance:
-		var toward := player.global_position - npc.global_position
+		var toward := target_actor.global_position - npc.global_position
 		toward.y = 0.0
 		if toward.is_zero_approx():
 			return
@@ -253,12 +270,12 @@ func _choose_aggressive_reposition(combat_distance: float) -> void:
 func _tick_search(delta: float) -> void:
 	npc.move_speed = pursuit_speed
 	combat.set_equipped(true)
-	if not player_health.is_alive():
+	if not _is_target_alive():
 		npc.clear_hostility()
 		combat.clear_aim()
 		npc.stop_moving(delta)
 		return
-	if perception.call("can_see_player"):
+	if perception.call("can_see_target"):
 		_tick_combat(delta)
 		return
 	_chase_last_known(delta)
@@ -288,7 +305,7 @@ func _chase_last_known(delta: float) -> void:
 
 
 func _choose_reposition() -> void:
-	var away := npc.global_position - player.global_position
+	var away := npc.global_position - target_actor.global_position
 	away.y = 0.0
 	if away.is_zero_approx():
 		away = Vector3.FORWARD
@@ -305,7 +322,7 @@ func _choose_reposition() -> void:
 
 
 func _choose_retreat_position(combat_distance: float) -> void:
-	var away := npc.global_position - player.global_position
+	var away := npc.global_position - target_actor.global_position
 	away.y = 0.0
 	if away.is_zero_approx():
 		away = Vector3.FORWARD
@@ -314,6 +331,15 @@ func _choose_retreat_position(combat_distance: float) -> void:
 	)
 	_set_reachable_reposition(candidate)
 	_movement_decision_remaining = minf(1.0, movement_decision_maximum)
+
+
+func _is_target_alive() -> bool:
+	if not is_instance_valid(target_actor):
+		return false
+	if target_actor.has_method("is_defeated"):
+		return not bool(target_actor.call("is_defeated"))
+	var health := target_actor.get_node_or_null("Components/HealthComponent")
+	return health == null or not health.has_method("is_alive") or bool(health.call("is_alive"))
 
 
 func _choose_search_position() -> void:

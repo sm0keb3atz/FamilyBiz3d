@@ -8,6 +8,8 @@ enum Mode {
 	COMBAT,
 	SEARCH_ARREST,
 	SEARCH_COMBAT,
+	CHALLENGE,
+	SEARCH_CHALLENGE,
 }
 
 @export var mode := Mode.PATROL
@@ -21,4 +23,4 @@ func _tick(delta: float) -> Status:
 	if agent == null or not agent.has_method("tick_ai_mode"):
 		return FAILURE
 	agent.call("tick_ai_mode", mode, delta)
-	return SUCCESS
+	return RUNNING

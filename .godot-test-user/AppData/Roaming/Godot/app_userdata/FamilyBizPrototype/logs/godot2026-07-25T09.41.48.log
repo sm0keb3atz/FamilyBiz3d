@@ -1,0 +1,8 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Cannot infer the type of "gross" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://Tests/territory_dealer_operations_smoke_test.gd:62)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "net" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://Tests/territory_dealer_operations_smoke_test.gd:64)
+ERROR: Failed to load script "res://Tests/territory_dealer_operations_smoke_test.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)

@@ -3,6 +3,12 @@ extends BaseNPC
 
 ## Dealer composition root. Shop behavior belongs to DealerRoleComponent.
 
+@export_category("Bodyguard")
+@export_range(5.0, 40.0, 0.5) var bodyguard_target_radius := 18.0
+@export_range(5.0, 40.0, 0.5) var bodyguard_combat_leash_radius := 20.0
+@export_range(10.0, 80.0, 0.5) var bodyguard_hard_recall_distance := 30.0
+@export_range(0.25, 5.0, 0.25) var bodyguard_lost_sight_grace := 1.5
+
 @onready var role_component := (
 	$Components/RoleComponent as DealerRoleComponent
 )
@@ -14,6 +20,7 @@ var product: ProductDefinition:
 
 var _hostile := false
 var _target_player: CharacterBody3D
+var _combat_target: Node3D
 @onready var bt_player := get_node_or_null("BTPlayer") as BTPlayer
 var activity_zone: DealerActivityZone3D
 var zone_member_id: StringName
@@ -34,6 +41,12 @@ var _zone_activity_playing := false
 var _shop_interaction_active := false
 var _shop_interaction_player: CharacterBody3D
 var _customer_visit: StoreCustomerVisit3D
+var _bodyguard_following := false
+var _bodyguard_player: CharacterBody3D
+var _bodyguard_follow_slot := 0
+var _bodyguard_repath_remaining := 0.0
+var _bodyguard_target_scan_remaining := 0.0
+var _bodyguard_lost_sight_elapsed := 0.0
 
 
 func _ready() -> void:
@@ -46,6 +59,7 @@ func _ready() -> void:
 	if combat != null:
 		combat.initialize(self)
 	_target_player = get_tree().get_first_node_in_group(&"player") as CharacterBody3D
+	_combat_target = _target_player
 	var threat := get_threat_component()
 	var ai := get_ai_component()
 	if _target_player != null and threat != null and ai != null:
@@ -200,6 +214,8 @@ func cancel_customer_sale_presentation() -> void:
 
 
 func present_customer_sale() -> void:
+	if _bodyguard_following:
+		return
 	_ensure_customer_visit()
 	if is_instance_valid(_customer_visit):
 		_customer_visit.offer_external_ticket()
@@ -262,10 +278,73 @@ func configure_war_attacker(level: int, territory_id: StringName) -> void:
 	provoke(_target_player, global_position)
 
 
-func provoke(source: Node = null, world_position := Vector3.ZERO) -> void:
-	if _hostile or is_defeated():
+func begin_bodyguard_following(player: CharacterBody3D) -> void:
+	if player == null or is_defeated() or not _is_player_operated():
 		return
-	if source != null and not _is_player_source(source):
+	cancel_customer_sale_presentation()
+	if _hostile:
+		clear_hostility()
+	_bodyguard_following = true
+	_bodyguard_player = player
+	_bodyguard_repath_remaining = 0.0
+	_bodyguard_target_scan_remaining = 0.0
+	_bodyguard_lost_sight_elapsed = 0.0
+	_zone_presentation_pending = false
+	_zone_activity_playing = false
+	_shop_interaction_active = false
+	_shop_interaction_player = null
+	if animation_component != null:
+		animation_component.stop_activity_animation()
+		animation_component.use_sex_appropriate_walk()
+	if role_component != null:
+		role_component.deactivate()
+	add_to_group(&"dealer_bodyguard")
+	set_navigation_avoidance_enabled(true)
+	set_local_obstacle_steering_enabled(true)
+	_set_combat_target(_target_player)
+	_teleport_near_bodyguard_player()
+
+
+func end_bodyguard_following() -> void:
+	if not _bodyguard_following:
+		return
+	_bodyguard_following = false
+	_bodyguard_player = null
+	_bodyguard_repath_remaining = 0.0
+	_bodyguard_target_scan_remaining = 0.0
+	_bodyguard_lost_sight_elapsed = 0.0
+	remove_from_group(&"dealer_bodyguard")
+	if _hostile:
+		clear_hostility()
+	else:
+		_set_combat_target(_target_player)
+		var combat := get_combat_component()
+		if combat != null:
+			combat.clear_aim()
+			combat.set_equipped(false)
+	if role_component != null:
+		role_component.activate()
+	clear_navigation_target()
+	velocity = Vector3.ZERO
+
+
+func set_bodyguard_follow_slot(slot: int) -> void:
+	_bodyguard_follow_slot = maxi(slot, 0)
+
+
+func is_bodyguard_following() -> bool:
+	return _bodyguard_following
+
+
+func provoke(source: Node = null, world_position := Vector3.ZERO) -> void:
+	if is_defeated():
+		return
+	var source_actor := _find_combat_actor(source)
+	if source != null and (source_actor == null or not _can_target_actor(source_actor)):
+		return
+	if source_actor != null:
+		_set_combat_target(source_actor)
+	if _hostile:
 		return
 	cancel_customer_sale_presentation()
 	_hostile = true
@@ -283,8 +362,8 @@ func provoke(source: Node = null, world_position := Vector3.ZERO) -> void:
 	var ai := get_ai_component()
 	if ai != null:
 		var incident_position := world_position
-		if _target_player != null and _is_player_source(source):
-			incident_position = _target_player.global_position
+		if is_instance_valid(_combat_target):
+			incident_position = _combat_target.global_position
 		ai.call("note_incident", incident_position)
 
 
@@ -292,13 +371,18 @@ func clear_hostility() -> void:
 	if not _hostile:
 		return
 	_hostile = false
+	_set_combat_target(_target_player)
 	var combat := get_combat_component()
 	if combat != null:
 		combat.clear_aim()
 		combat.set_equipped(false)
-	if role_component != null:
+	if role_component != null and not _bodyguard_following:
 		role_component.activate()
-	if activity_zone != null and animation_component != null:
+	if (
+		activity_zone != null
+		and animation_component != null
+		and not _bodyguard_following
+	):
 		_zone_presentation_pending = _zone_presentation_configured
 		_zone_activity_playing = false
 		if _zone_presentation_pending:
@@ -346,7 +430,42 @@ func can_see_wanted_player() -> bool:
 	return _hostile and threat != null and bool(threat.call("can_see_player"))
 
 
+func can_see_combat_target() -> bool:
+	var threat := get_threat_component()
+	return _hostile and threat != null and bool(threat.call("can_see_target"))
+
+
+func get_combat_target() -> Node3D:
+	return _combat_target if is_instance_valid(_combat_target) else null
+
+
+func tick_dealer_ai_mode(mode: int, delta: float) -> void:
+	var translated_mode := 0
+	if mode == 1:
+		translated_mode = 2
+	elif mode == 2:
+		translated_mode = 4
+	tick_ai_mode(translated_mode, delta)
+
+
+func get_faction_id() -> StringName:
+	if _is_player_operated():
+		return &"player_allies"
+	if is_temporary_war_attacker:
+		return &"rival_attackers"
+	return StringName("dealers_%s" % String(
+		activity_zone.territory_id if activity_zone != null else &"unassigned"
+	))
+
+
 func tick_ai_mode(mode: int, delta: float) -> void:
+	if _bodyguard_following:
+		if _hostile and not _maintain_bodyguard_combat_target(delta):
+			clear_hostility()
+		_tick_bodyguard_targeting(delta)
+		if not _hostile:
+			_tick_bodyguard_follow(delta)
+			return
 	if _shop_interaction_active:
 		stop_moving(delta)
 		_face_shop_player(false, delta)
@@ -356,6 +475,189 @@ func tick_ai_mode(mode: int, delta: float) -> void:
 	var ai := get_ai_component()
 	if ai != null:
 		ai.call("tick_mode", mode, delta)
+
+
+func _tick_bodyguard_targeting(delta: float) -> void:
+	if _hostile:
+		return
+	_bodyguard_target_scan_remaining = maxf(
+		_bodyguard_target_scan_remaining - delta,
+		0.0
+	)
+	if _bodyguard_target_scan_remaining > 0.0:
+		return
+	_bodyguard_target_scan_remaining = 0.25
+	var target := _find_bodyguard_support_target()
+	if target != null:
+		provoke(target, target.global_position)
+
+
+func _find_bodyguard_support_target() -> Node3D:
+	if not _bodyguard_following or not is_instance_valid(_bodyguard_player):
+		return null
+	var threat := get_threat_component() as DealerThreatComponent
+	var maximum_range := threat.threat_range if threat != null else 24.0
+	var maximum_distance_squared := maximum_range * maximum_range
+	var nearest: Node3D
+	var nearest_distance_squared := INF
+	var wanted := _bodyguard_player.get_node_or_null(
+		"Components/WantedComponent"
+	) as PlayerWantedComponent
+	if wanted != null and wanted.wanted_level > 0:
+		for node in get_tree().get_nodes_in_group(&"police_npc"):
+			var police := node as PoliceNPC
+			if (
+				police == null
+				or police.is_defeated()
+				or not police.is_pool_active()
+				or not (
+					police.is_response_assigned()
+					or police.can_see_wanted_player()
+					or police.has_confirmed_wanted_player_location()
+				)
+			):
+				continue
+			var distance_squared := global_position.distance_squared_to(
+				police.global_position
+			)
+			if (
+				distance_squared <= maximum_distance_squared
+				and _bodyguard_player.global_position.distance_squared_to(
+					police.global_position
+				) <= bodyguard_target_radius * bodyguard_target_radius
+				and distance_squared < nearest_distance_squared
+			):
+				nearest = police
+				nearest_distance_squared = distance_squared
+	for node in get_tree().get_nodes_in_group(&"dealer_npc"):
+		var dealer := node as DealerNPC
+		if (
+			dealer == null
+			or dealer == self
+			or dealer.is_defeated()
+			or dealer.get_faction_id() == &"player_allies"
+			or not _is_support_hostile_dealer(dealer)
+		):
+			continue
+		var distance_squared := global_position.distance_squared_to(
+			dealer.global_position
+		)
+		if (
+			distance_squared <= maximum_distance_squared
+			and _bodyguard_player.global_position.distance_squared_to(
+				dealer.global_position
+			) <= bodyguard_target_radius * bodyguard_target_radius
+			and distance_squared < nearest_distance_squared
+		):
+			nearest = dealer
+			nearest_distance_squared = distance_squared
+	return nearest
+
+
+func _is_support_hostile_dealer(dealer: DealerNPC) -> bool:
+	if dealer.is_temporary_war_attacker:
+		return true
+	if not dealer.is_hostile():
+		return false
+	var target := dealer.get_combat_target()
+	if target == null:
+		return false
+	if target.is_in_group(&"player"):
+		return true
+	return (
+		target.has_method("get_faction_id")
+		and StringName(target.call("get_faction_id")) == &"player_allies"
+	)
+
+
+func _maintain_bodyguard_combat_target(delta: float) -> bool:
+	if not is_instance_valid(_bodyguard_player):
+		return false
+	var target := get_combat_target()
+	if target == null or target.is_queued_for_deletion():
+		return false
+	if target.has_method("is_defeated") and bool(target.call("is_defeated")):
+		return false
+	if global_position.distance_squared_to(
+		_bodyguard_player.global_position
+	) > bodyguard_combat_leash_radius * bodyguard_combat_leash_radius:
+		return false
+	if target.global_position.distance_squared_to(
+		_bodyguard_player.global_position
+	) > bodyguard_target_radius * bodyguard_target_radius:
+		return false
+	if can_see_combat_target():
+		_bodyguard_lost_sight_elapsed = 0.0
+	else:
+		_bodyguard_lost_sight_elapsed += delta
+		if _bodyguard_lost_sight_elapsed >= bodyguard_lost_sight_grace:
+			return false
+	return true
+
+
+func _tick_bodyguard_follow(delta: float) -> void:
+	if not is_instance_valid(_bodyguard_player) or is_defeated():
+		stop_moving(delta)
+		return
+	if global_position.distance_squared_to(
+		_bodyguard_player.global_position
+	) > bodyguard_hard_recall_distance * bodyguard_hard_recall_distance:
+		_teleport_near_bodyguard_player()
+		return
+	var player_movement := _bodyguard_player.get_node_or_null(
+		"Components/MovementComponent"
+	) as PlayerMovementComponent
+	if player_movement != null:
+		move_speed = (
+			player_movement.run_speed
+			if player_movement.is_sprinting()
+			else player_movement.walk_speed
+		)
+		navigation_agent.max_speed = move_speed
+	var row := float(_bodyguard_follow_slot / 2)
+	var side := -1.0 if _bodyguard_follow_slot % 2 == 0 else 1.0
+	var target := (
+		_bodyguard_player.global_position
+		+ _bodyguard_player.global_basis.z * (2.2 + row * 1.2)
+		+ _bodyguard_player.global_basis.x * side * (1.0 + row * 0.4)
+	)
+	_bodyguard_repath_remaining = maxf(
+		_bodyguard_repath_remaining - delta,
+		0.0
+	)
+	if _bodyguard_repath_remaining <= 0.0:
+		set_navigation_target(target)
+		_bodyguard_repath_remaining = 0.25
+	if global_position.distance_squared_to(target) > 1.4 * 1.4:
+		if animation_component != null:
+			animation_component.use_sex_appropriate_walk()
+		advance_navigation(delta)
+	else:
+		stop_moving(delta)
+
+
+func _teleport_near_bodyguard_player() -> void:
+	if not is_instance_valid(_bodyguard_player):
+		return
+	var row := float(_bodyguard_follow_slot / 2)
+	var side := -1.0 if _bodyguard_follow_slot % 2 == 0 else 1.0
+	var spawn_position := (
+		_bodyguard_player.global_position
+		+ _bodyguard_player.global_basis.z * (6.0 + row * 1.2)
+		+ _bodyguard_player.global_basis.x * side * (2.0 + row * 0.4)
+	)
+	var navigation_map := navigation_agent.get_navigation_map()
+	if (
+		navigation_map.is_valid()
+		and NavigationServer3D.map_get_iteration_id(navigation_map) > 0
+	):
+		spawn_position = NavigationServer3D.map_get_closest_point(
+			navigation_map,
+			spawn_position
+		)
+	global_position = spawn_position
+	velocity = Vector3.ZERO
+	navigation_agent.set_velocity_forced(Vector3.ZERO)
 
 
 func _tick_zone_presentation(delta: float) -> bool:
@@ -514,14 +816,55 @@ func _on_damaged(
 	hit_position: Vector3,
 	_hit_direction: Vector3
 ) -> void:
-	if _is_player_source(source):
-		if not _first_player_hit_recorded:
+	var source_actor := _find_combat_actor(source)
+	if source_actor != null and _can_target_actor(source_actor):
+		if _is_player_source(source) and not _first_player_hit_recorded:
 			_first_player_hit_recorded = true
 			if activity_zone != null:
 				activity_zone.handle_member_first_hit(self)
 		if activity_zone != null:
 			activity_zone.alert_allies(source, hit_position, self)
 		provoke(source, hit_position)
+
+
+func _set_combat_target(target: Node3D) -> void:
+	_combat_target = target
+	var threat := get_threat_component()
+	if threat != null and threat.has_method("set_target"):
+		threat.call("set_target", target)
+	var ai := get_ai_component()
+	if ai != null and ai.has_method("set_combat_target"):
+		ai.call("set_combat_target", target)
+
+
+func _find_combat_actor(source: Node) -> Node3D:
+	var current := source
+	while current != null:
+		if current is Node3D and (
+			current.is_in_group(&"player")
+			or current.has_method("get_faction_id")
+		):
+			return current as Node3D
+		current = current.get_parent()
+	return null
+
+
+func _can_target_actor(actor: Node3D) -> bool:
+	if actor == null or actor == self:
+		return false
+	var target_faction := (
+		StringName(actor.call("get_faction_id"))
+		if actor.has_method("get_faction_id")
+		else &"player"
+		if actor.is_in_group(&"player")
+		else &"unknown"
+	)
+	var own_faction := get_faction_id()
+	if target_faction == own_faction:
+		return false
+	if own_faction == &"player_allies" and target_faction == &"player":
+		return false
+	return target_faction != &"unknown"
 
 
 func _is_player_source(source: Node) -> bool:
@@ -541,6 +884,10 @@ func _on_defeated(
 	hit_direction: Vector3
 ) -> void:
 	cancel_customer_sale_presentation()
+	_bodyguard_following = false
+	_bodyguard_player = null
+	_bodyguard_lost_sight_elapsed = 0.0
+	remove_from_group(&"dealer_bodyguard")
 	var player_caused := _is_player_source(source)
 	if player_caused and not _is_player_operated():
 		_grant_kill_experience(source)

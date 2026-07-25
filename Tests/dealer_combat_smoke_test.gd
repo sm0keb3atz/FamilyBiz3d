@@ -48,6 +48,13 @@ func _run() -> void:
 	weapon.shot_resolved.emit(dealer, false, dealer.global_position + Vector3.UP)
 	await process_frame
 	assert(dealer.is_hostile())
+	assert(
+		dealer.bt_player.behavior_tree.resource_path
+		== "res://Scripts/NPC/AI/dealer_behavior_tree.tres"
+	)
+	assert(dealer.get_combat_target() == player)
+	dealer.tick_dealer_ai_mode(DealerModeAction.Mode.COMBAT, 0.016)
+	assert(dealer.get_combat_component().is_equipped())
 	assert(not dealer.can_interact(player))
 	assert(not other_dealer.is_hostile())
 	assert(other_dealer.can_interact(player))

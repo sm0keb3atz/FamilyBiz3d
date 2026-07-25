@@ -13,6 +13,8 @@ const UPGRADE_COSTS := [1000, 2000, 4000]
 const SALE_INTERVALS := [120, 90, 60, 45]
 const COMMISSION_RATE := 0.10
 const DAILY_HISTORY_LIMIT := 31
+const DUTY_WORKING := &"working"
+const DUTY_FOLLOWING := &"following"
 const SELLABLE_PRODUCTS: Array[ProductDefinition] = [
 	EconomyCatalog.WEED_1G, EconomyCatalog.COKE_1G, EconomyCatalog.FENT_1G,
 ]
@@ -38,6 +40,16 @@ func _connect_runtime() -> void:
 	var encounter := get_tree().get_first_node_in_group(&"territory_encounter") as TerritoryEncounterController
 	if encounter != null and not encounter.territory_claimed.is_connected(_on_territory_claimed):
 		encounter.territory_claimed.connect(_on_territory_claimed)
+	var health := player.get_node_or_null(
+		"Components/HealthComponent"
+	) as PlayerHealthComponent
+	if health != null:
+		if not health.downed.is_connected(_on_player_removed_from_action):
+			health.downed.connect(_on_player_removed_from_action)
+		if not health.respawn_started.is_connected(
+			_on_player_removed_from_action
+		):
+			health.respawn_started.connect(_on_player_removed_from_action)
 	for zone in _all_zones():
 		var callback := _on_zone_member_defeated.bind(zone)
 		if not zone.member_defeated.is_connected(callback):
@@ -57,6 +69,8 @@ func process_to(target_minute: int) -> void:
 				continue
 			var key := _slot_key(entry.zone_id, entry.member_id)
 			var state := _get_slot_state(territory_id, key)
+			if StringName(state.get("duty", DUTY_WORKING)) == DUTY_FOLLOWING:
+				continue
 			var interval := get_sale_interval(int(state.level))
 			var next_sale := int(state.get("next_sale_minute", -1))
 			if next_sale < 0:
@@ -88,6 +102,9 @@ func hire_dealer(territory_id: StringName, zone_id: StringName, member_id: Strin
 	var state := previous if not previous.is_empty() else _new_slot_state(zone, member_id)
 	state.level = level
 	state.employed = true
+	state.duty = DUTY_WORKING
+	state.paused_sale_minutes = -1
+	state.follow_slot = -1
 	state.next_sale_minute = world_time.get_absolute_minute() + get_sale_interval(level)
 	_set_slot_state(territory_id, key, state)
 	zone.set_member_player_level(member_id, level)
@@ -101,14 +118,22 @@ func fire_dealer(territory_id: StringName, zone_id: StringName, member_id: Strin
 	var state := _get_slot_state(territory_id, key)
 	if not bool(state.get("employed", false)):
 		return false
+	var was_following := StringName(state.get("duty", DUTY_WORKING)) == DUTY_FOLLOWING
 	state.employed = false
 	state.level = 1
+	state.duty = DUTY_WORKING
+	state.paused_sale_minutes = -1
+	state.follow_slot = -1
 	state.next_sale_minute = -1
 	_set_slot_state(territory_id, key, state)
 	var zone := _find_zone(zone_id)
 	if zone != null:
+		var dealer := zone.get_member_dealer(member_id)
+		if dealer != null and was_following:
+			dealer.end_bodyguard_following()
 		zone.set_member_employed(member_id, false)
 		zone.set_member_player_level(member_id, 1)
+	_reassign_follow_slots()
 	state_changed.emit(territory_id)
 	return true
 
@@ -128,7 +153,12 @@ func upgrade_dealer(territory_id: StringName, zone_id: StringName, member_id: St
 		return false
 	var next_level := current_level + 1
 	state.level = next_level
-	state.next_sale_minute = world_time.get_absolute_minute() + get_sale_interval(next_level)
+	if StringName(state.get("duty", DUTY_WORKING)) == DUTY_FOLLOWING:
+		var paused := int(state.get("paused_sale_minutes", get_sale_interval(next_level)))
+		state.paused_sale_minutes = mini(maxi(paused, 0), get_sale_interval(next_level))
+		state.next_sale_minute = -1
+	else:
+		state.next_sale_minute = world_time.get_absolute_minute() + get_sale_interval(next_level)
 	_set_slot_state(territory_id, key, state)
 	var zone := _find_zone(zone_id)
 	if zone != null:
@@ -147,6 +177,13 @@ func get_roster(territory_id: StringName) -> Array[Dictionary]:
 			result.append({
 				"zone_id": zone.zone_id, "member_id": member_id, "level": level,
 				"employed": bool(state.get("employed", false)),
+				"duty": StringName(state.get("duty", DUTY_WORKING)),
+				"following": (
+					bool(state.get("employed", false))
+					and StringName(state.get("duty", DUTY_WORKING))
+					== DUTY_FOLLOWING
+				),
+				"follow_slot": int(state.get("follow_slot", -1)),
 				"hire_fee": get_hire_fee(level), "sale_interval": get_sale_interval(level),
 				"upgrade_cost": get_upgrade_cost(level), "max_level": level >= 4,
 				"next_sale_minute": int(state.get("next_sale_minute", -1)),
@@ -158,6 +195,109 @@ func get_roster(territory_id: StringName) -> Array[Dictionary]:
 				"lifetime_net": int(state.get("lifetime_net", 0)),
 			})
 	return result
+
+
+func call_dealer(
+	territory_id: StringName,
+	zone_id: StringName,
+	member_id: StringName
+) -> bool:
+	var key := _slot_key(zone_id, member_id)
+	var state := _get_slot_state(territory_id, key)
+	if (
+		not bool(state.get("employed", false))
+		or StringName(state.get("duty", DUTY_WORKING)) == DUTY_FOLLOWING
+	):
+		return false
+	var zone := _find_zone(zone_id)
+	var dealer := zone.get_member_dealer(member_id) if zone != null else null
+	if (
+		zone == null
+		or zone.territory_id != territory_id
+		or dealer == null
+		or dealer.is_defeated()
+	):
+		return false
+	var now := world_time.get_absolute_minute()
+	var next_sale := int(state.get("next_sale_minute", -1))
+	state.paused_sale_minutes = (
+		maxi(next_sale - now, 0)
+		if next_sale >= 0
+		else get_sale_interval(int(state.get("level", 1)))
+	)
+	state.next_sale_minute = -1
+	state.duty = DUTY_FOLLOWING
+	_set_slot_state(territory_id, key, state)
+	_reassign_follow_slots()
+	dealer.begin_bodyguard_following(player)
+	state_changed.emit(territory_id)
+	return true
+
+
+func send_dealer_back(
+	territory_id: StringName,
+	zone_id: StringName,
+	member_id: StringName
+) -> bool:
+	var key := _slot_key(zone_id, member_id)
+	var state := _get_slot_state(territory_id, key)
+	if (
+		not bool(state.get("employed", false))
+		or StringName(state.get("duty", DUTY_WORKING)) != DUTY_FOLLOWING
+	):
+		return false
+	var zone := _find_zone(zone_id)
+	var dealer := zone.get_member_dealer(member_id) if zone != null else null
+	if zone == null or zone.territory_id != territory_id or dealer == null:
+		return false
+	var paused := maxi(
+		int(state.get("paused_sale_minutes", get_sale_interval(int(state.get("level", 1))))),
+		0
+	)
+	state.duty = DUTY_WORKING
+	state.paused_sale_minutes = -1
+	state.follow_slot = -1
+	state.next_sale_minute = world_time.get_absolute_minute() + paused
+	_set_slot_state(territory_id, key, state)
+	dealer.end_bodyguard_following()
+	zone.return_member_to_post(member_id)
+	_reassign_follow_slots()
+	state_changed.emit(territory_id)
+	return true
+
+
+func get_following_dealers() -> Array[DealerNPC]:
+	var result: Array[DealerNPC] = []
+	for territory_id in _owned_territory_ids():
+		for entry in get_roster(territory_id):
+			if not bool(entry.following):
+				continue
+			var zone := _find_zone(StringName(entry.zone_id))
+			var dealer := (
+				zone.get_member_dealer(StringName(entry.member_id))
+				if zone != null else null
+			)
+			if dealer != null and not dealer.is_defeated():
+				result.append(dealer)
+	return result
+
+
+func send_all_followers_back() -> void:
+	var assignments: Array[Dictionary] = []
+	for territory_id in _owned_territory_ids():
+		for entry in get_roster(territory_id):
+			if bool(entry.following):
+				assignments.append({
+					"territory_id": territory_id,
+					"zone_id": StringName(entry.zone_id),
+					"member_id": StringName(entry.member_id),
+				})
+	for assignment in assignments:
+		send_dealer_back(
+			StringName(assignment.territory_id),
+			StringName(assignment.zone_id),
+			StringName(assignment.member_id)
+		)
 
 
 func get_supply_summary(territory_id: StringName) -> Dictionary:
@@ -201,6 +341,8 @@ func get_dealer_status(zone_id: StringName, member_id: StringName) -> String:
 	var state := _get_slot_state(zone.territory_id, _slot_key(zone_id, member_id))
 	if not bool(state.get("employed", false)):
 		return "This dealer slot is vacant."
+	if StringName(state.get("duty", DUTY_WORKING)) == DUTY_FOLLOWING:
+		return "Level %d Dealer | FOLLOWING | Not generating income" % int(state.level)
 	var available := int(get_supply_summary(zone.territory_id).get("product_units", 0))
 	var remaining := maxi(int(state.get("next_sale_minute", 0)) - world_time.get_absolute_minute(), 0)
 	return "Level %d Dealer | %s | Next sale: %dm | Today: $%d net" % [
@@ -235,6 +377,26 @@ func import_save_data(data: Dictionary) -> void:
 			var state := slots[slot_key] as Dictionary
 			if not bool(state.get("employed", false)):
 				state["level"] = 1
+				state["duty"] = DUTY_WORKING
+				state["paused_sale_minutes"] = -1
+				state["follow_slot"] = -1
+			else:
+				var duty := StringName(state.get("duty", DUTY_WORKING))
+				state["duty"] = (
+					DUTY_FOLLOWING if duty == DUTY_FOLLOWING else DUTY_WORKING
+				)
+				if duty == DUTY_FOLLOWING:
+					if not state.has("paused_sale_minutes"):
+						var next_sale := int(state.get("next_sale_minute", -1))
+						state["paused_sale_minutes"] = (
+							maxi(next_sale - world_time.get_absolute_minute(), 0)
+							if next_sale >= 0
+							else get_sale_interval(int(state.get("level", 1)))
+						)
+					state["next_sale_minute"] = -1
+				else:
+					state["paused_sale_minutes"] = -1
+					state["follow_slot"] = -1
 			_migrate_daily_history(state)
 			slots[slot_key] = state
 		territory["slots"] = slots
@@ -243,6 +405,7 @@ func import_save_data(data: Dictionary) -> void:
 		_ensure_territory(territory_id)
 		_apply_staffing(territory_id)
 		state_changed.emit(territory_id)
+	call_deferred("_restore_followers")
 
 
 func _try_process_sale(territory_id: StringName, key: String, state: Dictionary, minute: int) -> bool:
@@ -309,6 +472,10 @@ func _on_territory_claimed(territory_id: StringName, _route: StringName) -> void
 	state_changed.emit(territory_id)
 
 
+func _on_player_removed_from_action() -> void:
+	send_all_followers_back()
+
+
 func _on_zone_member_defeated(_zone_id: StringName, member_id: StringName, zone: DealerActivityZone3D) -> void:
 	if zone == null or zone.faction != TerritoryStatsComponent.OwnerFaction.PLAYER:
 		return
@@ -316,11 +483,23 @@ func _on_zone_member_defeated(_zone_id: StringName, member_id: StringName, zone:
 	var state := _get_slot_state(zone.territory_id, key)
 	if not bool(state.get("employed", false)):
 		return
+	var was_following := StringName(state.get("duty", DUTY_WORKING)) == DUTY_FOLLOWING
 	state.employed = false
 	state.level = 1
+	state.duty = DUTY_WORKING
+	state.paused_sale_minutes = -1
+	state.follow_slot = -1
 	state.next_sale_minute = -1
 	_set_slot_state(zone.territory_id, key, state)
 	zone.set_member_employed(member_id, false)
+	zone.set_member_player_level(member_id, 1)
+	_reassign_follow_slots()
+	if was_following:
+		_show_feedback(
+			"%s died and was removed from your hired dealers."
+			% String(member_id).replace("_", " ").capitalize(),
+			4.0
+		)
 	state_changed.emit(zone.territory_id)
 
 
@@ -341,6 +520,7 @@ func _ensure_territory(territory_id: StringName) -> void:
 func _new_slot_state(zone: DealerActivityZone3D, member_id: StringName) -> Dictionary:
 	return {"zone_id": String(zone.zone_id), "member_id": String(member_id),
 		"level": 1, "employed": false,
+		"duty": DUTY_WORKING, "paused_sale_minutes": -1, "follow_slot": -1,
 		"next_sale_minute": -1, "sale_index": 0, "today_day": -1,
 		"today_gross": 0, "today_commission": 0, "today_net": 0,
 		"daily_history": {},
@@ -378,6 +558,59 @@ func _apply_staffing(territory_id: StringName) -> void:
 			staffing[String(member_id)] = bool(state.get("employed", false))
 			zone.set_member_player_level(member_id, clampi(int(state.get("level", 1)), 1, 4))
 		zone.apply_player_staffing(staffing)
+
+
+func _restore_followers() -> void:
+	_reassign_follow_slots()
+	for territory_id in _owned_territory_ids():
+		for entry in get_roster(territory_id):
+			if not bool(entry.following):
+				continue
+			var zone := _find_zone(StringName(entry.zone_id))
+			var dealer := (
+				zone.get_member_dealer(StringName(entry.member_id))
+				if zone != null else null
+			)
+			if dealer != null and not dealer.is_defeated():
+				dealer.begin_bodyguard_following(player)
+
+
+func _reassign_follow_slots() -> void:
+	var entries: Array[Dictionary] = []
+	for territory_id in _owned_territory_ids():
+		for entry in get_roster(territory_id):
+			if bool(entry.following):
+				entry["territory_id"] = territory_id
+				entries.append(entry)
+	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return "%s/%s/%s" % [a.territory_id, a.zone_id, a.member_id] < (
+			"%s/%s/%s" % [b.territory_id, b.zone_id, b.member_id]
+		)
+	)
+	for index in entries.size():
+		var entry := entries[index]
+		var territory_id := StringName(entry.territory_id)
+		var key := _slot_key(
+			StringName(entry.zone_id), StringName(entry.member_id)
+		)
+		var state := _get_slot_state(territory_id, key)
+		state.follow_slot = index
+		_set_slot_state(territory_id, key, state)
+		var zone := _find_zone(StringName(entry.zone_id))
+		var dealer := (
+			zone.get_member_dealer(StringName(entry.member_id))
+			if zone != null else null
+		)
+		if dealer != null:
+			dealer.set_bodyguard_follow_slot(index)
+
+
+func _show_feedback(message: String, duration := 2.5) -> void:
+	if player == null:
+		return
+	var hud := player.get_node_or_null("PlayerHUD") as PlayerHUD
+	if hud != null:
+		hud.show_feedback(message, duration)
 
 
 func _get_slot_state(territory_id: StringName, key: String) -> Dictionary:

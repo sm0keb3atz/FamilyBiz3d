@@ -9,14 +9,19 @@ static var debug_draw_enabled := false
 
 @export_range(1.0, 100.0, 1.0) var witness_range := 14.0
 @export_range(1.0, 150.0, 1.0) var combat_sight_range := 23.0
-@export_range(1.0, 200.0, 1.0) var hearing_range := 28.0
+@export_range(1.0, 250.0, 1.0) var hearing_range := 150.0
 @export_range(20.0, 180.0, 1.0) var field_of_view_degrees := 88.0
+@export_range(1.0, 10.0, 0.5) var near_awareness_range := 4.0
+@export_range(1.0, 40.0, 0.5) var peripheral_range := 12.0
+@export_range(90.0, 180.0, 1.0) var peripheral_fov_degrees := 140.0
 @export_flags_3d_physics var sight_collision_mask := 3
+@export_range(0.05, 0.5, 0.01) var perception_update_interval := 0.1
 @export_category("Wanted Vision Cone")
 @export var show_wanted_vision_cone := true
-@export_range(12, 128, 1) var vision_cone_ray_count := 96
-@export_range(0.03, 0.5, 0.01) var vision_cone_update_interval := 0.08
+@export_range(8, 64, 1) var vision_cone_ray_count := 16
+@export_range(0.1, 1.0, 0.01) var vision_cone_update_interval := 0.25
 @export_range(0.01, 0.25, 0.01) var vision_cone_ground_offset := 0.06
+@export_range(10.0, 100.0, 1.0) var vision_cone_render_distance := 45.0
 
 var npc
 var player: CharacterBody3D
@@ -25,7 +30,11 @@ var player_weapon: PlayerWeaponComponent
 var _debug_mesh_instance: MeshInstance3D
 var _wanted_cone_mesh_instance: MeshInstance3D
 var _wanted_cone_material: ShaderMaterial
+var _wanted_cone_mesh: ImmediateMesh
 var _vision_cone_update_remaining := 0.0
+var _perception_update_remaining := 0.0
+var _cached_can_see_player := false
+var _raycast_count := 0
 
 
 func initialize(owner_npc: BaseNPC, target_player: CharacterBody3D) -> void:
@@ -40,6 +49,10 @@ func initialize(owner_npc: BaseNPC, target_player: CharacterBody3D) -> void:
 	_ensure_debug_mesh()
 	_debug_mesh_instance.visible = debug_draw_enabled
 	_ensure_wanted_vision_cone()
+	_cached_can_see_player = _sample_can_see_player()
+	var stagger := float(owner_npc.get_instance_id() % 10) / 10.0
+	_perception_update_remaining = perception_update_interval * stagger
+	_vision_cone_update_remaining = vision_cone_update_interval * stagger
 	_refresh_wanted_vision_cone(true)
 
 
@@ -56,30 +69,52 @@ func _process(delta: float) -> void:
 		_vision_cone_update_remaining - delta,
 		0.0
 	)
+	_perception_update_remaining = maxf(
+		_perception_update_remaining - delta,
+		0.0
+	)
+	var sampled := false
+	if is_zero_approx(_perception_update_remaining):
+		_cached_can_see_player = _sample_can_see_player()
+		_perception_update_remaining = perception_update_interval
+		sampled = true
 	var has_visual_contact := (
 		wanted != null
 		and wanted.wanted_level > 0
-		and can_see_player()
+		and _cached_can_see_player
 	)
-	if is_zero_approx(_vision_cone_update_remaining):
+	var should_render_cone := _should_render_wanted_cone()
+	if not should_render_cone and _wanted_cone_mesh_instance != null:
+		_wanted_cone_mesh_instance.visible = false
+	elif is_zero_approx(_vision_cone_update_remaining):
 		_refresh_wanted_vision_cone(false, has_visual_contact)
 		_vision_cone_update_remaining = vision_cone_update_interval
 	if has_visual_contact:
 		wanted.report_police_visual_contact(player.global_position)
-	if player_weapon.get_equipped_weapon() == null:
+	if not sampled or player_weapon.get_equipped_weapon() == null:
 		return
 	if can_witness_position(player.global_position + Vector3.UP):
 		wanted.report_visible_weapon_witness()
 
 
 func can_see_player() -> bool:
+	return _cached_can_see_player
+
+
+func _sample_can_see_player() -> bool:
 	if player == null:
 		return false
+	# Police awareness is radial, not dependent on which way their animation or
+	# navigation path happens to face. Walls still block the sight ray.
 	return _has_sight(
 		player.global_position + Vector3.UP,
 		combat_sight_range,
-		true
+		false
 	)
+
+
+func get_raycast_count() -> int:
+	return _raycast_count
 
 
 func can_witness_position(world_position: Vector3) -> bool:
@@ -95,6 +130,16 @@ func can_hear_position(world_position: Vector3) -> bool:
 	)
 
 
+func has_unobstructed_line_to(
+	world_position: Vector3,
+	maximum_range: float
+) -> bool:
+	# Pursuit uses this without an FOV requirement. An officer who already knows
+	# where the suspect is should not turn away merely because the sidewalk
+	# navigation route starts in the opposite direction.
+	return _has_sight(world_position, maximum_range, false)
+
+
 func set_debug_draw_visible(enabled: bool) -> void:
 	debug_draw_enabled = enabled
 	_ensure_debug_mesh()
@@ -104,7 +149,8 @@ func set_debug_draw_visible(enabled: bool) -> void:
 func _has_sight(
 	world_position: Vector3,
 	maximum_range: float,
-	require_fov: bool
+	require_fov: bool,
+	fov_degrees := -1.0
 ) -> bool:
 	if npc == null or npc.is_defeated():
 		return false
@@ -115,12 +161,14 @@ func _has_sight(
 	if require_fov:
 		var forward: Vector3 = npc.visual.global_basis.z.normalized()
 		var flat_offset := Vector3(offset.x, 0.0, offset.z).normalized()
-		var minimum_dot := cos(deg_to_rad(field_of_view_degrees * 0.5))
+		var effective_fov := field_of_view_degrees if fov_degrees < 0.0 else fov_degrees
+		var minimum_dot := cos(deg_to_rad(effective_fov * 0.5))
 		if forward.dot(flat_offset) < minimum_dot:
 			return false
 	var query := PhysicsRayQueryParameters3D.create(origin, world_position)
 	query.collision_mask = sight_collision_mask
 	query.exclude = [npc.get_rid()]
+	_raycast_count += 1
 	var hit: Dictionary = (
 		npc.get_world_3d().direct_space_state.intersect_ray(query)
 	)
@@ -165,29 +213,11 @@ func _ensure_debug_mesh() -> void:
 
 
 func _add_sight_cone(mesh: ImmediateMesh) -> void:
-	var material := _make_debug_material(Color(1.0, 0.28, 0.12, 0.95))
-	mesh.surface_begin(Mesh.PRIMITIVE_LINES, material)
-	var half_angle := deg_to_rad(field_of_view_degrees * 0.5)
-	var segments := 32
-	var previous := Vector3.ZERO
-	for index in segments + 1:
-		var angle := lerpf(-half_angle, half_angle, float(index) / segments)
-		var point := Vector3(sin(angle), 0.0, cos(angle)) * combat_sight_range
-		if index > 0:
-			mesh.surface_add_vertex(previous)
-			mesh.surface_add_vertex(point)
-		previous = point
-	mesh.surface_add_vertex(Vector3.ZERO)
-	mesh.surface_add_vertex(
-		Vector3(-sin(half_angle), 0.0, cos(half_angle))
-		* combat_sight_range
+	_add_radius_circle(
+		mesh,
+		combat_sight_range,
+		Color(1.0, 0.28, 0.12, 0.95)
 	)
-	mesh.surface_add_vertex(Vector3.ZERO)
-	mesh.surface_add_vertex(
-		Vector3(sin(half_angle), 0.0, cos(half_angle))
-		* combat_sight_range
-	)
-	mesh.surface_end()
 
 
 func _add_radius_circle(
@@ -231,6 +261,27 @@ func _ensure_wanted_vision_cone() -> void:
 	)
 	_wanted_cone_mesh_instance.extra_cull_margin = combat_sight_range
 	npc.add_child(_wanted_cone_mesh_instance)
+	_wanted_cone_mesh = ImmediateMesh.new()
+	_wanted_cone_mesh_instance.mesh = _wanted_cone_mesh
+
+
+func _should_render_wanted_cone() -> bool:
+	if (
+		not show_wanted_vision_cone
+		or wanted == null
+		or wanted.wanted_level <= 0
+		or player == null
+	):
+		return false
+	if npc.global_position.distance_squared_to(player.global_position) > (
+		vision_cone_render_distance * vision_cone_render_distance
+	):
+		return false
+	var camera: Camera3D = npc.get_viewport().get_camera_3d()
+	return (
+		camera == null
+		or camera.is_position_in_frustum(npc.global_position + Vector3.UP)
+	)
 
 
 func _refresh_wanted_vision_cone(
@@ -247,7 +298,7 @@ func _refresh_wanted_vision_cone(
 	_wanted_cone_mesh_instance.visible = should_show
 	if not should_show:
 		return
-	if not force and not npc.visible:
+	if not force and not _should_render_wanted_cone():
 		return
 	_wanted_cone_material.set_shader_parameter(
 		&"alert_level",
@@ -258,27 +309,18 @@ func _refresh_wanted_vision_cone(
 		1.0 if focused_on_player else 0.0
 	)
 	var origin: Vector3 = npc.global_position + Vector3.UP * 1.35
-	var forward: Vector3 = npc.visual.global_basis.z
-	forward.y = 0.0
-	forward = forward.normalized()
-	if forward.is_zero_approx():
-		forward = Vector3.FORWARD
 	var endpoints: Array[Vector3] = []
 	for ray_index in vision_cone_ray_count + 1:
-		var blend: float = float(ray_index) / float(
-			vision_cone_ray_count
-		)
-		var angle: float = lerpf(
-			-deg_to_rad(field_of_view_degrees * 0.5),
-			deg_to_rad(field_of_view_degrees * 0.5),
-			blend
-		)
-		var direction: Vector3 = forward.rotated(Vector3.UP, angle)
+		var angle := TAU * float(ray_index) / float(vision_cone_ray_count)
+		var direction := Vector3(sin(angle), 0.0, cos(angle))
 		endpoints.append(
 			_get_clipped_cone_endpoint(origin, direction)
 		)
-	var mesh: ImmediateMesh = ImmediateMesh.new()
-	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES, _wanted_cone_material)
+	_wanted_cone_mesh.clear_surfaces()
+	_wanted_cone_mesh.surface_begin(
+		Mesh.PRIMITIVE_TRIANGLES,
+		_wanted_cone_material
+	)
 	var center: Vector3 = Vector3(
 		0.0,
 		vision_cone_ground_offset,
@@ -291,14 +333,13 @@ func _refresh_wanted_vision_cone(
 		var right_u: float = float(segment_index + 1) / float(
 			vision_cone_ray_count
 		)
-		mesh.surface_set_uv(Vector2(0.5, 0.0))
-		mesh.surface_add_vertex(center)
-		mesh.surface_set_uv(Vector2(left_u, 1.0))
-		mesh.surface_add_vertex(endpoints[segment_index])
-		mesh.surface_set_uv(Vector2(right_u, 1.0))
-		mesh.surface_add_vertex(endpoints[segment_index + 1])
-	mesh.surface_end()
-	_wanted_cone_mesh_instance.mesh = mesh
+		_wanted_cone_mesh.surface_set_uv(Vector2(0.5, 0.0))
+		_wanted_cone_mesh.surface_add_vertex(center)
+		_wanted_cone_mesh.surface_set_uv(Vector2(left_u, 1.0))
+		_wanted_cone_mesh.surface_add_vertex(endpoints[segment_index])
+		_wanted_cone_mesh.surface_set_uv(Vector2(right_u, 1.0))
+		_wanted_cone_mesh.surface_add_vertex(endpoints[segment_index + 1])
+	_wanted_cone_mesh.surface_end()
 
 
 func _get_clipped_cone_endpoint(
@@ -310,6 +351,7 @@ func _get_clipped_cone_endpoint(
 	query.collision_mask = sight_collision_mask
 	query.exclude = [npc.get_rid(), player.get_rid()]
 	query.collide_with_areas = false
+	_raycast_count += 1
 	var hit: Dictionary = (
 		npc.get_world_3d().direct_space_state.intersect_ray(query)
 	)

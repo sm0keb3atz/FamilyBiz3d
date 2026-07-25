@@ -54,7 +54,7 @@ func _compression(wheel: VehicleWheel3D) -> float:
 		anchor - wheel.get_contact_point()
 	).dot(vehicle.global_basis.y.normalized())
 	var length := clampf(
-		distance - vehicle.definition.wheel_radius,
+		distance - wheel.wheel_radius,
 		0.0,
 		vehicle.definition.suspension_rest_length
 		+ vehicle.definition.suspension_travel

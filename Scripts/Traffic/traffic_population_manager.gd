@@ -1,10 +1,14 @@
 class_name TrafficPopulationManager
 extends Node3D
 
+const CatalogScript := preload("res://Scripts/Traffic/traffic_vehicle_catalog.gd")
+
 @export var vehicle_scene: PackedScene
+@export var vehicle_catalog: Resource
 @export var network_path: NodePath
 @export var player_path: NodePath
 @export var vehicle_container_path: NodePath
+@export var traffic_coordinator_path: NodePath
 
 @export_category("Population")
 @export_range(1, 200, 1) var pool_capacity := 24
@@ -28,16 +32,20 @@ extends Node3D
 @onready var network := get_node(network_path) as TrafficNetwork3D
 @onready var player := get_node(player_path) as CharacterBody3D
 @onready var vehicle_container := get_node(vehicle_container_path) as Node3D
+@onready var traffic_coordinator: Node = get_node_or_null(
+	traffic_coordinator_path
+)
 
 var _active: Array[BaseVehicle] = []
 var _inactive: Array[BaseVehicle] = []
+var _inactive_by_variant := {}
+var _variant_by_vehicle := {}
 var _traffic_cells := {}
 var _pending_reveal := {}
 var _random := RandomNumberGenerator.new()
 var _update_remaining := 0.0
 var _recycle_cursor := 0
 var _physics_tick_index := 0
-var _cached_spawn_body_height := -1.0
 var _enabled := true
 
 
@@ -76,7 +84,15 @@ func _physics_process(delta: float) -> void:
 				(_physics_tick_index + index)
 				% maxi(obstacle_raycast_interval, 1)
 			) == 0
-			ai.tick_traffic(delta, _get_nearby_vehicles(vehicle), allow_raycast)
+			var nearby: Array[BaseVehicle] = (
+				traffic_coordinator.get_nearby_vehicles(
+					vehicle,
+					maxf(traffic_cell_size * 2.5, ai.following_distance)
+				)
+				if traffic_coordinator != null
+				else _get_nearby_vehicles(vehicle)
+			)
+			ai.tick_traffic(delta, nearby, allow_raycast)
 			if ai.wants_recycle() and _can_recycle_without_pop(vehicle):
 				recycle_requests.append(vehicle)
 	for vehicle in recycle_requests:
@@ -142,42 +158,75 @@ func get_active_vehicles() -> Array[BaseVehicle]:
 	return _active.duplicate()
 
 
+func get_active_variant_ids() -> Array[StringName]:
+	var results: Array[StringName] = []
+	for vehicle in _active:
+		results.append(vehicle.get_vehicle_id())
+	return results
+
+
+func get_catalog_variant_count() -> int:
+	return vehicle_catalog.get_variants().size() if vehicle_catalog != null else 1
+
+
+func set_random_seed(value: int) -> void:
+	_random.seed = value
+
+
 func _activate_one() -> bool:
-	var chosen: TrafficWaypoint3D = _choose_spawn_waypoint()
+	var variant := _choose_vehicle_variant()
+	var chosen: TrafficWaypoint3D = _choose_spawn_waypoint(variant)
 	if chosen == null:
 		return false
-	var vehicle := _acquire_vehicle()
+	var vehicle := _acquire_vehicle(variant)
 	if vehicle == null:
 		return false
 	var ai := _ensure_ai(vehicle)
 	ai.assign_route(network, chosen, _random.randi())
 	vehicle.global_transform = _get_grounded_spawn_transform(
-		ai.get_spawn_transform()
+		ai.get_spawn_transform(), vehicle
 	)
 	vehicle.linear_velocity = Vector3.ZERO
 	vehicle.angular_velocity = Vector3.ZERO
 	vehicle.sleeping = false
+	vehicle.collision_layer = 1
+	vehicle.collision_mask = 3
 	vehicle.process_mode = Node.PROCESS_MODE_INHERIT
 	vehicle.set_managed_traffic_enabled(true)
+	if vehicle_catalog != null:
+		var palette := CatalogScript.BODY_COLORS
+		vehicle.apply_traffic_body_color(
+			palette[_random.randi_range(0, palette.size() - 1)]
+		)
 	vehicle.drive_component.set_ai_control(0.0, 1.0, 0.0)
 	vehicle.visible = spawn_settle_duration <= 0.0
 	_active.append(vehicle)
+	if traffic_coordinator != null:
+		traffic_coordinator.register_vehicle(vehicle)
 	if spawn_settle_duration > 0.0:
 		_pending_reveal[vehicle] = spawn_settle_duration
 	return true
 
 
-func _acquire_vehicle() -> BaseVehicle:
-	if not _inactive.is_empty():
-		return _inactive.pop_back() as BaseVehicle
+func _acquire_vehicle(variant: Resource) -> BaseVehicle:
+	var variant_id: StringName = variant.variant_id if variant != null else &"legacy"
+	var variant_pool := _inactive_by_variant.get(variant_id, []) as Array
+	if not variant_pool.is_empty():
+		var pooled := variant_pool.pop_back() as BaseVehicle
+		_inactive_by_variant[variant_id] = variant_pool
+		_inactive.erase(pooled)
+		return pooled
 	if get_live_pool_count() >= pool_capacity:
 		return null
 	var vehicle := vehicle_scene.instantiate() as BaseVehicle
 	if vehicle == null:
 		return null
+	if variant != null:
+		vehicle.configure_definition_before_tree(variant.definition)
 	vehicle.process_mode = Node.PROCESS_MODE_DISABLED
 	vehicle.visible = false
 	vehicle_container.add_child(vehicle)
+	_variant_by_vehicle[vehicle] = variant_id
 	vehicle.tree_exiting.connect(
 		_on_vehicle_tree_exiting.bind(vehicle),
 		CONNECT_ONE_SHOT
@@ -186,7 +235,50 @@ func _acquire_vehicle() -> BaseVehicle:
 	return vehicle
 
 
-func _choose_spawn_waypoint() -> TrafficWaypoint3D:
+func _choose_vehicle_variant() -> Resource:
+	if vehicle_catalog == null:
+		return null
+	var variants: Array[Resource] = []
+	variants.assign(vehicle_catalog.call("get_ambient_variants"))
+	var valid: Array[Resource] = []
+	for variant in variants:
+		if variant != null and variant.is_valid():
+			valid.append(variant)
+	if valid.is_empty():
+		return null
+	var active_counts := {}
+	for vehicle in _active:
+		var id := vehicle.get_vehicle_id()
+		active_counts[id] = int(active_counts.get(id, 0)) + 1
+	if active_counts.size() < mini(5, valid.size()):
+		var unused: Array[Resource] = []
+		for variant in valid:
+			if int(active_counts.get(variant.variant_id, 0)) == 0:
+				unused.append(variant)
+		if not unused.is_empty():
+			valid = unused
+	else:
+		var maximum_same := maxi(1, ceili(float(maxi(active_target, 1)) * 0.3))
+		var under_cap: Array[Resource] = []
+		for variant in valid:
+			if int(active_counts.get(variant.variant_id, 0)) < maximum_same:
+				under_cap.append(variant)
+		if not under_cap.is_empty():
+			valid = under_cap
+	var total_weight := 0.0
+	for variant in valid:
+		total_weight += maxf(variant.spawn_weight, 0.0)
+	if total_weight <= 0.0:
+		return valid[_random.randi_range(0, valid.size() - 1)]
+	var roll := _random.randf_range(0.0, total_weight)
+	for variant in valid:
+		roll -= maxf(variant.spawn_weight, 0.0)
+		if roll <= 0.0:
+			return variant
+	return valid.back()
+
+
+func _choose_spawn_waypoint(variant: Resource = null) -> TrafficWaypoint3D:
 	var candidates := network.get_spawn_candidates(
 		player.global_position,
 		minimum_spawn_distance,
@@ -195,9 +287,19 @@ func _choose_spawn_waypoint() -> TrafficWaypoint3D:
 	if candidates.is_empty():
 		return null
 	_shuffle_waypoints(candidates)
-	var camera := get_viewport().get_camera_3d()
+	var camera: Camera3D = get_viewport().get_camera_3d()
 	for waypoint in candidates:
-		if _is_spawn_occupied(waypoint.global_position):
+		if not _has_spawn_ground(waypoint.global_position):
+			continue
+		var footprint: Vector3 = (
+			variant.definition.collision_size
+			if variant != null and variant.definition != null
+			else Vector3(2.0, 1.0, 4.5)
+		)
+		if _is_spawn_occupied(
+			Transform3D(waypoint.global_basis, waypoint.global_position),
+			footprint
+		):
 			continue
 		if camera == null or not camera.is_position_in_frustum(
 			waypoint.global_position + Vector3.UP
@@ -229,6 +331,8 @@ func _recycle_distant_vehicles() -> void:
 
 func _recycle_vehicle(vehicle: BaseVehicle) -> void:
 	_active.erase(vehicle)
+	if traffic_coordinator != null:
+		traffic_coordinator.unregister_vehicle(vehicle)
 	_pending_reveal.erase(vehicle)
 	var ai := _get_ai(vehicle)
 	if ai != null:
@@ -239,14 +343,31 @@ func _recycle_vehicle(vehicle: BaseVehicle) -> void:
 	vehicle.sleeping = true
 	vehicle.visible = false
 	vehicle.process_mode = Node.PROCESS_MODE_DISABLED
+	vehicle.collision_layer = 0
+	vehicle.collision_mask = 0
 	_inactive.append(vehicle)
+	var variant_id: StringName = _variant_by_vehicle.get(
+		vehicle, vehicle.get_vehicle_id()
+	) as StringName
+	if not _inactive_by_variant.has(variant_id):
+		_inactive_by_variant[variant_id] = []
+	(_inactive_by_variant[variant_id] as Array).append(vehicle)
 	if not _active.is_empty():
 		_recycle_cursor %= _active.size()
 	else:
 		_recycle_cursor = 0
 
 
-func _is_spawn_occupied(position: Vector3) -> bool:
+func _is_spawn_occupied(
+	spawn_transform: Transform3D,
+	footprint := Vector3(2.0, 1.0, 4.5)
+) -> bool:
+	if traffic_coordinator != null:
+		return not traffic_coordinator.is_spawn_clear(
+			spawn_transform,
+			footprint
+		)
+	var position := spawn_transform.origin
 	var separation_squared := spawn_separation * spawn_separation
 	for vehicle in _active:
 		if (
@@ -269,18 +390,21 @@ func _can_recycle_without_pop(vehicle: BaseVehicle) -> bool:
 	)
 
 
-func _get_grounded_spawn_transform(spawn_transform: Transform3D) -> Transform3D:
+func _get_grounded_spawn_transform(
+	spawn_transform: Transform3D,
+	vehicle: BaseVehicle = null
+) -> Transform3D:
 	var world := get_world_3d()
 	if world == null:
 		return spawn_transform
 	var origin := spawn_transform.origin
 	var query := PhysicsRayQueryParameters3D.create(
 		origin + Vector3.UP * spawn_ground_probe_height,
-		origin - Vector3.UP * spawn_ground_probe_height,
+		origin - Vector3.UP * maxf(spawn_ground_probe_height, 20.0),
 		spawn_ground_probe_mask
 	)
 	var hit := world.direct_space_state.intersect_ray(query)
-	var body_height := _get_vehicle_spawn_height()
+	var body_height := _get_vehicle_spawn_height(vehicle)
 	if hit.is_empty():
 		spawn_transform.origin.y = maxf(spawn_transform.origin.y, body_height)
 		return spawn_transform
@@ -288,32 +412,21 @@ func _get_grounded_spawn_transform(spawn_transform: Transform3D) -> Transform3D:
 	return spawn_transform
 
 
-func _get_vehicle_spawn_height() -> float:
-	if _cached_spawn_body_height >= 0.0:
-		return _cached_spawn_body_height
-	if vehicle_scene == null:
-		return spawn_body_height
-	var preview := vehicle_scene.instantiate() as BaseVehicle
-	if preview == null or preview.definition == null:
-		if preview != null:
-			preview.free()
-		return spawn_body_height
-	var wheel := preview.get_node_or_null(
-		preview.front_left_wheel_path
-	) as VehicleWheel3D
-	var wheel_anchor_height := 0.0
-	if wheel != null:
-		wheel_anchor_height = wheel.position.y
-	var height := maxf(
-		preview.definition.wheel_radius
-		+ preview.definition.suspension_rest_length
-		- wheel_anchor_height
-		+ 0.02,
-		0.08
+func _has_spawn_ground(position: Vector3) -> bool:
+	var query := PhysicsRayQueryParameters3D.create(
+		position + Vector3.UP * spawn_ground_probe_height,
+		position - Vector3.UP * maxf(spawn_ground_probe_height, 20.0),
+		spawn_ground_probe_mask
 	)
-	preview.free()
-	_cached_spawn_body_height = minf(height, spawn_body_height)
-	return _cached_spawn_body_height
+	query.collide_with_areas = false
+	return not get_world_3d().direct_space_state.intersect_ray(query).is_empty()
+
+
+func _get_vehicle_spawn_height(vehicle: BaseVehicle = null) -> float:
+	if vehicle == null or vehicle.definition == null:
+		return spawn_body_height
+	var height := vehicle.get_grounded_spawn_height()
+	return minf(height, spawn_body_height)
 
 
 func _update_pending_reveals(delta: float) -> void:
@@ -413,3 +526,8 @@ func _shuffle_waypoints(waypoints: Array[TrafficWaypoint3D]) -> void:
 func _on_vehicle_tree_exiting(vehicle: BaseVehicle) -> void:
 	_active.erase(vehicle)
 	_inactive.erase(vehicle)
+	if traffic_coordinator != null:
+		traffic_coordinator.unregister_vehicle(vehicle)
+	_variant_by_vehicle.erase(vehicle)
+	for variant_id in _inactive_by_variant:
+		(_inactive_by_variant[variant_id] as Array).erase(vehicle)

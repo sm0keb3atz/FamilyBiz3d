@@ -2,10 +2,11 @@
 
 [ext_resource type="PackedScene" uid="uid://bcf0nlv7qiysh" path="res://Scenes/Maps/Territorys/Blocks/hood_east_block_2.tscn" id="1_cutl6"]
 [ext_resource type="PackedScene" uid="uid://bnuid5itfjwyn" path="res://Scenes/Maps/Territorys/Blocks/hood_east_block_1.tscn" id="5_eis4x"]
+[ext_resource type="PackedScene" uid="uid://dplcnrn0vwr7" path="res://Scenes/Maps/RoadPieces/street_light.tscn" id="7_f0hto"]
 [ext_resource type="Script" uid="uid://daq7qgwhbofw5" path="res://Scripts/Gameplay/territory_stats_component.gd" id="10_stats"]
 [ext_resource type="Script" uid="uid://cqkqgrwcoxm7u" path="res://Scripts/Gameplay/territory_boundary.gd" id="11_boundary"]
 [ext_resource type="Script" uid="uid://dnmxrkmpfo7s8" path="res://Scripts/World/static_multimesh_batcher.gd" id="12_batcher"]
-[ext_resource type="PackedScene" path="res://Scenes/Maps/Territorys/HoodEastMobility.tscn" id="13_mobility"]
+[ext_resource type="PackedScene" uid="uid://kuehpe27hrod" path="res://Scenes/Maps/Territorys/HoodEastMobility.tscn" id="13_mobility"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lcq4g"]
 size = Vector3(147, 0.001, 264)
@@ -17,6 +18,7 @@ size = Vector3(146, 20, 253)
 
 [node name="Mobility" parent="." unique_id=1486368606 instance=ExtResource("13_mobility")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.90000004, 0, -3.9)
+visible = false
 
 [node name="HoodEastBlock2" parent="." unique_id=177450189 instance=ExtResource("1_cutl6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 125)
@@ -41,6 +43,7 @@ territory_id = &"hood_east"
 starting_owner_faction = 1
 
 [node name="TerritoryBoundary" type="Area3D" parent="." unique_id=1647238682]
+visible = false
 script = ExtResource("11_boundary")
 territory_id = &"hood_east"
 display_name = "Hood East"
@@ -49,3 +52,11 @@ display_name = "Hood East"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0, 0)
 shape = SubResource("BoxShape3D_territory")
 debug_color = Color(0.91971976, 0.2827793, 0, 1)
+
+[node name="StreetLights" type="Node3D" parent="." unique_id=761322865]
+
+[node name="StreetLight" parent="StreetLights" unique_id=2065760400 instance=ExtResource("7_f0hto")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 62.4, 2.9802322e-07, -17)
+
+[node name="StreetLight2" parent="StreetLights" unique_id=1128183583 instance=ExtResource("7_f0hto")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 91.600006, 2.9802322e-07, -17)

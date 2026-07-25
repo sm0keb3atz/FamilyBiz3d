@@ -13,8 +13,8 @@ extends Node3D
 @export_range(0.0, 500.0, 1.0) var minimum_spawn_distance := 18.0
 @export_range(1.0, 1000.0, 1.0) var maximum_spawn_distance := 55.0
 @export_range(1.0, 1000.0, 1.0) var recycle_distance := 70.0
-@export_range(0.1, 10.0, 0.1) var population_update_interval := 0.65
-@export_range(1, 20, 1) var maximum_activations_per_update := 1
+@export_range(0.1, 10.0, 0.1) var population_update_interval := 0.25
+@export_range(1, 20, 1) var maximum_activations_per_update := 4
 @export_range(1, 100, 1) var recycle_checks_per_update := 12
 @export_range(0.5, 10.0, 0.1) var spawn_separation := 2.5
 @export_range(5.0, 200.0, 1.0) var high_detail_distance := 35.0
@@ -44,6 +44,7 @@ var _police_replacement_remaining := 0.0
 
 
 func _ready() -> void:
+	add_to_group(&"civilian_population_manager")
 	_random.randomize()
 	_update_remaining = population_update_interval
 
@@ -137,6 +138,40 @@ func get_active_police() -> Array[PoliceNPC]:
 
 func get_active_police_count() -> int:
 	return _active_police.size()
+
+
+func spawn_response_officer(
+	world_position: Vector3,
+	response_id: int,
+	response_target: Vector3
+) -> PoliceNPC:
+	if police_scene == null or network == null:
+		return null
+	var police := _acquire_police()
+	if police == null:
+		return null
+	if not police.prepare_for_response_spawn(
+		network,
+		world_position,
+		_random.randi(),
+		player,
+		response_id,
+		response_target
+	):
+		police.prepare_for_pool_recycle()
+		_inactive_police.append(police)
+		return null
+	police.set_crowd_detail_enabled(true)
+	police.set_role_label_visible(show_managed_role_labels)
+	_active_police.append(police)
+	return police
+
+
+func recycle_response_officer(police: PoliceNPC) -> void:
+	if police == null or police not in _active_police or police.is_defeated():
+		return
+	police.clear_police_response()
+	_recycle_police(police)
 
 
 func _activate_one() -> bool:
@@ -324,11 +359,15 @@ func _recycle_distant_police() -> void:
 
 
 func _recycle_excess_police(target_count: int) -> void:
-	while _active_police.size() > target_count:
+	while _get_active_ambient_police_count() > target_count:
 		var farthest: PoliceNPC
 		var farthest_distance_squared := -1.0
 		for police in _active_police:
-			if not is_instance_valid(police) or police.is_defeated():
+			if (
+				not is_instance_valid(police)
+				or police.is_defeated()
+				or police.is_response_assigned()
+			):
 				continue
 			var distance_squared := police.global_position.distance_squared_to(
 				player.global_position
@@ -382,15 +421,19 @@ func _get_police_target() -> int:
 	var ambient_target := int(
 		floori(float(_active.size()) / float(civilians_per_police))
 	)
-	var wanted_target := 0
-	match wanted.wanted_level:
-		1:
-			wanted_target = one_star_police_minimum
-		2:
-			wanted_target = two_star_police_minimum
-		3:
-			wanted_target = three_star_police_minimum
-	return maxi(ambient_target, wanted_target)
+	return ambient_target
+
+
+func _get_active_ambient_police_count() -> int:
+	var count := 0
+	for police in _active_police:
+		if (
+			is_instance_valid(police)
+			and not police.is_defeated()
+			and not police.is_response_assigned()
+		):
+			count += 1
+	return count
 
 
 func _shuffle_waypoints(
