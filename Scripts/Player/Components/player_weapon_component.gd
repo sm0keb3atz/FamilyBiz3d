@@ -341,6 +341,16 @@ func import_save_data(data: Dictionary, preserve_legacy_weapons := false) -> voi
 	_apply_equipped_weapon()
 
 
+func confiscate_all() -> Dictionary:
+	var confiscated := export_save_data()
+	import_save_data({})
+	return confiscated
+
+
+func reset_to_new_game() -> void:
+	import_save_data({})
+
+
 func owns_attachment(weapon_id: StringName, attachment_id: StringName) -> bool:
 	if not owns_weapon(weapon_id):
 		return false

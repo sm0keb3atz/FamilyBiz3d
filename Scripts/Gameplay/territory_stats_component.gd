@@ -170,6 +170,10 @@ func import_save_data(data: Dictionary) -> void:
 	set_heat(float(data.get("heat", starting_heat)))
 
 
+func reset_to_new_game() -> void:
+	import_save_data({})
+
+
 func _refresh_derived_state(emit_changes := true) -> void:
 	var next_pressure := RivalPressureTier.NONE
 	if _reputation <= -75.0:

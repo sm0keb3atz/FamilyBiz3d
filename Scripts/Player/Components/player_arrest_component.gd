@@ -9,6 +9,7 @@ signal arrested
 @export var wanted_component_path := NodePath("../WantedComponent")
 @export var respawn_component_path := NodePath("../RespawnComponent")
 @export var vehicle_component_path := NodePath("../VehicleComponent")
+@export var legal_component_path := NodePath("../LegalComponent")
 @export_range(0.5, 10.0, 0.1) var arrest_duration := 3.0
 @export_range(1.0, 10.0, 0.1) var progress_drain_multiplier := 2.0
 @export_range(0.05, 1.0, 0.05) var contact_grace := 0.25
@@ -20,6 +21,7 @@ signal arrested
 	get_node(respawn_component_path) as PlayerRespawnComponent
 )
 @onready var vehicle_component: Variant = get_node(vehicle_component_path)
+@onready var legal_component := get_node(legal_component_path) as PlayerLegalComponent
 
 var progress: float:
 	get:
@@ -80,9 +82,7 @@ func reset_progress() -> void:
 func _complete_arrest() -> void:
 	_progress = 0.0
 	_contact_remaining = 0.0
-	wanted_component.resolve_arrest()
-	if vehicle_component.is_driving():
-		vehicle_component.exit_vehicle(true)
+	legal_component.begin_police_custody()
 	arrest_progress_changed.emit(0.0)
 	arrested.emit()
 	respawn_component.respawn_after_arrest()

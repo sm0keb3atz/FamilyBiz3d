@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="LawyerDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Gameplay/Legal/lawyer_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+lawyer_id = &"lawyer_level_3"
+display_name = "Jordan Sterling"
+level = 3
+retainer_clean = 40000
+daily_fee_clean = 4000
+defense_min = 600
+defense_max = 1100
+laundering_daily_limit = 50000
+laundering_cut = 0.15
+heat_daily_limit = 30
+heat_cost_per_point = 300

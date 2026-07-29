@@ -396,6 +396,31 @@ func import_save_data(data: Dictionary) -> void:
 				business_state_changed.emit(property_id)
 
 
+func forfeit_front_businesses() -> void:
+	for property_id in PropertyCatalog.BUSINESS_IDS:
+		if not owns(property_id):
+			continue
+		_owned.erase(property_id)
+		_businesses.erase(property_id)
+		ownership_changed.emit(property_id, false)
+		business_state_changed.emit(property_id)
+
+
+func forfeit_stash_houses() -> void:
+	for property_id in PropertyCatalog.PROPERTY_IDS:
+		var definition := PropertyCatalog.get_by_id(property_id)
+		if definition == null or not definition.is_stash_house() or not owns(property_id):
+			continue
+		_owned.erase(property_id)
+		_stashes.erase(property_id)
+		ownership_changed.emit(property_id, false)
+		stash_changed.emit(property_id)
+
+
+func reset_to_new_game() -> void:
+	import_save_data({})
+
+
 func _ensure_stash(property_id: StringName) -> Dictionary:
 	if not _stashes.has(property_id):
 		_stashes[property_id] = {"dirty_cash": 0, "products": {}, "weapons": {}}

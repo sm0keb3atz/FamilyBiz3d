@@ -25,6 +25,28 @@ var uncertainty_radius := 2.0
 var suspect_known := true
 var revision := 1
 var force_authorized := false
+var charge_ledger: Array[Dictionary] = []
+
+
+func record_charge(
+	charge_id: StringName,
+	display_name: String,
+	unit_points: int,
+	unique_key: String = ""
+) -> void:
+	if charge_id == &"" or unit_points <= 0:
+		return
+	var ledger_key := unique_key if not unique_key.is_empty() else String(charge_id)
+	for entry in charge_ledger:
+		if str(entry.get("unique_key", "")) == ledger_key:
+			return
+	charge_ledger.append({
+		"charge_id": String(charge_id),
+		"display_name": display_name,
+		"unit_points": unit_points,
+		"count": 1,
+		"unique_key": ledger_key,
+	})
 
 
 func to_dictionary() -> Dictionary:
@@ -43,6 +65,7 @@ func to_dictionary() -> Dictionary:
 		"suspect_known": suspect_known,
 		"revision": revision,
 		"force_authorized": force_authorized,
+		"charge_ledger": charge_ledger.duplicate(true),
 	}
 
 
@@ -74,6 +97,11 @@ static func from_dictionary(data: Dictionary) -> PoliceIncident:
 	incident.force_authorized = bool(
 		data.get("force_authorized", incident.severity >= 3)
 	)
+	var raw_ledger: Variant = data.get("charge_ledger", [])
+	if raw_ledger is Array:
+		for entry in raw_ledger:
+			if entry is Dictionary:
+				incident.charge_ledger.append(entry.duplicate(true))
 	return incident
 
 

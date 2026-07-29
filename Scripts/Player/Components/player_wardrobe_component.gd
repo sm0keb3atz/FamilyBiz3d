@@ -167,6 +167,10 @@ func import_save_data(data: Dictionary) -> void:
 	apply_equipped_outfit()
 
 
+func reset_to_new_game() -> void:
+	import_save_data({})
+
+
 func _apply_definition(definition: ClothingDefinition) -> void:
 	appearance.apply_clothing_definition(
 		definition,

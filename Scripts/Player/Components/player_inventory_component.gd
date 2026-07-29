@@ -85,6 +85,16 @@ func import_save_data(data: Dictionary) -> void:
 		quantity_changed.emit(product, quantity)
 
 
+func confiscate_all() -> Dictionary:
+	var confiscated := export_save_data()
+	import_save_data({})
+	return confiscated
+
+
+func reset_to_new_game() -> void:
+	import_save_data({})
+
+
 func _ensure_known_product(product: ProductDefinition) -> void:
 	if product != null and product not in known_products:
 		known_products.append(product)

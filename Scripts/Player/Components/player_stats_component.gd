@@ -240,6 +240,10 @@ func import_save_data(data: Dictionary) -> void:
 	_emit_all_stats()
 
 
+func reset_to_new_game() -> void:
+	import_save_data({})
+
+
 func _process_level_ups() -> void:
 	while _experience >= get_experience_required_for_next_level():
 		var previous_max_health := get_max_health()

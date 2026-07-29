@@ -408,6 +408,10 @@ func import_save_data(data: Dictionary) -> void:
 	call_deferred("_restore_followers")
 
 
+func reset_to_new_game() -> void:
+	import_save_data({})
+
+
 func _try_process_sale(territory_id: StringName, key: String, state: Dictionary, minute: int) -> bool:
 	var sale_index := int(state.get("sale_index", 0))
 	state.sale_index = sale_index + 1

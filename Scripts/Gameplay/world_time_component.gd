@@ -5,6 +5,7 @@ signal time_changed(date_text: String, time_text: String)
 signal minute_advanced(absolute_minute: int)
 signal day_ending(report_date: String)
 signal day_ended(report_date: String, earned: int, spent: int)
+signal calendar_skipped(from_absolute_minute: int, to_absolute_minute: int, reason: StringName)
 
 const MINUTES_PER_DAY := 1440
 const SUNRISE_HOUR := 6.0
@@ -28,6 +29,7 @@ var weekday := 0
 var minute_of_day := 8 * 60
 var daily_earned := 0
 var daily_spent := 0
+var active_skip_reason: StringName = &""
 
 var _minute_accumulator := 0.0
 var _last_emitted_minute := -1
@@ -94,11 +96,69 @@ func advance_to_next_morning(wake_hour := 8) -> bool:
 	return true
 
 
+func fast_forward_days(
+	days: int,
+	reason: StringName,
+	process_daily_systems := true
+) -> void:
+	if days <= 0:
+		return
+	var from_minute := get_absolute_minute()
+	if process_daily_systems:
+		active_skip_reason = reason
+		advance_minutes(days * MINUTES_PER_DAY)
+		active_skip_reason = &""
+	else:
+		for _index in days:
+			_advance_date()
+		_update_visuals()
+		_emit_time_changed()
+	calendar_skipped.emit(from_minute, get_absolute_minute(), reason)
+
+
+func fast_forward_years(years_to_advance: int, reason: StringName) -> void:
+	if years_to_advance <= 0:
+		return
+	var from_minute := get_absolute_minute()
+	year += years_to_advance
+	day = mini(day, _days_in_month(month, year))
+	var elapsed_days := (get_absolute_minute() - from_minute) / MINUTES_PER_DAY
+	weekday = posmod(weekday + elapsed_days, 7)
+	daily_earned = 0
+	daily_spent = 0
+	_update_visuals()
+	_last_emitted_minute = -1
+	_emit_time_changed()
+	calendar_skipped.emit(from_minute, get_absolute_minute(), reason)
+
+
 func get_formatted_date() -> String:
 	return "%s %s %d" % [
 		WEEKDAY_NAMES[weekday],
 		MONTH_NAMES[month - 1],
 		day,
+	]
+
+
+func get_formatted_date_with_year() -> String:
+	return "%s, %s %d, Y%d" % [
+		WEEKDAY_NAMES[weekday],
+		MONTH_NAMES[month - 1],
+		day,
+		year,
+	]
+
+
+func get_formatted_absolute_datetime(absolute_minute: int) -> String:
+	var safe_minute := maxi(absolute_minute, 0)
+	var absolute_day := safe_minute / MINUTES_PER_DAY
+	var date_parts := _date_from_absolute_day(absolute_day)
+	return "%s, %s %d, Y%d at %s" % [
+		WEEKDAY_NAMES[absolute_day % WEEKDAY_NAMES.size()],
+		MONTH_NAMES[int(date_parts.month) - 1],
+		int(date_parts.day),
+		int(date_parts.year),
+		_format_time_of_day(safe_minute % MINUTES_PER_DAY),
 	]
 
 
@@ -117,8 +177,13 @@ func get_absolute_minute() -> int:
 
 
 func get_formatted_time() -> String:
-	var hour_24 := minute_of_day / 60
-	var minute := minute_of_day % 60
+	return _format_time_of_day(minute_of_day)
+
+
+func _format_time_of_day(value: int) -> String:
+	var safe_value := posmod(value, MINUTES_PER_DAY)
+	var hour_24 := safe_value / 60
+	var minute := safe_value % 60
 	var suffix := "AM" if hour_24 < 12 else "PM"
 	var hour_12 := hour_24 % 12
 	if hour_12 == 0:
@@ -134,9 +199,44 @@ func is_nighttime() -> bool:
 func set_time_of_day(hour: int, minute: int) -> bool:
 	if hour < 0 or hour > 23 or minute < 0 or minute > 59:
 		return false
+	var previous_absolute_minute := get_absolute_minute()
 	minute_of_day = hour * 60 + minute
 	_update_visuals()
 	_emit_time_changed()
+	var next_absolute_minute := get_absolute_minute()
+	if next_absolute_minute != previous_absolute_minute:
+		calendar_skipped.emit(
+			previous_absolute_minute,
+			next_absolute_minute,
+			&"debug_time"
+		)
+	return true
+
+
+func set_calendar_date(value_year: int, value_month: int, value_day: int) -> bool:
+	if (
+		value_year < 1
+		or value_month < 1
+		or value_month > 12
+		or value_day < 1
+		or value_day > _days_in_month(value_month, value_year)
+	):
+		return false
+	var previous_absolute_minute := get_absolute_minute()
+	year = value_year
+	month = value_month
+	day = value_day
+	weekday = _absolute_day_for_date(year, month, day) % WEEKDAY_NAMES.size()
+	_last_emitted_minute = -1
+	_update_visuals()
+	_emit_time_changed()
+	var next_absolute_minute := get_absolute_minute()
+	if next_absolute_minute != previous_absolute_minute:
+		calendar_skipped.emit(
+			previous_absolute_minute,
+			next_absolute_minute,
+			&"debug_date"
+		)
 	return true
 
 
@@ -194,6 +294,42 @@ func _days_in_month(value_month: int, value_year: int) -> int:
 	if value_month == 2 and _is_leap_year(value_year):
 		return 29
 	return MONTH_LENGTHS[value_month - 1]
+
+
+func _absolute_day_for_date(
+	value_year: int,
+	value_month: int,
+	value_day: int
+) -> int:
+	var result := 0
+	for elapsed_year in range(1, value_year):
+		result += 366 if _is_leap_year(elapsed_year) else 365
+	for elapsed_month in range(1, value_month):
+		result += _days_in_month(elapsed_month, value_year)
+	return result + value_day - 1
+
+
+func _date_from_absolute_day(absolute_day: int) -> Dictionary:
+	var remaining := maxi(absolute_day, 0)
+	var result_year := 1
+	while true:
+		var year_days := 366 if _is_leap_year(result_year) else 365
+		if remaining < year_days:
+			break
+		remaining -= year_days
+		result_year += 1
+	var result_month := 1
+	while true:
+		var month_days := _days_in_month(result_month, result_year)
+		if remaining < month_days:
+			break
+		remaining -= month_days
+		result_month += 1
+	return {
+		"year": result_year,
+		"month": result_month,
+		"day": remaining + 1,
+	}
 
 
 func _is_leap_year(value_year: int) -> bool:

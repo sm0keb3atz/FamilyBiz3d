@@ -100,6 +100,16 @@ func get_roster() -> Array[Dictionary]:
 	return _entries.duplicate(true)
 
 
+func clear_all_due_to_conviction() -> void:
+	for entry in _entries:
+		var npc := entry.get("npc") as CustomerNPC
+		if is_instance_valid(npc):
+			npc.end_girlfriend_relationship()
+	_entries.clear()
+	_reassign_follow_slots()
+	roster_changed.emit()
+
+
 func has_girlfriend(npc: CustomerNPC) -> bool:
 	return _find_index(npc) >= 0
 

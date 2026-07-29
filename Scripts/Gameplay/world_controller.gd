@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 11
+const SAVE_VERSION := 12
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -28,6 +28,9 @@ const SAVE_PATH := "user://family_business_save.json"
 @onready var properties := player.get_node(
 	"Components/PropertyComponent"
 ) as PlayerPropertyComponent
+@onready var legal := player.get_node(
+	"Components/LegalComponent"
+) as PlayerLegalComponent
 @onready var vehicle_component: Variant = player.get_node(
 	"Components/VehicleComponent"
 )
@@ -115,6 +118,7 @@ func save_game() -> bool:
 			"stats": stats.export_save_data(),
 			"wanted": wanted.export_save_data(),
 			"properties": properties.export_save_data(),
+			"legal": legal.export_save_data(),
 		},
 		"territories": territories,
 		"dealers": dealers,
@@ -143,6 +147,10 @@ func load_game() -> bool:
 
 	var data := parsed as Dictionary
 	var player_data := data.get("player", {}) as Dictionary
+	if int(data.get("version", 1)) < 12 and not player_data.has("legal"):
+		# Version 12 introduced legal history. Older saves deliberately migrate
+		# with no cases or retained lawyers.
+		player_data["legal"] = {}
 	vehicle_component.prepare_for_load()
 	if police_dispatch != null:
 		police_dispatch.reset_for_load()
@@ -159,6 +167,9 @@ func load_game() -> bool:
 	)
 	properties.import_save_data(
 		player_data.get("properties", {}) as Dictionary
+	)
+	legal.import_save_data(
+		player_data.get("legal", {}) as Dictionary
 	)
 	world_time.import_save_data(data.get("world_time", {}) as Dictionary)
 	properties.process_businesses_to(world_time.get_absolute_minute())
@@ -243,6 +254,8 @@ func _is_valid_save(value: Variant) -> bool:
 
 func _on_day_ended(report_date: String, earned: int, spent: int) -> void:
 	territory_market.ensure_quotes(world_time.get_date_key())
+	if world_time.active_skip_reason == &"bond":
+		return
 	hud.show_daily_report(report_date, earned, spent)
 
 

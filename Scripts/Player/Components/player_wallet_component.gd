@@ -146,6 +146,19 @@ func import_save_data(data: Dictionary) -> void:
 	money_changed.emit(_dirty_cash, _clean_cash)
 
 
+func deduct_percentage(percent: float) -> Dictionary:
+	var safe_percent := clampf(percent, 0.0, 1.0)
+	var dirty_loss := floori(float(_dirty_cash) * safe_percent)
+	var clean_loss := floori(float(_clean_cash) * safe_percent)
+	spend_dirty(dirty_loss)
+	spend_clean(clean_loss)
+	return {"dirty": dirty_loss, "clean": clean_loss}
+
+
+func reset_to_new_game() -> void:
+	import_save_data({})
+
+
 func _sync_atm_date(date_key: String) -> void:
 	if date_key == _atm_deposit_date:
 		return

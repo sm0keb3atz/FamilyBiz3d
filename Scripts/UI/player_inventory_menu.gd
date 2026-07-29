@@ -59,6 +59,7 @@ class TerritoryRevenueChart extends Control:
 @export var girlfriend_component_path := NodePath("../Components/GirlfriendComponent")
 @export var property_component_path := NodePath("../Components/PropertyComponent")
 @export var wallet_component_path := NodePath("../Components/WalletComponent")
+@export var legal_component_path := NodePath("../Components/LegalComponent")
 
 @onready var menu_root := %MenuRoot as Control
 @onready var tab_container := %TabContainer as TabContainer
@@ -87,6 +88,7 @@ class TerritoryRevenueChart extends Control:
 @onready var girlfriends := get_node_or_null(girlfriend_component_path) as PlayerGirlfriendComponent
 @onready var properties := get_node_or_null(property_component_path) as PlayerPropertyComponent
 @onready var wallet := get_node_or_null(wallet_component_path) as PlayerWalletComponent
+@onready var legal := get_node_or_null(legal_component_path) as PlayerLegalComponent
 
 var _is_open := false
 var _territory_dealers: TerritoryDealerService
@@ -94,6 +96,9 @@ var _navigation_buttons: Dictionary[int, Button] = {}
 var _body: HBoxContainer
 var _resize_tween: Tween
 var _selected_territory_id: StringName = &""
+var _legal_list: VBoxContainer
+var _expanded_legal_case_id := ""
+var _known_pending_case_ids: Array[String] = []
 
 
 func _ready() -> void:
@@ -109,6 +114,9 @@ func _ready() -> void:
 		properties.stash_changed.connect(_on_property_stash_changed)
 	if wallet != null:
 		wallet.money_changed.connect(_on_wallet_changed)
+	if legal != null:
+		legal.legal_state_changed.connect(_on_legal_state_changed)
+	_create_legal_tab()
 	call_deferred("_resolve_territory_dealers")
 	_style_tabs()
 	_build_inventory_shell()
@@ -151,6 +159,7 @@ func _build_inventory_shell() -> void:
 		{"label": "PROPERTY", "index": 3},
 		{"label": "TERRITORY", "index": 4},
 		{"label": "GIRLFRIENDS", "index": 2},
+		{"label": "LEGAL", "index": 5},
 	]
 	for page in page_order:
 		var button := Button.new()
@@ -192,15 +201,15 @@ func _on_dashboard_tab_changed(_index: int) -> void:
 		_animate_panel_for_tab(true)
 
 
-func _animate_panel_for_tab(animated: bool, territory_override := -1) -> void:
+func _animate_panel_for_tab(animated: bool, wide_override := -1) -> void:
 	var viewport_size := get_viewport().get_visible_rect().size
-	var territory_mode := (
-		tab_container.current_tab == 4
-		if territory_override < 0
-		else territory_override == 1
+	var wide_mode := (
+		tab_container.current_tab == 4 or tab_container.current_tab == 5
+		if wide_override < 0
+		else wide_override == 1
 	)
-	var edge_margin := 18.0 if territory_mode else 54.0
-	var maximum := Vector2(1500.0, 900.0) if territory_mode else Vector2(1200.0, 720.0)
+	var edge_margin := 18.0 if wide_mode else 54.0
+	var maximum := Vector2(1500.0, 900.0) if wide_mode else Vector2(1200.0, 720.0)
 	var target_size := Vector2(
 		minf(maximum.x, maxf(viewport_size.x - edge_margin * 2.0, 760.0)),
 		minf(maximum.y, maxf(viewport_size.y - edge_margin * 2.0, 560.0))
@@ -273,7 +282,7 @@ func set_menu_open(open: bool) -> void:
 			_animate_panel_for_tab(false, 0)
 			_animate_panel_for_tab(true, 1)
 		else:
-			_animate_panel_for_tab(false, 0)
+			_animate_panel_for_tab(false)
 	else:
 		_animate_panel_for_tab(false, 0)
 
@@ -284,6 +293,789 @@ func _refresh() -> void:
 	_refresh_girlfriends()
 	_refresh_properties()
 	_refresh_territory()
+	_refresh_legal()
+
+
+func _create_legal_tab() -> void:
+	var margin := MarginContainer.new()
+	margin.name = "Legal"
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	tab_container.add_child(margin)
+	_legal_list = VBoxContainer.new()
+	_legal_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_legal_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_legal_list.add_theme_constant_override("separation", 14)
+	margin.add_child(_legal_list)
+
+
+func _refresh_legal() -> void:
+	if _legal_list == null or legal == null:
+		return
+	_render_legal_dashboard()
+
+
+func _render_legal_dashboard() -> void:
+	for child in _legal_list.get_children():
+		child.queue_free()
+
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 12)
+	_legal_list.add_child(title_row)
+	var titles := VBoxContainer.new()
+	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	titles.add_theme_constant_override("separation", 2)
+	title_row.add_child(titles)
+	var heading := _legal_note("LEGAL DESK")
+	heading.add_theme_font_size_override("font_size", 28)
+	heading.add_theme_color_override("font_color", Color(0.9, 0.96, 0.98))
+	titles.add_child(heading)
+	var subtitle := _legal_note(
+		"Manage court cases, assigned counsel, and retained legal services."
+	)
+	subtitle.add_theme_font_size_override("font_size", 13)
+	subtitle.add_theme_color_override("font_color", Color(0.56, 0.63, 0.68))
+	titles.add_child(subtitle)
+	var mark := _legal_note("SCALES OF JUSTICE")
+	mark.custom_minimum_size.x = 118
+	mark.autowrap_mode = TextServer.AUTOWRAP_OFF
+	mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	mark.add_theme_font_size_override("font_size", 11)
+	mark.add_theme_color_override("font_color", Color(0.16, 0.72, 0.7, 0.55))
+	mark.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_row.add_child(mark)
+
+	var pending := legal.get_pending_cases()
+	_update_expanded_legal_case(pending)
+	var retained := _get_retained_lawyer_definitions()
+
+	var columns := HBoxContainer.new()
+	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	columns.add_theme_constant_override("separation", 12)
+	_legal_list.add_child(columns)
+
+	var case_list := VBoxContainer.new()
+	case_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	case_list.add_theme_constant_override("separation", 8)
+	var case_column := _create_legal_column(
+		"UPCOMING COURT",
+		"%d ACTIVE %s" % [
+			pending.size(),
+			"CASE" if pending.size() == 1 else "CASES",
+		],
+		case_list
+	)
+	case_column.size_flags_stretch_ratio = 0.92
+	columns.add_child(case_column)
+	if pending.is_empty():
+		case_list.add_child(_create_legal_empty_state(
+			"NO PENDING CASES",
+			"New court matters will appear here after an arrest."
+		))
+	for legal_case in pending:
+		case_list.add_child(_create_legal_case_card(
+			legal_case,
+			legal_case.case_id == _expanded_legal_case_id
+		))
+
+	var recent := legal.get_recent_cases()
+	if not recent.is_empty():
+		case_list.add_child(_legal_section_label("RECENT VERDICTS"))
+		for legal_case in recent:
+			var verdict: String = str(
+				LegalCase.Status.keys()[legal_case.status]
+			).capitalize()
+			case_list.add_child(_create_legal_verdict_row(legal_case, verdict))
+
+	var lawyer_list := VBoxContainer.new()
+	lawyer_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lawyer_list.add_theme_constant_override("separation", 8)
+	var lawyer_column := _create_legal_column(
+		"RETAINED LAWYERS & SERVICES",
+		"%d HIRED" % retained.size(),
+		lawyer_list
+	)
+	lawyer_column.size_flags_stretch_ratio = 1.08
+	columns.add_child(lawyer_column)
+	if retained.is_empty():
+		lawyer_list.add_child(_create_legal_empty_state(
+			"NO LAWYERS RETAINED",
+			"Visit the courthouse to hire a lawyer and unlock their services."
+		))
+	for definition in retained:
+		lawyer_list.add_child(_create_retained_lawyer_card(definition))
+
+	var footer := PanelContainer.new()
+	footer.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.045, 0.06, 0.072, 0.94),
+			Color(0.13, 0.27, 0.3, 0.8)
+		)
+	)
+	var footer_margin := _legal_margin(12, 7)
+	footer.add_child(footer_margin)
+	var footer_label := _legal_note(
+		"Assign retained counsel from an open case. Higher defense ranges improve the chance of beating the case."
+	)
+	footer_label.add_theme_color_override("font_color", Color(0.52, 0.61, 0.65))
+	footer_label.add_theme_font_size_override("font_size", 12)
+	footer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	footer_margin.add_child(footer_label)
+	_legal_list.add_child(footer)
+
+
+func _update_expanded_legal_case(pending: Array[LegalCase]) -> void:
+	var current_ids: Array[String] = []
+	var newest_case_id := ""
+	for legal_case in pending:
+		current_ids.append(legal_case.case_id)
+		if (
+			not _known_pending_case_ids.has(legal_case.case_id)
+			and newest_case_id.is_empty()
+		):
+			newest_case_id = legal_case.case_id
+	if (
+		not _expanded_legal_case_id.is_empty()
+		and not current_ids.has(_expanded_legal_case_id)
+	):
+		_expanded_legal_case_id = ""
+	if _expanded_legal_case_id.is_empty() and not newest_case_id.is_empty():
+		_expanded_legal_case_id = newest_case_id
+	_known_pending_case_ids = current_ids
+
+
+func _create_legal_column(
+	title: String,
+	summary: String,
+	list: Control
+) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(340, 0)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.05, 0.062, 0.074, 0.98),
+			Color(0.13, 0.24, 0.28, 0.95)
+		)
+	)
+	var margin := _legal_margin(12, 10)
+	panel.add_child(margin)
+	var body := VBoxContainer.new()
+	body.add_theme_constant_override("separation", 8)
+	margin.add_child(body)
+	var header := HBoxContainer.new()
+	body.add_child(header)
+	var label := _legal_section_label(title)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	header.add_child(label)
+	var count := _legal_note(summary)
+	count.custom_minimum_size.x = 92
+	count.autowrap_mode = TextServer.AUTOWRAP_OFF
+	count.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	count.add_theme_font_size_override("font_size", 11)
+	count.add_theme_color_override("font_color", Color(0.38, 0.7, 0.68))
+	count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	header.add_child(count)
+	var separator := HSeparator.new()
+	separator.modulate = Color(0.18, 0.42, 0.43, 0.6)
+	body.add_child(separator)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(scroll)
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(list)
+	return panel
+
+
+func _create_legal_case_card(
+	legal_case: LegalCase,
+	expanded: bool
+) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.035, 0.05, 0.06, 0.98),
+			Color(0.16, 0.72, 0.7, 0.95)
+			if expanded
+			else Color(0.12, 0.25, 0.29, 0.9)
+		)
+	)
+	var margin := _legal_margin(12, 10)
+	panel.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 9)
+	margin.add_child(box)
+	var assigned := legal.get_lawyer_definition(legal_case.assigned_lawyer_id)
+	var assigned_name := (
+		assigned.display_name if assigned != null else "Public Defender"
+	)
+	var title := Button.new()
+	title.text = "%s    %d POINTS\nCOURT %s    |    %s    %s" % [
+		legal_case.case_id,
+		legal_case.get_total_points(),
+		legal.get_hearing_datetime_text(legal_case),
+		legal.get_hearing_countdown_text(legal_case),
+		"[-]" if expanded else "[+]",
+	]
+	title.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	title.add_theme_font_size_override("font_size", 15)
+	title.add_theme_color_override("font_color", Color(0.25, 0.9, 0.82))
+	title.add_theme_stylebox_override("normal", StyleBoxEmpty.new())
+	title.add_theme_stylebox_override(
+		"hover",
+		_make_panel_style(
+			Color(0.06, 0.1, 0.105, 0.8),
+			Color(0.12, 0.35, 0.36, 0.8)
+		)
+	)
+	title.pressed.connect(_toggle_legal_case.bind(legal_case.case_id))
+	box.add_child(title)
+	if not expanded:
+		var collapsed_summary := _legal_note(
+			"Assigned: %s    |    Win chance %.2f%%"
+			% [assigned_name, legal.get_win_chance(legal_case) * 100.0]
+		)
+		collapsed_summary.add_theme_font_size_override("font_size", 12)
+		collapsed_summary.add_theme_color_override(
+			"font_color",
+			Color(0.55, 0.62, 0.66)
+		)
+		box.add_child(collapsed_summary)
+		return panel
+
+	var overview := _legal_note(
+		"ATTORNEY  %s    |    DEFENSE RANGE  %d-%d"
+		% [
+			assigned_name,
+			legal.get_defense_range(legal_case).x,
+			legal.get_defense_range(legal_case).y,
+		]
+	)
+	overview.add_theme_font_size_override("font_size", 12)
+	overview.add_theme_color_override("font_color", Color(0.65, 0.73, 0.77))
+	box.add_child(overview)
+	var charge_separator := HSeparator.new()
+	charge_separator.modulate = Color(0.18, 0.34, 0.36, 0.7)
+	box.add_child(charge_separator)
+	var charges_title := _legal_note("CHARGES")
+	charges_title.add_theme_font_size_override("font_size", 11)
+	charges_title.add_theme_color_override("font_color", Color(0.35, 0.8, 0.72))
+	box.add_child(charges_title)
+	for charge in legal_case.charges:
+		box.add_child(_create_legal_charge_row(charge))
+	var total_row := HBoxContainer.new()
+	box.add_child(total_row)
+	var total_label := _legal_note("TOTAL CASE POINTS")
+	total_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	total_label.add_theme_color_override("font_color", Color(0.26, 0.9, 0.8))
+	total_row.add_child(total_label)
+	var total_value := _legal_note(str(legal_case.get_total_points()))
+	total_value.custom_minimum_size.x = 42
+	total_value.autowrap_mode = TextServer.AUTOWRAP_OFF
+	total_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	total_value.add_theme_font_size_override("font_size", 18)
+	total_value.add_theme_color_override("font_color", Color(0.26, 0.9, 0.8))
+	total_row.add_child(total_value)
+
+	var metrics := HBoxContainer.new()
+	metrics.add_theme_constant_override("separation", 6)
+	box.add_child(metrics)
+	metrics.add_child(_create_legal_metric(
+		"COURT DATE",
+		legal.get_hearing_datetime_text(legal_case)
+	))
+	metrics.add_child(_create_legal_metric(
+		"TIME LEFT",
+		legal.get_hearing_countdown_text(legal_case)
+	))
+	metrics.add_child(_create_legal_metric(
+		"WIN CHANCE",
+		"%.2f%%" % (legal.get_win_chance(legal_case) * 100.0)
+	))
+
+	var assignment := HBoxContainer.new()
+	assignment.add_theme_constant_override("separation", 8)
+	box.add_child(assignment)
+	var assignment_label := _legal_note("ASSIGN COUNSEL")
+	assignment_label.custom_minimum_size.x = 115
+	assignment_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	assignment_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	assignment_label.add_theme_font_size_override("font_size", 11)
+	assignment_label.add_theme_color_override(
+		"font_color",
+		Color(0.38, 0.78, 0.73)
+	)
+	assignment.add_child(assignment_label)
+	var picker := OptionButton.new()
+	picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	picker.add_item("Public Defender")
+	picker.set_item_metadata(0, "")
+	var selected_index := 0
+	for definition in _get_retained_lawyer_definitions():
+		picker.add_item("%s  |  Level %d  |  Defense %d-%d" % [
+			definition.display_name,
+			definition.level,
+			definition.defense_min,
+			definition.defense_max,
+		])
+		var item_index := picker.item_count - 1
+		picker.set_item_metadata(item_index, String(definition.lawyer_id))
+		if definition.lawyer_id == legal_case.assigned_lawyer_id:
+			selected_index = item_index
+	picker.select(selected_index)
+	_style_legal_option_button(picker)
+	picker.item_selected.connect(
+		_on_case_lawyer_selected.bind(legal_case.case_id, picker)
+	)
+	assignment.add_child(picker)
+	return panel
+
+
+func _create_legal_charge_row(charge: LegalCharge) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	var name := _legal_note(
+		"%s    %d x %d pts"
+		% [charge.display_name, charge.count, charge.unit_points]
+	)
+	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name.add_theme_font_size_override("font_size", 12)
+	name.add_theme_color_override("font_color", Color(0.7, 0.76, 0.79))
+	row.add_child(name)
+	var points := _legal_note(str(charge.get_total_points()))
+	points.custom_minimum_size.x = 34
+	points.autowrap_mode = TextServer.AUTOWRAP_OFF
+	points.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	points.add_theme_font_size_override("font_size", 12)
+	points.add_theme_color_override("font_color", Color(0.85, 0.88, 0.9))
+	row.add_child(points)
+	return row
+
+
+func _create_retained_lawyer_card(
+	definition: LawyerDefinition
+) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.035, 0.048, 0.058, 0.98),
+			Color(0.13, 0.31, 0.33, 0.9)
+		)
+	)
+	var margin := _legal_margin(12, 10)
+	panel.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 7)
+	margin.add_child(box)
+
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 8)
+	box.add_child(header)
+	var identity := VBoxContainer.new()
+	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(identity)
+	var retained_label := _legal_note("RETAINED")
+	retained_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	retained_label.add_theme_font_size_override("font_size", 10)
+	retained_label.add_theme_color_override("font_color", Color(0.23, 0.87, 0.76))
+	identity.add_child(retained_label)
+	var name := _legal_note(
+		"%s    |    LEVEL %d" % [definition.display_name, definition.level]
+	)
+	name.autowrap_mode = TextServer.AUTOWRAP_OFF
+	name.add_theme_font_size_override("font_size", 17)
+	name.add_theme_color_override("font_color", Color(0.9, 0.95, 0.97))
+	identity.add_child(name)
+	var daily_fee := _legal_note("$%s / DAY" % _money(definition.daily_fee_clean))
+	daily_fee.custom_minimum_size.x = 96
+	daily_fee.autowrap_mode = TextServer.AUTOWRAP_OFF
+	daily_fee.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	daily_fee.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	daily_fee.add_theme_font_size_override("font_size", 11)
+	daily_fee.add_theme_color_override("font_color", Color(0.82, 0.66, 0.31))
+	header.add_child(daily_fee)
+	var fire_button := Button.new()
+	fire_button.text = "FIRE"
+	fire_button.custom_minimum_size = Vector2(64, 32)
+	_style_button(fire_button, Color(0.76, 0.2, 0.24))
+	fire_button.pressed.connect(_fire_lawyer.bind(definition.lawyer_id))
+	header.add_child(fire_button)
+	var capabilities := _legal_note(
+		"Defense %d-%d    |    Launder $%s/day (%d%% fee)    |    Lower heat %d/day"
+		% [
+			definition.defense_min,
+			definition.defense_max,
+			_money(definition.laundering_daily_limit),
+			roundi(definition.laundering_cut * 100.0),
+			definition.heat_daily_limit,
+		]
+	)
+	capabilities.add_theme_font_size_override("font_size", 12)
+	capabilities.add_theme_color_override("font_color", Color(0.58, 0.66, 0.7))
+	box.add_child(capabilities)
+	var separator := HSeparator.new()
+	separator.modulate = Color(0.15, 0.33, 0.34, 0.75)
+	box.add_child(separator)
+
+	var contract := legal.get_contract(definition.lawyer_id)
+	var laundered_today := int(contract.get("laundered_today", 0))
+	var heat_used_today := int(contract.get("heat_used_today", 0))
+	var launder_remaining := maxi(
+		definition.laundering_daily_limit - laundered_today,
+		0
+	)
+	var heat_remaining := maxi(definition.heat_daily_limit - heat_used_today, 0)
+	var laundering_title := _legal_note(
+		"MONEY LAUNDERING    |    $%s REMAINING TODAY"
+		% _money(launder_remaining)
+	)
+	laundering_title.add_theme_font_size_override("font_size", 10)
+	laundering_title.add_theme_color_override(
+		"font_color",
+		Color(0.34, 0.8, 0.72)
+	)
+	box.add_child(laundering_title)
+	var laundering_row := HBoxContainer.new()
+	laundering_row.add_theme_constant_override("separation", 6)
+	box.add_child(laundering_row)
+	var launder_amount := SpinBox.new()
+	launder_amount.min_value = 100
+	launder_amount.max_value = maxi(launder_remaining, 100)
+	launder_amount.step = 100
+	launder_amount.value = mini(10000, maxi(launder_remaining, 100))
+	launder_amount.prefix = "$"
+	launder_amount.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	launder_amount.editable = launder_remaining > 0
+	laundering_row.add_child(launder_amount)
+	var launder_button := Button.new()
+	launder_button.text = "LAUNDER"
+	launder_button.custom_minimum_size.x = 104
+	launder_button.disabled = launder_remaining <= 0
+	_style_button(launder_button, Color(0.12, 0.68, 0.61))
+	launder_button.pressed.connect(
+		_launder_with_lawyer.bind(definition.lawyer_id, launder_amount)
+	)
+	laundering_row.add_child(launder_button)
+
+	var heat_title := _legal_note(
+		"TERRITORY HEAT REDUCTION    |    REMOVES UP TO %d HEAT"
+		% heat_remaining
+	)
+	heat_title.add_theme_font_size_override("font_size", 10)
+	heat_title.add_theme_color_override("font_color", Color(0.34, 0.8, 0.72))
+	box.add_child(heat_title)
+	var heat_row := HBoxContainer.new()
+	heat_row.add_theme_constant_override("separation", 6)
+	box.add_child(heat_row)
+	var territory_picker := OptionButton.new()
+	for node in get_tree().get_nodes_in_group(&"territory_boundaries"):
+		var boundary := node as TerritoryBoundary
+		if boundary != null:
+			territory_picker.add_item(boundary.display_name)
+			territory_picker.set_item_metadata(
+				territory_picker.item_count - 1,
+				String(boundary.territory_id)
+			)
+	territory_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	territory_picker.disabled = (
+		territory_picker.item_count == 0 or heat_remaining <= 0
+	)
+	_style_legal_option_button(territory_picker)
+	heat_row.add_child(territory_picker)
+	var heat_button := Button.new()
+	heat_button.text = "LOWER HEAT (-%d)" % heat_remaining
+	heat_button.custom_minimum_size.x = 148
+	heat_button.disabled = (
+		territory_picker.item_count == 0 or heat_remaining <= 0
+	)
+	_style_button(heat_button, Color(0.12, 0.68, 0.61))
+	heat_button.pressed.connect(
+		_lower_heat_with_lawyer.bind(
+			definition.lawyer_id,
+			territory_picker
+		)
+	)
+	heat_row.add_child(heat_button)
+	return panel
+
+
+func _legal_margin(horizontal: int, vertical: int) -> MarginContainer:
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", horizontal)
+	margin.add_theme_constant_override("margin_top", vertical)
+	margin.add_theme_constant_override("margin_right", horizontal)
+	margin.add_theme_constant_override("margin_bottom", vertical)
+	return margin
+
+
+func _create_legal_metric(
+	label_text: String,
+	value_text: String
+) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size.y = 58
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.045, 0.064, 0.072, 0.9),
+			Color(0.12, 0.25, 0.27, 0.8)
+		)
+	)
+	var margin := _legal_margin(8, 8)
+	panel.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 1)
+	margin.add_child(box)
+	var label := _legal_note(label_text)
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 10)
+	label.add_theme_color_override("font_color", Color(0.4, 0.61, 0.62))
+	box.add_child(label)
+	var value := _legal_note(value_text)
+	value.autowrap_mode = TextServer.AUTOWRAP_OFF
+	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	value.add_theme_font_size_override("font_size", 14)
+	value.add_theme_color_override("font_color", Color(0.76, 0.85, 0.86))
+	box.add_child(value)
+	return panel
+
+
+func _create_legal_empty_state(
+	title: String,
+	description: String
+) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size.y = 110
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.035, 0.046, 0.056, 0.9),
+			Color(0.11, 0.2, 0.23, 0.9)
+		)
+	)
+	var margin := _legal_margin(18, 18)
+	panel.add_child(margin)
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	margin.add_child(box)
+	var title_label := _legal_note(title)
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.add_theme_color_override("font_color", Color(0.47, 0.69, 0.68))
+	box.add_child(title_label)
+	var description_label := _legal_note(description)
+	description_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	description_label.add_theme_font_size_override("font_size", 12)
+	description_label.add_theme_color_override(
+		"font_color",
+		Color(0.46, 0.52, 0.56)
+	)
+	box.add_child(description_label)
+	return panel
+
+
+func _create_legal_verdict_row(
+	legal_case: LegalCase,
+	verdict: String
+) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.038, 0.05, 0.06, 0.9),
+			Color(0.11, 0.2, 0.23, 0.8)
+		)
+	)
+	var margin := _legal_margin(9, 7)
+	panel.add_child(margin)
+	var label := _legal_note(
+		"%s    |    %s    |    %d points    |    %d year sentence"
+		% [
+			legal_case.case_id,
+			verdict,
+			legal_case.get_total_points(),
+			legal_case.sentence_years,
+		]
+	)
+	label.add_theme_font_size_override("font_size", 11)
+	label.add_theme_color_override("font_color", Color(0.53, 0.6, 0.64))
+	margin.add_child(label)
+	return panel
+
+
+func _get_retained_lawyer_definitions() -> Array[LawyerDefinition]:
+	var retained: Array[LawyerDefinition] = []
+	for definition in legal.get_lawyer_definitions():
+		if legal.is_lawyer_retained(definition.lawyer_id):
+			retained.append(definition)
+	return retained
+
+
+func _toggle_legal_case(case_id: String) -> void:
+	_expanded_legal_case_id = (
+		"" if _expanded_legal_case_id == case_id else case_id
+	)
+	_refresh_legal()
+
+
+func _on_case_lawyer_selected(
+	item_index: int,
+	case_id: String,
+	picker: OptionButton
+) -> void:
+	var lawyer_id := StringName(str(picker.get_item_metadata(item_index)))
+	_assign_case_lawyer(case_id, lawyer_id)
+
+
+func _legal_section_label(text: String) -> Label:
+	var label := _legal_note(text)
+	label.add_theme_font_size_override("font_size", 14)
+	label.add_theme_color_override("font_color", Color(0.22, 0.86, 0.76))
+	return label
+
+
+func _legal_note(text: String) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	return label
+
+
+func _style_legal_option_button(button: OptionButton) -> void:
+	button.custom_minimum_size.y = 38
+	button.add_theme_font_size_override("font_size", 13)
+	button.add_theme_color_override("font_color", Color(0.82, 0.9, 0.91))
+	button.add_theme_color_override("font_hover_color", Color(0.93, 1.0, 0.98))
+	button.add_theme_color_override("font_pressed_color", Color(0.93, 1.0, 0.98))
+	button.add_theme_stylebox_override(
+		"normal",
+		_make_panel_style(
+			Color(0.035, 0.052, 0.06, 1.0),
+			Color(0.12, 0.38, 0.39, 0.95)
+		)
+	)
+	button.add_theme_stylebox_override(
+		"hover",
+		_make_panel_style(
+			Color(0.055, 0.105, 0.105, 1.0),
+			Color(0.18, 0.76, 0.69, 1.0)
+		)
+	)
+	button.add_theme_stylebox_override(
+		"pressed",
+		_make_panel_style(
+			Color(0.065, 0.16, 0.15, 1.0),
+			Color(0.22, 0.88, 0.78, 1.0)
+		)
+	)
+	button.add_theme_stylebox_override(
+		"focus",
+		_make_panel_style(
+			Color(0.045, 0.08, 0.085, 1.0),
+			Color(0.2, 0.86, 0.78, 1.0)
+		)
+	)
+	var popup := button.get_popup()
+	popup.add_theme_font_size_override("font_size", 13)
+	popup.add_theme_color_override("font_color", Color(0.78, 0.86, 0.88))
+	popup.add_theme_color_override("font_hover_color", Color(0.94, 1.0, 0.98))
+	popup.add_theme_color_override("font_disabled_color", Color(0.36, 0.43, 0.45))
+	popup.add_theme_constant_override("item_start_padding", 12)
+	popup.add_theme_constant_override("item_end_padding", 12)
+	popup.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.025, 0.038, 0.045, 1.0),
+			Color(0.15, 0.67, 0.63, 1.0)
+		)
+	)
+	popup.add_theme_stylebox_override(
+		"hover",
+		_make_panel_style(
+			Color(0.06, 0.2, 0.185, 1.0),
+			Color(0.2, 0.82, 0.73, 1.0)
+		)
+	)
+
+
+func _assign_case_lawyer(case_id: String, lawyer_id: StringName) -> void:
+	var assigned := legal.assign_lawyer(case_id, lawyer_id)
+	var definition := legal.get_lawyer_definition(lawyer_id)
+	var lawyer_name := (
+		definition.display_name if definition != null else "Public Defender"
+	)
+	feedback_label.text = (
+		"%s assigned to %s." % [lawyer_name, case_id]
+		if assigned
+		else "Assignment failed."
+	)
+	_refresh_legal()
+
+
+func _fire_lawyer(lawyer_id: StringName) -> void:
+	var definition := legal.get_lawyer_definition(lawyer_id)
+	var lawyer_name := definition.display_name if definition != null else "Lawyer"
+	var fired := legal.terminate_lawyer(lawyer_id)
+	feedback_label.text = (
+		"%s has been fired. Their cases now use the Public Defender."
+		% lawyer_name
+		if fired
+		else "Could not fire that lawyer."
+	)
+	_refresh_legal()
+
+
+func _launder_with_lawyer(lawyer_id: StringName, amount_input: SpinBox) -> void:
+	var result := legal.launder_money(lawyer_id, roundi(amount_input.value))
+	feedback_label.text = (
+		"Laundered $%s into $%s clean."
+		% [_money(int(result.get("dirty_spent", 0))), _money(int(result.get("clean_received", 0)))]
+		if not result.is_empty() else "Laundering request failed."
+	)
+	_refresh_legal()
+
+
+func _lower_heat_with_lawyer(
+	lawyer_id: StringName,
+	territory_picker: OptionButton
+) -> void:
+	if territory_picker.item_count == 0:
+		feedback_label.text = "No loaded territory available."
+		return
+	var definition := legal.get_lawyer_definition(lawyer_id)
+	if definition == null:
+		feedback_label.text = "Heat service failed."
+		return
+	var contract := legal.get_contract(lawyer_id)
+	var remaining := maxi(
+		definition.heat_daily_limit - int(contract.get("heat_used_today", 0)),
+		0
+	)
+	if remaining <= 0:
+		feedback_label.text = "This lawyer has no heat reduction remaining today."
+		return
+	var territory_id := StringName(str(territory_picker.get_selected_metadata()))
+	var result := legal.reduce_territory_heat(lawyer_id, territory_id, remaining)
+	feedback_label.text = (
+		"Heat lowered by %d for $%s dirty."
+		% [int(result.get("points", 0)), _money(int(result.get("dirty_spent", 0)))]
+		if not result.is_empty() else "Heat service failed."
+	)
+	_refresh_legal()
+
+
+func _on_legal_state_changed() -> void:
+	if _is_open:
+		_refresh_legal()
 
 
 func _resolve_territory_dealers() -> void:

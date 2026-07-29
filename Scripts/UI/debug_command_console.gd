@@ -152,9 +152,13 @@ func _execute(command: String) -> void:
 			_execute_spaced_give(parts)
 		"set_time":
 			_set_time(command.trim_prefix(parts[0]).strip_edges())
+		"set_date":
+			_set_date(command.trim_prefix(parts[0]).strip_edges())
 		"set":
 			if parts.size() >= 3 and parts[1].to_lower() == "time":
 				_set_time(" ".join(parts.slice(2)))
+			elif parts.size() >= 3 and parts[1].to_lower() == "date":
+				_set_date(" ".join(parts.slice(2)))
 			elif parts.size() >= 3 and parts[1].to_lower() == "rep":
 				_change_reputation(parts, 2, true)
 			else:
@@ -231,6 +235,45 @@ func _set_time(value: String) -> void:
 		_print_error("Time must be between 00:00 and 23:59.")
 		return
 	_print_success("Time set to %s." % time_component.get_formatted_time())
+
+
+func _set_date(value: String) -> void:
+	var time_component := _get_world_time()
+	if time_component == null:
+		_print_error("World time component was not found.")
+		return
+	var normalized := value.strip_edges()
+	var separator := "-" if normalized.contains("-") else "/"
+	var pieces := normalized.split(separator, false)
+	if pieces.size() != 3:
+		_print_error("Use YYYY-MM-DD or MM/DD/YYYY, for example 2026-07-29.")
+		return
+	for piece in pieces:
+		if not piece.is_valid_int():
+			_print_error("The date must contain only whole numbers.")
+			return
+	var value_year := 0
+	var value_month := 0
+	var value_day := 0
+	if separator == "-":
+		value_year = int(pieces[0])
+		value_month = int(pieces[1])
+		value_day = int(pieces[2])
+	else:
+		value_month = int(pieces[0])
+		value_day = int(pieces[1])
+		value_year = int(pieces[2])
+	if not time_component.set_calendar_date(
+		value_year,
+		value_month,
+		value_day
+	):
+		_print_error("That calendar date is not valid.")
+		return
+	_print_success(
+		"Date set to %s. Pending court dates remain on their exact scheduled dates."
+		% time_component.get_formatted_date_with_year()
+	)
 
 
 func _change_reputation(
@@ -369,7 +412,8 @@ func _print_help() -> void:
 	_print_info("[b]give_money 500[/b]  - add dirty cash")
 	_print_info("[b]give_clean_money 500[/b]  - add clean bank money")
 	_print_info("[b]set_time 14:30[/b] or [b]set_time 2:30 PM[/b]")
-	_print_info("Spaced forms also work: [b]give money 500[/b], [b]give clean money 500[/b], [b]set time 14:30[/b]")
+	_print_info("[b]set_date 2026-07-29[/b] or [b]set_date 07/29/2026[/b]")
+	_print_info("Spaced forms also work: [b]set time 14:30[/b] and [b]set date 2026-07-29[/b]")
 	_print_info("[b]set_rep -50 [hood_east][/b]  - set territory Rep")
 	_print_info("[b]give_rep 15 [hood_east][/b]  - add or subtract Rep")
 	_print_info("[b]territory_status [hood_east][/b]  - show territory state")

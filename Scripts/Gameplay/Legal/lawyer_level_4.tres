@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="LawyerDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Gameplay/Legal/lawyer_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+lawyer_id = &"lawyer_level_4"
+display_name = "Cameron King"
+level = 4
+retainer_clean = 100000
+daily_fee_clean = 10000
+defense_min = 900
+defense_max = 1500
+laundering_daily_limit = 100000
+laundering_cut = 0.1
+heat_daily_limit = 40
+heat_cost_per_point = 200

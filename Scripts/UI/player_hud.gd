@@ -9,6 +9,7 @@ signal daily_report_closed
 @export var wanted_component_path := NodePath("../Components/WantedComponent")
 @export var arrest_component_path := NodePath("../Components/ArrestComponent")
 @export var health_component_path := NodePath("../Components/HealthComponent")
+@export var legal_component_path := NodePath("../Components/LegalComponent")
 @export_range(0.0, 1000.0, 1.0) var debug_damage_amount := 25.0
 @export_range(0.05, 1.0, 0.01) var hit_marker_duration := 0.18
 @export_range(0.05, 1.0, 0.01) var cash_roll_duration := 0.35
@@ -81,6 +82,7 @@ signal daily_report_closed
 @onready var health := (
 	get_node(health_component_path) as PlayerHealthComponent
 )
+@onready var legal := get_node_or_null(legal_component_path) as PlayerLegalComponent
 
 var _hit_marker_remaining := 0.0
 var _detection_debug_visible := false
@@ -104,6 +106,9 @@ var _market: TerritoryMarketService
 var _current_territory_id: StringName = &""
 var _territory_refresh_remaining := 0.0
 var _territory_control_label: Label
+var _court_notice_panel: PanelContainer
+var _court_notice_label: Label
+var _court_notice_refresh_remaining := 0.0
 
 
 func _ready() -> void:
@@ -129,6 +134,9 @@ func _ready() -> void:
 	health.respawn_completed.connect(_hide_outcome)
 	feedback_timer.timeout.connect(_on_feedback_timeout)
 	report_continue_button.pressed.connect(_close_daily_report)
+	if legal != null:
+		legal.legal_state_changed.connect(_refresh_court_notice)
+		_build_court_notice()
 	_market_products = EconomyCatalog.get_gram_products()
 	_build_market_quote_row()
 	_territory_control_label = Label.new()
@@ -143,6 +151,10 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_court_notice_refresh_remaining -= delta
+	if _court_notice_refresh_remaining <= 0.0:
+		_court_notice_refresh_remaining = 1.0
+		_refresh_court_notice()
 	_territory_refresh_remaining -= delta
 	if _territory_refresh_remaining <= 0.0:
 		_territory_refresh_remaining = territory_refresh_interval
@@ -157,6 +169,58 @@ func _process(delta: float) -> void:
 	hit_marker.modulate.a = _hit_marker_remaining / hit_marker_duration
 	if is_zero_approx(_hit_marker_remaining):
 		hit_marker.visible = false
+
+
+func _build_court_notice() -> void:
+	_court_notice_panel = PanelContainer.new()
+	_court_notice_panel.name = "CourtNotice"
+	_court_notice_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_court_notice_panel.position = Vector2(-230, 82)
+	_court_notice_panel.custom_minimum_size = Vector2(460, 0)
+	_court_notice_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.03, 0.045, 0.06, 0.92)
+	style.border_color = Color(0.2, 0.8, 0.9, 0.8)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(10)
+	_court_notice_panel.add_theme_stylebox_override("panel", style)
+	_court_notice_label = Label.new()
+	_court_notice_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_court_notice_label.add_theme_font_size_override("font_size", 14)
+	_court_notice_panel.add_child(_court_notice_label)
+	add_child(_court_notice_panel)
+	_refresh_court_notice()
+
+
+func _refresh_court_notice() -> void:
+	if _court_notice_panel == null or legal == null:
+		return
+	var pending := legal.get_pending_cases()
+	_court_notice_panel.visible = not pending.is_empty()
+	if pending.is_empty():
+		return
+	var legal_case := pending[0]
+	var definition := legal.get_lawyer_definition(legal_case.assigned_lawyer_id)
+	var attorney := definition.display_name if definition != null else "Public Defender"
+	var minutes_left := legal_case.hearing_absolute_minute - (
+		get_tree().get_first_node_in_group(&"world_time") as WorldTimeComponent
+	).get_absolute_minute()
+	var warning := ""
+	if minutes_left <= 60 and minutes_left > 0:
+		warning = "  •  COURT WINDOW OPEN"
+	elif minutes_left <= WorldTimeComponent.MINUTES_PER_DAY:
+		warning = "  •  24-HOUR WARNING"
+	_court_notice_label.text = (
+		"COURT %s  •  %s\n%s  •  %s%s"
+		% [
+			legal_case.case_id,
+			attorney,
+			legal.get_hearing_datetime_text(legal_case),
+			legal.get_hearing_countdown_text(legal_case),
+			warning,
+		]
+	)
 
 
 func _refresh_territory() -> void:

@@ -4,6 +4,8 @@ extends Node
 @export var health_component_path := NodePath("../HealthComponent")
 @export var movement_component_path := NodePath("../MovementComponent")
 @export var body_path := NodePath("../..")
+@export var legal_component_path := NodePath("../LegalComponent")
+@export var damage_feedback_path := NodePath("../DamageFeedbackComponent")
 @export var hospital_spawn_path := NodePath(
 	"../../../../SpawnPoints/Hospital"
 )
@@ -20,6 +22,10 @@ extends Node
 	get_node(movement_component_path) as PlayerMovementComponent
 )
 @onready var body := get_node(body_path) as CharacterBody3D
+@onready var legal_component := get_node(legal_component_path) as PlayerLegalComponent
+@onready var damage_feedback := (
+	get_node(damage_feedback_path) as PlayerDamageFeedbackComponent
+)
 
 var _spawn_transform := Transform3D.IDENTITY
 var _sequence_id := 0
@@ -62,9 +68,15 @@ func respawn_after_arrest() -> bool:
 
 
 func _on_downed() -> void:
+	var police_custody := damage_feedback.was_last_damage_from_police()
+	if police_custody:
+		legal_component.begin_police_custody()
 	_sequence_id += 1
 	var current_sequence := _sequence_id
-	_finish_death_sequence(current_sequence)
+	if police_custody:
+		_finish_arrest_sequence(current_sequence)
+	else:
+		_finish_death_sequence(current_sequence)
 
 
 func _finish_death_sequence(current_sequence: int) -> void:

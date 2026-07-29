@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/NPC/BaseNPC.tscn" id="1"]
+[ext_resource type="Script" path="res://Scripts/NPC/lawyer_npc.gd" id="2"]
+
+[node name="LawyerNPC" instance=ExtResource("1")]
+script = ExtResource("2")
+
+[node name="NavigationAgent3D" parent="." index="7"]
+avoidance_enabled = false

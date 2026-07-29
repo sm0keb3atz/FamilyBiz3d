@@ -44,11 +44,13 @@ const HIT_REACTION_BONES := [
 var _reaction_player: AnimationPlayer
 var _impact_player: AudioStreamPlayer
 var _active_blood_effects: Array[BloodImpactVFX] = []
+var _last_damage_source: Node
 
 
 func _ready() -> void:
 	_create_reaction_player()
 	health.respawn_started.connect(_clear_player_hit_marks)
+	health.respawn_completed.connect(_clear_last_damage_source)
 	_impact_player = AudioStreamPlayer.new()
 	_impact_player.name = "IncomingBulletImpactPlayer"
 	_impact_player.max_polyphony = 4
@@ -57,18 +59,35 @@ func _ready() -> void:
 
 func receive_hit(
 	amount: float,
-	_source: Node,
+	source: Node,
 	hit_position: Vector3,
 	hit_direction: Vector3
 ) -> void:
 	if amount <= 0.0 or is_zero_approx(stats.health):
 		return
+	_last_damage_source = source
 	stats.take_damage(amount)
 	var fatal := is_zero_approx(stats.health)
 	if not fatal:
 		_play_hit_reaction(hit_position)
 	_play_bullet_impact()
 	_spawn_blood(hit_position, hit_direction, fatal)
+
+
+func was_last_damage_from_police() -> bool:
+	var current := _last_damage_source
+	while is_instance_valid(current):
+		if (
+			current.has_method("get_faction_id")
+			and StringName(current.call("get_faction_id")) == &"police"
+		):
+			return true
+		current = current.get_parent()
+	return false
+
+
+func _clear_last_damage_source() -> void:
+	_last_damage_source = null
 
 
 func play_bullet_whiz() -> void:

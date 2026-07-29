@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="LawyerDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Gameplay/Legal/lawyer_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+lawyer_id = &"lawyer_level_2"
+display_name = "Morgan Price"
+level = 2
+retainer_clean = 15000
+daily_fee_clean = 1500
+defense_min = 250
+defense_max = 700
+laundering_daily_limit = 25000
+laundering_cut = 0.2
+heat_daily_limit = 20
+heat_cost_per_point = 400

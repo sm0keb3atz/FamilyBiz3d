@@ -19,6 +19,8 @@
 [ext_resource type="Texture2D" uid="uid://cn8i1v1s7sen5" path="res://Assets/MapStuff/Meshs/StreetProps/justice_scale_0.png" id="17_48hld"]
 [ext_resource type="Texture2D" uid="uid://c5rrqjl0j5b5b" path="res://Assets/MapStuff/Meshs/StreetProps/justice_scale_1.png" id="18_vm6r1"]
 [ext_resource type="ArrayMesh" uid="uid://b8ro6dp5nqhhw" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_02_quarter.glb" id="19_3wym1"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/court_area.gd" id="20_court_area"]
+[ext_resource type="PackedScene" path="res://Scenes/NPC/LawyerNPC.tscn" id="21_lawyer"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1x31s"]
 resource_name = "MI_BrickSmall_01_red"
@@ -1480,8 +1482,29 @@ transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, -10.
 shape = SubResource("BoxShape3D_ccbfp")
 
 [node name="CourtArea" type="Area3D" parent="." unique_id=77127594]
+script = ExtResource("20_court_area")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CourtArea" unique_id=1333837463]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.1000004, 1.55, -9.35)
 shape = SubResource("BoxShape3D_bmgk1")
 debug_color = Color(0.7833561, 0.4353445, 0.012920001, 0.89100003)
+
+[node name="LawyerLevel1" parent="." instance=ExtResource("21_lawyer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 0.01, 2.8)
+lawyer_id = &"lawyer_level_1"
+lawyer_level = 1
+
+[node name="LawyerLevel2" parent="." instance=ExtResource("21_lawyer")]
+transform = Transform3D(0.984808, 0, 0.173648, 0, 1, 0, -0.173648, 0, 0.984808, -1.8, 0.01, 3.2)
+lawyer_id = &"lawyer_level_2"
+lawyer_level = 2
+
+[node name="LawyerLevel3" parent="." instance=ExtResource("21_lawyer")]
+transform = Transform3D(0.984808, 0, -0.173648, 0, 1, 0, 0.173648, 0, 0.984808, 1.8, 0.01, 3.2)
+lawyer_id = &"lawyer_level_3"
+lawyer_level = 3
+
+[node name="LawyerLevel4" parent="." instance=ExtResource("21_lawyer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0.01, 2.8)
+lawyer_id = &"lawyer_level_4"
+lawyer_level = 4

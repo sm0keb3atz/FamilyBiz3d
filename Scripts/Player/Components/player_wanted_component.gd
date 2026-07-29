@@ -201,6 +201,7 @@ func report_police_incident(
 		_update_police_search_position(world_position, true)
 		_outside_search_elapsed = 0.0
 		incident_reported.emit(_active_incident)
+		_record_low_level_charge(crime_type)
 		return
 	var next_severity := clampi(severity, 1, 3)
 	if next_severity >= _active_incident.severity:
@@ -214,6 +215,7 @@ func report_police_incident(
 	_update_police_search_position(world_position, true)
 	_outside_search_elapsed = 0.0
 	incident_updated.emit(_active_incident)
+	_record_low_level_charge(crime_type)
 
 
 func report_sale(world_position: Vector3) -> void:
@@ -280,6 +282,20 @@ func report_violence(target: Node, fatal: bool) -> void:
 		else PoliceIncidentData.CrimeType.ASSAULT
 	)
 	report_police_incident(player.global_position, crime_type, next_level)
+	var victim_key := str(target.get_instance_id())
+	match crime_type:
+		PoliceIncidentData.CrimeType.ASSAULT:
+			_active_incident.record_charge(
+				&"assault", "Assault", 250, "assault:%s" % victim_key
+			)
+		PoliceIncidentData.CrimeType.HOMICIDE:
+			_active_incident.record_charge(
+				&"homicide", "Homicide", 500, "homicide:%s" % victim_key
+			)
+		PoliceIncidentData.CrimeType.OFFICER_DOWN:
+			_active_incident.record_charge(
+				&"officer_down", "Officer Down", 750, "officer:%s" % victim_key
+			)
 	set_wanted_level(maxi(_wanted_level, next_level))
 	if fatal or target is PoliceNPC or was_wanted:
 		set_force_authorized(true)
@@ -442,6 +458,22 @@ func rehydrate_incident_after_load() -> void:
 		_loaded_without_incident = false
 	elif _active_incident != null:
 		incident_reported.emit(_active_incident)
+
+
+func _record_low_level_charge(crime_type: int) -> void:
+	if _active_incident == null:
+		return
+	match crime_type:
+		PoliceIncidentData.CrimeType.UNKNOWN, PoliceIncidentData.CrimeType.SUSPICIOUS_ACTIVITY:
+			_active_incident.record_charge(
+				&"evading", "Evading / Suspicious Activity", 50
+			)
+		PoliceIncidentData.CrimeType.ILLEGAL_ACTIVITY:
+			_active_incident.record_charge(&"illegal_sale", "Illegal Sale", 50)
+		PoliceIncidentData.CrimeType.WEAPON_DISCHARGE:
+			_active_incident.record_charge(
+				&"weapon_discharge", "Weapon Discharge", 100
+			)
 
 
 func _on_player_shot_resolved(
