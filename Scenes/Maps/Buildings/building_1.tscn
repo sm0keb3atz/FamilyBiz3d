@@ -14,6 +14,11 @@
 [ext_resource type="ArrayMesh" uid="uid://d3fxf1vpnjdhd" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb" id="12_ruego"]
 [ext_resource type="ArrayMesh" uid="uid://b0i8uu5d1aj7q" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01_corner.glb" id="13_3y61s"]
 
+[ext_resource type="Material" uid="uid://bajggff4xm8p7" path="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/WindowOff.tres" id="window_off"]
+[ext_resource type="Material" uid="uid://bs2oyovfckfm" path="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/WindowOn.tres" id="window_on"]
+
+[ext_resource type="Script" uid="uid://chcf4hqi8e3mu" path="res://Scripts/World/building_window_material_component.gd" id="14_window_materials"]
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_86gvs"]
 transparency = 1
 cull_mode = 2
@@ -34,12 +39,12 @@ mesh = ExtResource("1_7a4e8")
 [node name="SmWindow01" type="MeshInstance3D" parent="Walls" unique_id=2063007523]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -2)
 mesh = ExtResource("2_ocdiy")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmWindow02" type="MeshInstance3D" parent="Walls" unique_id=1526104667]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 6)
 mesh = ExtResource("2_ocdiy")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmWall01" type="MeshInstance3D" parent="Walls" unique_id=1996250195]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -3, 0, 6)
@@ -72,22 +77,22 @@ mesh = ExtResource("3_ruego")
 [node name="SmWindow03" type="MeshInstance3D" parent="Walls" unique_id=1220642823]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -7, 0, 6)
 mesh = ExtResource("4_3y61s")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmWindow04" type="MeshInstance3D" parent="Walls" unique_id=1493480073]
 transform = Transform3D(2.9802322e-08, 0, -1, 0, 1, 0, 1, 0, 2.9802322e-08, -15, 0, 6)
 mesh = ExtResource("4_3y61s")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmWindow05" type="MeshInstance3D" parent="Walls" unique_id=2084576541]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3, 0, -6)
 mesh = ExtResource("4_3y61s")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmWindow06" type="MeshInstance3D" parent="Walls" unique_id=512911460]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -11, 0, -6)
 mesh = ExtResource("4_3y61s")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmPillar01Corner" type="MeshInstance3D" parent="Walls" unique_id=100665045]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 1, 0, -6)
@@ -108,12 +113,12 @@ mesh = ExtResource("5_1a1qg")
 [node name="SmWindow07" type="MeshInstance3D" parent="Walls" unique_id=1479361873]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 3, -2)
 mesh = ExtResource("2_ocdiy")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmWindow08" type="MeshInstance3D" parent="Walls" unique_id=474227017]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 3, 6)
 mesh = ExtResource("2_ocdiy")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmWall02" type="MeshInstance3D" parent="Walls" unique_id=1896495048]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -3, 3, 6)
@@ -146,22 +151,22 @@ mesh = ExtResource("3_ruego")
 [node name="SmWindow09" type="MeshInstance3D" parent="Walls" unique_id=930473913]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -7, 3, 6)
 mesh = ExtResource("4_3y61s")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmWindow10" type="MeshInstance3D" parent="Walls" unique_id=840998384]
 transform = Transform3D(2.9802322e-08, 0, -1, 0, 1, 0, 1, 0, 2.9802322e-08, -15, 3, 6)
 mesh = ExtResource("4_3y61s")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmWindow11" type="MeshInstance3D" parent="Walls" unique_id=1187034603]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3, 3, -6)
 mesh = ExtResource("4_3y61s")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmWindow12" type="MeshInstance3D" parent="Walls" unique_id=1185575624]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -11, 3, -6)
 mesh = ExtResource("4_3y61s")
-surface_material_override/3 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/3 = ExtResource("window_off")
 
 [node name="SmPillar01Corner5" type="MeshInstance3D" parent="Walls" unique_id=38105237]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 1, 3, -6)
@@ -182,7 +187,7 @@ mesh = ExtResource("5_1a1qg")
 [node name="SmWindow02Long" type="MeshInstance3D" parent="Walls" unique_id=1342367097]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 3, 3)
 mesh = ExtResource("6_ulylg")
-surface_material_override/1 = SubResource("StandardMaterial3D_86gvs")
+surface_material_override/1 = ExtResource("window_off")
 
 [node name="SmWallAttic02" type="MeshInstance3D" parent="Walls" unique_id=1756386293]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 6, -2)
@@ -462,3 +467,8 @@ mesh = ExtResource("12_ruego")
 [node name="SmCornice06" type="MeshInstance3D" parent="Floor" unique_id=551356831]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1, 6, -6)
 mesh = ExtResource("12_ruego")
+
+[node name="BuildingWindowMaterials" type="Node" parent="."]
+script = ExtResource("14_window_materials")
+window_off_material = ExtResource("window_off")
+window_on_material = ExtResource("window_on")

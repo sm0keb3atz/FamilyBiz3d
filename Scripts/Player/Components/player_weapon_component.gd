@@ -1033,6 +1033,10 @@ func _broadcast_gunshot() -> void:
 func _play_muzzle_flash() -> void:
 	if muzzle_particles == null:
 		return
+	var muzzle_flash := muzzle_particles.get_parent()
+	if muzzle_flash != null and muzzle_flash.has_method(&"play_flash"):
+		muzzle_flash.call(&"play_flash")
+		return
 	muzzle_particles.restart()
 
 

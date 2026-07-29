@@ -97,6 +97,7 @@ var _last_visual_time := 0.0
 
 func _ready() -> void:
 	weapon_component.shot_resolved.connect(_on_player_shot_resolved)
+	health_component.downed.connect(_on_player_downed)
 	health_component.respawn_completed.connect(_on_respawn_completed)
 	for node in get_tree().get_nodes_in_group("territory_boundaries"):
 		var boundary := node as TerritoryBoundary
@@ -649,6 +650,11 @@ func _clear_police_search() -> void:
 
 
 func _on_respawn_completed() -> void:
+	if _wanted_level > 0:
+		clear_wanted(true)
+
+
+func _on_player_downed() -> void:
 	if _wanted_level > 0:
 		clear_wanted(true)
 

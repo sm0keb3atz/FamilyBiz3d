@@ -78,15 +78,15 @@ mesh = SubResource("SphereMesh_bulb")
 [node name="KeyLight" type="SpotLight3D" parent="NightLighting" unique_id=1452366631]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 2.18, 5.78, 0)
 light_color = Color(1, 0.72, 0.42, 1)
-light_energy = 5.0
-light_indirect_energy = 1.25
+light_energy = 7.0
+light_indirect_energy = 2.0
 light_volumetric_fog_energy = 0.8
 shadow_enabled = true
 distance_fade_enabled = true
 distance_fade_begin = 35.0
 distance_fade_shadow = 22.0
 distance_fade_length = 15.0
-spot_range = 17.0
+spot_range = 30.0
 spot_attenuation = 1.15
 spot_angle = 58.0
 

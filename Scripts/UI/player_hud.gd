@@ -8,6 +8,7 @@ signal daily_report_closed
 @export var weapon_component_path := NodePath("../Components/WeaponComponent")
 @export var wanted_component_path := NodePath("../Components/WantedComponent")
 @export var arrest_component_path := NodePath("../Components/ArrestComponent")
+@export var health_component_path := NodePath("../Components/HealthComponent")
 @export_range(0.0, 1000.0, 1.0) var debug_damage_amount := 25.0
 @export_range(0.05, 1.0, 0.01) var hit_marker_duration := 0.18
 @export_range(0.05, 1.0, 0.01) var cash_roll_duration := 0.35
@@ -21,6 +22,8 @@ signal daily_report_closed
 @onready var level_label := %LevelLabel as Label
 @onready var experience_label := %ExperienceLabel as Label
 @onready var state_label := %StateLabel as Label
+@onready var outcome_overlay := %OutcomeOverlay as ColorRect
+@onready var outcome_subtitle := %OutcomeSubtitle as Label
 @onready var dirty_cash_label := %DirtyCashLabel as Label
 @onready var clean_cash_label := %CleanCashLabel as Label
 @onready var money_panel := %MoneyPanel as PanelContainer
@@ -75,6 +78,9 @@ signal daily_report_closed
 @onready var arrest := (
 	get_node(arrest_component_path) as PlayerArrestComponent
 )
+@onready var health := (
+	get_node(health_component_path) as PlayerHealthComponent
+)
 
 var _hit_marker_remaining := 0.0
 var _detection_debug_visible := false
@@ -90,6 +96,7 @@ var _clean_cash_tween: Tween
 var _dirty_cash_pulse_tween: Tween
 var _clean_cash_pulse_tween: Tween
 var _feedback_tween: Tween
+var _outcome_tween: Tween
 var _transaction_float_index := 0
 var _market_price_labels: Dictionary = {}
 var _market_products: Array[ProductDefinition] = []
@@ -119,6 +126,7 @@ func _ready() -> void:
 	wanted.escape_progress_changed.connect(_on_escape_progress_changed)
 	arrest.arrest_progress_changed.connect(_on_arrest_progress_changed)
 	arrest.arrested.connect(_on_arrested)
+	health.respawn_completed.connect(_hide_outcome)
 	feedback_timer.timeout.connect(_on_feedback_timeout)
 	report_continue_button.pressed.connect(_close_daily_report)
 	_market_products = EconomyCatalog.get_gram_products()
@@ -330,6 +338,7 @@ func _refresh_all() -> void:
 	_on_level_changed(stats.level)
 	_set_displayed_money(wallet.dirty_cash, wallet.clean_cash)
 	state_label.visible = is_zero_approx(stats.health)
+	outcome_overlay.visible = false
 	interaction_prompt.visible = false
 	sale_interaction_panel.visible = false
 	feedback_panel.visible = false
@@ -370,7 +379,11 @@ func _on_level_changed(current: int) -> void:
 
 
 func _on_health_depleted() -> void:
-	state_label.visible = true
+	_show_outcome(
+		"SMOKED",
+		"PARAMEDICS ARE EN ROUTE",
+		Color(0.9, 0.08, 0.1, 1.0)
+	)
 
 
 func set_interaction_prompt(prompt: String, sale_data: Dictionary = {}) -> void:
@@ -723,4 +736,43 @@ func _on_arrest_progress_changed(progress: float) -> void:
 
 
 func _on_arrested() -> void:
-	show_feedback("ARRESTED", 2.0)
+	_show_outcome(
+		"BOOKED",
+		"RELEASE PENDING",
+		Color(0.25, 0.55, 1.0, 1.0)
+	)
+
+
+func _show_outcome(
+	title: String,
+	subtitle: String,
+	accent: Color
+) -> void:
+	if _outcome_tween != null and _outcome_tween.is_valid():
+		_outcome_tween.kill()
+	state_label.text = title
+	state_label.add_theme_color_override("font_color", accent)
+	outcome_subtitle.text = subtitle
+	outcome_subtitle.add_theme_color_override("font_color", accent.lightened(0.3))
+	outcome_overlay.visible = true
+	outcome_overlay.color.a = 0.0
+	state_label.visible = true
+	state_label.modulate.a = 0.0
+	outcome_subtitle.modulate.a = 0.0
+	_outcome_tween = create_tween().set_parallel(true)
+	_outcome_tween.tween_property(
+		outcome_overlay, "color:a", 0.68, 0.35
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_outcome_tween.tween_property(
+		state_label, "modulate:a", 1.0, 0.25
+	).set_delay(0.12)
+	_outcome_tween.tween_property(
+		outcome_subtitle, "modulate:a", 1.0, 0.25
+	).set_delay(0.28)
+
+
+func _hide_outcome() -> void:
+	if _outcome_tween != null and _outcome_tween.is_valid():
+		_outcome_tween.kill()
+	state_label.visible = false
+	outcome_overlay.visible = false

@@ -2,21 +2,23 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ceu2bkusebcot"
-path.s3tc="res://.godot/imported/T_wallMetal_01_white.PNG-50f66b0ca3889e0fc9749b5cd3191b8c.s3tc.ctex"
+uid="uid://cuiyy2x3x4x06"
+path="res://.godot/imported/justice_scale_2.png-a710335920008763e05ca462945f1c50.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
+}
+generator_parameters={
+"md5": "0301cbade0daad4770f529a33130391b"
 }
 
 [deps]
 
-source_file="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/T_wallMetal_01_white.PNG"
-dest_files=["res://.godot/imported/T_wallMetal_01_white.PNG-50f66b0ca3889e0fc9749b5cd3191b8c.s3tc.ctex"]
+source_file="res://Assets/MapStuff/Meshs/StreetProps/justice_scale_2.png"
+dest_files=["res://.godot/imported/justice_scale_2.png-a710335920008763e05ca462945f1c50.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -38,4 +40,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=0
+detect_3d/compress_to=1

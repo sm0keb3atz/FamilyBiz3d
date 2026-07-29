@@ -2,17 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ceu2bkusebcot"
-path.s3tc="res://.godot/imported/T_wallMetal_01_white.PNG-50f66b0ca3889e0fc9749b5cd3191b8c.s3tc.ctex"
+uid="uid://cn8i1v1s7sen5"
+path.s3tc="res://.godot/imported/justice_scale_0.png-a7d224db256c360fecd1a9c3cf944350.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
+generator_parameters={
+"md5": "a27a3c3d0ee7c745db459aa8fd3d9c5f"
+}
 
 [deps]
 
-source_file="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/T_wallMetal_01_white.PNG"
-dest_files=["res://.godot/imported/T_wallMetal_01_white.PNG-50f66b0ca3889e0fc9749b5cd3191b8c.s3tc.ctex"]
+source_file="res://Assets/MapStuff/Meshs/StreetProps/justice_scale_0.png"
+dest_files=["res://.godot/imported/justice_scale_0.png-a7d224db256c360fecd1a9c3cf944350.s3tc.ctex"]
 
 [params]
 

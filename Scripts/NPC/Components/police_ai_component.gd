@@ -111,6 +111,11 @@ func initialize(owner_npc: BaseNPC, target_player: CharacterBody3D) -> void:
 func tick_mode(mode: int, delta: float) -> void:
 	if npc.is_defeated() or player == null:
 		return
+	# A behavior-tree action can remain RUNNING for a frame after its wanted
+	# condition stops matching. Never let that stale combat/arrest action
+	# reacquire a respawned player after the wanted level has been cleared.
+	if wanted == null or wanted.wanted_level <= 0:
+		mode = MODE_PATROL
 	_response_commit_remaining = maxf(
 		_response_commit_remaining - delta,
 		0.0
@@ -416,6 +421,39 @@ func reset_for_reuse() -> void:
 	_search_role = _get_stable_search_role()
 	_search_center_pending = false
 	end_retaliation()
+
+
+func cancel_wanted_engagement() -> void:
+	_response_commit_remaining = 0.0
+	_response_target = Vector3.ZERO
+	_has_response_target = false
+	_search_center = Vector3.ZERO
+	_has_search_center = false
+	_has_search_destination = false
+	_last_search_revision = -1
+	_search_pause_remaining = 0.0
+	_search_pause_pending = false
+	_search_center_pending = false
+	_search_elapsed = 0.0
+	_search_replan_remaining = 0.0
+	if _investigation_source_actor == player:
+		_investigation_remaining = 0.0
+		_investigation_event_id = 0
+		_investigation_source_actor = null
+	_last_known_position = Vector3.ZERO
+	_last_mode = -1
+	_has_reposition_target = false
+	_burst_remaining = 0
+	_shot_remaining = 0.0
+	_pause_remaining = 0.0
+	_reaction_remaining = 0.0
+	_movement_decision_remaining = 0.0
+	_retreat_cooldown_remaining = 0.0
+	combat.clear_aim()
+	combat.set_equipped(false)
+	npc.clear_navigation_target()
+	npc.clear_facing_override()
+	npc.velocity = Vector3.ZERO
 
 
 func _enter_mode(mode: int) -> void:

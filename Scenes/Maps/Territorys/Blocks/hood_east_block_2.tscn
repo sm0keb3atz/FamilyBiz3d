@@ -619,8 +619,14 @@ mesh = ExtResource("8_wi2nh")
 [node name="Building1" parent="Buildings" unique_id=1313747676 instance=ExtResource("9_tt8na")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 34, 0, -29)
 
+[node name="Building12" parent="Buildings" unique_id=46088385 instance=ExtResource("9_tt8na")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 50.800003, 0, -29)
+
 [node name="Building9" parent="Buildings" unique_id=476124924 instance=ExtResource("9_tt8na")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 81.1, 0, -39.300003)
+
+[node name="Building17" parent="Buildings" unique_id=1295785446 instance=ExtResource("9_tt8na")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114.7, 0, -57.4)
 
 [node name="GunStore" parent="Buildings" unique_id=1778244247 instance=ExtResource("10_7pymp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0.01, -98.2)
@@ -637,6 +643,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, 0.01, -62)
 [node name="Building3" parent="Buildings" unique_id=1600041131 instance=ExtResource("13_i5sdg")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 30, 0.01, -57)
 
+[node name="Building10" parent="Buildings" unique_id=2143218103 instance=ExtResource("13_i5sdg")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 30, 0.01, -70.6)
+
+[node name="Building11" parent="Buildings" unique_id=790434252 instance=ExtResource("13_i5sdg")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 30, 0.01, -88.6)
+
 [node name="Building4" parent="Buildings" unique_id=1635346297 instance=ExtResource("13_i5sdg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, 0.01, -75)
 
@@ -646,11 +658,23 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, 0.01, -88)
 [node name="Building7" parent="Buildings" unique_id=1384899513 instance=ExtResource("13_i5sdg")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 80.9, 0.01, -100.5)
 
+[node name="Building13" parent="Buildings" unique_id=1000138490 instance=ExtResource("13_i5sdg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.01, -107.7)
+
+[node name="Building14" parent="Buildings" unique_id=1940429131 instance=ExtResource("13_i5sdg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.01, -86.5)
+
+[node name="Building15" parent="Buildings" unique_id=1147120750 instance=ExtResource("13_i5sdg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.01, -73.3)
+
+[node name="Building16" parent="Buildings" unique_id=1435256379 instance=ExtResource("13_i5sdg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.01, -34.600002)
+
 [node name="Building8" parent="Buildings" unique_id=580221544 instance=ExtResource("13_i5sdg")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 80.9, 0.01, -86.9)
 
 [node name="Building6" parent="Buildings" unique_id=1472734539 instance=ExtResource("9_tt8na")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 29, 0.01, -98)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 29, 0.01, -108.5)
 
 [node name="ClothingStore" parent="Buildings" unique_id=1210165433 instance=ExtResource("14_7pymp")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 79.6, 0.01, -115.799995)

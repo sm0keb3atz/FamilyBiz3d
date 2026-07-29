@@ -2,17 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ceu2bkusebcot"
-path.s3tc="res://.godot/imported/T_wallMetal_01_white.PNG-50f66b0ca3889e0fc9749b5cd3191b8c.s3tc.ctex"
+uid="uid://nhf66m4x3klx"
+path.s3tc="res://.godot/imported/elevator_building_1.png-a2c6b45dd946f797d91e2f540316252e.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
+generator_parameters={
+"md5": "43b4c6e3be4239668afc3c5e4d257f43"
+}
 
 [deps]
 
-source_file="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/T_wallMetal_01_white.PNG"
-dest_files=["res://.godot/imported/T_wallMetal_01_white.PNG-50f66b0ca3889e0fc9749b5cd3191b8c.s3tc.ctex"]
+source_file="res://Assets/MapStuff/Meshs/StreetProps/elevator_building_1.png"
+dest_files=["res://.godot/imported/elevator_building_1.png-a2c6b45dd946f797d91e2f540316252e.s3tc.ctex"]
 
 [params]
 

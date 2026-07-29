@@ -83,9 +83,9 @@ func _complete_arrest() -> void:
 	wanted_component.resolve_arrest()
 	if vehicle_component.is_driving():
 		vehicle_component.exit_vehicle(true)
-	respawn_component.respawn_after_arrest()
 	arrest_progress_changed.emit(0.0)
 	arrested.emit()
+	respawn_component.respawn_after_arrest()
 
 
 func _on_wanted_level_changed(_previous: int, current: int) -> void:

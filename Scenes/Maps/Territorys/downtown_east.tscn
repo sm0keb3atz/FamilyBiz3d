@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://buhugmgbtetc7"]
+
+[ext_resource type="PackedScene" uid="uid://cjvx046qh2vra" path="res://Scenes/Maps/Territorys/Blocks/downtown_east_block_1.tscn" id="1_tkd5j"]
+[ext_resource type="PackedScene" uid="uid://8mjktvp5wvk1" path="res://Scenes/Maps/Territorys/Blocks/dowtown_east_block_2.tscn" id="2_hogh8"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hogh8"]
+size = Vector3(147, 0.001, 264)
+
+[node name="DowntownEast" type="Node3D" unique_id=10811193]
+
+[node name="DowntownEastBlock1" parent="." unique_id=208301630 instance=ExtResource("1_tkd5j")]
+
+[node name="DowtownEastBlock2" parent="." unique_id=850949276 instance=ExtResource("2_hogh8")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 263.001, 0, -0.004)
+
+[node name="FloorCollider" type="StaticBody3D" parent="." unique_id=11333028]
+transform = Transform3D(0.003262947, 0, 0.9999947, 0, 1, 0, -0.9999947, 0, 0.003262947, 105.78528, 2, -5.6811714)
+
+[node name="CollisionShape3D7" type="CollisionShape3D" parent="FloorCollider" unique_id=1630244155]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65, -2.0005, 24.999992)
+shape = SubResource("BoxShape3D_hogh8")

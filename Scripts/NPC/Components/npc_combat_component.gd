@@ -11,7 +11,7 @@ signal reload_completed
 )
 @export var muzzle_particles_path := NodePath(
 	"../../Visual/PlayerTest2/Armature/GeneralSkeleton/WeaponSocket/"
-	+ "EquippedWeapon/Mesh/MuzzleFlash/MuzzlePlanes"
+	+ "EquippedWeapon/MuzzleFlash/MuzzlePlanes"
 )
 @export var gunshot_sound: AudioStream
 @export var reload_sound: AudioStream
@@ -22,6 +22,7 @@ signal reload_completed
 
 var npc
 var _weapon_model: Node3D
+var _muzzle_flash_effect: Node3D
 var _muzzle_particles: GPUParticles3D
 var _gunshot_player: AudioStreamPlayer3D
 var _reload_player: AudioStreamPlayer3D
@@ -43,9 +44,7 @@ func initialize(owner_npc: BaseNPC) -> void:
 	if _weapon_model != null:
 		_weapon_socket = _weapon_model.get_parent() as Node3D
 		_weapon_visual_transform = _weapon_model.transform
-	_muzzle_particles = get_node_or_null(
-		muzzle_particles_path
-	) as GPUParticles3D
+	_cache_muzzle_effect()
 	_gunshot_player = AudioStreamPlayer3D.new()
 	_gunshot_player.name = "PoliceGunshotPlayer"
 	_gunshot_player.bus = &"Gunshots"
@@ -202,8 +201,7 @@ func try_fire_at(target_position: Vector3, spread_degrees: float) -> bool:
 	_cooldown_remaining = get_fire_interval()
 	npc.animation_component.trigger_combat_recoil()
 	_play_gunshot()
-	if _muzzle_particles != null:
-		_muzzle_particles.restart()
+	_play_muzzle_flash()
 	var event_bus := WorldEventBus.find(npc.get_tree())
 	if event_bus != null:
 		var faction := (
@@ -256,6 +254,7 @@ func _replace_weapon_visual() -> void:
 		_weapon_socket.remove_child(_weapon_model)
 		_weapon_model.queue_free()
 		_weapon_model = null
+	_muzzle_flash_effect = null
 	_muzzle_particles = null
 	if weapon_definition == null or weapon_definition.visual_scene == null:
 		return
@@ -265,7 +264,38 @@ func _replace_weapon_visual() -> void:
 	_weapon_model.name = "EquippedWeapon"
 	_weapon_model.transform = _weapon_visual_transform
 	_weapon_socket.add_child(_weapon_model)
+	_cache_muzzle_effect()
+
+
+func _cache_muzzle_effect() -> void:
+	_muzzle_flash_effect = null
+	_muzzle_particles = null
+	if _weapon_model == null:
+		return
+	_muzzle_flash_effect = _find_muzzle_flash_effect(_weapon_model)
 	_muzzle_particles = _find_muzzle_particles(_weapon_model)
+	if _muzzle_particles == null:
+		_muzzle_particles = get_node_or_null(
+			muzzle_particles_path
+		) as GPUParticles3D
+	if (
+		_muzzle_flash_effect == null
+		and _muzzle_particles != null
+		and _muzzle_particles.get_parent() is Node3D
+	):
+		var particle_parent := _muzzle_particles.get_parent() as Node3D
+		if particle_parent.has_method(&"play_flash"):
+			_muzzle_flash_effect = particle_parent
+
+
+func _find_muzzle_flash_effect(node: Node) -> Node3D:
+	if node is Node3D and node.name == &"MuzzleFlash":
+		return node as Node3D
+	for child in node.get_children():
+		var result := _find_muzzle_flash_effect(child)
+		if result != null:
+			return result
+	return null
 
 
 func _find_muzzle_particles(node: Node) -> GPUParticles3D:
@@ -276,6 +306,17 @@ func _find_muzzle_particles(node: Node) -> GPUParticles3D:
 		if result != null:
 			return result
 	return null
+
+
+func _play_muzzle_flash() -> void:
+	if (
+		_muzzle_flash_effect != null
+		and is_instance_valid(_muzzle_flash_effect)
+		and _muzzle_flash_effect.has_method(&"play_flash")
+	):
+		_muzzle_flash_effect.call(&"play_flash", 1.75)
+	elif _muzzle_particles != null and is_instance_valid(_muzzle_particles):
+		_muzzle_particles.restart()
 
 
 func _finish_reload() -> void:

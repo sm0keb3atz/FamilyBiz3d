@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://cjh86oujvf7bw"]
+
+[ext_resource type="PackedScene" uid="uid://bejt3pmmsaggo" path="res://Scenes/Maps/Territorys/Blocks/downtown_west_block_1.tscn" id="1_n8yj1"]
+[ext_resource type="PackedScene" uid="uid://5v2ieljjt0ul" path="res://Scenes/Maps/Territorys/Blocks/downtown_west_block_2.tscn" id="2_71xan"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_71xan"]
+size = Vector3(147, 0.001, 264)
+
+[node name="DownTownWest" type="Node3D" unique_id=1624031075]
+
+[node name="DowntownWestBlock1" parent="." unique_id=1887257252 instance=ExtResource("1_n8yj1")]
+
+[node name="DowntownWestBlock2" parent="." unique_id=849139633 instance=ExtResource("2_71xan")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 120.00001)
+
+[node name="FloorCollider" type="StaticBody3D" parent="." unique_id=427783973]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -32)
+
+[node name="CollisionShape3D7" type="CollisionShape3D" parent="FloorCollider" unique_id=625072848]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65, -2.0005, 24.999992)
+shape = SubResource("BoxShape3D_71xan")

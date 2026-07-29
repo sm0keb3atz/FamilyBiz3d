@@ -1,0 +1,601 @@
+[gd_scene format=3 uid="uid://8mjktvp5wvk1"]
+
+[ext_resource type="PackedScene" uid="uid://c0eipv3r5ufeg" path="res://Scenes/Maps/RoadPieces/RoadStraight.tscn" id="1_axwq7"]
+[ext_resource type="PackedScene" uid="uid://dr3oh2pyyibn5" path="res://Scenes/Maps/RoadPieces/EdgeIntersection.tscn" id="3_ylr7p"]
+[ext_resource type="ArrayMesh" uid="uid://l4lon2ffssug" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01.glb" id="4_7b27w"]
+[ext_resource type="ArrayMesh" uid="uid://t8oac28wc7b4" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01_corner.glb" id="5_nwwl1"]
+[ext_resource type="ArrayMesh" uid="uid://dt4uhxypni1" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_grass_00.glb" id="6_sxkrs"]
+[ext_resource type="PackedScene" uid="uid://bdf6ktmg8vqp4" path="res://Scenes/Maps/Buildings/hospital.tscn" id="7_7b27w"]
+[ext_resource type="ArrayMesh" uid="uid://bkgfypoi0u130" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_base.glb" id="7_y0wen"]
+
+[node name="DowtownEastBlock2" type="Node3D" unique_id=850949276]
+
+[node name="Roads" type="Node3D" parent="." unique_id=46203567]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -124)
+
+[node name="TestWorld7" parent="Roads" unique_id=1815818858 instance=ExtResource("1_axwq7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 120)
+
+[node name="TestWorld5" parent="Roads" unique_id=767048359 instance=ExtResource("1_axwq7")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 132, 0, 116)
+
+[node name="Intersection6" parent="Roads" unique_id=191216732 instance=ExtResource("3_ylr7p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116, 0, 120)
+intersection_id = &"hood_east_north_east"
+
+[node name="Plot" type="Node3D" parent="." unique_id=2120920179]
+
+[node name="Ground" type="Node3D" parent="Plot" unique_id=1746638515]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -124)
+
+[node name="SmDirtEdge21" type="MeshInstance3D" parent="Plot/Ground" unique_id=254394263]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 92)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge22" type="MeshInstance3D" parent="Plot/Ground" unique_id=1031239237]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 92)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge23" type="MeshInstance3D" parent="Plot/Ground" unique_id=1386149554]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, 92)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge24" type="MeshInstance3D" parent="Plot/Ground" unique_id=1963456459]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, 92)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge25" type="MeshInstance3D" parent="Plot/Ground" unique_id=1831772331]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0, 92)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge26" type="MeshInstance3D" parent="Plot/Ground" unique_id=178969854]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 40, 0, 12)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge27" type="MeshInstance3D" parent="Plot/Ground" unique_id=1819279820]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 56, 0, 12)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge28" type="MeshInstance3D" parent="Plot/Ground" unique_id=957105304]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 72, 0, 12)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge29" type="MeshInstance3D" parent="Plot/Ground" unique_id=558649887]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 88, 0, 12)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge30" type="MeshInstance3D" parent="Plot/Ground" unique_id=76232033]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 104, 0, 12)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge31" type="MeshInstance3D" parent="Plot/Ground" unique_id=1419229703]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 24, 0, 12)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge32" type="MeshInstance3D" parent="Plot/Ground" unique_id=2084726439]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 24, 0, 28)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge33" type="MeshInstance3D" parent="Plot/Ground" unique_id=792893621]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 24, 0, 44)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge34" type="MeshInstance3D" parent="Plot/Ground" unique_id=2027226072]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 24, 0, 60)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge35" type="MeshInstance3D" parent="Plot/Ground" unique_id=1851444998]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 24, 0, 76)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge36" type="MeshInstance3D" parent="Plot/Ground" unique_id=21501750]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, 104, 0, 92)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge37" type="MeshInstance3D" parent="Plot/Ground" unique_id=1126074407]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, 104, 0, 76)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge38" type="MeshInstance3D" parent="Plot/Ground" unique_id=1888168198]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, 104, 0, 60)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge39" type="MeshInstance3D" parent="Plot/Ground" unique_id=1532528877]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, 104, 0, 44)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge40" type="MeshInstance3D" parent="Plot/Ground" unique_id=1761794002]
+transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, 104, 0, 28)
+mesh = ExtResource("4_7b27w")
+
+[node name="SmDirtEdge01Corner5" type="MeshInstance3D" parent="Plot/Ground" unique_id=1738738789]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104, 0, 92)
+mesh = ExtResource("5_nwwl1")
+
+[node name="SmDirtEdge01Corner6" type="MeshInstance3D" parent="Plot/Ground" unique_id=254763821]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 104, 0, 12)
+mesh = ExtResource("5_nwwl1")
+
+[node name="SmDirtEdge01Corner7" type="MeshInstance3D" parent="Plot/Ground" unique_id=1135331224]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 24, 0, 12)
+mesh = ExtResource("5_nwwl1")
+
+[node name="SmDirtEdge01Corner8" type="MeshInstance3D" parent="Plot/Ground" unique_id=1658771625]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 24, 0, 92)
+mesh = ExtResource("5_nwwl1")
+
+[node name="SmGrass25" type="MeshInstance3D" parent="Plot/Ground" unique_id=1141843753]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 28)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass26" type="MeshInstance3D" parent="Plot/Ground" unique_id=1241776683]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 44)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass27" type="MeshInstance3D" parent="Plot/Ground" unique_id=983462073]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 60)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass28" type="MeshInstance3D" parent="Plot/Ground" unique_id=400803052]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 76)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass29" type="MeshInstance3D" parent="Plot/Ground" unique_id=1061938821]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 92)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass30" type="MeshInstance3D" parent="Plot/Ground" unique_id=1256688506]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 28)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass31" type="MeshInstance3D" parent="Plot/Ground" unique_id=1526585596]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 44)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass32" type="MeshInstance3D" parent="Plot/Ground" unique_id=152675320]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 60)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass33" type="MeshInstance3D" parent="Plot/Ground" unique_id=1875394795]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 76)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass34" type="MeshInstance3D" parent="Plot/Ground" unique_id=1388527403]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 92)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass35" type="MeshInstance3D" parent="Plot/Ground" unique_id=1832917659]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, 28)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass36" type="MeshInstance3D" parent="Plot/Ground" unique_id=200574146]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, 44)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass37" type="MeshInstance3D" parent="Plot/Ground" unique_id=683843835]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, 60)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass38" type="MeshInstance3D" parent="Plot/Ground" unique_id=1470558501]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, 76)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass39" type="MeshInstance3D" parent="Plot/Ground" unique_id=1478852046]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, 92)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass40" type="MeshInstance3D" parent="Plot/Ground" unique_id=1563384437]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, 28)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass41" type="MeshInstance3D" parent="Plot/Ground" unique_id=94446241]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, 44)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass42" type="MeshInstance3D" parent="Plot/Ground" unique_id=220598919]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, 60)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass43" type="MeshInstance3D" parent="Plot/Ground" unique_id=43214651]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, 76)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass44" type="MeshInstance3D" parent="Plot/Ground" unique_id=996723234]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, 92)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass45" type="MeshInstance3D" parent="Plot/Ground" unique_id=152236125]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0, 28)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass46" type="MeshInstance3D" parent="Plot/Ground" unique_id=485462182]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0, 44)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass47" type="MeshInstance3D" parent="Plot/Ground" unique_id=1997880767]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0, 60)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass48" type="MeshInstance3D" parent="Plot/Ground" unique_id=1847556826]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0, 76)
+mesh = ExtResource("6_sxkrs")
+
+[node name="SmGrass49" type="MeshInstance3D" parent="Plot/Ground" unique_id=1637230136]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0, 92)
+mesh = ExtResource("6_sxkrs")
+
+[node name="Buildings" type="Node3D" parent="Plot" unique_id=1182425371]
+
+[node name="Sidewalk" type="Node3D" parent="Plot" unique_id=366310711]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -124)
+
+[node name="SmSidewalk01Base93" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1763165274]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base94" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=821154844]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 8)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base95" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1681266745]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 12)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base96" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1091969239]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 16)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base97" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1767981787]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 20)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base98" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1021801797]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 24)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base99" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=123382514]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 28)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base100" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=589662104]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 32)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base101" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=2145992704]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 36)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base102" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1546625596]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 40)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base103" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=805886855]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 44)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base104" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1813566456]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 48)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base105" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=645496483]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 52)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base106" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1858158057]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 56)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base107" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=46444533]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 60)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base108" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1549737275]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 64)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base109" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1713131141]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 68)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base110" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1075095626]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 72)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base111" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=439680802]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 76)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base112" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=94488586]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 80)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base113" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1330275654]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 84)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base114" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1849229330]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 88)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base115" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1302837801]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 92)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base116" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=705807255]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base117" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1946190274]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base118" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1771516289]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 8)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base119" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1127267782]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 12)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base120" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1878023582]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 16)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base121" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1933394337]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 20)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base122" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=313514513]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 24)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base123" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1423875878]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 28)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base124" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1125465164]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 32)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base125" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=899277802]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 36)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base126" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1791656275]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 40)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base127" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1642575986]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 44)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base128" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1249360591]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 48)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base129" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1959284218]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 52)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base130" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=691556409]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 56)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base131" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=574532829]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 60)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base132" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1562006520]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 64)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base133" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=2111492045]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 68)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base134" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=617625850]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 72)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base135" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1901052177]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 76)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base136" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1183654891]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 80)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base137" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1421404022]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 84)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base138" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1157400257]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 88)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base139" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=930923653]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 92)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base140" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=851677835]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base141" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=581990920]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 108, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base142" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=942319024]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 104, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base143" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1513915301]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 100, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base144" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=273808625]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 96, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base145" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=582647786]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 92, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base146" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=495919744]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 88, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base147" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=538694929]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 84, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base148" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=692910612]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 80, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base149" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=649940901]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 76, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base150" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1225087439]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 72, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base151" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=266665984]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 68, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base152" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=622342957]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 64, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base153" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=304225034]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 60, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base154" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1258580271]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 56, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base155" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1645663434]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 52, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base156" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1040924101]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 48, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base157" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=692234852]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 44, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base158" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1208040476]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 40, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base159" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1374446440]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 36, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base160" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=643966768]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 32, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base161" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1574879355]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 28, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base162" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=431016448]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 24, 0, 96)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base163" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=2017303879]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 108, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base164" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=25610653]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 104, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base165" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=432312172]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 100, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base166" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=170573862]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 96, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base167" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=21562206]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 92, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base168" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=2071200578]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 88, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base169" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1437025159]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 84, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base170" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=776513543]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 80, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base171" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1208812146]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 76, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base172" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1099039937]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 72, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base173" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1566776334]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 68, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base174" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1439278366]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 64, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base175" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=691604363]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 60, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base176" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1982276252]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 56, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base177" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1113115842]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 52, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base178" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1549585760]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 48, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base179" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=2080064814]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 44, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base180" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=577582750]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 40, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base181" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=296825867]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 36, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base182" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=2015763491]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 32, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base183" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=477870891]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 28, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="SmSidewalk01Base184" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=42082202]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 24, 0, 4)
+mesh = ExtResource("7_y0wen")
+
+[node name="Hospital" parent="." unique_id=531031736 instance=ExtResource("7_7b27w")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66.6, 0, -50.2)

@@ -53,6 +53,10 @@ func prepare_for_pool_spawn(
 	_wanted = player.get_node(
 		"Components/WantedComponent"
 	) as PlayerWantedComponent
+	if not _wanted.wanted_level_changed.is_connected(
+		_on_wanted_level_changed
+	):
+		_wanted.wanted_level_changed.connect(_on_wanted_level_changed)
 	patrol_component.assign_route(network, start_waypoint, random_seed)
 	global_position = patrol_component.get_spawn_position()
 	perception_component.initialize(self, player)
@@ -186,6 +190,11 @@ func has_confirmed_wanted_player_location() -> bool:
 
 func tick_ai_mode(mode: int, delta: float) -> void:
 	if _pool_active:
+		if get_wanted_level() <= 0:
+			if _retaliation_target == _target_player:
+				clear_retaliation_target()
+			ai_component.tick_mode(PoliceAIComponent.MODE_PATROL, delta)
+			return
 		if is_instance_valid(_retaliation_target):
 			if ai_component.tick_retaliation(_retaliation_target, delta):
 				return
@@ -270,6 +279,13 @@ func clear_retaliation_target() -> void:
 	_retaliation_target = null
 	if ai_component != null:
 		ai_component.end_retaliation()
+
+
+func _on_wanted_level_changed(_previous: int, current: int) -> void:
+	if current > 0 or not _pool_active:
+		return
+	clear_retaliation_target()
+	ai_component.cancel_wanted_engagement()
 
 
 func _on_damaged(

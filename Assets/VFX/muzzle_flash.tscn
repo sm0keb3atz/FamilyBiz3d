@@ -1,7 +1,8 @@
-[gd_scene format=3 uid="uid://g8aqe1kdyinc"]
+[gd_scene load_steps=10 format=3 uid="uid://g8aqe1kdyinc"]
 
 [ext_resource type="Texture2D" uid="uid://dhf7fc8whedtv" path="res://Assets/VFX/Textures/MuzzleFlash.png" id="1_iom8u"]
 [ext_resource type="ArrayMesh" uid="uid://4vnjr1puvfle" path="res://Assets/VFX/Models/MuzzlePlan.obj" id="2_lbfqs"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/Weapons/muzzle_flash_effect.gd" id="3_effect"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kn4hg"]
 transparency = 1
@@ -38,6 +39,7 @@ color = Color(4.5, 2.1, 0.65, 1)
 alpha_curve = SubResource("CurveTexture_rwn6q")
 
 [node name="MuzzleFlash" type="Node3D" unique_id=431674480]
+script = ExtResource("3_effect")
 
 [node name="MuzzlePlanes" type="GPUParticles3D" parent="." unique_id=684731460]
 material_override = SubResource("StandardMaterial3D_kn4hg")
@@ -51,3 +53,12 @@ local_coords = true
 fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_y3am3")
 draw_pass_1 = ExtResource("2_lbfqs")
+
+[node name="FlashLight" type="OmniLight3D" parent="."]
+visible = false
+light_color = Color(1, 0.54, 0.2, 1)
+light_energy = 6.5
+light_indirect_energy = 0.0
+omni_range = 7.0
+omni_attenuation = 1.35
+shadow_enabled = false

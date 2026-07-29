@@ -232,7 +232,34 @@ func _run() -> void:
 	police.tick_ai_mode(PoliceModeAction.Mode.SEARCH_COMBAT, 0.016)
 	assert(police.combat_component.is_equipped())
 	player.global_position = position_before_long_range_shot
+	police.ai_component.set("_last_mode", PoliceModeAction.Mode.COMBAT)
+	police.ai_component.set("_has_response_target", true)
+	police.ai_component.set(
+		"_response_commit_remaining",
+		police.ai_component.response_commit_seconds
+	)
+	police.set_navigation_target(player.global_position + Vector3(3.0, 0.0, 0.0))
 	wanted.clear_wanted(false)
+	assert(not police.ai_component.has_committed_response_target())
+	assert(
+		int(police.ai_component.get("_last_mode")) == -1,
+		"Police retained their pursuit mode after the wanted level cleared"
+	)
+	assert(
+		not bool(police.movement_component.get_navigation_debug_state().has_target),
+		"Police retained a player pursuit destination after the wanted level cleared"
+	)
+	assert(not police.combat_component.is_equipped())
+	police.set("_retaliation_target", player)
+	police.ai_component.begin_retaliation(player)
+	police.tick_ai_mode(PoliceModeAction.Mode.COMBAT, 0.016)
+	assert(
+		int(police.ai_component.get("_last_mode"))
+		== PoliceAIComponent.MODE_PATROL,
+		"Stale police combat action ran after the wanted level cleared"
+	)
+	assert(police.get("_retaliation_target") == null)
+	assert(not police.combat_component.is_equipped())
 	dispatch.reset_for_load()
 
 	east_boundary.stats.set_heat(100.0)
@@ -362,6 +389,10 @@ func _run() -> void:
 	# present. A fresh nearby shooting must cancel their return, wake their AI,
 	# and bind them to the new incident instead of leaving them inert.
 	var returning_officer := first_response.officers[0] as PoliceNPC
+	wanted.set_wanted_level(1)
+	health.downed.emit()
+	assert(wanted.wanted_level == 0)
+	wanted.set_wanted_level(1)
 	health.respawn_completed.emit()
 	assert(wanted.wanted_level == 0)
 	assert(first_response.state == PoliceDispatchController.ResponseUnit.State.RETURNING)
