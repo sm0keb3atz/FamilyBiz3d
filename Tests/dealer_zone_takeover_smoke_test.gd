@@ -45,7 +45,7 @@ func _run() -> void:
 	assert(bool(has_level_one_by_territory.get(&"hood_east", false)))
 	assert(bool(has_level_one_by_territory.get(&"hood_west", false)))
 	assert(north.get_reinforcement_world_positions().size() == 2)
-	assert(world.get_node("Gameplay/EastDealer") is DealerNPC)
+	assert(not south.get_spawned_dealers().is_empty())
 	for _frame in range(120):
 		var presentations_ready := true
 		for north_dealer in north.get_living_dealers():
@@ -133,7 +133,12 @@ func _run() -> void:
 	var wallet := player.get_node("Components/WalletComponent") as PlayerWalletComponent
 	var inventory := player.get_node("Components/InventoryComponent") as PlayerInventoryComponent
 	var east := TerritoryBoundary.find_at_position(self, player.global_position)
-	var dealer := world.get_node("Gameplay/EastDealer") as DealerNPC
+	var dealer: DealerNPC
+	for south_dealer in south.get_spawned_dealers():
+		if south_dealer.zone_member_id == &"south_l1_primary":
+			dealer = south_dealer
+			break
+	assert(dealer != null)
 	var stock_before := dealer.get_stock_quantity(EconomyCatalog.WEED_1G)
 	var xp_before := stats.experience
 	var shop_menu := player.get_node("DealerShopMenu") as DealerShopMenu

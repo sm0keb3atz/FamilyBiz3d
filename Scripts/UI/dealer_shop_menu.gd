@@ -60,6 +60,11 @@ func open_for(dealer: DealerNPC) -> void:
 	_dealer = dealer
 	_is_open = true
 	menu_root.visible = true
+	var role := _dealer.get_role_component()
+	if role != null and not role.stock_changed.is_connected(
+		_on_dealer_stock_changed
+	):
+		role.stock_changed.connect(_on_dealer_stock_changed)
 	_dealer.begin_shop_interaction(player)
 	feedback_label.text = ""
 	_refresh()
@@ -75,7 +80,17 @@ func close() -> void:
 	_dealer = null
 	menu_root.visible = false
 	if is_instance_valid(closing_dealer):
+		var role := closing_dealer.get_role_component()
+		if role != null and role.stock_changed.is_connected(
+			_on_dealer_stock_changed
+		):
+			role.stock_changed.disconnect(_on_dealer_stock_changed)
 		closing_dealer.end_shop_interaction()
+
+
+func close_if_open_for(dealer: DealerNPC) -> void:
+	if _is_open and _dealer == dealer:
+		close()
 
 
 func _purchase(product: ProductDefinition, amount: int) -> void:
@@ -93,11 +108,17 @@ func _refresh() -> void:
 	if _dealer == null:
 		return
 
-	title_label.text = "DEALER"
-	level_label.text = _dealer.get_dealer_level_text()
+	var wholesaler := _dealer.is_wholesaler()
+	title_label.text = "WHOLESALER" if wholesaler else "DEALER"
+	if wholesaler:
+		level_label.text = "BULK BRICKS | %d MINIMUM" % (
+			_dealer.get_minimum_purchase_quantity()
+		)
+	else:
+		level_label.text = _dealer.get_dealer_level_text()
 	cash_label.text = "Dirty Cash: $%d" % wallet.dirty_cash
 	var cooldown := _dealer.get_cooldown_remaining()
-	cooldown_label.visible = cooldown > 0.0
+	cooldown_label.visible = not wholesaler and cooldown > 0.0
 	cooldown_label.text = "Restocking in %ds" % ceili(cooldown)
 
 	var items := _dealer.get_stock_items()
@@ -110,7 +131,11 @@ func _refresh() -> void:
 		stock_list.add_child(takeover_button)
 	if items.is_empty():
 		var empty_label := Label.new()
-		empty_label.text = "No stock right now."
+		empty_label.text = (
+			"Sold out until tomorrow."
+			if wholesaler
+			else "No stock right now."
+		)
 		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		stock_list.add_child(empty_label)
 		return
@@ -121,7 +146,18 @@ func _refresh() -> void:
 			continue
 		var quantity := int(item.get("quantity", 0))
 		var unit_price := int(item.get("unit_price", product.dealer_price))
-		stock_list.add_child(_create_stock_row(product, quantity, unit_price, cooldown))
+		if wholesaler:
+			stock_list.add_child(
+				_create_wholesaler_stock_row(
+					product,
+					quantity,
+					unit_price
+				)
+			)
+		else:
+			stock_list.add_child(
+				_create_stock_row(product, quantity, unit_price, cooldown)
+			)
 
 
 func _purchase_territory() -> void:
@@ -201,6 +237,130 @@ func _create_stock_row(
 	return panel
 
 
+func _create_wholesaler_stock_row(
+	product: ProductDefinition,
+	quantity: int,
+	unit_price: int
+) -> Control:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.055, 0.062, 0.072, 0.98),
+			Color(0.95, 0.58, 0.16, 0.55)
+		)
+	)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	panel.add_child(margin)
+
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 8)
+	margin.add_child(content)
+
+	var summary := HBoxContainer.new()
+	summary.add_theme_constant_override("separation", 12)
+	content.add_child(summary)
+
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = Vector2(48, 48)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = product.icon
+	summary.add_child(icon)
+
+	var text_box := VBoxContainer.new()
+	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	summary.add_child(text_box)
+
+	var name_label := Label.new()
+	name_label.text = product.display_name
+	name_label.add_theme_font_size_override("font_size", 20)
+	text_box.add_child(name_label)
+
+	var detail_label := Label.new()
+	detail_label.text = "Stock: %d | Owned: %d | $%d each" % [
+		quantity,
+		inventory.get_quantity(product),
+		unit_price,
+	]
+	detail_label.add_theme_color_override(
+		"font_color",
+		Color(0.72, 0.76, 0.82, 1.0)
+	)
+	text_box.add_child(detail_label)
+
+	var minimum := _dealer.get_minimum_purchase_quantity()
+	if quantity < minimum:
+		var sold_out_label := Label.new()
+		sold_out_label.text = (
+			"Less than the %d-brick minimum remains. Restocks tomorrow."
+			% minimum
+		)
+		sold_out_label.add_theme_color_override(
+			"font_color",
+			Color(0.95, 0.45, 0.3, 1.0)
+		)
+		content.add_child(sold_out_label)
+		return panel
+
+	var order_row := HBoxContainer.new()
+	order_row.add_theme_constant_override("separation", 8)
+	content.add_child(order_row)
+
+	var quantity_input := SpinBox.new()
+	quantity_input.min_value = minimum
+	quantity_input.max_value = quantity
+	quantity_input.step = 1.0
+	quantity_input.value = minimum
+	quantity_input.allow_greater = false
+	quantity_input.allow_lesser = false
+	quantity_input.custom_minimum_size = Vector2(110, 38)
+	order_row.add_child(quantity_input)
+
+	var max_button := Button.new()
+	max_button.text = "BUY ALL"
+	max_button.custom_minimum_size = Vector2(92, 38)
+	_style_button(max_button, Color(0.72, 0.42, 0.12, 1.0))
+	max_button.pressed.connect(
+		func() -> void:
+			quantity_input.value = quantity
+	)
+	order_row.add_child(max_button)
+
+	var total_label := Label.new()
+	total_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	total_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	order_row.add_child(total_label)
+
+	var purchase_button := Button.new()
+	purchase_button.text = "PURCHASE"
+	purchase_button.custom_minimum_size = Vector2(120, 38)
+	_style_button(purchase_button, Color(0.95, 0.58, 0.16, 1.0))
+	purchase_button.pressed.connect(
+		func() -> void:
+			_purchase(product, roundi(quantity_input.value))
+	)
+	order_row.add_child(purchase_button)
+
+	var refresh_total := func(_value: float) -> void:
+		var amount := roundi(quantity_input.value)
+		var total := unit_price * amount
+		total_label.text = "Total: $%d" % total
+		purchase_button.disabled = (
+			amount < minimum
+			or amount > quantity
+			or not wallet.can_spend_dirty(total)
+		)
+	quantity_input.value_changed.connect(refresh_total)
+	refresh_total.call(quantity_input.value)
+
+	return panel
+
+
 func _make_panel_style(fill: Color, border: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = fill
@@ -246,5 +406,10 @@ func _on_inventory_changed(
 
 
 func _on_money_changed(_dirty_cash: int, _clean_cash: int) -> void:
+	if _is_open:
+		_refresh()
+
+
+func _on_dealer_stock_changed() -> void:
 	if _is_open:
 		_refresh()

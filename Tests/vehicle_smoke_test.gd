@@ -88,7 +88,10 @@ func _run() -> void:
 	assert(player_visual.visible)
 	assert(on_foot_camera.current)
 
-	var npc := world.get_node("Gameplay/EastDealer") as BaseNPC
+	var east_dealer_zone := world.get_node(
+		"SpawnPoints/EastDealerZoneSouth"
+	) as DealerActivityZone3D
+	var npc := east_dealer_zone.get_spawned_dealers()[0] as BaseNPC
 	assert(
 		(npc as DealerNPC).role_component is DealerRoleComponent
 	)

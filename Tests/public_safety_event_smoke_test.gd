@@ -76,7 +76,10 @@ func _run() -> void:
 	assert(officer.ai_component.has_actionable_wanted_location())
 	var player_lkp: Vector3 = wanted.active_incident.last_known_player_position
 
-	var dealer := world.get_node("Gameplay/EastDealer") as DealerNPC
+	var east_dealer_zone := world.get_node(
+		"SpawnPoints/EastDealerZoneSouth"
+	) as DealerActivityZone3D
+	var dealer := east_dealer_zone.get_spawned_dealers()[0]
 	bus.publish_gunshot(
 		dealer,
 		player_lkp + Vector3(30.0, 0.0, 0.0),

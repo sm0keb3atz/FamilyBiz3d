@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 12
+const SAVE_VERSION := 13
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -91,8 +91,16 @@ func save_game() -> bool:
 			dealer != null
 			and dealer.activity_zone == null
 			and not dealer.is_temporary_war_attacker
+			and not dealer.is_wholesaler()
 		):
 			dealers[String(dealer.get_path())] = dealer.export_save_data()
+	var wholesalers := {}
+	for node in get_tree().get_nodes_in_group(&"wholesaler_spawn_point"):
+		var spawn_point := node as WholesalerSpawnPoint3D
+		if spawn_point != null:
+			wholesalers[String(spawn_point.territory_id)] = (
+				spawn_point.export_save_data()
+			)
 	var dealer_zones := {}
 	for node in get_tree().get_nodes_in_group(&"dealer_activity_zone"):
 		var zone := node as DealerActivityZone3D
@@ -105,6 +113,7 @@ func save_game() -> bool:
 		"territory_market": territory_market.export_save_data(),
 		"territory_encounter": territory_encounter.export_save_data(),
 		"territory_dealers": territory_dealers.export_save_data(),
+		"wholesalers": wholesalers,
 		"dealer_zones": dealer_zones,
 		"player": {
 			"position": _vector_to_array(
@@ -198,6 +207,17 @@ func load_game() -> bool:
 		data.get("territory_market", {}) as Dictionary,
 		world_time.get_date_key()
 	)
+	var wholesaler_data := data.get("wholesalers", {}) as Dictionary
+	for node in get_tree().get_nodes_in_group(&"wholesaler_spawn_point"):
+		var spawn_point := node as WholesalerSpawnPoint3D
+		if spawn_point == null:
+			continue
+		spawn_point.import_save_data(
+			wholesaler_data.get(
+				String(spawn_point.territory_id),
+				{}
+			) as Dictionary
+		)
 	var zone_data := data.get("dealer_zones", {}) as Dictionary
 	for node in get_tree().get_nodes_in_group(&"dealer_activity_zone"):
 		var zone := node as DealerActivityZone3D

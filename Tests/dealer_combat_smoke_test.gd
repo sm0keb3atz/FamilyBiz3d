@@ -15,7 +15,10 @@ func _run() -> void:
 	await physics_frame
 
 	var player := world.get_node("Gameplay/Player") as CharacterBody3D
-	var dealer := world.get_node("Gameplay/EastDealer") as DealerNPC
+	var east_dealer_zone := world.get_node(
+		"SpawnPoints/EastDealerZoneSouth"
+	) as DealerActivityZone3D
+	var dealer := east_dealer_zone.get_spawned_dealers()[0]
 	var other_dealer := world.get_node("Gameplay/WestDealer") as DealerNPC
 
 	for level in range(1, 5):

@@ -42,7 +42,9 @@ Reputation dictates the player's economic leverage and control over a neighborho
 
 ### 1. Pricing Dynamics
 * **The Rep Premium**: As the player's Rep in a territory grows, customers respect the player more and are willing to pay higher prices for product (up to +50% profit margins).
-* **Supplier Discounts**: Wholesalers operating in that territory will sell products cheaper to a highly-reputed player.
+* **Wholesale Market**: At `100` local Reputation, the territory wholesaler
+  uses that territory's daily brick quote. Traveling between unlocked
+  territories can expose a better product or price.
 
 ### 2. Empire Management & Automation
 * **Hiring Street Runners**: To automate dealing, the player can hire NPC runners to sell product. However, runners can only be assigned to a territory if the player has at least **30% Reputation** in that zone.
@@ -61,11 +63,20 @@ Reputation dictates the player's economic leverage and control over a neighborho
 * Customers refuse sales when their territory reaches `76` Heat.
 * Local supplier gates are Level 1 at `0` Rep, Level 2 at `15`, Level 3 at
   `40`, Level 4 at `80`, and wholesalers at `100`.
-* Locked suppliers remain visible and show their local Reputation requirement.
+* Locked street suppliers remain visible and show their local Reputation
+  requirement. Wholesalers do not physically spawn below `100` Reputation.
 * Each territory provides deterministic Level 2, 3, and 4 progression dealers
   alongside its starting Level 1 dealer. Level 1 dealers stock `40-50g` Weed;
   Level 2 dealers stock `60-80g` Weed and `8-15g` Coke; Level 3 dealers stock
   `60-80g` Coke and `8-15g` Fent with no Weed. Level 4 remains brick-tier.
+* Hood East and Hood West each have one wholesaler spawn point. At midnight,
+  every territory independently rolls one Weed, Coke, or Fent brick offer with
+  `50-100` units. Orders may be any whole number from `10` through the
+  remaining stock, and purchases enter carried inventory.
+* Wholesalers have `500` Health and a full-auto DRACO. A player-caused kill
+  awards `2,500` EXP and a searchable `$50,000` Dirty Cash reward, drops no
+  product, removes `25` local Reputation, and suppresses that wholesaler for
+  the rest of the day.
 
 ## Current Wanted Response
 

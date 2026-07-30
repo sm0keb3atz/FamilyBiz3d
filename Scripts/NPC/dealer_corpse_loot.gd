@@ -28,7 +28,11 @@ func can_interact(_player: CharacterBody3D) -> bool:
 
 
 func get_interaction_prompt(_player: CharacterBody3D) -> String:
-	return "E - Search Dealer"
+	return (
+		"E - Search Wholesaler"
+		if is_instance_valid(dealer) and dealer.is_wholesaler()
+		else "E - Search Dealer"
+	)
 
 
 func interact(player: CharacterBody3D) -> void:

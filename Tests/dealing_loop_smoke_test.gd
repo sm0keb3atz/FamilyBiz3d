@@ -167,7 +167,10 @@ func _run() -> void:
 	assert(level_two.get_interaction_prompt(player) == "E - Shop")
 	assert(level_three.get_interaction_prompt(player).contains("40"))
 
-	var level_one := world.get_node("Gameplay/EastDealer") as DealerNPC
+	var east_south_zone := world.get_node(
+		"SpawnPoints/EastDealerZoneSouth"
+	) as DealerActivityZone3D
+	var level_one := east_south_zone.get_spawned_dealers()[0]
 	level_one.configure_dealer(1, false)
 	var level_one_stock := level_one.get_stock_quantity(EconomyCatalog.WEED_1G)
 	assert(level_one_stock >= 40 and level_one_stock <= 50)

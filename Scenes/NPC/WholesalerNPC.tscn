@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/NPC/DealerNPC.tscn" id="1_dealer"]
+
+[node name="WholesalerNPC" instance=ExtResource("1_dealer")]
+
+[node name="RoleLabel" parent="." index="3"]
+text = "WHOLESALER"
+
+[node name="DamageableComponent" parent="." index="6"]
+maximum_health = 500.0
+
+[node name="RoleComponent" parent="Components" index="3"]
+dealer_level = 4
+is_wholesaler = true
+restock_cooldown = 0.0
+restock_on_ready = false

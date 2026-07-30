@@ -108,7 +108,10 @@ func _run() -> void:
 	# Dealer purchases and street sales use local quotes and preserve atomicity.
 	stats.import_save_data({"hustle": 1})
 	east.stats.set_reputation(15.0)
-	var dealer := world.get_node("Gameplay/EastDealer") as DealerNPC
+	var east_dealer_zone := world.get_node(
+		"SpawnPoints/EastDealerZoneSouth"
+	) as DealerActivityZone3D
+	var dealer := east_dealer_zone.get_spawned_dealers()[0]
 	dealer.configure_dealer(1, false)
 	var weed := EconomyCatalog.WEED_1G
 	var buy_quote := market.get_buy_quote(east.territory_id, weed)

@@ -3,7 +3,8 @@ extends NPCRoleComponent
 
 const DEALER_REP_REQUIREMENTS := [0.0, 15.0, 40.0, 80.0]
 const WHOLESALER_REP_REQUIREMENT := 100.0
-const STOCK_DATA_VERSION := 2
+const WHOLESALER_MINIMUM_ORDER := 10
+const STOCK_DATA_VERSION := 3
 
 signal stock_changed
 signal cooldown_changed(remaining: float)
@@ -32,6 +33,7 @@ func activate() -> void:
 	npc.add_to_group("dealer_npc")
 	npc.add_to_group("interactable_npc")
 	npc.add_to_group("interactable")
+	_refresh_role_groups()
 	if restock_on_ready and _stock.is_empty():
 		restock()
 	_refresh_role_label()
@@ -41,6 +43,7 @@ func activate() -> void:
 
 func deactivate() -> void:
 	npc.remove_from_group("dealer_npc")
+	npc.remove_from_group("wholesaler_npc")
 	npc.remove_from_group("interactable_npc")
 	npc.remove_from_group("interactable")
 	set_process(false)
@@ -60,8 +63,31 @@ func configure_dealer(level := 1, wholesaler := false) -> void:
 	dealer_level = clampi(level, 1, 4)
 	is_wholesaler = wholesaler
 	restock()
+	_refresh_role_groups()
 	_refresh_role_label()
 	_refresh_wholesaler_visibility()
+
+
+func configure_wholesaler_offer(
+	offer_product: ProductDefinition,
+	quantity: int
+) -> void:
+	dealer_level = 4
+	is_wholesaler = true
+	_player_operated = false
+	_cooldown_remaining = 0.0
+	_stock.clear()
+	_products.clear()
+	product = null
+	if offer_product != null and offer_product.is_brick():
+		_products[offer_product.product_id] = offer_product
+		_stock[offer_product.product_id] = maxi(quantity, 0)
+		product = offer_product
+	_refresh_role_groups()
+	_refresh_role_label()
+	_refresh_wholesaler_visibility()
+	stock_changed.emit()
+	cooldown_changed.emit(_cooldown_remaining)
 
 
 func set_fixed_progression_level(level: int) -> void:
@@ -125,6 +151,13 @@ func try_purchase(
 		)
 	if _cooldown_remaining > 0.0:
 		return "Dealer is restocking."
+	if is_wholesaler:
+		if not requested_product.is_brick():
+			return "Wholesalers only sell bricks."
+		if amount < WHOLESALER_MINIMUM_ORDER:
+			return "Wholesaler minimum order is %d bricks." % (
+				WHOLESALER_MINIMUM_ORDER
+			)
 
 	var available := get_stock_quantity(requested_product)
 	if available <= 0:
@@ -169,9 +202,11 @@ func restock() -> void:
 		cooldown_changed.emit(_cooldown_remaining)
 		return
 	if is_wholesaler:
-		_stock_product(EconomyCatalog.WEED_BRICK, _random.randi_range(8, 15))
-		_stock_product(EconomyCatalog.COKE_BRICK, _random.randi_range(8, 15))
-		_stock_product(EconomyCatalog.FENT_BRICK, _random.randi_range(8, 15))
+		product = null
+		_refresh_role_label()
+		stock_changed.emit()
+		cooldown_changed.emit(_cooldown_remaining)
+		return
 	else:
 		match dealer_level:
 			1:
@@ -256,6 +291,10 @@ func get_cooldown_remaining() -> float:
 	return _cooldown_remaining
 
 
+func get_minimum_purchase_quantity() -> int:
+	return WHOLESALER_MINIMUM_ORDER if is_wholesaler else 1
+
+
 func set_player_operated(enabled: bool) -> void:
 	_player_operated = enabled
 	if enabled:
@@ -326,6 +365,10 @@ func _stock_product(stock_product: ProductDefinition, amount: int) -> void:
 
 
 func _start_cooldown() -> void:
+	if is_wholesaler:
+		_cooldown_remaining = 0.0
+		cooldown_changed.emit(_cooldown_remaining)
+		return
 	_cooldown_remaining = restock_cooldown
 	cooldown_changed.emit(_cooldown_remaining)
 
@@ -350,6 +393,15 @@ func _refresh_wholesaler_visibility() -> void:
 		return
 	npc.visible = true
 	_refresh_role_label()
+
+
+func _refresh_role_groups() -> void:
+	if npc == null:
+		return
+	if is_wholesaler:
+		npc.add_to_group("wholesaler_npc")
+	else:
+		npc.remove_from_group("wholesaler_npc")
 
 
 func _refresh_role_label() -> void:

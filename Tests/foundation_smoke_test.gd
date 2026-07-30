@@ -22,7 +22,10 @@ func _run() -> void:
 		"Components/InventoryComponent"
 	) as PlayerInventoryComponent
 	var trade := player.get_node("Components/TradeService") as TradeService
-	var dealer := world.get_node("Gameplay/EastDealer") as DealerNPC
+	var east_dealer_zone := world.get_node(
+		"SpawnPoints/EastDealerZoneSouth"
+	) as DealerActivityZone3D
+	var dealer := east_dealer_zone.get_spawned_dealers()[0]
 	var east := TerritoryBoundary.find_at_position(self, Vector3(64, 0, 0))
 	var west := TerritoryBoundary.find_at_position(
 		self,

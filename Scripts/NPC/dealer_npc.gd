@@ -3,6 +3,9 @@ extends BaseNPC
 
 ## Dealer composition root. Shop behavior belongs to DealerRoleComponent.
 
+const WHOLESALER_KILL_EXPERIENCE := 2500.0
+const WHOLESALER_CORPSE_CASH := 50000
+
 @export_category("Bodyguard")
 @export_range(5.0, 40.0, 0.5) var bodyguard_target_radius := 18.0
 @export_range(5.0, 40.0, 0.5) var bodyguard_combat_leash_radius := 20.0
@@ -766,6 +769,16 @@ func get_cooldown_remaining() -> float:
 	return role.get_cooldown_remaining() if role != null else 0.0
 
 
+func is_wholesaler() -> bool:
+	var role := get_role_component()
+	return role != null and role.is_wholesaler
+
+
+func get_minimum_purchase_quantity() -> int:
+	var role := get_role_component()
+	return role.get_minimum_purchase_quantity() if role != null else 1
+
+
 func force_restock() -> void:
 	var role := get_role_component()
 	if role != null:
@@ -900,6 +913,8 @@ func _on_defeated(
 		activity_zone.handle_member_defeated(self, player_caused)
 		if player_caused:
 			_prepare_corpse_loot()
+	elif player_caused and is_wholesaler():
+		_prepare_corpse_loot()
 	var role := get_role_component()
 	if role != null:
 		role.deactivate()
@@ -968,6 +983,9 @@ func _grant_kill_experience(source: Node) -> void:
 	var role := get_role_component()
 	if stats == null or role == null:
 		return
+	if role.is_wholesaler:
+		stats.add_experience(WHOLESALER_KILL_EXPERIENCE)
+		return
 	var rewards := [25.0, 40.0, 60.0, 90.0]
 	stats.add_experience(rewards[clampi(role.dealer_level, 1, 4) - 1])
 
@@ -978,10 +996,22 @@ func _prepare_corpse_loot() -> void:
 	var role := get_role_component()
 	if role == null:
 		return
-	_corpse_stock = role.take_all_stock()
-	var ranges := [Vector2i(100, 250), Vector2i(250, 500), Vector2i(500, 1000), Vector2i(1000, 2000)]
-	var cash_range: Vector2i = ranges[clampi(role.dealer_level, 1, 4) - 1]
-	_corpse_cash = randi_range(cash_range.x, cash_range.y)
+	if role.is_wholesaler:
+		role.take_all_stock()
+		_corpse_stock.clear()
+		_corpse_cash = WHOLESALER_CORPSE_CASH
+	else:
+		_corpse_stock = role.take_all_stock()
+		var ranges := [
+			Vector2i(100, 250),
+			Vector2i(250, 500),
+			Vector2i(500, 1000),
+			Vector2i(1000, 2000),
+		]
+		var cash_range: Vector2i = ranges[
+			clampi(role.dealer_level, 1, 4) - 1
+		]
+		_corpse_cash = randi_range(cash_range.x, cash_range.y)
 	_corpse_loot_available = true
 	_corpse_loot_proxy = DealerCorpseLoot.new()
 	get_parent().add_child(_corpse_loot_proxy)

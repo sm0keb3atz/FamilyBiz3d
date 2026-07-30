@@ -32,6 +32,8 @@
 [ext_resource type="Script" uid="uid://dr5gmqlx3kmbg" path="res://Scripts/Gameplay/world_event_bus.gd" id="21_world_events"]
 [ext_resource type="Script" uid="uid://k2q7ly0d5j16" path="res://Scripts/Gameplay/evidence_service.gd" id="22_evidence"]
 [ext_resource type="Script" uid="uid://d1nqglg8ahtr1" path="res://Scripts/UI/public_safety_debug_overlay.gd" id="23_public_safety_debug"]
+[ext_resource type="PackedScene" path="res://Scenes/NPC/WholesalerNPC.tscn" id="24_wholesaler"]
+[ext_resource type="Script" uid="uid://cpp8dafwgu4nt" path="res://Scripts/NPC/wholesaler_spawn_point_3d.gd" id="24_wholesaler_spawn"]
 
 [sub_resource type="FastNoiseLite" id="CloudNoiseA"]
 seed = 3191
@@ -239,6 +241,18 @@ member_rotations_degrees = PackedFloat32Array(-90, 180, 90)
 activity_animations = PackedStringArray("LeaningOnWall2", "Idle", "Idle")
 required_interactable_index = 1
 reinforcement_positions = Array[Vector3]([Vector3(-14, 0, 6), Vector3(14, 0, 6)])
+
+[node name="EastWholesalerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=832376002]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 105.6322, 0.1, -33.143684)
+script = ExtResource("24_wholesaler_spawn")
+territory_id = &"hood_east"
+wholesaler_scene = ExtResource("24_wholesaler")
+
+[node name="WestWholesalerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=163589325]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96, 0.1, -269.3)
+script = ExtResource("24_wholesaler_spawn")
+territory_id = &"hood_west"
+wholesaler_scene = ExtResource("24_wholesaler")
 
 [node name="PoliceStation" type="Marker3D" parent="SpawnPoints" unique_id=1239783838]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 232.85915, 0.042448997, -89.31119)
