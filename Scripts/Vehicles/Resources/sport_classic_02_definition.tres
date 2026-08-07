@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="VehicleDefinition" load_steps=8 format=3]
+[ext_resource type="Script" path="res://Scripts/Vehicles/vehicle_definition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://Assets/MapStuff/Meshs/Vehicles/SK_veh_SportClassic_02.gltf" id="2"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarDoorOpen-Close.wav" id="3"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarStart.wav" id="4"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CorvetteIdle.wav" id="5"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarOff.wav" id="6"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/tires_squal_loop.wav" id="7"]
+[resource]
+script = ExtResource("1")
+vehicle_id = &"sport_classic_02"
+display_name = "Sport Classic 02"
+description = "The flagship sports car: light, fast, powerful, and planted under hard braking."
+purchase_price = 30000
+acceleration_rating = 5
+handling_rating = 5
+braking_rating = 5
+catalog_order = 9
+visual_scene = ExtResource("2")
+preserve_authored_wheel_positions = true
+collision_size = Vector3(1.95, 0.95, 4.5)
+collision_offset = Vector3(0, 0.72, 0)
+front_left_wheel_anchor = Vector3(0.797, 0.568836, 1.483)
+front_right_wheel_anchor = Vector3(-0.797, 0.568836, 1.483)
+rear_left_wheel_anchor = Vector3(0.797, 0.568836, -1.421)
+rear_right_wheel_anchor = Vector3(-0.797, 0.568836, -1.421)
+mass = 1100.0
+engine_force = 11000.0
+service_brake_force = 140.0
+max_forward_speed = 62.5
+max_steering_degrees = 35.0
+high_speed_steering_ratio = 0.38
+forward_gear_speed_limits = Array[float]([15.0, 26.25, 38.125, 49.375, 62.5])
+wheel_radius = 0.348836
+front_wheel_friction_slip = 1.95
+rear_wheel_friction_slip = 1.9
+downforce_coefficient = 20.0
+door_stream = ExtResource("3")
+start_stream = ExtResource("4")
+engine_stream = ExtResource("5")
+stop_stream = ExtResource("6")
+tire_screech_stream = ExtResource("7")

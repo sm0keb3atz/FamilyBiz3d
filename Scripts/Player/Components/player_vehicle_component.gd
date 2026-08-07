@@ -112,6 +112,17 @@ func get_effective_position() -> Vector3:
 	)
 
 
+func get_safe_save_position() -> Vector3:
+	if _current_vehicle == null:
+		return body.global_position
+	var vehicle: Variant = _current_vehicle
+	for marker_path in vehicle.exit_marker_paths:
+		var marker := vehicle.get_node_or_null(marker_path) as Marker3D
+		if marker != null:
+			return marker.global_position
+	return vehicle.global_position + vehicle.global_basis.x * 2.5
+
+
 func get_effective_velocity() -> Vector3:
 	return (
 		_current_vehicle.linear_velocity

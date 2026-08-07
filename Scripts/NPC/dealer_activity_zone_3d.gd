@@ -10,6 +10,7 @@ signal faction_changed(zone_id: StringName, faction: int)
 @export var faction := TerritoryStatsComponent.OwnerFaction.RIVAL
 @export var dealer_scene: PackedScene
 @export var member_ids := PackedStringArray()
+@export var player_only_member_ids := PackedStringArray()
 @export var dealer_levels := PackedInt32Array()
 @export var member_positions: Array[Vector3] = []
 @export var member_rotations_degrees := PackedFloat32Array()
@@ -65,6 +66,11 @@ func _initialize_runtime() -> void:
 func spawn_available_members() -> void:
 	for index in range(member_ids.size()):
 		var member_id := StringName(member_ids[index])
+		if (
+			faction != TerritoryStatsComponent.OwnerFaction.PLAYER
+			and String(member_id) in player_only_member_ids
+		):
+			continue
 		var state := _get_member_state(member_id)
 		if faction == TerritoryStatsComponent.OwnerFaction.PLAYER and not bool(state.get("employed", false)):
 			continue
@@ -185,6 +191,9 @@ func set_faction(value: int) -> void:
 			state["employed"] = false
 			_member_state[String(member_id)] = state
 			despawn_member(member_id)
+	else:
+		for member_id_text in player_only_member_ids:
+			despawn_member(StringName(member_id_text))
 	for dealer in _dealers.values():
 		if is_instance_valid(dealer):
 			var existing := dealer as DealerNPC
@@ -290,7 +299,11 @@ func get_spawned_dealers() -> Array[DealerNPC]:
 
 
 func get_required_member_count() -> int:
-	return member_ids.size()
+	var result := 0
+	for member_id in member_ids:
+		if String(member_id) not in player_only_member_ids:
+			result += 1
+	return result
 
 
 func get_living_member_count() -> int:
@@ -307,6 +320,8 @@ func has_completed_takeover_wipe() -> bool:
 	var stats := get_territory_stats()
 	var respawns_locked := stats != null and stats.reputation >= 100.0
 	for member_id in member_ids:
+		if String(member_id) in player_only_member_ids:
+			continue
 		var state := _get_member_state(StringName(member_id))
 		if respawns_locked and not bool(state.get("dead", false)):
 			return false

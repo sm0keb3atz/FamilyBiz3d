@@ -605,7 +605,9 @@ func prepare_for_pool_spawn(
 	reset_for_reuse()
 	_pool_active = true
 	_random.seed = random_seed
-	appearance_component.randomize_civilian_appearance(_random)
+	# Appearance is initialized once in _ready(). Keeping it stable while this
+	# NPC cycles through the pool avoids rebuilding clothing materials every
+	# time the population manager moves it back near the player.
 	_apply_crowd_variation()
 	_roll_roaming_walk_variant()
 	_apply_roaming_walk_variant()

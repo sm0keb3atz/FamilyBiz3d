@@ -29,6 +29,9 @@ const MAX_WANTED_LEVEL := 3
 @export_range(0.0, 10.0, 0.25) var escape_exit_grace := 2.0
 @export_range(0.001, 0.25, 0.005) var intelligence_confidence_decay := 0.035
 @export_range(0.0, 10.0, 0.25) var intelligence_uncertainty_growth := 1.5
+@export_category("Performance")
+@export_range(0.05, 2.0, 0.05) var territory_query_interval := 0.25
+@export_range(0.25, 10.0, 0.25) var territory_query_movement_threshold := 2.0
 
 @onready var player := get_node(player_path) as CharacterBody3D
 @onready var weapon_component := (
@@ -93,6 +96,9 @@ var _suspended_incident_data := {}
 var _importing_save_data := false
 var _last_visual_position := Vector3.ZERO
 var _last_visual_time := 0.0
+var _cached_player_boundary: TerritoryBoundary
+var _territory_query_remaining := 0.0
+var _territory_query_position := Vector3.INF
 
 
 func _ready() -> void:
@@ -130,10 +136,7 @@ func _process(delta: float) -> void:
 			visible_weapon_heat_per_second * delta
 		)
 	if _wanted_level == 0:
-		var boundary := TerritoryBoundary.find_at_position(
-			get_tree(),
-			player.global_position
-		)
+		var boundary := _get_cached_player_boundary(delta)
 		if (
 			boundary != null
 			and boundary.stats != null
@@ -141,6 +144,34 @@ func _process(delta: float) -> void:
 		):
 			_trigger_territory_id = boundary.territory_id
 			set_wanted_level(1)
+
+
+func _get_cached_player_boundary(delta: float) -> TerritoryBoundary:
+	_territory_query_remaining = maxf(
+		_territory_query_remaining - delta,
+		0.0
+	)
+	var moved_far_enough := (
+		not _territory_query_position.is_finite()
+		or _territory_query_position.distance_squared_to(player.global_position)
+		>= territory_query_movement_threshold * territory_query_movement_threshold
+	)
+	if (
+		not is_zero_approx(_territory_query_remaining)
+		and not moved_far_enough
+		and (
+			_cached_player_boundary == null
+			or is_instance_valid(_cached_player_boundary)
+		)
+	):
+		return _cached_player_boundary
+	_cached_player_boundary = TerritoryBoundary.find_at_position(
+		get_tree(),
+		player.global_position
+	)
+	_territory_query_position = player.global_position
+	_territory_query_remaining = territory_query_interval
+	return _cached_player_boundary
 
 
 func report_visible_weapon_witness() -> void:

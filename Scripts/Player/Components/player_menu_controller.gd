@@ -49,6 +49,22 @@ func close(menu_id: StringName) -> bool:
 	return true
 
 
+func replace_open(
+	current_menu_id: StringName,
+	next_menu_id: StringName
+) -> bool:
+	if (
+		_gameplay_locked
+		or active_menu != current_menu_id
+		or next_menu_id.is_empty()
+	):
+		return false
+	active_menu = next_menu_id
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	active_menu_changed.emit(active_menu)
+	return true
+
+
 func is_open(menu_id: StringName) -> bool:
 	return active_menu == menu_id
 

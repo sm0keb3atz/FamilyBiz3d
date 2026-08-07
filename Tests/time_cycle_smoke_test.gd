@@ -5,11 +5,31 @@ const WalletScript := preload("res://Scripts/Player/Components/player_wallet_com
 
 
 func _initialize() -> void:
-	var time: Node = TimeComponentScript.new()
+	call_deferred("_run")
+
+
+func _run() -> void:
+	var time: WorldTimeComponent = TimeComponentScript.new()
 	var wallet: Node = WalletScript.new()
+	var night_states: Array[bool] = []
+	time.night_state_changed.connect(
+		func(is_night: bool) -> void:
+			night_states.append(is_night)
+	)
 	root.add_child(time)
 	root.add_child(wallet)
 	time.connect_wallet(wallet)
+
+	assert(night_states == [false])
+	assert(time.set_time_of_day(19, 29))
+	assert(night_states == [false])
+	assert(time.set_time_of_day(19, 30))
+	assert(night_states == [false, true])
+	assert(time.set_time_of_day(20, 0))
+	assert(night_states == [false, true])
+	assert(time.set_time_of_day(6, 0))
+	assert(night_states == [false, true, false])
+	assert(time.set_time_of_day(8, 0))
 
 	assert(time.get_formatted_date() == "MON JAN 1")
 	assert(time.get_date_key() == "0001-01-01")

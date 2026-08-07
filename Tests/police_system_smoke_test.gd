@@ -16,11 +16,9 @@ func _run() -> void:
 	var east_manager := world.get_node(
 		"CivilianPopulationManager"
 	) as CivilianPopulationManager
-	var west_manager := world.get_node(
-		"WestPopulationManager"
-	) as CivilianPopulationManager
 	east_manager.set_population_enabled(false)
-	west_manager.set_population_enabled(false)
+	assert(world.get_node_or_null("WestPopulationManager") == null)
+	assert(east_manager.get_network_count() == 2)
 	await process_frame
 	await physics_frame
 
@@ -30,12 +28,6 @@ func _run() -> void:
 	east_manager.active_target = 15
 	assert(east_manager.populate_immediately(15) == 15)
 	assert(east_manager.get_active_police_count() == 1)
-	west_manager.minimum_spawn_distance = 0.0
-	west_manager.maximum_spawn_distance = 500.0
-	west_manager.high_detail_distance = 500.0
-	west_manager.active_target = 15
-	assert(west_manager.populate_immediately(15) == 15)
-	assert(west_manager.get_active_police_count() == 1)
 
 	var police := east_manager.get_active_police()[0]
 	assert(police.role_component is PoliceRoleComponent)
@@ -536,7 +528,12 @@ func _run() -> void:
 	# road intercept. Stopping permits pull-over, but moving again before the
 	# doors open cancels deployment and resumes the chase.
 	dispatch.reset_for_load()
-	var pursuit_vehicle := world.get_node("Gameplay/MuscleCar") as BaseVehicle
+	var pursuit_vehicle_scene := load(
+		"res://Scenes/Vehicles/MuscleCar.tscn"
+	) as PackedScene
+	var pursuit_vehicle := pursuit_vehicle_scene.instantiate() as BaseVehicle
+	pursuit_vehicle.name = "PoliceTestMuscleCar"
+	world.get_node("Gameplay").add_child(pursuit_vehicle)
 	pursuit_vehicle.global_position = player.global_position
 	assert(vehicle_component.enter_vehicle(pursuit_vehicle))
 	pursuit_vehicle.linear_velocity = Vector3.FORWARD * 8.0

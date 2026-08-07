@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="VehicleDefinition" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Vehicles/vehicle_definition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://Assets/MapStuff/Meshs/Vehicles/SK_veh_PickupOld_01.gltf" id="2"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarDoorOpen-Close.wav" id="3"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarStart.wav" id="4"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CorvetteIdle.wav" id="5"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarOff.wav" id="6"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/tires_squal_loop.wav" id="7"]
+
+[resource]
+script = ExtResource("1")
+vehicle_id = &"pickup_old"
+display_name = "Old Pickup"
+description = "An affordable workhorse with modest speed and forgiving utility-car handling."
+purchase_price = 6000
+acceleration_rating = 2
+handling_rating = 2
+braking_rating = 2
+catalog_order = 0
+visual_scene = ExtResource("2")
+preserve_authored_wheel_positions = true
+collision_size = Vector3(2.1, 1.25, 4.45)
+collision_offset = Vector3(0, 0.8, 0)
+front_left_wheel_anchor = Vector3(0.81, 0.55056, 1.66)
+front_right_wheel_anchor = Vector3(-0.81, 0.55056, 1.66)
+rear_left_wheel_anchor = Vector3(0.81, 0.55056, -1.298)
+rear_right_wheel_anchor = Vector3(-0.81, 0.55056, -1.298)
+mass = 1500.0
+engine_force = 6200.0
+service_brake_force = 85.0
+max_forward_speed = 31.0
+max_steering_degrees = 28.0
+high_speed_steering_ratio = 0.2
+forward_gear_speed_limits = Array[float]([7.44, 13.02, 18.91, 24.49, 31.0])
+wheel_radius = 0.33056
+front_wheel_friction_slip = 1.4
+rear_wheel_friction_slip = 1.35
+door_stream = ExtResource("3")
+start_stream = ExtResource("4")
+engine_stream = ExtResource("5")
+stop_stream = ExtResource("6")
+tire_screech_stream = ExtResource("7")

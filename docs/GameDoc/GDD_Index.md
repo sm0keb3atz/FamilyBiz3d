@@ -14,6 +14,7 @@ dirty money, and eventually manages a city-wide wholesale network.
 4. [Money and Economy System](GDD_Money_System.md)
 5. [Current Gameplay Foundation](GDD_Gameplay_Foundation.md)
 6. [Living Neighborhood and Business Roadmap](GDD_Living_Neighborhood_Roadmap.md)
+7. [Polish Pass 1](../Polish_Pass_1.md)
 
 ## Current Project Handoff
 
@@ -31,4 +32,5 @@ The player is component-based. Movement, animation, camera, stats, health,
 weapons, wallet, inventory, interaction, solicitation, appearance, and trading
 are separate child components beneath the player scene.
 
-`Scenes/Maps/test_map.tscn` remains an isolated development sandbox.
+`Scenes/Maps/test_map.tscn` remains an isolated development sandbox. The active
+next-stage checklist is [Polish Pass 1](../Polish_Pass_1.md).

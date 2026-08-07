@@ -32,6 +32,8 @@ signal daily_report_closed
 @onready var transaction_audio := %TransactionAudio as AudioStreamPlayer
 @onready var date_label := %DateLabel as Label
 @onready var time_label := %TimeLabel as Label
+@onready var court_divider := %CourtDivider as ColorRect
+@onready var court_date_list := %CourtDateList as VBoxContainer
 @onready var daily_report_overlay := %DailyReportOverlay as Control
 @onready var report_date_label := %ReportDateLabel as Label
 @onready var report_earned_label := %ReportEarnedLabel as Label
@@ -106,9 +108,7 @@ var _market: TerritoryMarketService
 var _current_territory_id: StringName = &""
 var _territory_refresh_remaining := 0.0
 var _territory_control_label: Label
-var _court_notice_panel: PanelContainer
-var _court_notice_label: Label
-var _court_notice_refresh_remaining := 0.0
+var _court_date_refresh_remaining := 0.0
 
 
 func _ready() -> void:
@@ -135,8 +135,8 @@ func _ready() -> void:
 	feedback_timer.timeout.connect(_on_feedback_timeout)
 	report_continue_button.pressed.connect(_close_daily_report)
 	if legal != null:
-		legal.legal_state_changed.connect(_refresh_court_notice)
-		_build_court_notice()
+		legal.legal_state_changed.connect(_refresh_court_dates)
+	_refresh_court_dates()
 	_market_products = EconomyCatalog.get_gram_products()
 	_build_market_quote_row()
 	_territory_control_label = Label.new()
@@ -151,10 +151,10 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	_court_notice_refresh_remaining -= delta
-	if _court_notice_refresh_remaining <= 0.0:
-		_court_notice_refresh_remaining = 1.0
-		_refresh_court_notice()
+	_court_date_refresh_remaining -= delta
+	if _court_date_refresh_remaining <= 0.0:
+		_court_date_refresh_remaining = 1.0
+		_refresh_court_dates()
 	_territory_refresh_remaining -= delta
 	if _territory_refresh_remaining <= 0.0:
 		_territory_refresh_remaining = territory_refresh_interval
@@ -171,56 +171,53 @@ func _process(delta: float) -> void:
 		hit_marker.visible = false
 
 
-func _build_court_notice() -> void:
-	_court_notice_panel = PanelContainer.new()
-	_court_notice_panel.name = "CourtNotice"
-	_court_notice_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_court_notice_panel.position = Vector2(-230, 82)
-	_court_notice_panel.custom_minimum_size = Vector2(460, 0)
-	_court_notice_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.03, 0.045, 0.06, 0.92)
-	style.border_color = Color(0.2, 0.8, 0.9, 0.8)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
-	style.set_content_margin_all(10)
-	_court_notice_panel.add_theme_stylebox_override("panel", style)
-	_court_notice_label = Label.new()
-	_court_notice_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_court_notice_label.add_theme_font_size_override("font_size", 14)
-	_court_notice_panel.add_child(_court_notice_label)
-	add_child(_court_notice_panel)
-	_refresh_court_notice()
-
-
-func _refresh_court_notice() -> void:
-	if _court_notice_panel == null or legal == null:
+func _refresh_court_dates() -> void:
+	for child in court_date_list.get_children():
+		court_date_list.remove_child(child)
+		child.queue_free()
+	if legal == null:
+		court_divider.visible = false
+		court_date_list.visible = false
 		return
 	var pending := legal.get_pending_cases()
-	_court_notice_panel.visible = not pending.is_empty()
-	if pending.is_empty():
-		return
-	var legal_case := pending[0]
-	var definition := legal.get_lawyer_definition(legal_case.assigned_lawyer_id)
-	var attorney := definition.display_name if definition != null else "Public Defender"
-	var minutes_left := legal_case.hearing_absolute_minute - (
-		get_tree().get_first_node_in_group(&"world_time") as WorldTimeComponent
-	).get_absolute_minute()
-	var warning := ""
-	if minutes_left <= 60 and minutes_left > 0:
-		warning = "  •  COURT WINDOW OPEN"
-	elif minutes_left <= WorldTimeComponent.MINUTES_PER_DAY:
-		warning = "  •  24-HOUR WARNING"
-	_court_notice_label.text = (
-		"COURT %s  •  %s\n%s  •  %s%s"
-		% [
-			legal_case.case_id,
-			attorney,
-			legal.get_hearing_datetime_text(legal_case),
-			legal.get_hearing_countdown_text(legal_case),
-			warning,
-		]
-	)
+	var has_court_dates := not pending.is_empty()
+	court_divider.visible = has_court_dates
+	court_date_list.visible = has_court_dates
+	for legal_case in pending:
+		_add_court_date_row(legal_case)
+
+
+func _add_court_date_row(legal_case: LegalCase) -> void:
+	var row := VBoxContainer.new()
+	row.name = "CourtDateRow"
+	row.add_theme_constant_override("separation", 0)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var case_label := Label.new()
+	case_label.text = "CASE: %s" % legal_case.case_id.trim_prefix("CASE-")
+	case_label.add_theme_color_override("font_color", Color(0.42, 0.74, 0.95))
+	case_label.add_theme_font_size_override("font_size", 11)
+	row.add_child(case_label)
+	var hearing_label := Label.new()
+	hearing_label.text = _get_compact_hearing_datetime(legal_case)
+	hearing_label.add_theme_color_override("font_color", Color(0.78, 0.84, 0.92))
+	hearing_label.add_theme_font_size_override("font_size", 13)
+	row.add_child(hearing_label)
+	var countdown_label := Label.new()
+	countdown_label.text = legal.get_hearing_countdown_text(legal_case).to_upper()
+	countdown_label.add_theme_color_override("font_color", Color(1.0, 0.72, 0.28))
+	countdown_label.add_theme_font_size_override("font_size", 13)
+	row.add_child(countdown_label)
+	court_date_list.add_child(row)
+
+
+func _get_compact_hearing_datetime(legal_case: LegalCase) -> String:
+	var full_text := legal.get_hearing_datetime_text(legal_case).to_upper()
+	var date_and_time := full_text.split(" AT ", false, 1)
+	if date_and_time.size() < 2:
+		return full_text
+	var date_parts := date_and_time[0].split(", ")
+	var month_and_day := date_parts[1] if date_parts.size() > 1 else date_and_time[0]
+	return "%s  •  %s" % [month_and_day, date_and_time[1]]
 
 
 func _refresh_territory() -> void:

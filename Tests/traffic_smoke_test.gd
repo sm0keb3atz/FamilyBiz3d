@@ -578,7 +578,12 @@ func _run() -> void:
 	assert(west_network.get_validation_errors().is_empty())
 
 	var player := world.get_node("Gameplay/Player") as CharacterBody3D
-	var parked_vehicle: BaseVehicle = world.get_node("Gameplay/MuscleCar")
+	var parked_vehicle_scene := load(
+		"res://Scenes/Vehicles/MuscleCar.tscn"
+	) as PackedScene
+	var parked_vehicle := parked_vehicle_scene.instantiate() as BaseVehicle
+	parked_vehicle.name = "TrafficTestMuscleCar"
+	world.get_node("Gameplay").add_child(parked_vehicle)
 	assert(parked_vehicle.drive_component is VehicleDriveComponent)
 	parked_vehicle.drive_component.set_ai_control(0.5, 0.0, 0.1)
 	assert(parked_vehicle.drive_component.is_ai_control_enabled())
@@ -588,12 +593,9 @@ func _run() -> void:
 	var east_manager := world.get_node(
 		"TrafficPopulationManager"
 	) as TrafficPopulationManager
-	var west_manager := world.get_node(
-		"WestTrafficPopulationManager"
-	) as TrafficPopulationManager
 	assert(east_manager != null)
-	assert(west_manager != null)
-	west_manager.set_population_enabled(false)
+	assert(world.get_node_or_null("WestTrafficPopulationManager") == null)
+	assert(world.get_node_or_null("Navigation/HoodWestTrafficNetwork") != null)
 	east_manager.set_population_enabled(false)
 	east_manager.minimum_spawn_distance = 0.0
 	east_manager.maximum_spawn_distance = 500.0

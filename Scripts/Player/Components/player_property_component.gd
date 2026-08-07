@@ -3,6 +3,7 @@ extends Node
 
 signal ownership_changed(property_id: StringName, owned: bool)
 signal stash_changed(property_id: StringName)
+signal brick_station_changed(property_id: StringName)
 signal business_state_changed(property_id: StringName)
 signal business_sale_processed(
 	property_id: StringName,
@@ -144,6 +145,149 @@ func process_businesses_to(target_absolute_minute: int) -> void:
 			business_state_changed.emit(property_id)
 
 
+func process_properties_to(target_absolute_minute: int) -> void:
+	process_businesses_to(target_absolute_minute)
+	process_brick_stations_to(target_absolute_minute)
+
+
+func process_brick_stations_to(target_absolute_minute: int) -> void:
+	if target_absolute_minute < 0:
+		return
+	for definition in get_owned_definitions():
+		if not definition.is_stash_house():
+			continue
+		var property_id := definition.property_id
+		var stash := _ensure_stash(property_id)
+		var station := stash.get("brick_station", {}) as Dictionary
+		if not bool(station.get("installed", false)):
+			continue
+		var selected_id := StringName(
+			station.get("selected_product_id", "")
+		)
+		if selected_id.is_empty():
+			continue
+		var interval := definition.brick_station_interval_minutes
+		if interval <= 0:
+			continue
+		var next_minute := int(station.get("next_process_minute", -1))
+		if next_minute < 0:
+			station["next_process_minute"] = target_absolute_minute + interval
+			stash["brick_station"] = station
+			brick_station_changed.emit(property_id)
+			continue
+		var changed := false
+		var stash_changed_during_processing := false
+		while next_minute <= target_absolute_minute:
+			var result := _try_process_stashed_brick(
+				property_id,
+				selected_id
+			)
+			station["last_block_reason"] = String(
+				result.get("block_reason", "")
+			)
+			stash_changed_during_processing = (
+				bool(result.get("processed", false))
+				or stash_changed_during_processing
+			)
+			next_minute += interval
+			changed = true
+		station["next_process_minute"] = next_minute
+		stash["brick_station"] = station
+		if stash_changed_during_processing:
+			stash_changed.emit(property_id)
+		if changed:
+			brick_station_changed.emit(property_id)
+
+
+func purchase_brick_station(
+	property_id: StringName,
+	current_absolute_minute: int
+) -> bool:
+	var definition := PropertyCatalog.get_by_id(property_id)
+	if (
+		definition == null
+		or not definition.is_stash_house()
+		or not owns(property_id)
+		or definition.brick_station_cost <= 0
+	):
+		return false
+	var stash := _ensure_stash(property_id)
+	var station := stash.get("brick_station", {}) as Dictionary
+	if bool(station.get("installed", false)):
+		return false
+	if not wallet.spend_clean(definition.brick_station_cost):
+		return false
+	station["installed"] = true
+	station["selected_product_id"] = ""
+	station["next_process_minute"] = -1
+	station["last_block_reason"] = ""
+	stash["brick_station"] = station
+	brick_station_changed.emit(property_id)
+	return true
+
+
+func set_brick_station_product(
+	property_id: StringName,
+	product_id: StringName,
+	current_absolute_minute: int
+) -> bool:
+	if not owns(property_id) or not _is_stash_house(property_id):
+		return false
+	var stash := _ensure_stash(property_id)
+	var station := stash.get("brick_station", {}) as Dictionary
+	if not bool(station.get("installed", false)):
+		return false
+	var selected_id := product_id
+	if not selected_id.is_empty():
+		var product := EconomyCatalog.get_product(selected_id)
+		if product == null or not product.can_break_down():
+			return false
+	var previous_id := StringName(station.get("selected_product_id", ""))
+	if previous_id == selected_id:
+		return true
+	station["selected_product_id"] = String(selected_id)
+	station["last_block_reason"] = ""
+	if selected_id.is_empty():
+		station["next_process_minute"] = -1
+	elif previous_id.is_empty() or int(
+		station.get("next_process_minute", -1)
+	) < 0:
+		var definition := PropertyCatalog.get_by_id(property_id)
+		station["next_process_minute"] = (
+			maxi(current_absolute_minute, 0)
+			+ definition.brick_station_interval_minutes
+		)
+	stash["brick_station"] = station
+	brick_station_changed.emit(property_id)
+	return true
+
+
+func get_brick_station_state(property_id: StringName) -> Dictionary:
+	if not _is_stash_house(property_id):
+		return {}
+	var station := (
+		_ensure_stash(property_id).get("brick_station", {}) as Dictionary
+	)
+	return station.duplicate(true)
+
+
+func get_owned_stash_definitions(
+	territory_id: StringName = &""
+) -> Array[PropertyDefinition]:
+	var result: Array[PropertyDefinition] = []
+	for definition in PropertyCatalog.get_all():
+		if (
+			definition.is_stash_house()
+			and owns(definition.property_id)
+			and (
+				territory_id.is_empty()
+				or definition.territory_id == territory_id
+			)
+		):
+			result.append(definition)
+	return result
+
+
 func settle_business_earnings() -> int:
 	var deposited := 0
 	for property_id in PropertyCatalog.BUSINESS_IDS:
@@ -243,6 +387,73 @@ func get_territory_stash_summary(territory_id: StringName, products: Array[Produ
 			result.product_units += quantity
 		stashes.append(entry)
 	return result
+
+
+func get_property_supply_summary(
+	property_id: StringName,
+	products: Array[ProductDefinition]
+) -> Dictionary:
+	var definition := PropertyCatalog.get_by_id(property_id)
+	if (
+		definition == null
+		or not definition.is_stash_house()
+		or not owns(property_id)
+	):
+		return {
+			"property_id": property_id,
+			"display_name": (
+				definition.display_name if definition != null else ""
+			),
+			"dirty_cash": 0,
+			"product_units": 0,
+			"products": {},
+		}
+	var result := {
+		"property_id": property_id,
+		"display_name": definition.display_name,
+		"dirty_cash": get_stashed_dirty_cash(property_id),
+		"product_units": 0,
+		"products": {},
+	}
+	var totals := result.products as Dictionary
+	for product in products:
+		if product == null:
+			continue
+		var quantity := get_stashed_product_quantity(property_id, product)
+		totals[String(product.product_id)] = quantity
+		result.product_units += quantity
+	return result
+
+
+func process_property_dealer_sale(
+	property_id: StringName,
+	product: ProductDefinition,
+	amount: int,
+	net_dirty_cash: int
+) -> bool:
+	if (
+		product == null
+		or amount <= 0
+		or net_dirty_cash < 0
+		or not owns(property_id)
+		or not _is_stash_house(property_id)
+	):
+		return false
+	var stash := _ensure_stash(property_id)
+	var products := stash.get("products", {}) as Dictionary
+	var key := String(product.product_id)
+	var stored := int(products.get(key, 0))
+	if stored < amount:
+		return false
+	products[key] = stored - amount
+	if int(products[key]) <= 0:
+		products.erase(key)
+	stash["products"] = products
+	stash["dirty_cash"] = (
+		int(stash.get("dirty_cash", 0)) + net_dirty_cash
+	)
+	stash_changed.emit(property_id)
+	return true
 
 
 func process_territory_dealer_sale(territory_id: StringName, product: ProductDefinition,
@@ -423,7 +634,16 @@ func reset_to_new_game() -> void:
 
 func _ensure_stash(property_id: StringName) -> Dictionary:
 	if not _stashes.has(property_id):
-		_stashes[property_id] = {"dirty_cash": 0, "products": {}, "weapons": {}}
+		_stashes[property_id] = {
+			"dirty_cash": 0,
+			"products": {},
+			"weapons": {},
+			"brick_station": _default_brick_station(),
+		}
+	elif not (_stashes[property_id] as Dictionary).has("brick_station"):
+		(_stashes[property_id] as Dictionary)["brick_station"] = (
+			_default_brick_station()
+		)
 	return _stashes[property_id]
 
 
@@ -452,7 +672,14 @@ func _is_front_business(property_id: StringName) -> bool:
 
 
 func _sanitize_stash(source: Dictionary) -> Dictionary:
-	var result := {"dirty_cash": maxi(int(source.get("dirty_cash", 0)), 0), "products": {}, "weapons": {}}
+	var result := {
+		"dirty_cash": maxi(int(source.get("dirty_cash", 0)), 0),
+		"products": {},
+		"weapons": {},
+		"brick_station": _sanitize_brick_station(
+			source.get("brick_station", {}) as Dictionary
+		),
+	}
 	var source_products := source.get("products", {}) as Dictionary
 	var products := result["products"] as Dictionary
 	for product in EconomyCatalog.get_all_products():
@@ -469,6 +696,67 @@ func _sanitize_stash(source: Dictionary) -> Dictionary:
 			copy["weapon_id"] = key
 			weapons[key] = copy
 	return result
+
+
+func _default_brick_station() -> Dictionary:
+	return {
+		"installed": false,
+		"selected_product_id": "",
+		"next_process_minute": -1,
+		"last_block_reason": "",
+	}
+
+
+func _sanitize_brick_station(source: Dictionary) -> Dictionary:
+	var result := _default_brick_station()
+	result["installed"] = bool(source.get("installed", false))
+	if not bool(result.installed):
+		return result
+	var selected_id := StringName(source.get("selected_product_id", ""))
+	var product := EconomyCatalog.get_product(selected_id)
+	if (
+		not selected_id.is_empty()
+		and product != null
+		and product.can_break_down()
+	):
+		result["selected_product_id"] = String(selected_id)
+		result["next_process_minute"] = maxi(
+			int(source.get("next_process_minute", -1)),
+			-1
+		)
+	result["last_block_reason"] = String(
+		source.get("last_block_reason", "")
+	)
+	return result
+
+
+func _try_process_stashed_brick(
+	property_id: StringName,
+	product_id: StringName
+) -> Dictionary:
+	var product := EconomyCatalog.get_product(product_id)
+	if product == null or not product.can_break_down():
+		return {"processed": false, "block_reason": "INVALID PRODUCT"}
+	var stash := _ensure_stash(property_id)
+	var products := stash.get("products", {}) as Dictionary
+	var brick_key := String(product.product_id)
+	if int(products.get(brick_key, 0)) <= 0:
+		return {"processed": false, "block_reason": "NO BRICKS"}
+	var extra_capacity := maxi(product.breakdown_amount - 1, 0)
+	if get_stash_remaining_capacity(property_id) < extra_capacity:
+		return {
+			"processed": false,
+			"block_reason": "NEED %d FREE CAPACITY" % extra_capacity,
+		}
+	products[brick_key] = int(products.get(brick_key, 0)) - 1
+	if int(products[brick_key]) <= 0:
+		products.erase(brick_key)
+	var output_key := String(product.breakdown_product.product_id)
+	products[output_key] = (
+		int(products.get(output_key, 0)) + product.breakdown_amount
+	)
+	stash["products"] = products
+	return {"processed": true, "block_reason": ""}
 
 
 func _sanitize_business(property_id: StringName, source: Dictionary) -> Dictionary:

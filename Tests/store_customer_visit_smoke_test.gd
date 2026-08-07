@@ -15,11 +15,7 @@ func _run() -> void:
 	var east_manager := world.get_node(
 		"CivilianPopulationManager"
 	) as CivilianPopulationManager
-	var west_manager := world.get_node(
-		"WestPopulationManager"
-	) as CivilianPopulationManager
 	east_manager.set_population_enabled(false)
-	west_manager.set_population_enabled(false)
 	await process_frame
 	await physics_frame
 

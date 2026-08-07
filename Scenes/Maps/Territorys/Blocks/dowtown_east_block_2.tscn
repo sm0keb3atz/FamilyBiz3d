@@ -7,6 +7,7 @@
 [ext_resource type="ArrayMesh" uid="uid://dt4uhxypni1" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_grass_00.glb" id="6_sxkrs"]
 [ext_resource type="PackedScene" uid="uid://bdf6ktmg8vqp4" path="res://Scenes/Maps/Buildings/hospital.tscn" id="7_7b27w"]
 [ext_resource type="ArrayMesh" uid="uid://bkgfypoi0u130" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_base.glb" id="7_y0wen"]
+[ext_resource type="PackedScene" uid="uid://dtsnn7u32lhtp" path="res://Scenes/Maps/Buildings/CarDealership.tscn" id="8_nwwl1"]
 
 [node name="DowtownEastBlock2" type="Node3D" unique_id=850949276]
 
@@ -597,5 +598,10 @@ mesh = ExtResource("7_y0wen")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 24, 0, 4)
 mesh = ExtResource("7_y0wen")
 
-[node name="Hospital" parent="." unique_id=531031736 instance=ExtResource("7_7b27w")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66.6, 0, -50.2)
+[node name="Buildings" type="Node3D" parent="." unique_id=1993063817]
+
+[node name="Hospital" parent="Buildings" unique_id=531031736 instance=ExtResource("7_7b27w")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 115.799995, 0, -88.3)
+
+[node name="CarDealership" parent="." unique_id=1778244247 instance=ExtResource("8_nwwl1")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 56.7, 0.001, -37.12)

@@ -55,6 +55,9 @@
 [ext_resource type="Script" path="res://Scripts/Player/Components/player_legal_component.gd" id="69_legal"]
 [ext_resource type="Script" path="res://Scripts/UI/lawyer_menu.gd" id="70_lawyer_menu"]
 [ext_resource type="Script" path="res://Scripts/UI/legal_hearing_menu.gd" id="71_hearing_menu"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_vehicle_garage_component.gd" id="72_vehicle_garage"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/car_dealership_service.gd" id="73_car_dealership_service"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/CarDealershipMenu.tscn" id="74_car_dealership_menu"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/PropertyPurchaseMenu.tscn" id="67_property_purchase"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/PropertyStashMenu.tscn" id="68_property_stash"]
 [ext_resource type="AudioStream" uid="uid://dkocn7g7w2ix0" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Reload 1.wav" id="28_reload_1"]
@@ -571,6 +574,12 @@ script = ExtResource("20_menu_controller")
 [node name="VehicleComponent" type="Node" parent="Components" unique_id=158450184]
 script = ExtResource("36_vehicle")
 
+[node name="VehicleGarageComponent" type="Node" parent="Components"]
+script = ExtResource("72_vehicle_garage")
+
+[node name="CarDealershipService" type="Node" parent="Components"]
+script = ExtResource("73_car_dealership_service")
+
 [node name="WantedComponent" type="Node" parent="Components" unique_id=1685604560]
 script = ExtResource("37_wanted")
 
@@ -612,6 +621,8 @@ script = ExtResource("16_gift_menu")
 [node name="GunStoreMenu" parent="." instance=ExtResource("22_gun_store_menu")]
 
 [node name="ClothingStoreMenu" parent="." instance=ExtResource("22_clothing_store_menu")]
+
+[node name="CarDealershipMenu" parent="." instance=ExtResource("74_car_dealership_menu")]
 
 [node name="PropertyPurchaseMenu" parent="." instance=ExtResource("67_property_purchase")]
 

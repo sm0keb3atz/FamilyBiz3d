@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="VehicleDefinition" load_steps=8 format=3]
+[ext_resource type="Script" path="res://Scripts/Vehicles/vehicle_definition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://Assets/MapStuff/Meshs/Vehicles/SK_veh_Offroad_01.gltf" id="2"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarDoorOpen-Close.wav" id="3"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarStart.wav" id="4"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CorvetteIdle.wav" id="5"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarOff.wav" id="6"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/tires_squal_loop.wav" id="7"]
+[resource]
+script = ExtResource("1")
+vehicle_id = &"offroad"
+display_name = "Offroad"
+description = "A short-wheelbase offroader with long suspension travel and quick low-speed response."
+purchase_price = 14000
+acceleration_rating = 3
+handling_rating = 4
+braking_rating = 3
+catalog_order = 4
+visual_scene = ExtResource("2")
+preserve_authored_wheel_positions = true
+collision_size = Vector3(1.75, 1.55, 3.45)
+collision_offset = Vector3(0, 0.95, -0.1)
+front_left_wheel_anchor = Vector3(0.649, 0.653241, 1.069)
+front_right_wheel_anchor = Vector3(-0.649, 0.653241, 1.069)
+rear_left_wheel_anchor = Vector3(0.649, 0.653241, -1.262)
+rear_right_wheel_anchor = Vector3(-0.649, 0.653241, -1.262)
+mass = 1400.0
+center_of_mass_height = 0.05
+engine_force = 8400.0
+service_brake_force = 100.0
+max_forward_speed = 36.0
+max_steering_degrees = 38.0
+high_speed_steering_ratio = 0.3
+forward_gear_speed_limits = Array[float]([8.64, 15.12, 21.96, 28.44, 36.0])
+wheel_radius = 0.373241
+suspension_rest_length = 0.28
+suspension_travel = 0.24
+suspension_stiffness = 48.0
+front_wheel_friction_slip = 1.75
+rear_wheel_friction_slip = 1.7
+anti_roll_stiffness = 28000.0
+door_stream = ExtResource("3")
+start_stream = ExtResource("4")
+engine_stream = ExtResource("5")
+stop_stream = ExtResource("6")
+tire_screech_stream = ExtResource("7")

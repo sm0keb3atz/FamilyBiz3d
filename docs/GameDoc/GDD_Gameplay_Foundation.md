@@ -94,7 +94,36 @@ market date and dealer quotes. Missing market data from an older save generates 
 set for the loaded date. Damaged or incompatible data is rejected without
 changing the current state.
 
-## Deferred Systems
+## Current Integrated Systems
 
-Police AI, arrests, stash houses, laundering, properties, and automated dealers
-are future milestones built on this foundation.
+The following systems are implemented as part of the gameplay foundation and
+are now subject to Polish Pass 1 review rather than being treated as future
+milestones:
+
+- purchasable stash-house properties with persistent storage, wardrobes, beds,
+  and brick-breakdown stations;
+- front businesses with Dirty Cash restocking and passive Clean Cash earnings;
+- automated player dealers supplied by owned-territory stash inventory;
+- wholesalers, brick inventory, and brick processing;
+- police response, arrests, court hearings, retained lawyers, and legal
+  services;
+- girlfriend recruitment and management gated by Aura;
+- pooled civilians, traffic, dealer activity zones, and police dispatch;
+- vehicles, weapons, combat, clothing, time, and component-based save/load.
+
+## Current Map Status
+
+The permanent world currently registers Hood East and Hood West as active
+territories. Downtown East, Downtown West, Suburbs East, and Suburbs West are
+the remaining city-completion work tracked by
+[Polish Pass 1](../Polish_Pass_1.md). Every completed territory must use a
+stable permanent ID and be fully connected to territory, economy, population,
+mobility, event, and save systems.
+
+## Polish Pass Scope
+
+Polish Pass 1 is the active next-stage plan. It refines all player-facing
+systems, adds only event/depth work that improves existing loops, establishes
+performance and presentation standards, and completes the six-territory city.
+It does not commit the project to physical-cash laundering, audit mechanics,
+delivery logistics, or office-style executive management.

@@ -4,6 +4,12 @@ extends Resource
 @export_category("Identity")
 @export var vehicle_id: StringName = &"vehicle"
 @export var display_name := "Vehicle"
+@export_multiline var description := ""
+@export_range(0, 100000000, 1) var purchase_price := 0
+@export_range(1, 5, 1) var acceleration_rating := 1
+@export_range(1, 5, 1) var handling_rating := 1
+@export_range(1, 5, 1) var braking_rating := 1
+@export var catalog_order := 0
 @export var visual_scene: PackedScene
 @export var visual_rotation_degrees := Vector3(0.0, -90.0, 0.0)
 @export var visual_offset := Vector3.ZERO
@@ -126,6 +132,7 @@ extends Resource
 @export_range(0, 100000, 1) var engine_loop_end := 29350
 
 @export_category("Wheel Bones")
+@export var preserve_authored_wheel_positions := false
 @export var front_left_bone := &"wheelFL"
 @export var front_right_bone := &"wheelFR"
 @export var rear_left_bone := &"wheelRL"

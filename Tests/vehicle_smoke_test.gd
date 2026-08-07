@@ -17,7 +17,14 @@ func _run() -> void:
 	await physics_frame
 
 	var player := world.get_node("Gameplay/Player") as CharacterBody3D
-	var vehicle: Variant = world.get_node("Gameplay/MuscleCar")
+	var vehicle_scene := load(
+		"res://Scenes/Vehicles/MuscleCar.tscn"
+	) as PackedScene
+	var vehicle: Variant = vehicle_scene.instantiate()
+	world.get_node("Gameplay").add_child(vehicle)
+	vehicle.global_position = Vector3(60, 1, -5)
+	await process_frame
+	await physics_frame
 	var vehicle_component: Variant = player.get_node(
 		"Components/VehicleComponent"
 	)

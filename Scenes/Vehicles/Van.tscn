@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://Scenes/Vehicles/BaseVehicle.tscn" id="1"]
+[ext_resource type="Resource" path="res://Scripts/Vehicles/Resources/van_definition.tres" id="2"]
+[node name="Van" instance=ExtResource("1")]
+definition = ExtResource("2")
+[node name="DriverMarker" parent="." index="6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.46, 1.0, 0.55)
+[node name="ExitLeft" parent="." index="7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7, 0.05, 0.55)
+[node name="ExitRight" parent="." index="8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7, 0.05, 0.55)
+[node name="CameraPivot" parent="." index="9"]
+transform = Transform3D(1, 0, 0, 0, 0.9848077, 0.17364825, 0, -0.17364825, 0.9848077, 0, 2.3, 0)
+[node name="TailpipeExhaust" parent="." index="11"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.52, 0.48, -2.45)

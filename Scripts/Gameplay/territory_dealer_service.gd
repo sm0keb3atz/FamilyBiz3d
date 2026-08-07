@@ -54,8 +54,16 @@ func _connect_runtime() -> void:
 		var callback := _on_zone_member_defeated.bind(zone)
 		if not zone.member_defeated.is_connected(callback):
 			zone.member_defeated.connect(callback)
+	if (
+		properties != null
+		and not properties.ownership_changed.is_connected(
+			_on_property_ownership_changed
+		)
+	):
+		properties.ownership_changed.connect(_on_property_ownership_changed)
 	for territory_id in _owned_territory_ids():
 		_ensure_territory(territory_id)
+		_migrate_property_assignments(territory_id)
 		_apply_staffing(territory_id)
 
 
@@ -85,8 +93,18 @@ func process_to(target_minute: int) -> void:
 				state_changed.emit(territory_id)
 
 
-func hire_dealer(territory_id: StringName, zone_id: StringName, member_id: StringName) -> bool:
+func hire_dealer(
+	territory_id: StringName,
+	zone_id: StringName,
+	member_id: StringName,
+	property_id: StringName = &""
+) -> bool:
 	if not _is_player_owned(territory_id):
+		return false
+	var assigned_property_id := property_id
+	if assigned_property_id.is_empty():
+		assigned_property_id = _find_available_property(territory_id)
+	if not _can_assign_property(territory_id, assigned_property_id):
 		return false
 	var zone := _find_zone(zone_id)
 	if zone == null or zone.territory_id != territory_id or zone.member_ids.find(String(member_id)) < 0:
@@ -102,6 +120,7 @@ func hire_dealer(territory_id: StringName, zone_id: StringName, member_id: Strin
 	var state := previous if not previous.is_empty() else _new_slot_state(zone, member_id)
 	state.level = level
 	state.employed = true
+	state.property_id = String(assigned_property_id)
 	state.duty = DUTY_WORKING
 	state.paused_sale_minutes = -1
 	state.follow_slot = -1
@@ -121,6 +140,7 @@ func fire_dealer(territory_id: StringName, zone_id: StringName, member_id: Strin
 	var was_following := StringName(state.get("duty", DUTY_WORKING)) == DUTY_FOLLOWING
 	state.employed = false
 	state.level = 1
+	state.property_id = ""
 	state.duty = DUTY_WORKING
 	state.paused_sale_minutes = -1
 	state.follow_slot = -1
@@ -134,6 +154,29 @@ func fire_dealer(territory_id: StringName, zone_id: StringName, member_id: Strin
 		zone.set_member_employed(member_id, false)
 		zone.set_member_player_level(member_id, 1)
 	_reassign_follow_slots()
+	state_changed.emit(territory_id)
+	return true
+
+
+func reassign_dealer(
+	territory_id: StringName,
+	zone_id: StringName,
+	member_id: StringName,
+	property_id: StringName
+) -> bool:
+	if not _is_player_owned(territory_id):
+		return false
+	var key := _slot_key(zone_id, member_id)
+	var state := _get_slot_state(territory_id, key)
+	if not bool(state.get("employed", false)):
+		return false
+	var previous_id := StringName(state.get("property_id", ""))
+	if previous_id == property_id:
+		return true
+	if not _can_assign_property(territory_id, property_id):
+		return false
+	state["property_id"] = String(property_id)
+	_set_slot_state(territory_id, key, state)
 	state_changed.emit(territory_id)
 	return true
 
@@ -177,6 +220,7 @@ func get_roster(territory_id: StringName) -> Array[Dictionary]:
 			result.append({
 				"zone_id": zone.zone_id, "member_id": member_id, "level": level,
 				"employed": bool(state.get("employed", false)),
+				"property_id": StringName(state.get("property_id", "")),
 				"duty": StringName(state.get("duty", DUTY_WORKING)),
 				"following": (
 					bool(state.get("employed", false))
@@ -195,6 +239,51 @@ func get_roster(territory_id: StringName) -> Array[Dictionary]:
 				"lifetime_net": int(state.get("lifetime_net", 0)),
 			})
 	return result
+
+
+func get_property_roster(property_id: StringName) -> Array[Dictionary]:
+	var definition := PropertyCatalog.get_by_id(property_id)
+	if definition == null:
+		return []
+	var result: Array[Dictionary] = []
+	for entry in get_roster(definition.territory_id):
+		if (
+			bool(entry.employed)
+			and StringName(entry.get("property_id", "")) == property_id
+		):
+			result.append(entry)
+	return result
+
+
+func get_available_candidates(
+	territory_id: StringName
+) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for entry in get_roster(territory_id):
+		if not bool(entry.employed):
+			result.append(entry)
+	return result
+
+
+func get_property_dealer_capacity(property_id: StringName) -> int:
+	var definition := PropertyCatalog.get_by_id(property_id)
+	if (
+		definition == null
+		or not definition.is_stash_house()
+		or not properties.owns(property_id)
+	):
+		return 0
+	return definition.dealer_capacity
+
+
+func can_manage_property_dealers(property_id: StringName) -> bool:
+	var definition := PropertyCatalog.get_by_id(property_id)
+	return (
+		definition != null
+		and definition.is_stash_house()
+		and properties.owns(property_id)
+		and _is_player_owned(definition.territory_id)
+	)
 
 
 func call_dealer(
@@ -304,16 +393,49 @@ func get_supply_summary(territory_id: StringName) -> Dictionary:
 	return properties.get_territory_stash_summary(territory_id, SELLABLE_PRODUCTS)
 
 
+func get_property_supply_summary(property_id: StringName) -> Dictionary:
+	return properties.get_property_supply_summary(
+		property_id,
+		SELLABLE_PRODUCTS
+	)
+
+
 func get_earnings_summary(territory_id: StringName) -> Dictionary:
 	var result := {"staffed": 0, "total_slots": 0, "today_gross": 0,
 		"today_commission": 0, "today_net": 0, "lifetime_gross": 0,
 		"lifetime_commission": 0, "lifetime_net": 0}
+	for definition in properties.get_owned_stash_definitions(territory_id):
+		result.total_slots += definition.dealer_capacity
 	for entry in get_roster(territory_id):
-		result.total_slots += 1
 		if bool(entry.employed):
 			result.staffed += 1
 		for key in ["today_gross", "today_commission", "today_net",
 			"lifetime_gross", "lifetime_commission", "lifetime_net"]:
+			result[key] += int(entry[key])
+	return result
+
+
+func get_property_earnings_summary(property_id: StringName) -> Dictionary:
+	var result := {
+		"staffed": 0,
+		"total_slots": get_property_dealer_capacity(property_id),
+		"today_gross": 0,
+		"today_commission": 0,
+		"today_net": 0,
+		"lifetime_gross": 0,
+		"lifetime_commission": 0,
+		"lifetime_net": 0,
+	}
+	for entry in get_property_roster(property_id):
+		result.staffed += 1
+		for key in [
+			"today_gross",
+			"today_commission",
+			"today_net",
+			"lifetime_gross",
+			"lifetime_commission",
+			"lifetime_net",
+		]:
 			result[key] += int(entry[key])
 	return result
 
@@ -343,11 +465,19 @@ func get_dealer_status(zone_id: StringName, member_id: StringName) -> String:
 		return "This dealer slot is vacant."
 	if StringName(state.get("duty", DUTY_WORKING)) == DUTY_FOLLOWING:
 		return "Level %d Dealer | FOLLOWING | Not generating income" % int(state.level)
-	var available := int(get_supply_summary(zone.territory_id).get("product_units", 0))
+	var property_id := StringName(state.get("property_id", ""))
+	var definition := PropertyCatalog.get_by_id(property_id)
+	var available := int(
+		get_property_supply_summary(property_id).get("product_units", 0)
+	)
 	var remaining := maxi(int(state.get("next_sale_minute", 0)) - world_time.get_absolute_minute(), 0)
-	return "Level %d Dealer | %s | Next sale: %dm | Today: $%d net" % [
-		int(state.level), "OUT OF STOCK" if available <= 0 else "%d units available" % available,
-		remaining, _today_value(state, "net")]
+	return "Level %d Dealer | %s | %s | Next sale: %dm | Today: $%d net" % [
+		int(state.level),
+		definition.display_name if definition != null else "UNASSIGNED",
+		"OUT OF STOCK" if available <= 0 else "%d units available" % available,
+		remaining,
+		_today_value(state, "net"),
+	]
 
 
 func get_hire_fee(_level: int) -> int:
@@ -377,6 +507,7 @@ func import_save_data(data: Dictionary) -> void:
 			var state := slots[slot_key] as Dictionary
 			if not bool(state.get("employed", false)):
 				state["level"] = 1
+				state["property_id"] = ""
 				state["duty"] = DUTY_WORKING
 				state["paused_sale_minutes"] = -1
 				state["follow_slot"] = -1
@@ -403,6 +534,7 @@ func import_save_data(data: Dictionary) -> void:
 		_territories[territory_key] = territory
 	for territory_id in _owned_territory_ids():
 		_ensure_territory(territory_id)
+		_migrate_property_assignments(territory_id)
 		_apply_staffing(territory_id)
 		state_changed.emit(territory_id)
 	call_deferred("_restore_followers")
@@ -413,17 +545,29 @@ func reset_to_new_game() -> void:
 
 
 func _try_process_sale(territory_id: StringName, key: String, state: Dictionary, minute: int) -> bool:
+	var property_id := StringName(state.get("property_id", ""))
+	var property_definition := PropertyCatalog.get_by_id(property_id)
+	if (
+		property_definition == null
+		or property_definition.territory_id != territory_id
+		or not properties.owns(property_id)
+	):
+		return false
 	var sale_index := int(state.get("sale_index", 0))
 	state.sale_index = sale_index + 1
 	for offset in SELLABLE_PRODUCTS.size():
 		var product := SELLABLE_PRODUCTS[(sale_index + offset) % SELLABLE_PRODUCTS.size()]
-		if properties.get_territory_stashed_product_quantity(territory_id, product) <= 0:
+		if properties.get_stashed_product_quantity(property_id, product) <= 0:
 			continue
 		var gross := trade.get_sale_pricing(product, territory_id, 1).y
 		var commission := roundi(float(gross) * COMMISSION_RATE)
 		var net := maxi(gross - commission, 0)
-		var property_id := properties.process_territory_dealer_sale(territory_id, product, 1, net)
-		if property_id.is_empty():
+		if not properties.process_property_dealer_sale(
+			property_id,
+			product,
+			1,
+			net
+		):
 			continue
 		_record_earnings(state, minute, gross, commission, net)
 		world_time.record_external_transaction(net, 0)
@@ -472,12 +616,42 @@ func _today_value(state: Dictionary, suffix: String) -> int:
 func _on_territory_claimed(territory_id: StringName, _route: StringName) -> void:
 	_territories.erase(String(territory_id))
 	_ensure_territory(territory_id)
+	_migrate_property_assignments(territory_id)
 	_apply_staffing(territory_id)
 	state_changed.emit(territory_id)
 
 
 func _on_player_removed_from_action() -> void:
 	send_all_followers_back()
+
+
+func _on_property_ownership_changed(
+	property_id: StringName,
+	owned: bool
+) -> void:
+	if owned:
+		var definition := PropertyCatalog.get_by_id(property_id)
+		if definition != null:
+			state_changed.emit(definition.territory_id)
+		return
+	var assignments: Array[Dictionary] = []
+	for territory_id in _owned_territory_ids():
+		for entry in get_roster(territory_id):
+			if (
+				bool(entry.employed)
+				and StringName(entry.get("property_id", "")) == property_id
+			):
+				assignments.append({
+					"territory_id": territory_id,
+					"zone_id": StringName(entry.zone_id),
+					"member_id": StringName(entry.member_id),
+				})
+	for assignment in assignments:
+		fire_dealer(
+			StringName(assignment.territory_id),
+			StringName(assignment.zone_id),
+			StringName(assignment.member_id)
+		)
 
 
 func _on_zone_member_defeated(_zone_id: StringName, member_id: StringName, zone: DealerActivityZone3D) -> void:
@@ -490,6 +664,7 @@ func _on_zone_member_defeated(_zone_id: StringName, member_id: StringName, zone:
 	var was_following := StringName(state.get("duty", DUTY_WORKING)) == DUTY_FOLLOWING
 	state.employed = false
 	state.level = 1
+	state.property_id = ""
 	state.duty = DUTY_WORKING
 	state.paused_sale_minutes = -1
 	state.follow_slot = -1
@@ -523,7 +698,7 @@ func _ensure_territory(territory_id: StringName) -> void:
 
 func _new_slot_state(zone: DealerActivityZone3D, member_id: StringName) -> Dictionary:
 	return {"zone_id": String(zone.zone_id), "member_id": String(member_id),
-		"level": 1, "employed": false,
+		"level": 1, "employed": false, "property_id": "",
 		"duty": DUTY_WORKING, "paused_sale_minutes": -1, "follow_slot": -1,
 		"next_sale_minute": -1, "sale_index": 0, "today_day": -1,
 		"today_gross": 0, "today_commission": 0, "today_net": 0,
@@ -561,7 +736,77 @@ func _apply_staffing(territory_id: StringName) -> void:
 			var state := _get_slot_state(territory_id, _slot_key(zone.zone_id, member_id))
 			staffing[String(member_id)] = bool(state.get("employed", false))
 			zone.set_member_player_level(member_id, clampi(int(state.get("level", 1)), 1, 4))
-		zone.apply_player_staffing(staffing)
+			zone.apply_player_staffing(staffing)
+
+
+func _migrate_property_assignments(territory_id: StringName) -> void:
+	var definitions := properties.get_owned_stash_definitions(territory_id)
+	var capacities := {}
+	var counts := {}
+	for definition in definitions:
+		capacities[String(definition.property_id)] = definition.dealer_capacity
+		counts[String(definition.property_id)] = 0
+	var entries := get_roster(territory_id)
+	for entry in entries:
+		if not bool(entry.employed):
+			continue
+		var key := _slot_key(entry.zone_id, entry.member_id)
+		var state := _get_slot_state(territory_id, key)
+		var property_key := String(state.get("property_id", ""))
+		if (
+			not property_key.is_empty()
+			and capacities.has(property_key)
+			and int(counts.get(property_key, 0))
+			< int(capacities.get(property_key, 0))
+		):
+			counts[property_key] = int(counts.get(property_key, 0)) + 1
+			continue
+		var assigned := ""
+		for definition in definitions:
+			var candidate_key := String(definition.property_id)
+			if (
+				int(counts.get(candidate_key, 0))
+				< int(capacities.get(candidate_key, 0))
+			):
+				assigned = candidate_key
+				break
+		if not assigned.is_empty():
+			state["property_id"] = assigned
+			counts[assigned] = int(counts.get(assigned, 0)) + 1
+		else:
+			state["employed"] = false
+			state["level"] = 1
+			state["property_id"] = ""
+			state["duty"] = DUTY_WORKING
+			state["paused_sale_minutes"] = -1
+			state["follow_slot"] = -1
+			state["next_sale_minute"] = -1
+		_set_slot_state(territory_id, key, state)
+
+
+func _find_available_property(territory_id: StringName) -> StringName:
+	for definition in properties.get_owned_stash_definitions(territory_id):
+		if (
+			get_property_roster(definition.property_id).size()
+			< definition.dealer_capacity
+		):
+			return definition.property_id
+	return &""
+
+
+func _can_assign_property(
+	territory_id: StringName,
+	property_id: StringName
+) -> bool:
+	var definition := PropertyCatalog.get_by_id(property_id)
+	return (
+		definition != null
+		and definition.is_stash_house()
+		and definition.territory_id == territory_id
+		and properties.owns(property_id)
+		and get_property_roster(property_id).size()
+		< definition.dealer_capacity
+	)
 
 
 func _restore_followers() -> void:

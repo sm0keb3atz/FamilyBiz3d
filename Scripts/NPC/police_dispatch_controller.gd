@@ -974,7 +974,10 @@ func _tick_unloading(response: ResponseUnit, delta: float) -> void:
 		response_target
 	) if population != null else null
 	if officer == null and population != null:
-		var nearest := population.network.get_nearest_waypoint(response.cruiser.global_position, 45.0)
+		var nearest := population.get_nearest_waypoint(
+			response.cruiser.global_position,
+			45.0
+		)
 		if nearest != null:
 			officer = population.spawn_response_officer(
 				nearest.global_position,
@@ -1030,8 +1033,8 @@ func _get_safe_officer_exit_position(
 		var grounded := _ground_officer_exit(candidate, cruiser)
 		if _is_officer_exit_clear(grounded, cruiser):
 			return grounded
-	if population != null and population.network != null:
-		var nearest := population.network.get_nearest_waypoint(
+	if population != null:
+		var nearest := population.get_nearest_waypoint(
 			cruiser.global_position,
 			45.0
 		)
@@ -1327,9 +1330,9 @@ func _spawn_fallback_officer() -> bool:
 	if zone.is_empty() or _incident == null:
 		return false
 	var population := zone.get("population") as CivilianPopulationManager
-	if population == null or population.network == null:
+	if population == null or population.get_network_count() == 0:
 		return false
-	var candidates: Array[PedestrianWaypoint3D] = population.network.get_spawn_candidates(
+	var candidates: Array[PedestrianWaypoint3D] = population.get_spawn_candidates(
 		_last_known_position,
 		22.0,
 		45.0,
@@ -1360,7 +1363,7 @@ func _spawn_fallback_officer() -> bool:
 		if fallback_officer != null:
 			_register_fallback_officer(fallback_officer, population)
 			return true
-	var nearest := population.network.get_nearest_waypoint(
+	var nearest := population.get_nearest_waypoint(
 		_last_known_position,
 		response_profile.get_awareness_radius(wanted.wanted_level)
 	)

@@ -12,6 +12,10 @@ var neighborhood := ""
 var territory_id: StringName
 var purchase_price := 0
 var stash_capacity := 1000
+var dealer_capacity := 0
+var brick_station_cost := 0
+var brick_station_interval_minutes := 0
+var vehicle_storage_capacity := 0
 var role := PropertyRole.STASH_HOUSE
 var business_stock_capacity := 0
 var business_restock_unit_cost := 0
@@ -19,6 +23,7 @@ var business_revenue_per_sale := 0
 var business_sales_interval_minutes := 0
 var business_open_minute := 0
 var business_close_minute := 0
+var business_type_name := "Business"
 
 
 func _init(
@@ -34,7 +39,12 @@ func _init(
 	value_business_revenue_per_sale := 0,
 	value_business_sales_interval_minutes := 0,
 	value_business_open_minute := 0,
-	value_business_close_minute := 0
+	value_business_close_minute := 0,
+	value_dealer_capacity := 0,
+	value_brick_station_cost := 0,
+	value_brick_station_interval_minutes := 0,
+	value_business_type_name := "Business",
+	value_vehicle_storage_capacity := 0
 ) -> void:
 	property_id = value_id
 	display_name = value_name
@@ -49,6 +59,16 @@ func _init(
 	business_sales_interval_minutes = maxi(value_business_sales_interval_minutes, 0)
 	business_open_minute = clampi(value_business_open_minute, 0, 1439)
 	business_close_minute = clampi(value_business_close_minute, 0, 1440)
+	dealer_capacity = maxi(value_dealer_capacity, 0)
+	brick_station_cost = maxi(value_brick_station_cost, 0)
+	brick_station_interval_minutes = maxi(
+		value_brick_station_interval_minutes,
+		0
+	)
+	vehicle_storage_capacity = maxi(value_vehicle_storage_capacity, 0)
+	business_type_name = value_business_type_name.strip_edges()
+	if business_type_name.is_empty():
+		business_type_name = "Business"
 
 
 func is_valid() -> bool:

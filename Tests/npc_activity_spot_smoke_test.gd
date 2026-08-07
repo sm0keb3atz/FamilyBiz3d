@@ -15,11 +15,7 @@ func _run() -> void:
 	var manager := world.get_node(
 		"CivilianPopulationManager"
 	) as CivilianPopulationManager
-	var west_manager := world.get_node(
-		"WestPopulationManager"
-	) as CivilianPopulationManager
 	manager.set_population_enabled(false)
-	west_manager.set_population_enabled(false)
 	manager.minimum_spawn_distance = 0.0
 	manager.maximum_spawn_distance = 500.0
 	manager.high_detail_distance = 500.0

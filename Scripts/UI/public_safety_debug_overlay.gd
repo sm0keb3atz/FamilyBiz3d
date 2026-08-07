@@ -5,6 +5,8 @@ extends CanvasLayer
 
 var _label: Label
 var _visible := false
+var _overlay_refresh_remaining := 0.0
+var _frame_time_samples: Array[float] = []
 
 
 func _ready() -> void:
@@ -18,20 +20,44 @@ func _ready() -> void:
 	_label.add_theme_constant_override(&"shadow_offset_y", 2)
 	add_child(_label)
 	_label.visible = false
-	set_process(true)
+	set_process(false)
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == toggle_key:
 		_visible = not _visible
 		_label.visible = _visible
+		set_process(_visible)
+		if _visible:
+			_frame_time_samples.clear()
+			_overlay_refresh_remaining = 0.0
 		get_viewport().set_input_as_handled()
 
 
-func _process(_delta: float) -> void:
-	if not _visible:
+func _process(delta: float) -> void:
+	_frame_time_samples.append(delta * 1000.0)
+	if _frame_time_samples.size() > 600:
+		_frame_time_samples.pop_front()
+	_overlay_refresh_remaining -= delta
+	if _overlay_refresh_remaining > 0.0:
 		return
-	var lines := PackedStringArray(["PUBLIC SAFETY DEBUG [F7]"])
+	_overlay_refresh_remaining = 0.25
+	var lines := PackedStringArray([
+		"PUBLIC SAFETY + PERFORMANCE [F7]",
+		"FPS=%d frame=%.2fms p99=%.2fms max=%.2fms draw_calls=%d objects=%d"
+		% [
+			Engine.get_frames_per_second(),
+			delta * 1000.0,
+			_get_percentile_frame_time(0.99),
+			_get_maximum_frame_time(),
+			int(Performance.get_monitor(
+				Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME
+			)),
+			int(Performance.get_monitor(
+				Performance.RENDER_TOTAL_OBJECTS_IN_FRAME
+			)),
+		],
+	])
 	var player := get_tree().get_first_node_in_group(&"player")
 	var wanted := (
 		player.get_node_or_null("Components/WantedComponent") as PlayerWantedComponent
@@ -79,12 +105,29 @@ func _process(_delta: float) -> void:
 			])
 	var active_civilians := 0
 	var active_police := 0
+	var pooled_civilians := 0
+	var population_managers := 0
+	var pedestrian_networks := 0
 	for node in get_tree().get_nodes_in_group(&"civilian_population_manager"):
+		population_managers += 1
 		if node.has_method("get_active_count"):
 			active_civilians += int(node.call("get_active_count"))
 		if node.has_method("get_active_police_count"):
 			active_police += int(node.call("get_active_police_count"))
-	lines.append("Population civilians=%d police=%d" % [active_civilians, active_police])
+		if node.has_method("get_live_pool_count"):
+			pooled_civilians += int(node.call("get_live_pool_count"))
+		if node.has_method("get_network_count"):
+			pedestrian_networks += int(node.call("get_network_count"))
+	lines.append(
+		"Population managers=%d networks=%d active=%d pooled=%d police=%d"
+		% [
+			population_managers,
+			pedestrian_networks,
+			active_civilians,
+			pooled_civilians,
+			active_police,
+		]
+	)
 	var bus := WorldEventBus.find(get_tree())
 	if bus != null:
 		lines.append("Trace records=%d" % bus.get_trace_snapshot().size())
@@ -105,6 +148,26 @@ func _process(_delta: float) -> void:
 			nav_state.get("target", Vector3.ZERO),
 		])
 	_label.text = "\n".join(lines)
+
+
+func _get_percentile_frame_time(percentile: float) -> float:
+	if _frame_time_samples.is_empty():
+		return 0.0
+	var sorted_samples := _frame_time_samples.duplicate()
+	sorted_samples.sort()
+	var index := clampi(
+		ceili(percentile * float(sorted_samples.size())) - 1,
+		0,
+		sorted_samples.size() - 1
+	)
+	return sorted_samples[index]
+
+
+func _get_maximum_frame_time() -> float:
+	var result := 0.0
+	for sample in _frame_time_samples:
+		result = maxf(result, sample)
+	return result
 
 
 func _get_nearest_police(origin: Node3D) -> PoliceNPC:

@@ -159,7 +159,7 @@ func _refresh_dashboard() -> void:
 	) % [
 		_definition.business_stock_capacity,
 		_definition.neighborhood,
-		"Clothing Store" if _property_id == PropertyCatalog.CLOTHING_STORE_ID else "Gun Store",
+		_definition.business_type_name,
 		_time_text(_definition.business_open_minute),
 		_time_text(_definition.business_close_minute),
 		"OPEN" if is_open else "CLOSED",

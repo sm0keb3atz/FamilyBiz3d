@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 13
+const SAVE_VERSION := 16
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -34,6 +34,9 @@ const SAVE_PATH := "user://family_business_save.json"
 @onready var vehicle_component: Variant = player.get_node(
 	"Components/VehicleComponent"
 )
+@onready var vehicle_garage := player.get_node(
+	"Components/VehicleGarageComponent"
+) as PlayerVehicleGarageComponent
 @onready var hud := player.get_node("PlayerHUD") as PlayerHUD
 @onready var world_time := get_node("../WorldTimeComponent") as WorldTimeComponent
 @onready var territory_market := get_node(
@@ -53,11 +56,11 @@ const SAVE_PATH := "user://family_business_save.json"
 func _ready() -> void:
 	world_time.connect_wallet(wallet)
 	world_time.time_changed.connect(hud.update_clock)
-	world_time.minute_advanced.connect(properties.process_businesses_to)
+	world_time.minute_advanced.connect(properties.process_properties_to)
 	world_time.minute_advanced.connect(territory_dealers.process_to)
 	world_time.day_ending.connect(_on_day_ending)
 	world_time.day_ended.connect(_on_day_ended)
-	properties.process_businesses_to(world_time.get_absolute_minute())
+	properties.process_properties_to(world_time.get_absolute_minute())
 	territory_dealers.process_to(world_time.get_absolute_minute())
 	territory_market.ensure_quotes(world_time.get_date_key())
 	hud.update_clock(world_time.get_formatted_date(), world_time.get_formatted_time())
@@ -75,7 +78,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func save_game() -> bool:
-	properties.process_businesses_to(world_time.get_absolute_minute())
+	properties.process_properties_to(world_time.get_absolute_minute())
 	territory_dealers.process_to(world_time.get_absolute_minute())
 	var territories := {}
 	for node in get_tree().get_nodes_in_group("territory_boundaries"):
@@ -117,7 +120,7 @@ func save_game() -> bool:
 		"dealer_zones": dealer_zones,
 		"player": {
 			"position": _vector_to_array(
-				vehicle_component.get_effective_position()
+				vehicle_component.get_safe_save_position()
 			),
 			"rotation_y": player.rotation.y,
 			"wallet": wallet.export_save_data(),
@@ -128,6 +131,7 @@ func save_game() -> bool:
 			"wanted": wanted.export_save_data(),
 			"properties": properties.export_save_data(),
 			"legal": legal.export_save_data(),
+			"vehicles": vehicle_garage.export_save_data(),
 		},
 		"territories": territories,
 		"dealers": dealers,
@@ -164,6 +168,13 @@ func load_game() -> bool:
 	if police_dispatch != null:
 		police_dispatch.reset_for_load()
 	wallet.import_save_data(player_data.get("wallet", {}) as Dictionary)
+	properties.import_save_data(
+		player_data.get("properties", {}) as Dictionary
+	)
+	vehicle_garage.import_save_data(
+		player_data.get("vehicles", {}) as Dictionary,
+		player.get_parent() as Node3D
+	)
 	inventory.import_save_data(player_data.get("inventory", {}) as Dictionary)
 	wardrobe.import_save_data(player_data.get("wardrobe", {}) as Dictionary)
 	weapon.import_save_data(
@@ -174,14 +185,11 @@ func load_game() -> bool:
 	wanted.import_save_data(
 		player_data.get("wanted", {}) as Dictionary
 	)
-	properties.import_save_data(
-		player_data.get("properties", {}) as Dictionary
-	)
 	legal.import_save_data(
 		player_data.get("legal", {}) as Dictionary
 	)
 	world_time.import_save_data(data.get("world_time", {}) as Dictionary)
-	properties.process_businesses_to(world_time.get_absolute_minute())
+	properties.process_properties_to(world_time.get_absolute_minute())
 	var position_data := player_data.get("position", []) as Array
 	if position_data.size() == 3:
 		player.global_position = Vector3(

@@ -13,19 +13,15 @@ func _run() -> void:
 	var civilians := world.get_node(
 		"CivilianPopulationManager"
 	) as CivilianPopulationManager
-	var west_civilians := world.get_node(
-		"WestPopulationManager"
-	) as CivilianPopulationManager
 	civilians.set_population_enabled(false)
-	west_civilians.set_population_enabled(false)
-	var west_traffic := world.get_node(
-		"WestTrafficPopulationManager"
-	) as TrafficPopulationManager
-	west_traffic.set_population_enabled(false)
+	assert(world.get_node_or_null("WestPopulationManager") == null)
+	assert(civilians.get_network_count() == 2)
 	var manager := world.get_node(
 		"TrafficPopulationManager"
 	) as TrafficPopulationManager
 	manager.set_population_enabled(false)
+	assert(world.get_node_or_null("WestTrafficPopulationManager") == null)
+	assert(world.get_node_or_null("Navigation/HoodWestTrafficNetwork") != null)
 	await process_frame
 	await physics_frame
 

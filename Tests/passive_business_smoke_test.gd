@@ -16,6 +16,11 @@ func _run() -> void:
 	assert(wallet.add_dirty(10000, false))
 	assert(properties.purchase(PropertyCatalog.CLOTHING_STORE_ID, 8 * 60))
 	assert(properties.purchase(PropertyCatalog.GUN_STORE_ID, 8 * 60))
+	assert(wallet.add_clean(75000, false))
+	assert(properties.purchase(
+		PropertyCatalog.DOWNTOWN_CAR_DEALERSHIP_ID,
+		8 * 60
+	))
 
 	var dirty_before := wallet.dirty_cash
 	assert(not properties.restock_business(PropertyCatalog.CLOTHING_STORE_ID, 31))
@@ -25,6 +30,11 @@ func _run() -> void:
 	assert(properties.get_business_total_restock_spent(PropertyCatalog.CLOTHING_STORE_ID) == 1200)
 	assert(not properties.restock_business(PropertyCatalog.CLOTHING_STORE_ID, 19))
 	assert(properties.get_business_stock(PropertyCatalog.CLOTHING_STORE_ID) == 12)
+	assert(wallet.add_dirty(12000, false))
+	assert(properties.restock_business(
+		PropertyCatalog.DOWNTOWN_CAR_DEALERSHIP_ID,
+		6
+	))
 
 	# Clothing sales begin one full interval after opening and stop before close.
 	properties.process_businesses_to(9 * 60 + 59)
@@ -37,6 +47,15 @@ func _run() -> void:
 	assert(properties.get_business_accumulated_earnings(PropertyCatalog.CLOTHING_STORE_ID) == 1650)
 	assert(properties.get_business_total_sales(PropertyCatalog.CLOTHING_STORE_ID) == 11)
 	assert(properties.get_business_daily_revenue(PropertyCatalog.CLOTHING_STORE_ID, 0) == 1650)
+	assert(properties.get_business_stock(
+		PropertyCatalog.DOWNTOWN_CAR_DEALERSHIP_ID
+	) == 3)
+	assert(properties.get_business_accumulated_earnings(
+		PropertyCatalog.DOWNTOWN_CAR_DEALERSHIP_ID
+	) == 9000)
+	assert(properties.get_business_total_sales(
+		PropertyCatalog.DOWNTOWN_CAR_DEALERSHIP_ID
+	) == 3)
 
 	# A saved ledger produces the same result for the same elapsed game time.
 	var saved := properties.export_save_data()
@@ -86,12 +105,17 @@ func _run() -> void:
 	# Both store menus expose management, while the home wardrobe does not.
 	var gun_menu := player.get_node("GunStoreMenu") as GunStoreMenu
 	var clothing_menu := player.get_node("ClothingStoreMenu") as ClothingStoreMenu
+	var car_menu := player.get_node("CarDealershipMenu") as CarDealershipMenu
 	assert(gun_menu.find_child("ShopTab", true, false) != null)
 	assert(gun_menu.find_child("BusinessTab", true, false) != null)
 	assert(gun_menu.find_child("BusinessManagementPanel", true, false) != null)
 	assert(clothing_menu.find_child("ShopTab", true, false) != null)
 	assert(clothing_menu.find_child("BusinessTab", true, false) != null)
 	assert(clothing_menu.find_child("BusinessManagementPanel", true, false) != null)
+	assert(car_menu.find_child("BuyTab", true, false) != null)
+	assert(car_menu.find_child("SellTab", true, false) != null)
+	assert(car_menu.find_child("BusinessTab", true, false) != null)
+	assert(car_menu.find_child("BusinessManagementPanel", true, false) != null)
 	clothing_menu.open_wardrobe()
 	assert(not (clothing_menu.find_child("StoreTabs", true, false) as Control).visible)
 	assert(not (clothing_menu.find_child("BusinessManagementPanel", true, false) as Control).visible)

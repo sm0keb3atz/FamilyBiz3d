@@ -2,6 +2,9 @@ class_name PropertyCatalog
 extends RefCounted
 
 const PURCHASE_PRICE := 10000
+const HOOD_DEALER_CAPACITY := 2
+const BRICK_STATION_COST := 5000
+const BRICK_STATION_INTERVAL_MINUTES := 3 * 60
 const PROPERTY_IDS: Array[StringName] = [
 	&"hood_east_house_1",
 	&"hood_east_house_2",
@@ -10,7 +13,12 @@ const PROPERTY_IDS: Array[StringName] = [
 ]
 const CLOTHING_STORE_ID := &"hood_east_clothing_store"
 const GUN_STORE_ID := &"hood_east_gun_store"
-const BUSINESS_IDS: Array[StringName] = [CLOTHING_STORE_ID, GUN_STORE_ID]
+const DOWNTOWN_CAR_DEALERSHIP_ID := &"downtown_east_car_dealership"
+const BUSINESS_IDS: Array[StringName] = [
+	CLOTHING_STORE_ID,
+	GUN_STORE_ID,
+	DOWNTOWN_CAR_DEALERSHIP_ID,
+]
 
 static var _definitions: Array[PropertyDefinition] = []
 static var _by_id: Dictionary[StringName, PropertyDefinition] = {}
@@ -36,7 +44,19 @@ static func _ensure_catalog() -> void:
 			"Hood East",
 			PURCHASE_PRICE,
 			1000,
-			&"hood_east"
+			&"hood_east",
+			PropertyDefinition.PropertyRole.STASH_HOUSE,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			HOOD_DEALER_CAPACITY,
+			BRICK_STATION_COST,
+			BRICK_STATION_INTERVAL_MINUTES,
+			"Business",
+			2 if index == 0 else 0
 		)
 		_definitions.append(definition)
 		_by_id[definition.property_id] = definition
@@ -53,7 +73,11 @@ static func _ensure_catalog() -> void:
 		150,
 		60,
 		9 * 60,
-		21 * 60
+		21 * 60,
+		0,
+		0,
+		0,
+		"Clothing Store"
 	))
 	_register(PropertyDefinition.new(
 		GUN_STORE_ID,
@@ -68,7 +92,30 @@ static func _ensure_catalog() -> void:
 		400,
 		120,
 		10 * 60,
-		20 * 60
+		20 * 60,
+		0,
+		0,
+		0,
+		"Gun Store"
+	))
+	_register(PropertyDefinition.new(
+		DOWNTOWN_CAR_DEALERSHIP_ID,
+		"Downtown East Car Dealership",
+		"Downtown East",
+		75000,
+		0,
+		&"downtown_east",
+		PropertyDefinition.PropertyRole.FRONT_BUSINESS,
+		6,
+		2000,
+		3000,
+		180,
+		9 * 60,
+		21 * 60,
+		0,
+		0,
+		0,
+		"Car Dealership"
 	))
 
 

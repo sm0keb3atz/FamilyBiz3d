@@ -59,7 +59,11 @@ func interact(player: CharacterBody3D) -> void:
 		InteractionType.WARDROBE:
 			player.get_node("ClothingStoreMenu").call("open_wardrobe")
 		InteractionType.STASH:
-			player.get_node("PropertyStashMenu").call("open_stash", building.property_id)
+			player.get_node("PropertyStashMenu").call(
+				"open_local",
+				building,
+				&"stash"
+			)
 
 
 func _money(amount: int) -> String:

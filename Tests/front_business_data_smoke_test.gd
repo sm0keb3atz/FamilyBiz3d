@@ -7,7 +7,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var definitions := PropertyCatalog.get_all()
-	assert(definitions.size() == 6)
+	assert(definitions.size() == 7)
 	for house_id in PropertyCatalog.PROPERTY_IDS:
 		var house := PropertyCatalog.get_by_id(house_id)
 		assert(house != null and house.is_stash_house())
@@ -16,6 +16,9 @@ func _run() -> void:
 
 	var clothing := PropertyCatalog.get_by_id(PropertyCatalog.CLOTHING_STORE_ID)
 	var gun := PropertyCatalog.get_by_id(PropertyCatalog.GUN_STORE_ID)
+	var dealership := PropertyCatalog.get_by_id(
+		PropertyCatalog.DOWNTOWN_CAR_DEALERSHIP_ID
+	)
 	assert(clothing != null and clothing.is_valid() and clothing.is_front_business())
 	assert(clothing.purchase_price == 15000)
 	assert(clothing.business_stock_capacity == 30)
@@ -32,6 +35,17 @@ func _run() -> void:
 	assert(gun.business_sales_interval_minutes == 120)
 	assert(gun.business_open_minute == 10 * 60)
 	assert(gun.business_close_minute == 20 * 60)
+	assert(gun.business_type_name == "Gun Store")
+	assert(dealership != null and dealership.is_valid())
+	assert(dealership.is_front_business())
+	assert(dealership.purchase_price == 75000)
+	assert(dealership.business_stock_capacity == 6)
+	assert(dealership.business_restock_unit_cost == 2000)
+	assert(dealership.business_revenue_per_sale == 3000)
+	assert(dealership.business_sales_interval_minutes == 180)
+	assert(dealership.business_open_minute == 9 * 60)
+	assert(dealership.business_close_minute == 21 * 60)
+	assert(dealership.business_type_name == "Car Dealership")
 
 	var player_scene := load("res://Scenes/Player.tscn") as PackedScene
 	var player := player_scene.instantiate() as CharacterBody3D

@@ -20,7 +20,6 @@
 [ext_resource type="PackedScene" uid="uid://df2a8o772ovav" path="res://Scenes/Maps/Buildings/corner_store.tscn" id="14_lesti"]
 [ext_resource type="PackedScene" uid="uid://b3h0idtwnkbwm" path="res://Scenes/Maps/Buildings/hood_house_1.tscn" id="15_knlt2"]
 [ext_resource type="PackedScene" uid="uid://cexxortle2liv" path="res://Scenes/Maps/Buildings/corner_store2.tscn" id="16_8ekqm"]
-[ext_resource type="ArrayMesh" uid="uid://c3kbustq1qftl" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_parcel_road_01.glb" id="16_33r63"]
 [ext_resource type="PackedScene" uid="uid://d3xabu82dh8p" path="res://Assets/MapStuff/Meshs/StreetProps/SM_metal_box_2.gltf" id="16_rudg4"]
 [ext_resource type="PackedScene" uid="uid://dpnk5qdg1ja16" path="res://Assets/MapStuff/Meshs/StreetProps/SM_gasStationCarPort_01.gltf" id="17_4tc2c"]
 [ext_resource type="PackedScene" uid="uid://bqvc6b4klapep" path="res://Assets/MapStuff/Meshs/StreetProps/SM_trash.gltf" id="17_ucg5e"]
@@ -1468,7 +1467,6 @@ mesh = SubResource("ArrayMesh_okjkq")
 
 [node name="HoodHouse1" parent="Ground/Plot/Buildings" unique_id=413113688 instance=ExtResource("15_knlt2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.6, 0, -51.45)
-property_id = &"hood_east_house_1"
 
 [node name="HoodHouse2" parent="Ground/Plot/Buildings" unique_id=513910864 instance=ExtResource("15_knlt2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.6, 0, -74.95)
@@ -1595,22 +1593,6 @@ mesh = ExtResource("7_04mrp")
 [node name="SmRoad01" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=596180208]
 transform = Transform3D(-2.203054e-08, 0, 0.77, 0, 0.99999994, 0, -0.504, 0, -3.365777e-08, 80.05, 0.004, -8.150002)
 mesh = ExtResource("9_8ekqm")
-
-[node name="SmParcelRoad01" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=2046576691]
-transform = Transform3D(-4.8956753e-08, 0, 0.62, 0, 1, 0, -1.12, 0, -2.7101061e-08, 59.300003, 0.01, -79)
-mesh = ExtResource("16_33r63")
-
-[node name="SmParcelRoad02" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1527951348]
-transform = Transform3D(-4.8956753e-08, 0, 0.62, 0, 1, 0, -1.12, 0, -2.7101061e-08, 59.300003, 0.01, -57.6)
-mesh = ExtResource("16_33r63")
-
-[node name="SmParcelRoad03" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1181487871]
-transform = Transform3D(-4.8956753e-08, 0, 0.62, 0, 1, 0, -1.12, 0, -2.7101061e-08, 59.300003, 0.01, -34)
-mesh = ExtResource("16_33r63")
-
-[node name="SmParcelRoad04" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1127334359]
-transform = Transform3D(-4.8956753e-08, 0, 0.585, 0, 1, 0, -1.12, 0, -2.5571161e-08, 20.800003, 0.01, -22.399998)
-mesh = ExtResource("16_33r63")
 
 [node name="SM_carton_box_tray" parent="Ground/Plot/Alleys/Ground" unique_id=778909238 instance=ExtResource("31_gnq75")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71, 0, -76.9)

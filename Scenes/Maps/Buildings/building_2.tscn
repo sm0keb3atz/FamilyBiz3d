@@ -2,7 +2,6 @@
 
 [ext_resource type="ArrayMesh" uid="uid://bfibv4w0echlo" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_shopFront_Entrance.glb" id="1_a1s24"]
 [ext_resource type="ArrayMesh" uid="uid://336f5i0ry7f8" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb" id="2_0kt2o"]
-[ext_resource type="Material" uid="uid://bajggff4xm8p7" path="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/WindowOff.tres" id="2_4knqk"]
 [ext_resource type="ArrayMesh" uid="uid://d33dulp8o8j2i" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_wall_01.glb" id="3_mr8tn"]
 [ext_resource type="ArrayMesh" uid="uid://cb0ilet10i80u" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb" id="4_w5fx5"]
 [ext_resource type="ArrayMesh" uid="uid://p1wnk0jrmabh" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb" id="5_1w0wj"]
@@ -19,7 +18,6 @@
 [ext_resource type="PackedScene" uid="uid://e7egmbnldb1c" path="res://Assets/MapStuff/Meshs/StreetProps/SM_camera.gltf" id="16_4knqk"]
 [ext_resource type="PackedScene" uid="uid://dqrbcvivapabq" path="res://Assets/MapStuff/Meshs/StreetProps/SM_mailbox_2.gltf" id="17_1siws"]
 [ext_resource type="Script" uid="uid://chcf4hqi8e3mu" path="res://Scripts/World/building_window_material_component.gd" id="18_window_lights"]
-
 [ext_resource type="Material" uid="uid://bajggff4xm8p7" path="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/WindowOff.tres" id="window_off"]
 [ext_resource type="Material" uid="uid://bs2oyovfckfm" path="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/WindowOn.tres" id="window_on"]
 
@@ -458,7 +456,7 @@ shape = SubResource("BoxShape3D_1c86s")
 [node name="SmDoorHouse02" type="MeshInstance3D" parent="." unique_id=745394761]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19999993, 0.1, 0.59999996)
 mesh = ExtResource("11_6ysp2")
-surface_material_override/2 = ExtResource("2_4knqk")
+surface_material_override/2 = ExtResource("window_off")
 
 [node name="Floor" type="Node3D" parent="." unique_id=186677813]
 

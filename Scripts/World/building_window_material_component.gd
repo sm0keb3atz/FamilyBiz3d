@@ -1,6 +1,11 @@
 class_name BuildingWindowMaterialComponent
 extends Node
 
+const META_WINDOW_SURFACE := &"fb_window_surface"
+const META_WINDOW_LIT := &"fb_window_lit"
+const META_WINDOW_OFF_MATERIAL := &"fb_window_off_material"
+const META_WINDOW_ON_MATERIAL := &"fb_window_on_material"
+
 @export var window_off_material: Material
 @export var window_on_material: Material
 @export var windows_root: Node
@@ -17,12 +22,16 @@ var _last_applied_night_state := -1
 
 func _ready() -> void:
 	_cache_window_surfaces()
+	_apply_window_material(false)
 	call_deferred("_connect_world_time")
 
 
 func _exit_tree() -> void:
-	if _world_time != null and _world_time.time_changed.is_connected(_on_time_changed):
-		_world_time.time_changed.disconnect(_on_time_changed)
+	if (
+		_world_time != null
+		and _world_time.night_state_changed.is_connected(_on_night_state_changed)
+	):
+		_world_time.night_state_changed.disconnect(_on_night_state_changed)
 
 
 func _cache_window_surfaces() -> void:
@@ -45,9 +54,6 @@ func _collect_window_surfaces(node: Node) -> void:
 		var window_mesh := node as MeshInstance3D
 		var surface_index := long_window_surface if "long" in window_mesh.name.to_lower() else regular_window_surface
 		if window_mesh.mesh != null and surface_index < window_mesh.mesh.get_surface_count():
-			# These meshes change material at runtime, so a static MultiMesh copy
-			# would remain stuck on the daytime material while hiding the source.
-			window_mesh.add_to_group(&"exclude_static_batch")
 			_window_surfaces.append({
 				"mesh": window_mesh,
 				"surface": surface_index,
@@ -88,6 +94,12 @@ func _assign_lit_window_pattern(search_root: Node) -> void:
 		shuffled_indices[swap_index] = held_index
 	for index in lit_count:
 		_window_surfaces[shuffled_indices[index]]["lit"] = true
+	for entry in _window_surfaces:
+		var window_mesh := entry["mesh"] as MeshInstance3D
+		window_mesh.set_meta(META_WINDOW_SURFACE, int(entry["surface"]))
+		window_mesh.set_meta(META_WINDOW_LIT, bool(entry["lit"]))
+		window_mesh.set_meta(META_WINDOW_OFF_MATERIAL, window_off_material)
+		window_mesh.set_meta(META_WINDOW_ON_MATERIAL, window_on_material)
 
 
 func _connect_world_time() -> void:
@@ -96,14 +108,13 @@ func _connect_world_time() -> void:
 		push_warning("BuildingWindowMaterialComponent could not find the WorldTimeComponent.")
 		_apply_window_material(false)
 		return
-	if not _world_time.time_changed.is_connected(_on_time_changed):
-		_world_time.time_changed.connect(_on_time_changed)
+	if not _world_time.night_state_changed.is_connected(_on_night_state_changed):
+		_world_time.night_state_changed.connect(_on_night_state_changed)
 	_apply_window_material(_world_time.is_nighttime())
 
 
-func _on_time_changed(_date_text: String, _time_text: String) -> void:
-	if _world_time != null:
-		_apply_window_material(_world_time.is_nighttime())
+func _on_night_state_changed(is_night: bool) -> void:
+	_apply_window_material(is_night)
 
 
 func _apply_window_material(turn_on: bool) -> void:

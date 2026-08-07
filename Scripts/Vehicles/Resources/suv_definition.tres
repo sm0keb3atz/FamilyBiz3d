@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="VehicleDefinition" load_steps=8 format=3]
+[ext_resource type="Script" path="res://Scripts/Vehicles/vehicle_definition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://Assets/MapStuff/Meshs/Vehicles/SK_veh_SUV_01.gltf" id="2"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarDoorOpen-Close.wav" id="3"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarStart.wav" id="4"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CorvetteIdle.wav" id="5"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarOff.wav" id="6"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/tires_squal_loop.wav" id="7"]
+[resource]
+script = ExtResource("1")
+vehicle_id = &"suv"
+display_name = "SUV"
+description = "A composed all-rounder combining useful speed with stable, confident grip."
+purchase_price = 16000
+acceleration_rating = 3
+handling_rating = 3
+braking_rating = 3
+catalog_order = 5
+visual_scene = ExtResource("2")
+preserve_authored_wheel_positions = true
+collision_size = Vector3(2.15, 1.55, 4.55)
+collision_offset = Vector3(0, 0.95, -0.05)
+front_left_wheel_anchor = Vector3(0.838, 0.596849, 1.604)
+front_right_wheel_anchor = Vector3(-0.838, 0.596849, 1.604)
+rear_left_wheel_anchor = Vector3(0.838, 0.596849, -1.424)
+rear_right_wheel_anchor = Vector3(-0.838, 0.596849, -1.424)
+mass = 1600.0
+engine_force = 8600.0
+service_brake_force = 100.0
+max_forward_speed = 42.5
+max_steering_degrees = 31.0
+high_speed_steering_ratio = 0.25
+forward_gear_speed_limits = Array[float]([10.2, 17.85, 25.925, 33.575, 42.5])
+wheel_radius = 0.376849
+front_wheel_friction_slip = 1.55
+rear_wheel_friction_slip = 1.5
+door_stream = ExtResource("3")
+start_stream = ExtResource("4")
+engine_stream = ExtResource("5")
+stop_stream = ExtResource("6")
+tire_screech_stream = ExtResource("7")

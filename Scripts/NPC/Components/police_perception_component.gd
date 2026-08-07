@@ -75,7 +75,18 @@ func _process(delta: float) -> void:
 	)
 	var sampled := false
 	if is_zero_approx(_perception_update_remaining):
-		_cached_can_see_player = _sample_can_see_player()
+		var needs_player_sight := (
+			wanted != null
+			and wanted.wanted_level > 0
+		) or (
+			player_weapon != null
+			and player_weapon.get_equipped_weapon() != null
+		)
+		_cached_can_see_player = (
+			_sample_can_see_player()
+			if needs_player_sight
+			else false
+		)
 		_perception_update_remaining = perception_update_interval
 		sampled = true
 	var has_visual_contact := (
@@ -91,7 +102,11 @@ func _process(delta: float) -> void:
 		_vision_cone_update_remaining = vision_cone_update_interval
 	if has_visual_contact:
 		wanted.report_police_visual_contact(player.global_position)
-	if not sampled or player_weapon.get_equipped_weapon() == null:
+	if (
+		not sampled
+		or player_weapon == null
+		or player_weapon.get_equipped_weapon() == null
+	):
 		return
 	if can_witness_position(player.global_position + Vector3.UP):
 		wanted.report_visible_weapon_witness()

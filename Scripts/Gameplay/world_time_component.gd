@@ -3,6 +3,7 @@ extends Node
 
 signal time_changed(date_text: String, time_text: String)
 signal minute_advanced(absolute_minute: int)
+signal night_state_changed(is_night: bool)
 signal day_ending(report_date: String)
 signal day_ended(report_date: String, earned: int, spent: int)
 signal calendar_skipped(from_absolute_minute: int, to_absolute_minute: int, reason: StringName)
@@ -33,6 +34,8 @@ var active_skip_reason: StringName = &""
 
 var _minute_accumulator := 0.0
 var _last_emitted_minute := -1
+var _last_night_state := false
+var _has_emitted_night_state := false
 var _wallet: PlayerWalletComponent
 @onready var _sun := get_node_or_null(sun_path) as DirectionalLight3D
 @onready var _moon := get_node_or_null(moon_path) as DirectionalLight3D
@@ -41,12 +44,15 @@ var _wallet: PlayerWalletComponent
 
 func _ready() -> void:
 	add_to_group(&"world_time")
+	_configure_environment()
 	_update_visuals()
+	_emit_night_state_changed()
 	_emit_time_changed()
 
 
 func _process(delta: float) -> void:
-	advance_real_seconds(delta)
+	advance_real_seconds(delta, false)
+	_update_visuals(_get_fractional_minute_of_day())
 
 
 func connect_wallet(wallet: PlayerWalletComponent) -> void:
@@ -57,19 +63,21 @@ func connect_wallet(wallet: PlayerWalletComponent) -> void:
 		_wallet.transaction_completed.connect(_on_transaction_completed)
 
 
-func advance_real_seconds(seconds: float) -> void:
+func advance_real_seconds(seconds: float, update_visuals := true) -> void:
 	if seconds <= 0.0:
 		return
 	var seconds_per_minute := real_seconds_per_day / float(MINUTES_PER_DAY)
 	_minute_accumulator += seconds
 	var elapsed_minutes := floori(_minute_accumulator / seconds_per_minute)
 	if elapsed_minutes <= 0:
+		if update_visuals:
+			_update_visuals(_get_fractional_minute_of_day())
 		return
 	_minute_accumulator -= float(elapsed_minutes) * seconds_per_minute
-	advance_minutes(elapsed_minutes)
+	advance_minutes(elapsed_minutes, update_visuals)
 
 
-func advance_minutes(minutes: int) -> void:
+func advance_minutes(minutes: int, update_visuals := true) -> void:
 	for _index in maxi(minutes, 0):
 		minute_of_day += 1
 		if minute_of_day >= MINUTES_PER_DAY:
@@ -81,11 +89,11 @@ func advance_minutes(minutes: int) -> void:
 			var spent := daily_spent
 			daily_earned = 0
 			daily_spent = 0
-			_update_visuals()
-			_emit_time_changed()
 			day_ended.emit(report_date, earned, spent)
 		minute_advanced.emit(get_absolute_minute())
-	_update_visuals()
+	if update_visuals:
+		_update_visuals()
+	_emit_night_state_changed()
 	_emit_time_changed()
 
 
@@ -112,6 +120,7 @@ func fast_forward_days(
 		for _index in days:
 			_advance_date()
 		_update_visuals()
+		_emit_night_state_changed()
 		_emit_time_changed()
 	calendar_skipped.emit(from_minute, get_absolute_minute(), reason)
 
@@ -127,6 +136,7 @@ func fast_forward_years(years_to_advance: int, reason: StringName) -> void:
 	daily_earned = 0
 	daily_spent = 0
 	_update_visuals()
+	_emit_night_state_changed()
 	_last_emitted_minute = -1
 	_emit_time_changed()
 	calendar_skipped.emit(from_minute, get_absolute_minute(), reason)
@@ -202,6 +212,7 @@ func set_time_of_day(hour: int, minute: int) -> bool:
 	var previous_absolute_minute := get_absolute_minute()
 	minute_of_day = hour * 60 + minute
 	_update_visuals()
+	_emit_night_state_changed()
 	_emit_time_changed()
 	var next_absolute_minute := get_absolute_minute()
 	if next_absolute_minute != previous_absolute_minute:
@@ -229,6 +240,7 @@ func set_calendar_date(value_year: int, value_month: int, value_day: int) -> boo
 	weekday = _absolute_day_for_date(year, month, day) % WEEKDAY_NAMES.size()
 	_last_emitted_minute = -1
 	_update_visuals()
+	_emit_night_state_changed()
 	_emit_time_changed()
 	var next_absolute_minute := get_absolute_minute()
 	if next_absolute_minute != previous_absolute_minute:
@@ -263,6 +275,7 @@ func import_save_data(data: Dictionary) -> void:
 	daily_earned = maxi(int(data.get("daily_earned", 0)), 0)
 	daily_spent = maxi(int(data.get("daily_spent", 0)), 0)
 	_update_visuals()
+	_emit_night_state_changed()
 	_emit_time_changed()
 
 
@@ -343,8 +356,40 @@ func _emit_time_changed() -> void:
 	time_changed.emit(get_formatted_date(), get_formatted_time())
 
 
-func _update_visuals() -> void:
-	var hour := float(minute_of_day) / 60.0
+func _emit_night_state_changed(force := false) -> void:
+	var is_night := is_nighttime()
+	if not force and _has_emitted_night_state and _last_night_state == is_night:
+		return
+	_last_night_state = is_night
+	_has_emitted_night_state = true
+	night_state_changed.emit(is_night)
+
+
+func _get_fractional_minute_of_day() -> float:
+	var seconds_per_minute := real_seconds_per_day / float(MINUTES_PER_DAY)
+	if seconds_per_minute <= 0.0:
+		return float(minute_of_day)
+	return fposmod(
+		float(minute_of_day) + _minute_accumulator / seconds_per_minute,
+		float(MINUTES_PER_DAY)
+	)
+
+
+func _configure_environment() -> void:
+	if _world_environment == null or _world_environment.environment == null:
+		return
+	var environment := _world_environment.environment
+	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
+
+
+func _update_visuals(visual_minute := -1.0) -> void:
+	var effective_minute := (
+		float(minute_of_day)
+		if visual_minute < 0.0
+		else visual_minute
+	)
+	var hour := effective_minute / 60.0
 	var daylight_duration := SUNSET_HOUR - SUNRISE_HOUR
 	var daylight_progress := clampf((hour - SUNRISE_HOUR) / daylight_duration, 0.0, 1.0)
 	var daylight := sin(daylight_progress * PI) if hour >= SUNRISE_HOUR and hour <= SUNSET_HOUR else 0.0
@@ -367,7 +412,5 @@ func _update_visuals() -> void:
 		_moon.light_energy = 0.13 * pow(night_strength, 0.7)
 	if _world_environment != null and _world_environment.environment != null:
 		var environment := _world_environment.environment
-		environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 		environment.ambient_light_color = Color(0.18, 0.24, 0.38).lerp(Color(0.72, 0.78, 0.9), daylight)
 		environment.ambient_light_energy = lerpf(0.25, 0.75, daylight)
-		environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY

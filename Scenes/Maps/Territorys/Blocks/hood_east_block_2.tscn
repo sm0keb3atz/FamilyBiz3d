@@ -8,13 +8,18 @@
 [ext_resource type="PackedScene" uid="uid://c0eipv3r5ufeg" path="res://Scenes/Maps/RoadPieces/RoadStraight.tscn" id="5_ihl8a"]
 [ext_resource type="PackedScene" uid="uid://dr3oh2pyyibn5" path="res://Scenes/Maps/RoadPieces/EdgeIntersection.tscn" id="7_wi2nh"]
 [ext_resource type="ArrayMesh" uid="uid://ciqwe8yur35ny" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_04_quarter.glb" id="8_wi2nh"]
+[ext_resource type="ArrayMesh" uid="uid://ci4i6klxu7bk6" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_00.glb" id="9_hj8jh"]
 [ext_resource type="PackedScene" uid="uid://dc6m74vb0nm8e" path="res://Scenes/Maps/Buildings/building_1.tscn" id="9_tt8na"]
 [ext_resource type="PackedScene" uid="uid://6mxy0jff8eru" path="res://Scenes/Maps/Buildings/GunStore.tscn" id="10_7pymp"]
+[ext_resource type="PackedScene" uid="uid://cxly7wbv3ehak" path="res://Assets/MapStuff/Meshs/StreetProps/SM_fence_107b.gltf" id="10_rt6wq"]
+[ext_resource type="ArrayMesh" uid="uid://cvm70cq0cblw8" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_parkingSpot_01.glb" id="11_7bw0i"]
 [ext_resource type="PackedScene" uid="uid://df2a8o772ovav" path="res://Scenes/Maps/Buildings/corner_store.tscn" id="11_hfr2e"]
 [ext_resource type="PackedScene" uid="uid://cexxortle2liv" path="res://Scenes/Maps/Buildings/corner_store2.tscn" id="12_q756g"]
 [ext_resource type="PackedScene" uid="uid://dlx2n61a113ri" path="res://Scenes/Maps/Buildings/building_2.tscn" id="13_i5sdg"]
 [ext_resource type="PackedScene" uid="uid://cban7tcyvqm6b" path="res://Scenes/Maps/Buildings/ClothingStore.tscn" id="14_7pymp"]
 [ext_resource type="PackedScene" uid="uid://blmeb18vhv0uc" path="res://Scenes/Maps/atm_machine.tscn" id="14_tt8na"]
+[ext_resource type="PackedScene" uid="uid://ck8gmw0ycdiqe" path="res://Scenes/Maps/Buildings/building_5.tscn" id="18_rt6wq"]
+[ext_resource type="PackedScene" uid="uid://dyefe1shv2ymu" path="res://Assets/MapStuff/Meshs/StreetProps/SM_fence_104gate.gltf" id="19_ckggg"]
 
 [node name="HoodEastBlock1" type="Node3D" unique_id=177450189]
 
@@ -614,16 +619,73 @@ intersection_id = &"hood_east_north_east"
 transform = Transform3D(3.897, 0, 0, 0, 0.984, 0, 0, 0, 5.5, 64, 0.01, -28)
 mesh = ExtResource("8_wi2nh")
 
+[node name="SmRoad00" type="MeshInstance3D" parent="Alleyway" unique_id=1253362529]
+transform = Transform3D(0.985, 0, 0, 0, 0.985, 0, 0, 0, 2.205, 79.5, 0.01, -45.399998)
+mesh = ExtResource("9_hj8jh")
+
+[node name="SmRoad01" type="MeshInstance3D" parent="Alleyway" unique_id=740881169]
+transform = Transform3D(2.28, 0, 0, 0, 0.99, 0, 0, 0, 5.505, 28, 0.009, -27.899994)
+mesh = ExtResource("9_hj8jh")
+
+[node name="Props" type="Node3D" parent="Alleyway" unique_id=1869958664]
+
+[node name="SM_fence_107b" parent="Alleyway/Props" unique_id=1950602441 instance=ExtResource("10_rt6wq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.200005, 0, -74.9)
+
+[node name="SM_fence_107b2" parent="Alleyway/Props" unique_id=1288955906 instance=ExtResource("10_rt6wq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.200005, 0, -69)
+
+[node name="SM_fence_107b3" parent="Alleyway/Props" unique_id=1648439115 instance=ExtResource("10_rt6wq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.200005, 0, -63.100002)
+
+[node name="SM_fence_107b4" parent="Alleyway/Props" unique_id=1439160673 instance=ExtResource("10_rt6wq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.200005, 0, -57.2)
+
+[node name="SM_fence_107b5" parent="Alleyway/Props" unique_id=1929916036 instance=ExtResource("10_rt6wq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.200005, 0, -51.300003)
+
+[node name="SmParkingSpot01" type="MeshInstance3D" parent="Alleyway" unique_id=131488828]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 79.899994, 0.012, -80.59999)
+mesh = ExtResource("11_7bw0i")
+
+[node name="SmParkingSpot02" type="MeshInstance3D" parent="Alleyway" unique_id=2014379021]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 83.899994, 0.012, -80.59999)
+mesh = ExtResource("11_7bw0i")
+
+[node name="SmParkingSpot03" type="MeshInstance3D" parent="Alleyway" unique_id=385714355]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 87.899994, 0.012, -80.59999)
+mesh = ExtResource("11_7bw0i")
+
+[node name="SmParkingSpot04" type="MeshInstance3D" parent="Alleyway" unique_id=179660256]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 92.7, 0.012, -45.69999)
+mesh = ExtResource("11_7bw0i")
+
+[node name="SmParkingSpot05" type="MeshInstance3D" parent="Alleyway" unique_id=674668686]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 88.7, 0.012, -45.69999)
+mesh = ExtResource("11_7bw0i")
+
+[node name="SmParkingSpot06" type="MeshInstance3D" parent="Alleyway" unique_id=1925863794]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 84.7, 0.012, -45.69999)
+mesh = ExtResource("11_7bw0i")
+
+[node name="SmParkingSpot07" type="MeshInstance3D" parent="Alleyway" unique_id=710607187]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 94.6, 0.012, -67.49999)
+mesh = ExtResource("11_7bw0i")
+
+[node name="SmParkingSpot08" type="MeshInstance3D" parent="Alleyway" unique_id=446406014]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 94.6, 0.012, -63.499992)
+mesh = ExtResource("11_7bw0i")
+
 [node name="Buildings" type="Node3D" parent="." unique_id=1555797954]
 
 [node name="Building1" parent="Buildings" unique_id=1313747676 instance=ExtResource("9_tt8na")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 34, 0, -29)
 
 [node name="Building12" parent="Buildings" unique_id=46088385 instance=ExtResource("9_tt8na")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 50.800003, 0, -29)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 58.000004, 0, -29)
 
 [node name="Building9" parent="Buildings" unique_id=476124924 instance=ExtResource("9_tt8na")]
-transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 81.1, 0, -39.300003)
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 80.7, 0, -39.300003)
 
 [node name="Building17" parent="Buildings" unique_id=1295785446 instance=ExtResource("9_tt8na")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114.7, 0, -57.4)
@@ -647,16 +709,13 @@ transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 30, 
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 30, 0.01, -70.6)
 
 [node name="Building11" parent="Buildings" unique_id=790434252 instance=ExtResource("13_i5sdg")]
-transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 30, 0.01, -88.6)
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 30.6, 0.01, -88.299995)
 
 [node name="Building4" parent="Buildings" unique_id=1635346297 instance=ExtResource("13_i5sdg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, 0.01, -75)
 
-[node name="Building5" parent="Buildings" unique_id=1348827309 instance=ExtResource("13_i5sdg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, 0.01, -88)
-
 [node name="Building7" parent="Buildings" unique_id=1384899513 instance=ExtResource("13_i5sdg")]
-transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 80.9, 0.01, -100.5)
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 80.9, 0.01, -101.4)
 
 [node name="Building13" parent="Buildings" unique_id=1000138490 instance=ExtResource("13_i5sdg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0.01, -107.7)
@@ -679,5 +738,11 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 29, 
 [node name="ClothingStore" parent="Buildings" unique_id=1210165433 instance=ExtResource("14_7pymp")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 79.6, 0.01, -115.799995)
 
+[node name="Building5" parent="Buildings" unique_id=1628571888 instance=ExtResource("18_rt6wq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63.2, 0, -88.6)
+
 [node name="AtmMachine" parent="." unique_id=1534474147 instance=ExtResource("14_tt8na")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 63, 1.4, -115.200005)
+
+[node name="SM_fence_104gate" parent="." unique_id=251990614 instance=ExtResource("19_ckggg")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 47.8, 0, -94.5)

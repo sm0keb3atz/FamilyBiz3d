@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="VehicleDefinition" load_steps=8 format=3]
+[ext_resource type="Script" path="res://Scripts/Vehicles/vehicle_definition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://Assets/MapStuff/Meshs/Vehicles/SK_veh_Sedan_01.gltf" id="2"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarDoorOpen-Close.wav" id="3"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarStart.wav" id="4"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CorvetteIdle.wav" id="5"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarOff.wav" id="6"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/tires_squal_loop.wav" id="7"]
+[resource]
+script = ExtResource("1")
+vehicle_id = &"sedan"
+display_name = "Sedan"
+description = "A balanced daily driver with predictable grip, braking, and road manners."
+purchase_price = 8000
+acceleration_rating = 2
+handling_rating = 3
+braking_rating = 3
+catalog_order = 1
+visual_scene = ExtResource("2")
+preserve_authored_wheel_positions = true
+collision_size = Vector3(2.2, 1.05, 4.85)
+collision_offset = Vector3(0, 0.72, 0.05)
+front_left_wheel_anchor = Vector3(0.886, 0.568836, 1.631)
+front_right_wheel_anchor = Vector3(-0.887, 0.568836, 1.631)
+rear_left_wheel_anchor = Vector3(0.886, 0.568836, -1.321)
+rear_right_wheel_anchor = Vector3(-0.887, 0.568836, -1.321)
+mass = 1400.0
+engine_force = 7200.0
+service_brake_force = 100.0
+max_forward_speed = 38.0
+max_steering_degrees = 32.0
+high_speed_steering_ratio = 0.28
+forward_gear_speed_limits = Array[float]([9.12, 15.96, 23.18, 30.02, 38.0])
+wheel_radius = 0.348836
+front_wheel_friction_slip = 1.55
+rear_wheel_friction_slip = 1.5
+door_stream = ExtResource("3")
+start_stream = ExtResource("4")
+engine_stream = ExtResource("5")
+stop_stream = ExtResource("6")
+tire_screech_stream = ExtResource("7")

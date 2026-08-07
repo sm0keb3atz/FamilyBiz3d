@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="VehicleDefinition" load_steps=8 format=3]
+[ext_resource type="Script" path="res://Scripts/Vehicles/vehicle_definition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://Assets/MapStuff/Meshs/Vehicles/SK_veh_Van_01.gltf" id="2"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarDoorOpen-Close.wav" id="3"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarStart.wav" id="4"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CorvetteIdle.wav" id="5"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/CarOff.wav" id="6"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Vehicles/tires_squal_loop.wav" id="7"]
+[resource]
+script = ExtResource("1")
+vehicle_id = &"van"
+display_name = "Van"
+description = "Heavy and spacious, trading cornering ability for stable utility driving."
+purchase_price = 10000
+acceleration_rating = 2
+handling_rating = 1
+braking_rating = 2
+catalog_order = 2
+visual_scene = ExtResource("2")
+preserve_authored_wheel_positions = true
+collision_size = Vector3(2.25, 1.65, 4.75)
+collision_offset = Vector3(0, 1, 0)
+front_left_wheel_anchor = Vector3(0.863, 0.596849, 1.778)
+front_right_wheel_anchor = Vector3(-0.863, 0.596849, 1.778)
+rear_left_wheel_anchor = Vector3(0.863, 0.596849, -1.43)
+rear_right_wheel_anchor = Vector3(-0.863, 0.596849, -1.43)
+mass = 1750.0
+engine_force = 7000.0
+service_brake_force = 85.0
+max_forward_speed = 34.0
+max_steering_degrees = 26.0
+high_speed_steering_ratio = 0.18
+forward_gear_speed_limits = Array[float]([8.16, 14.28, 20.74, 26.86, 34.0])
+wheel_radius = 0.376849
+front_wheel_friction_slip = 1.25
+rear_wheel_friction_slip = 1.2
+door_stream = ExtResource("3")
+start_stream = ExtResource("4")
+engine_stream = ExtResource("5")
+stop_stream = ExtResource("6")
+tire_screech_stream = ExtResource("7")

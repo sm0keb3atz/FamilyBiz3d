@@ -2,6 +2,11 @@ class_name StaticMultiMeshBatcher
 extends Node3D
 
 const EXCLUDE_GROUP := &"exclude_static_batch"
+const META_WINDOW_SURFACE := &"fb_window_surface"
+const META_WINDOW_LIT := &"fb_window_lit"
+const META_WINDOW_OFF_MATERIAL := &"fb_window_off_material"
+const META_WINDOW_ON_MATERIAL := &"fb_window_on_material"
+const META_WINDOW_BATCH := &"fb_window_batch"
 
 ## Batches repeated static map meshes at runtime while keeping the authored
 ## MeshInstance3D nodes intact and editable in the territory scene.
@@ -13,10 +18,27 @@ const EXCLUDE_GROUP := &"exclude_static_batch"
 
 var batch_count := 0
 var batched_instance_count := 0
+var window_batch_count := 0
+var batched_window_instance_count := 0
+var _window_batches: Array[Dictionary] = []
+var _world_time: WorldTimeComponent
 
 
 func _ready() -> void:
+	call_deferred("_initialize_batches")
+
+
+func _initialize_batches() -> void:
 	_build_batches()
+	_connect_world_time()
+
+
+func _exit_tree() -> void:
+	if (
+		_world_time != null
+		and _world_time.night_state_changed.is_connected(_on_night_state_changed)
+	):
+		_world_time.night_state_changed.disconnect(_on_night_state_changed)
 
 
 func _build_batches() -> void:
@@ -101,6 +123,18 @@ func _get_batch_key(mesh_instance: MeshInstance3D) -> String:
 			if surface_material != null
 			else "0"
 		)
+	if mesh_instance.has_meta(META_WINDOW_SURFACE):
+		var off_material := mesh_instance.get_meta(
+			META_WINDOW_OFF_MATERIAL
+		) as Material
+		var on_material := mesh_instance.get_meta(
+			META_WINDOW_ON_MATERIAL
+		) as Material
+		key_parts.append("window")
+		key_parts.append(str(int(mesh_instance.get_meta(META_WINDOW_SURFACE))))
+		key_parts.append("1" if bool(mesh_instance.get_meta(META_WINDOW_LIT)) else "0")
+		key_parts.append(str(off_material.get_instance_id()) if off_material != null else "0")
+		key_parts.append(str(on_material.get_instance_id()) if on_material != null else "0")
 	return ":".join(key_parts)
 
 
@@ -113,6 +147,15 @@ func _get_batch_mesh(source: MeshInstance3D) -> Mesh:
 		if batch_mesh == source.mesh:
 			batch_mesh = source.mesh.duplicate() as Mesh
 		batch_mesh.surface_set_material(surface_index, surface_material)
+	if source.has_meta(META_WINDOW_SURFACE):
+		if batch_mesh == source.mesh:
+			batch_mesh = source.mesh.duplicate() as Mesh
+		var window_surface := int(source.get_meta(META_WINDOW_SURFACE))
+		var off_material := source.get_meta(
+			META_WINDOW_OFF_MATERIAL
+		) as Material
+		if off_material != null and window_surface < batch_mesh.get_surface_count():
+			batch_mesh.surface_set_material(window_surface, off_material)
 	return batch_mesh
 
 
@@ -134,6 +177,28 @@ func _create_batch(meshes: Array, source_root: Node) -> void:
 	batch.cast_shadow = source.cast_shadow
 	batch.layers = source.layers
 	source_root.add_child(batch)
+	if source.has_meta(META_WINDOW_SURFACE):
+		var window_surface := int(source.get_meta(META_WINDOW_SURFACE))
+		var is_lit_pattern := bool(source.get_meta(META_WINDOW_LIT))
+		var off_material := source.get_meta(
+			META_WINDOW_OFF_MATERIAL
+		) as Material
+		var on_material := source.get_meta(
+			META_WINDOW_ON_MATERIAL
+		) as Material
+		batch.set_meta(META_WINDOW_BATCH, true)
+		batch.set_meta(META_WINDOW_SURFACE, window_surface)
+		batch.set_meta(META_WINDOW_LIT, is_lit_pattern)
+		_window_batches.append({
+			"batch": batch,
+			"mesh": multi_mesh.mesh,
+			"surface": window_surface,
+			"lit": is_lit_pattern,
+			"off_material": off_material,
+			"on_material": on_material,
+		})
+		window_batch_count += 1
+		batched_window_instance_count += meshes.size()
 
 	var inverse_batch_transform := batch.global_transform.affine_inverse()
 	for index in meshes.size():
@@ -146,3 +211,36 @@ func _create_batch(meshes: Array, source_root: Node) -> void:
 
 	batch_count += 1
 	batched_instance_count += meshes.size()
+
+
+func _connect_world_time() -> void:
+	_world_time = get_tree().get_first_node_in_group(
+		&"world_time"
+	) as WorldTimeComponent
+	if _world_time == null:
+		_apply_window_batch_materials(false)
+		return
+	if not _world_time.night_state_changed.is_connected(_on_night_state_changed):
+		_world_time.night_state_changed.connect(_on_night_state_changed)
+	_apply_window_batch_materials(_world_time.is_nighttime())
+
+
+func _on_night_state_changed(is_night: bool) -> void:
+	_apply_window_batch_materials(is_night)
+
+
+func _apply_window_batch_materials(is_night: bool) -> void:
+	for entry in _window_batches:
+		var mesh := entry["mesh"] as Mesh
+		var batch := entry["batch"] as MultiMeshInstance3D
+		if mesh == null or batch == null:
+			continue
+		var material := entry["off_material"] as Material
+		if is_night and bool(entry["lit"]):
+			material = entry["on_material"] as Material
+		var surface := int(entry["surface"])
+		if material == null or surface >= mesh.get_surface_count():
+			continue
+		if mesh.surface_get_material(surface) != material:
+			mesh.surface_set_material(surface, material)
+			batch.multimesh.mesh = mesh

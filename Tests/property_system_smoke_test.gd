@@ -65,6 +65,60 @@ func _run() -> void:
 	assert(wallet.clean_cash == 0)
 	assert(properties.owns(&"hood_east_house_1"))
 	assert(not properties.owns(&"hood_east_house_2"))
+	assert(first.get_definition().dealer_capacity == 2)
+	assert(first.get_definition().vehicle_storage_capacity == 2)
+	assert(first.get_definition().brick_station_cost == 5000)
+	assert(first.get_definition().brick_station_interval_minutes == 180)
+	assert(not properties.purchase_brick_station(
+		first.property_id,
+		time.get_absolute_minute()
+	))
+	var station_dirty_before := wallet.dirty_cash
+	assert(wallet.add_clean(5000, false))
+	assert(properties.purchase_brick_station(
+		first.property_id,
+		time.get_absolute_minute()
+	))
+	assert(wallet.clean_cash == 0)
+	assert(wallet.dirty_cash == station_dirty_before)
+	var station := properties.get_brick_station_state(first.property_id)
+	assert(bool(station.installed))
+	assert(StringName(station.selected_product_id).is_empty())
+	assert(properties.set_brick_station_product(
+		first.property_id,
+		EconomyCatalog.WEED_BRICK.product_id,
+		time.get_absolute_minute()
+	))
+	assert(inventory.add_product(EconomyCatalog.WEED_BRICK, 1))
+	assert(properties.transfer_product(
+		first.property_id,
+		EconomyCatalog.WEED_BRICK,
+		1,
+		true
+	) == 1)
+	station = properties.get_brick_station_state(first.property_id)
+	var first_process_minute := int(station.next_process_minute)
+	properties.process_brick_stations_to(first_process_minute - 1)
+	assert(properties.get_stashed_product_quantity(
+		first.property_id,
+		EconomyCatalog.WEED_BRICK
+	) == 1)
+	properties.process_brick_stations_to(first_process_minute)
+	assert(properties.get_stashed_product_quantity(
+		first.property_id,
+		EconomyCatalog.WEED_BRICK
+	) == 0)
+	assert(properties.get_stashed_product_quantity(
+		first.property_id,
+		EconomyCatalog.WEED_1G
+	) == 100)
+	assert(properties.transfer_product(
+		first.property_id,
+		EconomyCatalog.WEED_1G,
+		100,
+		false
+	) == 100)
+	assert(inventory.remove_product(EconomyCatalog.WEED_1G, 100))
 	await process_frame
 	await physics_frame
 	assert(not first.for_sale_visual.visible)
@@ -129,6 +183,38 @@ func _run() -> void:
 	assert(properties.store_weapon(first.property_id, pistol.weapon_id))
 	assert(properties.get_stash_used_capacity(first.property_id) == 1000)
 	assert(properties.take_weapon(first.property_id, pistol.weapon_id))
+	assert(inventory.add_product(EconomyCatalog.WEED_BRICK, 1))
+	assert(properties.transfer_product(
+		first.property_id,
+		EconomyCatalog.WEED_BRICK,
+		1,
+		true
+	) == 1)
+	assert(properties.set_brick_station_product(
+		first.property_id,
+		&"",
+		time.get_absolute_minute()
+	))
+	assert(properties.set_brick_station_product(
+		first.property_id,
+		EconomyCatalog.WEED_BRICK.product_id,
+		time.get_absolute_minute()
+	))
+	station = properties.get_brick_station_state(first.property_id)
+	properties.process_brick_stations_to(int(station.next_process_minute))
+	station = properties.get_brick_station_state(first.property_id)
+	assert(String(station.last_block_reason).contains("FREE CAPACITY"))
+	assert(properties.get_stashed_product_quantity(
+		first.property_id,
+		EconomyCatalog.WEED_BRICK
+	) == 1)
+	assert(properties.transfer_product(
+		first.property_id,
+		EconomyCatalog.WEED_BRICK,
+		1,
+		false
+	) == 1)
+	assert(inventory.remove_product(EconomyCatalog.WEED_BRICK, 1))
 	assert(properties.transfer_product(first.property_id, EconomyCatalog.WEED_1G, 1, true) == 1)
 	assert(properties.transfer_product(first.property_id, EconomyCatalog.WEED_1G, capacity_fill, false) == capacity_fill)
 	assert(properties.get_stash_used_capacity(first.property_id) == 138)
@@ -163,11 +249,15 @@ func _run() -> void:
 	var stash_menu := player.get_node("PropertyStashMenu") as PropertyStashMenu
 	stash_menu.open_stash(first.property_id)
 	assert(stash_menu.get_node("MenuRoot").visible)
-	assert(stash_menu.get_node("MenuRoot/SafeArea/Page/Summary/Margin/Metrics/Capacity/CapacityBar") != null)
-	assert((stash_menu.get_node("MenuRoot/SafeArea/Page/Body/ItemsPanel/Margin/Content/ItemScroll/ItemGrid") as GridContainer).get_child_count() >= 7)
-	stash_menu.call("_set_category", "drugs")
-	assert((stash_menu.get_node("MenuRoot/SafeArea/Page/Body/ItemsPanel/Margin/Content/ItemScroll/ItemGrid") as GridContainer).get_child_count() == 6)
-	assert((stash_menu.get_node("MenuRoot/SafeArea/Page/Body/DetailsPanel/Margin/Details/Actions/StoreButton") as Button).text == "STORE")
+	assert(stash_menu.find_child("StashTab", true, false) != null)
+	assert(stash_menu.find_child("GarageTab", true, false) != null)
+	assert(stash_menu.find_child("OperationsTab", true, false) != null)
+	assert(stash_menu.find_child("InventoryGrid", true, false) != null)
+	assert(stash_menu.find_child("StashGrid", true, false) != null)
+	stash_menu.call("_set_category", &"drugs")
+	assert(stash_menu.find_child("StashGrid", true, false) != null)
+	stash_menu.call("_set_tab", &"operations")
+	assert(stash_menu.find_child("BrickStationProduct", true, false) != null)
 	stash_menu.close()
 
 	var wardrobe_menu := player.get_node("ClothingStoreMenu") as ClothingStoreMenu

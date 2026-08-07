@@ -96,6 +96,8 @@ var _navigation_buttons: Dictionary[int, Button] = {}
 var _body: HBoxContainer
 var _resize_tween: Tween
 var _selected_territory_id: StringName = &""
+var _territory_management_tab: StringName = &"properties"
+var _selected_property_id: StringName = &""
 var _legal_list: VBoxContainer
 var _expanded_legal_case_id := ""
 var _known_pending_case_ids: Array[String] = []
@@ -112,6 +114,9 @@ func _ready() -> void:
 	if properties != null:
 		properties.ownership_changed.connect(_on_property_changed)
 		properties.stash_changed.connect(_on_property_stash_changed)
+		properties.brick_station_changed.connect(
+			_on_property_brick_station_changed
+		)
 	if wallet != null:
 		wallet.money_changed.connect(_on_wallet_changed)
 	if legal != null:
@@ -189,9 +194,14 @@ func _build_inventory_shell() -> void:
 func _select_sidebar_tab(index: int) -> void:
 	if index == 4:
 		_selected_territory_id = &""
+	elif index == 3:
+		_selected_property_id = &""
 	tab_container.current_tab = index
-	if index == 4 and _is_open:
-		_refresh_territory()
+	if _is_open:
+		if index == 4:
+			_refresh_territory()
+		elif index == 3:
+			_refresh_properties()
 	_update_navigation_styles()
 
 
@@ -204,7 +214,7 @@ func _on_dashboard_tab_changed(_index: int) -> void:
 func _animate_panel_for_tab(animated: bool, wide_override := -1) -> void:
 	var viewport_size := get_viewport().get_visible_rect().size
 	var wide_mode := (
-		tab_container.current_tab == 4 or tab_container.current_tab == 5
+		tab_container.current_tab in [3, 4, 5]
 		if wide_override < 0
 		else wide_override == 1
 	)
@@ -1253,6 +1263,7 @@ func _create_owned_territory_card(
 
 func _select_owned_territory(territory_id: StringName) -> void:
 	_selected_territory_id = territory_id
+	_territory_management_tab = &"properties"
 	_refresh_territory()
 
 
@@ -1287,28 +1298,151 @@ func _render_territory_dashboard(boundary: TerritoryBoundary) -> void:
 	left.add_child(_create_revenue_panel(territory_id, earnings))
 	left.add_child(_create_territory_details_panel(supply, earnings))
 	workspace.add_child(left)
-	var dealer_panel := _create_section_panel("DEALER MANAGEMENT")
-	dealer_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	dealer_panel.size_flags_stretch_ratio = 1.15
-	var dealer_box := dealer_panel.get_meta("content") as VBoxContainer
-	var roster := _territory_dealers.get_roster(territory_id)
-	dealer_box.add_child(_create_dealer_table_header(earnings))
-	var current_zone: StringName = &""
-	for entry in roster:
-		var zone_id := StringName(entry.zone_id)
-		if zone_id != current_zone:
-			current_zone = zone_id
-			var heading := _detail_label(
-				String(zone_id).replace(
-					"%s_" % String(territory_id),
-					""
-				).replace("_", " ").to_upper() + " ZONE"
-			)
-			heading.add_theme_color_override("font_color", Color(0.24, 0.8, 0.86))
-			dealer_box.add_child(heading)
-		dealer_box.add_child(_create_dealer_management_row(territory_id, entry, int(supply.product_units)))
-	workspace.add_child(dealer_panel)
+	var logistics := _create_territory_management_panel(
+		territory_id
+	)
+	logistics.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	logistics.size_flags_stretch_ratio = 1.15
+	workspace.add_child(logistics)
 	territory_list.add_child(workspace)
+
+
+func _create_territory_management_panel(
+	territory_id: StringName
+) -> PanelContainer:
+	var panel := _create_section_panel("TERRITORY MANAGEMENT")
+	var box := panel.get_meta("content") as VBoxContainer
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 6)
+	box.add_child(tabs)
+	for tab_id in [&"properties", &"dealers"]:
+		var button := Button.new()
+		button.text = String(tab_id).to_upper()
+		button.custom_minimum_size = Vector2(150, 36)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.toggle_mode = true
+		button.set_pressed_no_signal(tab_id == _territory_management_tab)
+		button.pressed.connect(_set_territory_management_tab.bind(tab_id))
+		_style_button(
+			button,
+			Color(0.22, 0.72, 0.78)
+			if tab_id == _territory_management_tab
+			else Color(0.36, 0.42, 0.46)
+		)
+		tabs.add_child(button)
+	if _territory_management_tab == &"dealers":
+		box.add_child(_create_territory_dealer_duty_panel(territory_id))
+	else:
+		box.add_child(_create_territory_property_logistics_panel(territory_id))
+	return panel
+
+
+func _set_territory_management_tab(tab_id: StringName) -> void:
+	if tab_id != &"properties" and tab_id != &"dealers":
+		return
+	_territory_management_tab = tab_id
+	_refresh_territory()
+
+
+func _create_territory_dealer_duty_panel(
+	territory_id: StringName
+) -> PanelContainer:
+	var panel := _create_section_panel("DEALERS ON CALL")
+	var box := panel.get_meta("content") as VBoxContainer
+	box.add_child(_detail_label(
+		"Call a hired dealer to follow you in combat. Their property income pauses until they are sent home."
+	))
+	var hired: Array[Dictionary] = []
+	for entry in _territory_dealers.get_roster(territory_id):
+		if bool(entry.get("employed", false)):
+			hired.append(entry)
+	if hired.is_empty():
+		var empty := _detail_label(
+			"No hired dealers are available in this territory. Assign dealers from a property's Operations tab."
+		)
+		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		empty.custom_minimum_size.y = 80
+		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		box.add_child(empty)
+		return panel
+	for entry in hired:
+		box.add_child(_create_dealer_duty_row(territory_id, entry))
+	return panel
+
+
+func _create_dealer_duty_row(
+	territory_id: StringName,
+	entry: Dictionary
+) -> Control:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.045, 0.057, 0.064, 0.96),
+			Color(0.1, 0.24, 0.27, 0.9)
+		)
+	)
+	var margin := MarginContainer.new()
+	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		margin.add_theme_constant_override(side, 9)
+	panel.add_child(margin)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	margin.add_child(row)
+	var details := VBoxContainer.new()
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(details)
+	var name_label := Label.new()
+	name_label.text = String(entry.get("member_id", "dealer")).replace("_", " ").capitalize()
+	name_label.add_theme_font_size_override("font_size", 15)
+	name_label.add_theme_color_override("font_color", Color(0.9, 0.94, 0.96))
+	details.add_child(name_label)
+	var property_id := StringName(entry.get("property_id", ""))
+	var property_definition := PropertyCatalog.get_by_id(property_id)
+	var assignment := (
+		property_definition.display_name
+		if property_definition != null
+		else "Unassigned"
+	)
+	details.add_child(_detail_label(
+		"Level %d  •  %s  •  Today $%s net" % [
+			int(entry.get("level", 1)),
+			assignment,
+			_money(int(entry.get("today_net", 0))),
+		]
+	))
+	var following := bool(entry.get("following", false))
+	var status := _table_value(
+		"FOLLOWING" if following else "AVAILABLE",
+		92,
+		Color(0.22, 0.68, 0.95) if following else Color(0.25, 0.85, 0.42)
+	)
+	row.add_child(status)
+	var duty_button := Button.new()
+	duty_button.text = "SEND HOME" if following else "CALL"
+	duty_button.custom_minimum_size = Vector2(112, 36)
+	duty_button.tooltip_text = (
+		"Return this dealer to their assigned property and resume income"
+		if following
+		else "Call this dealer to follow you as a bodyguard"
+	)
+	duty_button.pressed.connect(
+		_send_dealer_back.bind(
+			territory_id,
+			StringName(entry.get("zone_id", "")),
+			StringName(entry.get("member_id", ""))
+		)
+		if following
+		else _call_dealer.bind(
+			territory_id,
+			StringName(entry.get("zone_id", "")),
+			StringName(entry.get("member_id", ""))
+		)
+	)
+	_style_button(duty_button, Color(0.25, 0.65, 0.85))
+	row.add_child(duty_button)
+	return panel
 
 
 func _create_territory_header(display_name: String) -> Control:
@@ -1449,8 +1583,91 @@ func _create_territory_details_panel(supply: Dictionary, earnings: Dictionary) -
 	box.add_child(_create_detail_row("STAFF", "%d / %d hired" % [int(earnings.staffed), int(earnings.total_slots)]))
 	for stash in supply.get("stashes", []) as Array:
 		box.add_child(_create_stash_supply_row(stash))
-	box.add_child(_detail_label("Bricks are excluded from dealer supply. Break them down at a stash first."))
+	box.add_child(_detail_label(
+		"Dealers only use the stash assigned to them. Brick stations "
+		+ "automate retail-unit production per property."
+	))
 	return panel
+
+
+func _create_territory_property_logistics_panel(
+	territory_id: StringName
+) -> PanelContainer:
+	var panel := _create_section_panel("PROPERTY LOGISTICS")
+	var box := panel.get_meta("content") as VBoxContainer
+	var definitions := properties.get_owned_stash_definitions(
+		territory_id
+	)
+	if definitions.is_empty():
+		box.add_child(_detail_label(
+			"Own a stash house in this territory to create dealer capacity."
+		))
+		return panel
+	for definition in definitions:
+		var supply := _territory_dealers.get_property_supply_summary(
+			definition.property_id
+		)
+		var earnings := _territory_dealers.get_property_earnings_summary(
+			definition.property_id
+		)
+		var station := properties.get_brick_station_state(
+			definition.property_id
+		)
+		var card := PanelContainer.new()
+		card.add_theme_stylebox_override(
+			"panel",
+			_make_panel_style(
+				Color(0.05, 0.064, 0.075, 0.98),
+				Color(0.18, 0.43, 0.46, 0.8)
+			)
+		)
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		card.add_child(row)
+		var details := VBoxContainer.new()
+		details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(details)
+		var name_label := Label.new()
+		name_label.text = definition.display_name.to_upper()
+		name_label.add_theme_font_size_override("font_size", 16)
+		details.add_child(name_label)
+		details.add_child(_detail_label(
+			"Dealers %d / %d  •  Supply %d units  •  Today $%s"
+			% [
+				int(earnings.staffed),
+				int(earnings.total_slots),
+				int(supply.product_units),
+				_money(int(earnings.today_net)),
+			]
+		))
+		details.add_child(_detail_label(
+			"Stash $%s dirty  •  Brick station: %s"
+			% [
+				_money(int(supply.dirty_cash)),
+				_station_short_status(station),
+			]
+		))
+		var manage := Button.new()
+		manage.text = "MANAGE  >"
+		manage.custom_minimum_size = Vector2(120, 38)
+		manage.pressed.connect(
+			_manage_property_from_territory.bind(
+				definition.property_id
+			)
+		)
+		_style_button(manage, Color(0.22, 0.72, 0.78))
+		row.add_child(manage)
+		box.add_child(card)
+	return panel
+
+
+func _manage_property_from_territory(
+	property_id: StringName
+) -> void:
+	_selected_property_id = property_id
+	tab_container.current_tab = 3
+	_update_navigation_styles()
+	_refresh_properties()
 
 
 func _create_detail_row(label_text: String, value: String) -> Control:
@@ -1508,7 +1725,12 @@ func _create_stash_supply_row(stash: Dictionary) -> Control:
 	return panel
 
 
-func _create_dealer_management_row(territory_id: StringName, entry: Dictionary, available_units: int) -> Control:
+func _create_dealer_management_row(
+	territory_id: StringName,
+	entry: Dictionary,
+	available_units: int,
+	property_context: StringName = &""
+) -> Control:
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.045, 0.057, 0.064, 0.96), Color(0.1, 0.17, 0.19, 0.9)))
 	var row := HBoxContainer.new()
@@ -1555,7 +1777,7 @@ func _create_dealer_management_row(territory_id: StringName, entry: Dictionary, 
 		row.add_child(button)
 	else:
 		var actions := HBoxContainer.new()
-		actions.custom_minimum_size.x = 238
+		actions.custom_minimum_size.x = 360 if not property_context.is_empty() else 238
 		actions.add_theme_constant_override("separation", 4)
 		var max_level := bool(entry.max_level)
 		button.text = "MAX LEVEL" if max_level else "UPGRADE $%s" % _money(int(entry.upgrade_cost))
@@ -1592,6 +1814,45 @@ func _create_dealer_management_row(territory_id: StringName, entry: Dictionary, 
 		fire_button.pressed.connect(_fire_dealer.bind(territory_id, entry.zone_id, entry.member_id))
 		_style_button(fire_button, Color(0.78, 0.22, 0.26))
 		actions.add_child(fire_button)
+		if not property_context.is_empty():
+			var move_picker := OptionButton.new()
+			move_picker.name = "DealerPropertyReassignment"
+			move_picker.custom_minimum_size.x = 112
+			var current_definition := PropertyCatalog.get_by_id(
+				property_context
+			)
+			move_picker.add_item(
+				current_definition.display_name
+				if current_definition != null else "ASSIGNED"
+			)
+			move_picker.set_item_metadata(0, String(property_context))
+			for definition in properties.get_owned_stash_definitions(
+				territory_id
+			):
+				if definition.property_id == property_context:
+					continue
+				if (
+					_territory_dealers.get_property_roster(
+						definition.property_id
+					).size()
+					>= definition.dealer_capacity
+				):
+					continue
+				move_picker.add_item("MOVE: %s" % definition.display_name)
+				move_picker.set_item_metadata(
+					move_picker.item_count - 1,
+					String(definition.property_id)
+				)
+			move_picker.disabled = move_picker.item_count <= 1
+			move_picker.item_selected.connect(
+				_on_dealer_property_selected.bind(
+					territory_id,
+					StringName(entry.zone_id),
+					StringName(entry.member_id),
+					move_picker
+				)
+			)
+			actions.add_child(move_picker)
 		row.add_child(actions)
 	return panel
 
@@ -1616,6 +1877,31 @@ func _detail_label(text: String) -> Label:
 func _hire_dealer(territory_id: StringName, zone_id: StringName, member_id: StringName) -> void:
 	var success := _territory_dealers.hire_dealer(territory_id, zone_id, member_id)
 	feedback_label.text = "Dealer hired at Level 1." if success else "Could not hire that dealer."
+	_refresh_territory()
+
+
+func _on_dealer_property_selected(
+	index: int,
+	territory_id: StringName,
+	zone_id: StringName,
+	member_id: StringName,
+	picker: OptionButton
+) -> void:
+	if index <= 0:
+		return
+	var property_id := StringName(picker.get_item_metadata(index))
+	var success := _territory_dealers.reassign_dealer(
+		territory_id,
+		zone_id,
+		member_id,
+		property_id
+	)
+	feedback_label.text = (
+		"Dealer reassigned to %s."
+		% picker.get_item_text(index).trim_prefix("MOVE: ")
+		if success else "Could not reassign that dealer."
+	)
+	_refresh_properties()
 	_refresh_territory()
 
 
@@ -1671,8 +1957,20 @@ func _refresh_properties() -> void:
 	for child in property_list.get_children():
 		child.queue_free()
 	if properties == null or properties.get_owned_definitions().is_empty():
+		_selected_property_id = &""
 		property_list.add_child(_create_center_label("No properties owned."))
 		return
+	_selected_property_id = &""
+	var heading := Label.new()
+	heading.text = "OWNED PROPERTIES"
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	heading.add_theme_font_size_override("font_size", 28)
+	property_list.add_child(heading)
+	var subtitle := _detail_label(
+		"Stash houses control dealer staffing, supply, and brick automation."
+	)
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	property_list.add_child(subtitle)
 	for definition in properties.get_owned_definitions():
 		property_list.add_child(_create_property_row(definition))
 
@@ -1692,15 +1990,468 @@ func _create_property_row(definition: PropertyDefinition) -> Control:
 	title.add_theme_font_size_override("font_size", 21)
 	box.add_child(title)
 	var location := Label.new()
-	location.text = "%s  •  Bed & Save  •  Wardrobe  •  Private Stash" % definition.neighborhood
+	location.text = (
+		"%s  •  Bed & Save  •  Wardrobe  •  Private Stash"
+		% definition.neighborhood
+		if definition.is_stash_house()
+		else "%s  •  Passive Front Business" % definition.neighborhood
+	)
 	location.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82))
 	box.add_child(location)
+	if definition.is_front_business():
+		var business := properties.get_business_state(definition.property_id)
+		var business_summary := Label.new()
+		business_summary.text = (
+			"Stock %d / %d  •  Pending $%s Clean  •  Lifetime $%s"
+			% [
+				int(business.get("stock", 0)),
+				definition.business_stock_capacity,
+				_money(int(business.get("accumulated_earnings", 0))),
+				_money(int(business.get("total_earned", 0))),
+			]
+		)
+		business_summary.add_theme_color_override(
+			"font_color",
+			Color(0.9, 0.66, 0.3)
+		)
+		box.add_child(business_summary)
+		return panel
 	var summary := properties.get_stash_summary(definition.property_id)
+	var earnings := (
+		_territory_dealers.get_property_earnings_summary(
+			definition.property_id
+		)
+		if _territory_dealers != null else {
+			"staffed": 0,
+			"total_slots": definition.dealer_capacity,
+			"today_net": 0,
+		}
+	)
+	var station := properties.get_brick_station_state(
+		definition.property_id
+	)
+	var vehicle_garage := get_parent().get_node_or_null(
+		"Components/VehicleGarageComponent"
+	) as PlayerVehicleGarageComponent
 	var storage := Label.new()
-	storage.text = "Stored: $%s dirty  •  %d drug units  •  %d weapons" % [_money(int(summary["dirty_cash"])), int(summary["product_units"]), int(summary["weapon_count"])]
+	storage.text = (
+		"Stored: $%s dirty  •  %d drug units  •  %d weapons\n"
+		+ "Vehicles: %d / %d  •  Dealers: %d / %d  •  Today: $%s  •  Brick station: %s"
+	) % [
+		_money(int(summary["dirty_cash"])),
+		int(summary["product_units"]),
+		int(summary["weapon_count"]),
+		vehicle_garage.get_stored_count(definition.property_id) if vehicle_garage != null else 0,
+		definition.vehicle_storage_capacity,
+		int(earnings.staffed),
+		int(earnings.total_slots),
+		_money(int(earnings.today_net)),
+		_station_short_status(station),
+	]
 	storage.add_theme_color_override("font_color", Color(0.9, 0.66, 0.3))
 	box.add_child(storage)
+	var manage := Button.new()
+	manage.text = "MANAGE PROPERTY  >"
+	manage.custom_minimum_size = Vector2(190, 38)
+	manage.size_flags_horizontal = Control.SIZE_SHRINK_END
+	manage.pressed.connect(_select_property.bind(definition.property_id))
+	_style_button(manage, Color(0.22, 0.72, 0.78))
+	box.add_child(manage)
 	return panel
+
+
+func _select_property(property_id: StringName) -> void:
+	var property_hub := get_parent().get_node_or_null("PropertyStashMenu")
+	if property_hub == null:
+		feedback_label.text = "Property management is unavailable."
+		return
+	if not menu_controller.replace_open(&"inventory", &"property_hub"):
+		feedback_label.text = "Could not open property management."
+		return
+	_is_open = false
+	menu_root.visible = false
+	_animate_panel_for_tab(false, 0)
+	property_hub.call(
+		"open_remote",
+		property_id,
+		&"operations",
+		true
+	)
+
+
+func _show_property_list() -> void:
+	_selected_property_id = &""
+	_refresh_properties()
+
+
+func _render_property_dashboard(definition: PropertyDefinition) -> void:
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 10)
+	var back := Button.new()
+	back.text = "<  ALL PROPERTIES"
+	back.custom_minimum_size = Vector2(180, 36)
+	back.pressed.connect(_show_property_list)
+	_style_button(back, Color(0.22, 0.68, 0.74))
+	header.add_child(back)
+	var title := Label.new()
+	title.text = definition.display_name.to_upper()
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 27)
+	header.add_child(title)
+	var balance := Control.new()
+	balance.custom_minimum_size.x = 180
+	header.add_child(balance)
+	property_list.add_child(header)
+	var supply := (
+		_territory_dealers.get_property_supply_summary(
+			definition.property_id
+		)
+		if _territory_dealers != null
+		else properties.get_property_supply_summary(
+			definition.property_id,
+			EconomyCatalog.get_gram_products()
+		)
+	)
+	var earnings := (
+		_territory_dealers.get_property_earnings_summary(
+			definition.property_id
+		)
+		if _territory_dealers != null
+		else {
+			"staffed": 0,
+			"total_slots": definition.dealer_capacity,
+			"today_net": 0,
+			"lifetime_net": 0,
+		}
+	)
+	var stats_row := HBoxContainer.new()
+	stats_row.add_theme_constant_override("separation", 8)
+	stats_row.add_child(_create_stat_card(
+		"DEALERS",
+		"%d / %d" % [int(earnings.staffed), int(earnings.total_slots)],
+		"Assigned to this stash",
+		Color(0.72, 0.3, 0.88),
+		float(earnings.staffed) / maxf(float(earnings.total_slots), 1.0)
+	))
+	stats_row.add_child(_create_stat_card(
+		"SELLABLE SUPPLY",
+		"%d UNITS" % int(supply.product_units),
+		"This stash only",
+		Color(0.18, 0.68, 1.0),
+		-1.0
+	))
+	stats_row.add_child(_create_stat_card(
+		"DAILY NET",
+		"$%s" % _money(int(earnings.today_net)),
+		"Lifetime $%s" % _money(int(earnings.lifetime_net)),
+		Color(0.2, 0.82, 0.42),
+		-1.0
+	))
+	stats_row.add_child(_create_stat_card(
+		"STASH CASH",
+		"$%s" % _money(int(supply.dirty_cash)),
+		"Dirty Cash",
+		Color(0.93, 0.68, 0.16),
+		-1.0
+	))
+	property_list.add_child(stats_row)
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 10)
+	var station_panel := _create_brick_station_panel(definition)
+	station_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	columns.add_child(station_panel)
+	var dealer_panel := _create_property_dealer_panel(
+		definition,
+		supply,
+		earnings
+	)
+	dealer_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	columns.add_child(dealer_panel)
+	property_list.add_child(columns)
+
+
+func _create_brick_station_panel(
+	definition: PropertyDefinition
+) -> PanelContainer:
+	var panel := _create_section_panel("BRICK BREAKDOWN STATION")
+	var box := panel.get_meta("content") as VBoxContainer
+	var state := properties.get_brick_station_state(definition.property_id)
+	var installed := bool(state.get("installed", false))
+	box.add_child(_detail_label(
+		"Converts one selected brick every 3 in-game hours. "
+		+ "Output stays in this stash."
+	))
+	var status := Label.new()
+	status.name = "PropertyBrickStationStatus"
+	status.add_theme_font_size_override("font_size", 18)
+	status.add_theme_color_override(
+		"font_color",
+		Color(0.2, 0.82, 0.42)
+		if installed else Color(0.93, 0.68, 0.16)
+	)
+	status.text = _station_detailed_status(state)
+	box.add_child(status)
+	if not installed:
+		box.add_child(_detail_label(
+			"Cost: $%s Clean  •  Available: $%s Clean"
+			% [
+				_money(definition.brick_station_cost),
+				_money(wallet.clean_cash),
+			]
+		))
+		var purchase := Button.new()
+		purchase.name = "PropertyBrickStationPurchase"
+		purchase.text = "INSTALL  $%s CLEAN" % _money(
+			definition.brick_station_cost
+		)
+		purchase.disabled = not wallet.can_spend_clean(
+			definition.brick_station_cost
+		)
+		purchase.pressed.connect(
+			_purchase_property_brick_station.bind(
+				definition.property_id
+			)
+		)
+		_style_button(purchase, Color(0.9, 0.58, 0.18))
+		box.add_child(purchase)
+		return panel
+	var selector := OptionButton.new()
+	selector.name = "PropertyBrickStationProduct"
+	selector.add_item("OFF")
+	selector.set_item_metadata(0, "")
+	var selected_id := StringName(
+		state.get("selected_product_id", "")
+	)
+	var selected_index := 0
+	for product in EconomyCatalog.get_brick_products():
+		selector.add_item(product.display_name.to_upper())
+		var index := selector.item_count - 1
+		selector.set_item_metadata(index, String(product.product_id))
+		if product.product_id == selected_id:
+			selected_index = index
+	selector.select(selected_index)
+	selector.item_selected.connect(
+		_on_property_station_product_selected.bind(
+			definition.property_id,
+			selector
+		)
+	)
+	box.add_child(selector)
+	var selected_product := EconomyCatalog.get_product(selected_id)
+	if selected_product != null:
+		box.add_child(_detail_label(
+			"Stored: %d %s  •  Output per cycle: %d %s"
+			% [
+				properties.get_stashed_product_quantity(
+					definition.property_id,
+					selected_product
+				),
+				selected_product.display_name,
+				selected_product.breakdown_amount,
+				selected_product.breakdown_product.display_name,
+			]
+		))
+	return panel
+
+
+func _create_property_dealer_panel(
+	definition: PropertyDefinition,
+	supply: Dictionary,
+	earnings: Dictionary
+) -> PanelContainer:
+	var panel := _create_section_panel("DEALERS  •  PROPERTY ASSIGNMENTS")
+	var box := panel.get_meta("content") as VBoxContainer
+	if _territory_dealers == null:
+		box.add_child(_detail_label("Dealer service unavailable."))
+		return panel
+	if not _territory_dealers.can_manage_property_dealers(
+		definition.property_id
+	):
+		box.add_child(_detail_label(
+			"Take control of %s before hiring dealers for this property."
+			% definition.neighborhood
+		))
+		return panel
+	box.add_child(_create_dealer_table_header(earnings))
+	var roster := _territory_dealers.get_property_roster(
+		definition.property_id
+	)
+	for entry in roster:
+		box.add_child(_create_dealer_management_row(
+			definition.territory_id,
+			entry,
+			int(supply.product_units),
+			definition.property_id
+		))
+	var open_slots := maxi(
+		definition.dealer_capacity - roster.size(),
+		0
+	)
+	for slot_index in open_slots:
+		box.add_child(_create_property_hire_row(
+			definition,
+			slot_index + roster.size() + 1
+		))
+	return panel
+
+
+func _create_property_hire_row(
+	definition: PropertyDefinition,
+	slot_number: int
+) -> Control:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.045, 0.057, 0.064, 0.96),
+			Color(0.1, 0.17, 0.19, 0.9)
+		)
+	)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	panel.add_child(row)
+	var label := _detail_label("SLOT %d  •  VACANT" % slot_number)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(label)
+	var picker := OptionButton.new()
+	picker.name = "DealerCandidatePicker"
+	picker.custom_minimum_size.x = 205
+	var candidates := _territory_dealers.get_available_candidates(
+		definition.territory_id
+	)
+	for entry in candidates:
+		picker.add_item(
+			String(entry.member_id).replace("_", " ").capitalize()
+		)
+		picker.set_item_metadata(
+			picker.item_count - 1,
+			{
+				"zone_id": String(entry.zone_id),
+				"member_id": String(entry.member_id),
+			}
+		)
+	picker.disabled = candidates.is_empty()
+	row.add_child(picker)
+	var hire := Button.new()
+	hire.name = "PropertyDealerHire"
+	hire.text = "HIRE  $%s" % _money(
+		TerritoryDealerService.HIRE_FEE
+	)
+	hire.disabled = (
+		candidates.is_empty()
+		or not wallet.can_spend_dirty(
+			TerritoryDealerService.HIRE_FEE
+		)
+	)
+	hire.pressed.connect(
+		_hire_property_dealer.bind(
+			definition.property_id,
+			definition.territory_id,
+			picker
+		)
+	)
+	_style_button(hire, Color(0.2, 0.72, 0.48))
+	row.add_child(hire)
+	return panel
+
+
+func _station_short_status(state: Dictionary) -> String:
+	if not bool(state.get("installed", false)):
+		return "Not installed"
+	var selected_id := StringName(
+		state.get("selected_product_id", "")
+	)
+	if selected_id.is_empty():
+		return "Off"
+	var product := EconomyCatalog.get_product(selected_id)
+	return (
+		"%s / Blocked" % product.get_short_display_name()
+		if not String(state.get("last_block_reason", "")).is_empty()
+		else "%s / Active" % product.get_short_display_name()
+	)
+
+
+func _station_detailed_status(state: Dictionary) -> String:
+	if not bool(state.get("installed", false)):
+		return "NOT INSTALLED"
+	var selected_id := StringName(
+		state.get("selected_product_id", "")
+	)
+	if selected_id.is_empty():
+		return "INSTALLED  •  OFF"
+	var product := EconomyCatalog.get_product(selected_id)
+	var block_reason := String(state.get("last_block_reason", ""))
+	var next_minute := int(state.get("next_process_minute", -1))
+	var remaining := maxi(next_minute - _get_absolute_minute(), 0)
+	return "%s  •  %s  •  %dh %02dm" % [
+		product.display_name.to_upper(),
+		"BLOCKED: %s" % block_reason
+		if not block_reason.is_empty() else "ACTIVE",
+		remaining / 60,
+		remaining % 60,
+	]
+
+
+func _purchase_property_brick_station(
+	property_id: StringName
+) -> void:
+	var success := properties.purchase_brick_station(
+		property_id,
+		_get_absolute_minute()
+	)
+	feedback_label.text = (
+		"Brick Breakdown Station installed for $5,000 Clean Cash."
+		if success else "Could not install the brick station."
+	)
+	_refresh_properties()
+
+
+func _on_property_station_product_selected(
+	index: int,
+	property_id: StringName,
+	selector: OptionButton
+) -> void:
+	if index < 0:
+		return
+	var product_id := StringName(selector.get_item_metadata(index))
+	var success := properties.set_brick_station_product(
+		property_id,
+		product_id,
+		_get_absolute_minute()
+	)
+	feedback_label.text = (
+		"Brick automation turned off."
+		if success and product_id.is_empty()
+		else "Brick station set to %s."
+		% selector.get_item_text(index)
+		if success
+		else "Could not change the brick station."
+	)
+	_refresh_properties()
+
+
+func _hire_property_dealer(
+	property_id: StringName,
+	territory_id: StringName,
+	picker: OptionButton
+) -> void:
+	if picker.item_count <= 0:
+		feedback_label.text = "No dealer candidate is available."
+		return
+	var metadata := picker.get_selected_metadata() as Dictionary
+	var success := _territory_dealers.hire_dealer(
+		territory_id,
+		StringName(metadata.get("zone_id", "")),
+		StringName(metadata.get("member_id", "")),
+		property_id
+	)
+	feedback_label.text = (
+		"Dealer hired and assigned to this stash."
+		if success else "Could not hire that dealer."
+	)
+	_refresh_properties()
+	_refresh_territory()
 
 
 func _money(amount: int) -> String:
@@ -1710,6 +2461,13 @@ func _money(amount: int) -> String:
 		result = "," + text.right(3) + result
 		text = text.left(text.length() - 3)
 	return text + result
+
+
+func _get_absolute_minute() -> int:
+	var world_time := get_tree().get_first_node_in_group(
+		&"world_time"
+	) as WorldTimeComponent
+	return world_time.get_absolute_minute() if world_time != null else 0
 
 
 func _refresh_girlfriends() -> void:
@@ -2029,6 +2787,7 @@ func _on_roster_changed() -> void:
 func _on_property_changed(_property_id: StringName, _owned: bool) -> void:
 	if _is_open:
 		_refresh_properties()
+		_refresh_territory()
 
 
 func _on_property_stash_changed(_property_id: StringName) -> void:
@@ -2037,11 +2796,19 @@ func _on_property_stash_changed(_property_id: StringName) -> void:
 		_refresh_territory()
 
 
+func _on_property_brick_station_changed(_property_id: StringName) -> void:
+	if _is_open:
+		_refresh_properties()
+		_refresh_territory()
+
+
 func _on_territory_dealer_state_changed(_territory_id: StringName) -> void:
 	if _is_open:
+		_refresh_properties()
 		_refresh_territory()
 
 
 func _on_wallet_changed(_dirty_cash: int, _clean_cash: int) -> void:
 	if _is_open:
+		_refresh_properties()
 		_refresh_territory()

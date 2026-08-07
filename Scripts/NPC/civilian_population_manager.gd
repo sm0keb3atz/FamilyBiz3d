@@ -4,6 +4,7 @@ extends Node3D
 @export var customer_scene: PackedScene
 @export var police_scene: PackedScene
 @export var network_path: NodePath
+@export var network_paths: Array[NodePath] = []
 @export var player_path: NodePath
 @export var npc_container_path: NodePath
 
@@ -14,7 +15,8 @@ extends Node3D
 @export_range(1.0, 1000.0, 1.0) var maximum_spawn_distance := 55.0
 @export_range(1.0, 1000.0, 1.0) var recycle_distance := 70.0
 @export_range(0.1, 10.0, 0.1) var population_update_interval := 0.25
-@export_range(1, 20, 1) var maximum_activations_per_update := 4
+@export_range(0.0, 10.0, 0.01) var population_update_phase_offset := 0.0
+@export_range(1, 20, 1) var maximum_activations_per_update := 1
 @export_range(1, 100, 1) var recycle_checks_per_update := 12
 @export_range(0.5, 10.0, 0.1) var spawn_separation := 2.5
 @export_range(5.0, 200.0, 1.0) var high_detail_distance := 35.0
@@ -25,7 +27,7 @@ extends Node3D
 @export_range(0, 20, 1) var two_star_police_minimum := 3
 @export_range(0, 20, 1) var three_star_police_minimum := 4
 
-@onready var network := get_node(network_path) as PedestrianNetwork3D
+@onready var network := get_node_or_null(network_path) as PedestrianNetwork3D
 @onready var player := get_node(player_path) as CharacterBody3D
 @onready var npc_container := get_node(npc_container_path) as Node3D
 @onready var wanted := player.get_node(
@@ -41,12 +43,14 @@ var _update_remaining := 0.0
 var _recycle_cursor := 0
 var _enabled := true
 var _police_replacement_remaining := 0.0
+var _networks: Array[PedestrianNetwork3D] = []
 
 
 func _ready() -> void:
 	add_to_group(&"civilian_population_manager")
+	_resolve_networks()
 	_random.randomize()
-	_update_remaining = population_update_interval
+	_update_remaining = population_update_interval + population_update_phase_offset
 
 
 func _process(delta: float) -> void:
@@ -66,7 +70,7 @@ func _process(delta: float) -> void:
 func update_population() -> void:
 	if (
 		customer_scene == null
-		or network == null
+		or _networks.is_empty()
 		or player == null
 		or npc_container == null
 	):
@@ -128,6 +132,57 @@ func get_live_pool_count() -> int:
 	return _active.size() + _inactive.size()
 
 
+func get_network_count() -> int:
+	return _networks.size()
+
+
+func get_nearest_waypoint(
+	world_position: Vector3,
+	max_distance := INF
+) -> PedestrianWaypoint3D:
+	var nearest: PedestrianWaypoint3D
+	var nearest_distance_squared := max_distance * max_distance
+	for candidate_network in _networks:
+		var waypoint := candidate_network.get_nearest_waypoint(
+			world_position,
+			max_distance
+		)
+		if waypoint == null:
+			continue
+		var distance_squared := waypoint.global_position.distance_squared_to(
+			world_position
+		)
+		if distance_squared < nearest_distance_squared:
+			nearest = waypoint
+			nearest_distance_squared = distance_squared
+	return nearest
+
+
+func get_spawn_candidates(
+	world_position: Vector3,
+	minimum_distance: float,
+	maximum_distance: float,
+	maximum_results := 0
+) -> Array[PedestrianWaypoint3D]:
+	var results: Array[PedestrianWaypoint3D] = []
+	for candidate_network in _networks:
+		results.append_array(candidate_network.get_spawn_candidates(
+			world_position,
+			minimum_distance,
+			maximum_distance
+		))
+	results.sort_custom(
+		func(left: PedestrianWaypoint3D, right: PedestrianWaypoint3D) -> bool:
+			return (
+				left.global_position.distance_squared_to(world_position)
+				< right.global_position.distance_squared_to(world_position)
+			)
+	)
+	if maximum_results > 0 and results.size() > maximum_results:
+		results.resize(maximum_results)
+	return results
+
+
 func get_active_customers() -> Array[CustomerNPC]:
 	return _active.duplicate()
 
@@ -145,13 +200,16 @@ func spawn_response_officer(
 	response_id: int,
 	response_target: Vector3
 ) -> PoliceNPC:
-	if police_scene == null or network == null:
+	if police_scene == null or _networks.is_empty():
+		return null
+	var response_network := _get_network_for_position(world_position)
+	if response_network == null:
 		return null
 	var police := _acquire_police()
 	if police == null:
 		return null
 	if not police.prepare_for_response_spawn(
-		network,
+		response_network,
 		world_position,
 		_random.randi(),
 		player,
@@ -175,7 +233,9 @@ func recycle_response_officer(police: PoliceNPC) -> void:
 
 
 func _activate_one() -> bool:
-	var chosen: PedestrianWaypoint3D = _choose_spawn_waypoint()
+	var spawn_candidate := _choose_spawn_candidate()
+	var chosen := spawn_candidate.get("waypoint") as PedestrianWaypoint3D
+	var chosen_network := spawn_candidate.get("network") as PedestrianNetwork3D
 	if chosen == null:
 		return false
 
@@ -183,7 +243,7 @@ func _activate_one() -> bool:
 	if customer == null:
 		return false
 	customer.prepare_for_pool_spawn(
-		network,
+		chosen_network,
 		chosen,
 		_random.randi(),
 		_get_player_hustle()
@@ -210,14 +270,16 @@ func _get_player_hustle() -> int:
 func _activate_one_police() -> bool:
 	if police_scene == null:
 		return false
-	var chosen: PedestrianWaypoint3D = _choose_spawn_waypoint()
+	var spawn_candidate := _choose_spawn_candidate()
+	var chosen := spawn_candidate.get("waypoint") as PedestrianWaypoint3D
+	var chosen_network := spawn_candidate.get("network") as PedestrianNetwork3D
 	if chosen == null:
 		return false
 	var police: PoliceNPC = _acquire_police()
 	if police == null:
 		return false
 	police.prepare_for_pool_spawn(
-		network,
+		chosen_network,
 		chosen,
 		_random.randi(),
 		player
@@ -234,29 +296,66 @@ func _activate_one_police() -> bool:
 	return true
 
 
-func _choose_spawn_waypoint() -> PedestrianWaypoint3D:
-	var candidates := network.get_spawn_candidates(
-		player.global_position,
-		minimum_spawn_distance,
-		maximum_spawn_distance
-	)
+func _choose_spawn_candidate() -> Dictionary:
+	var candidates: Array[Dictionary] = []
+	for candidate_network in _networks:
+		for waypoint in candidate_network.get_spawn_candidates(
+			player.global_position,
+			minimum_spawn_distance,
+			maximum_spawn_distance
+		):
+			candidates.append({
+				"network": candidate_network,
+				"waypoint": waypoint,
+			})
 	if candidates.is_empty():
-		return null
-	_shuffle_waypoints(candidates)
+		return {}
+	_shuffle_spawn_candidates(candidates)
 	var camera := get_viewport().get_camera_3d()
-	var chosen: PedestrianWaypoint3D
-	var visible_fallback: PedestrianWaypoint3D
-	for waypoint in candidates:
+	var visible_fallback := {}
+	for candidate in candidates:
+		var waypoint := candidate["waypoint"] as PedestrianWaypoint3D
 		if _is_spawn_occupied(waypoint.global_position):
 			continue
-		if visible_fallback == null:
-			visible_fallback = waypoint
+		if visible_fallback.is_empty():
+			visible_fallback = candidate
 		if camera == null or not camera.is_position_in_frustum(
 			waypoint.global_position + Vector3.UP
 		):
-			chosen = waypoint
-			break
-	return chosen if chosen != null else visible_fallback
+			return candidate
+	return visible_fallback
+
+
+func _resolve_networks() -> void:
+	_networks.clear()
+	if network != null:
+		_networks.append(network)
+	for path in network_paths:
+		if path.is_empty():
+			continue
+		var candidate := get_node_or_null(path) as PedestrianNetwork3D
+		if candidate != null and candidate not in _networks:
+			_networks.append(candidate)
+	if network == null and not _networks.is_empty():
+		network = _networks[0]
+
+
+func _get_network_for_position(
+	world_position: Vector3
+) -> PedestrianNetwork3D:
+	var nearest_network: PedestrianNetwork3D
+	var nearest_distance_squared := INF
+	for candidate_network in _networks:
+		var waypoint := candidate_network.get_nearest_waypoint(world_position)
+		if waypoint == null:
+			continue
+		var distance_squared := waypoint.global_position.distance_squared_to(
+			world_position
+		)
+		if distance_squared < nearest_distance_squared:
+			nearest_distance_squared = distance_squared
+			nearest_network = candidate_network
+	return nearest_network
 
 
 func _acquire_customer() -> CustomerNPC:
@@ -444,6 +543,14 @@ func _shuffle_waypoints(
 		var temporary := waypoints[index]
 		waypoints[index] = waypoints[swap_index]
 		waypoints[swap_index] = temporary
+
+
+func _shuffle_spawn_candidates(candidates: Array[Dictionary]) -> void:
+	for index in range(candidates.size() - 1, 0, -1):
+		var swap_index := _random.randi_range(0, index)
+		var temporary := candidates[index]
+		candidates[index] = candidates[swap_index]
+		candidates[swap_index] = temporary
 
 
 func _on_customer_depleted(

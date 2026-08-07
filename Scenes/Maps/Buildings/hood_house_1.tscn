@@ -55,6 +55,9 @@
 [ext_resource type="Script" uid="uid://b4lf78wr6gqw1" path="res://Scripts/Gameplay/property_building.gd" id="52_property"]
 [ext_resource type="Script" uid="uid://y7015b35xk3h" path="res://Scripts/Gameplay/property_interaction.gd" id="53_interaction"]
 [ext_resource type="PackedScene" uid="uid://bty8avdbpoh60" path="res://Scenes/Maps/house_door.tscn" id="54_house_door"]
+[ext_resource type="ArrayMesh" uid="uid://c3kbustq1qftl" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_parcel_road_01.glb" id="56_k2juq"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/property_garage_controller.gd" id="57_garage_controller"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/property_garage_interaction.gd" id="58_garage_interaction"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ci8cn"]
 albedo_texture = ExtResource("2_sym1m")
@@ -92,6 +95,9 @@ size = Vector3(1.3000001, 3.3, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_i8b2w"]
 size = Vector3(2.6000001, 1, 4)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_njpm3"]
+size = Vector3(2.6000001, 1, 2.1000001)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_j1weu"]
 size = Vector3(2.8, 1, 2)
 
@@ -127,6 +133,12 @@ size = Vector3(1.2, 1, 0.5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0pww5"]
 size = Vector3(2.9, 1, 1.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ha77k"]
+size = Vector3(13, 1, 7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_garage_clearance"]
+size = Vector3(3.5, 2.5, 6)
 
 [node name="HoodHouse1" type="Node3D" unique_id=413113688]
 script = ExtResource("52_property")
@@ -396,6 +408,10 @@ surface_material_override/0 = SubResource("StandardMaterial3D_xb2gu")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
 mesh = ExtResource("4_m3l5f")
 
+[node name="SmWall23" type="MeshInstance3D" parent="Building/Floor1/Walls" unique_id=282517354]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.9000002)
+mesh = ExtResource("4_m3l5f")
+
 [node name="SmWall03" type="MeshInstance3D" parent="Building/Floor1/Walls" unique_id=1656607664]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6)
 mesh = ExtResource("4_m3l5f")
@@ -445,7 +461,7 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -16,
 mesh = ExtResource("4_m3l5f")
 
 [node name="SmVeranda02" type="MeshInstance3D" parent="Building/Floor1/Walls" unique_id=646972708]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4901161e-08, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4901161e-08, 0, -0.90000004)
 mesh = ExtResource("5_xx3re")
 
 [node name="SmWindow03Offset" type="MeshInstance3D" parent="Building/Floor1/Walls" unique_id=922584487]
@@ -996,7 +1012,7 @@ mesh = ExtResource("22_lc87p")
 [node name="StaticBody3D" type="StaticBody3D" parent="Building" unique_id=1930978076]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Building/StaticBody3D" unique_id=218903350]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.85, 0.5, -1.1920929e-07)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.85, 0.5, -0.90000015)
 shape = SubResource("BoxShape3D_213k1")
 
 [node name="CollisionShape3D3" type="CollisionShape3D" parent="Building/StaticBody3D" unique_id=1262273993]
@@ -1036,8 +1052,12 @@ transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.38
 shape = SubResource("BoxShape3D_dn8ia")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="Building/StaticBody3D" unique_id=870483453]
-transform = Transform3D(0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 0, 0, 1, 4.3866024, -0.05000004, 1.1920929e-07)
+transform = Transform3D(0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 0, 0, 1, 4.3866024, -0.05000004, -0.8999999)
 shape = SubResource("BoxShape3D_i8b2w")
+
+[node name="CollisionShape3D21" type="CollisionShape3D" parent="Building/StaticBody3D" unique_id=1308880600]
+transform = Transform3D(-0.8660255, -0.5000001, 8.195639e-08, -0.50000006, 0.8660255, 0, -8.195639e-08, -3.7252903e-08, -1.0000001, -16.813396, -0.05000004, 0.05000013)
+shape = SubResource("BoxShape3D_njpm3")
 
 [node name="CollisionShape3D9" type="CollisionShape3D" parent="Building/StaticBody3D" unique_id=436985002]
 transform = Transform3D(0.81915194, 0.57357645, 0, -0.57357645, 0.81915194, 0, 0, 0, 1, -13.045458, 1.3309407, -7.1000004)
@@ -1098,6 +1118,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.79999965, 1.6000001, -1.300
 script = ExtResource("53_interaction")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ForSaleSign" unique_id=249637680]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.6999999)
 shape = SubResource("BoxShape3D_2u5q3")
 debug_color = Color(0.7833561, 0.07846785, 0, 1)
 
@@ -1112,4 +1133,33 @@ shape = SubResource("BoxShape3D_0pww5")
 debug_color = Color(1, 0.025840001, 0, 1)
 
 [node name="SM_billboard_forSale" parent="." unique_id=911609242 groups=["exclude_static_batch"] instance=ExtResource("27_m52kv")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0.20000005, 2.8, -1.3999999)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0.20000005, 2.8, -1.9999999)
+
+[node name="Garage" type="Node3D" parent="." unique_id=42510491]
+script = ExtResource("57_garage_controller")
+
+[node name="SmParcelRoad01" type="MeshInstance3D" parent="Garage" unique_id=1257818419]
+transform = Transform3D(-1.6391279e-07, 0, 0.5, 0, 1, 0, -1.0000001, 0, -8.195639e-08, 4.6999993, 0.01, -10)
+mesh = ExtResource("56_k2juq")
+
+[node name="GarageArea" type="Area3D" parent="Garage" unique_id=985339505]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Garage/GarageArea" unique_id=541390838]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 0)
+shape = SubResource("BoxShape3D_ha77k")
+debug_color = Color(0.80363095, 0.41822335, 0, 1)
+
+[node name="CarSpawn" type="Marker3D" parent="Garage" unique_id=783490965]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -3, 0, -14)
+
+[node name="SpawnClearance" type="Area3D" parent="Garage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.25, -14)
+collision_layer = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Garage/SpawnClearance"]
+shape = SubResource("BoxShape3D_garage_clearance")
+
+[node name="GarageInteraction" type="Marker3D" parent="Garage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1, -14)
+script = ExtResource("58_garage_interaction")

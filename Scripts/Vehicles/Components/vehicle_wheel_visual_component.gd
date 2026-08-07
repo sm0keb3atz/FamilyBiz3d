@@ -100,12 +100,15 @@ func update(delta: float) -> void:
 		wheel_spin[wheel] = float(wheel_spin[wheel]) + (
 			wheel.get_rpm() * TAU / 60.0 * delta
 		)
-		var center: Vector3 = wheel.global_position
-		if wheel.is_in_contact():
-			center = wheel.get_contact_point() + (
-				wheel.get_contact_normal() * wheel.wheel_radius
-			)
 		var rest := skeleton.get_bone_global_rest(bone_index)
+		var target_origin := rest.origin
+		if not vehicle.definition.preserve_authored_wheel_positions:
+			var center: Vector3 = wheel.global_position
+			if wheel.is_in_contact():
+				center = wheel.get_contact_point() + (
+					wheel.get_contact_normal() * wheel.wheel_radius
+				)
+			target_origin = skeleton_inverse * center
 		var steer_angle := (
 			vehicle.drive_component.steering_input
 			if (
@@ -118,7 +121,7 @@ func update(delta: float) -> void:
 			rest.basis
 			* Basis(Vector3.UP, steer_angle)
 			* Basis(Vector3.FORWARD, -float(wheel_spin[wheel])),
-			skeleton_inverse * center
+			target_origin
 		)
 		skeleton.set_bone_global_pose(bone_index, target)
 

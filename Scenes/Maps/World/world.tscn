@@ -9,7 +9,6 @@
 [ext_resource type="PackedScene" uid="uid://cjh86oujvf7bw" path="res://Scenes/Maps/Territorys/down_town_west.tscn" id="5_21lis"]
 [ext_resource type="PackedScene" uid="uid://lbnphh8gm20q" path="res://Scenes/NPC/CustomerNPC.tscn" id="5_customer"]
 [ext_resource type="Script" uid="uid://drakbifufadbe" path="res://Scripts/Gameplay/world_controller.gd" id="6_controller"]
-[ext_resource type="PackedScene" uid="uid://cmyoinaojjcgt" path="res://Scenes/Vehicles/MuscleCar.tscn" id="7_muscle_car"]
 [ext_resource type="PackedScene" uid="uid://cyreq2x33fsli" path="res://Scenes/Vehicles/BaseVehicle.tscn" id="7_traffic_base"]
 [ext_resource type="Resource" path="res://Scripts/Traffic/Resources/default_traffic_vehicle_catalog.tres" id="7_traffic_catalog"]
 [ext_resource type="PackedScene" uid="uid://b5hevxt2pn7d8" path="res://Scenes/NPC/HoodEastPedestrianNetwork.tscn" id="8_pedestrian_network"]
@@ -126,7 +125,7 @@ population_manager_path = NodePath("../CivilianPopulationManager")
 script = ExtResource("12_dispatch_zone")
 territory_id = &"hood_west"
 traffic_network_path = NodePath("../Navigation/HoodWestTrafficNetwork")
-population_manager_path = NodePath("../WestPopulationManager")
+population_manager_path = NodePath("../CivilianPopulationManager")
 
 [node name="World" type="Node3D" unique_id=285916361]
 
@@ -194,11 +193,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50.278175, 0.1, -80.69298)
 script = ExtResource("18_dealer_zone")
 zone_id = &"hood_east_north"
 dealer_scene = ExtResource("4_dealer")
-member_ids = PackedStringArray("north_l2", "north_l3", "north_l4")
-dealer_levels = PackedInt32Array(2, 3, 4)
-member_positions = Array[Vector3]([Vector3(-2.3, 0, 0), Vector3(0, 0, 1.2), Vector3(2.3, 0, 0)])
-member_rotations_degrees = PackedFloat32Array(20, 180, -20)
-activity_animations = PackedStringArray("Talking", "Idle", "Talking")
+member_ids = PackedStringArray("north_l2", "north_l3", "north_l4", "north_property_reserve")
+player_only_member_ids = PackedStringArray("north_property_reserve")
+dealer_levels = PackedInt32Array(2, 3, 4, 1)
+member_positions = Array[Vector3]([Vector3(-2.3, 0, 0), Vector3(0, 0, 1.2), Vector3(2.3, 0, 0), Vector3(0, 0, -1.8)])
+member_rotations_degrees = PackedFloat32Array(20, 180, -20, 0)
+activity_animations = PackedStringArray("Talking", "Idle", "Talking", "Idle")
 reinforcement_positions = Array[Vector3]([Vector3(-12, 0, -8), Vector3(12, 0, -8)])
 
 [node name="EastDealerZoneSouth" type="Node3D" parent="SpawnPoints" unique_id=1352459919]
@@ -206,11 +206,12 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 81.2
 script = ExtResource("18_dealer_zone")
 zone_id = &"hood_east_south"
 dealer_scene = ExtResource("4_dealer")
-member_ids = PackedStringArray("south_l1_primary", "south_l1_lean", "south_l3_idle")
-dealer_levels = PackedInt32Array(1, 2, 3)
-member_positions = Array[Vector3]([Vector3(0, 0, 0), Vector3(2.3, 0, 1.2), Vector3(-2.3, 0, 1.2)])
-member_rotations_degrees = PackedFloat32Array(180, -90, 90)
-activity_animations = PackedStringArray("Idle", "LeaningOnWall1", "Idle")
+member_ids = PackedStringArray("south_l1_primary", "south_l1_lean", "south_l3_idle", "south_property_reserve")
+player_only_member_ids = PackedStringArray("south_property_reserve")
+dealer_levels = PackedInt32Array(1, 2, 3, 1)
+member_positions = Array[Vector3]([Vector3(0, 0, 0), Vector3(2.3, 0, 1.2), Vector3(-2.3, 0, 1.2), Vector3(0, 0, -1.8)])
+member_rotations_degrees = PackedFloat32Array(180, -90, 90, 0)
+activity_animations = PackedStringArray("Idle", "LeaningOnWall1", "Idle", "Idle")
 reinforcement_positions = Array[Vector3]([Vector3(-14, 0, 6), Vector3(14, 0, 6)])
 
 [node name="WestDealerZoneNorth" type="Node3D" parent="SpawnPoints" unique_id=624407290]
@@ -221,6 +222,7 @@ territory_id = &"hood_west"
 faction = 0
 dealer_scene = ExtResource("4_dealer")
 member_ids = PackedStringArray("north_l1_primary", "north_l2_talker", "north_l4_talker")
+player_only_member_ids = PackedStringArray()
 dealer_levels = PackedInt32Array(1, 2, 4)
 member_positions = Array[Vector3]([Vector3(0, 0, 1.2), Vector3(-2.3, 0, 0), Vector3(2.3, 0, 0)])
 member_rotations_degrees = PackedFloat32Array(180, 20, -20)
@@ -235,6 +237,7 @@ territory_id = &"hood_west"
 faction = 0
 dealer_scene = ExtResource("4_dealer")
 member_ids = PackedStringArray("south_l1_lean", "south_l3_primary", "south_l4_idle")
+player_only_member_ids = PackedStringArray()
 dealer_levels = PackedInt32Array(1, 3, 4)
 member_positions = Array[Vector3]([Vector3(2.3, 0, 1.2), Vector3(0, 0, 0), Vector3(-2.3, 0, 1.2)])
 member_rotations_degrees = PackedFloat32Array(-90, 180, 90)
@@ -258,7 +261,7 @@ wholesaler_scene = ExtResource("24_wholesaler")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 232.85915, 0.042448997, -89.31119)
 
 [node name="Hospital" type="Marker3D" parent="SpawnPoints" unique_id=1761492511]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 186.97557, 0.042448997, 78.60742)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 186.97557, 39.35962, -54.587723)
 
 [node name="ActivitySpots" type="Node3D" parent="." unique_id=706299139]
 
@@ -280,9 +283,6 @@ allowed_roles = PackedStringArray("civilian")
 
 [node name="Player" parent="Gameplay" unique_id=1309725601 instance=ExtResource("3_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0.1, 0)
-
-[node name="MuscleCar" parent="Gameplay" unique_id=228912320 instance=ExtResource("7_muscle_car")]
-transform = Transform3D(3.1391647e-07, 0, 1, 0, 1, 0, -1, 0, 3.1391647e-07, 60, 1, -5)
 
 [node name="WestDealer" parent="Gameplay" unique_id=39738472 instance=ExtResource("4_dealer")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, -256)
@@ -321,14 +321,7 @@ script = ExtResource("9_population")
 customer_scene = ExtResource("5_customer")
 police_scene = ExtResource("10_police")
 network_path = NodePath("../Territories/HoodEast/Mobility/PedestrianNetwork")
-player_path = NodePath("../Gameplay/Player")
-npc_container_path = NodePath("../Gameplay/Civilians")
-
-[node name="WestPopulationManager" type="Node3D" parent="." unique_id=878559388]
-script = ExtResource("9_population")
-customer_scene = ExtResource("5_customer")
-police_scene = ExtResource("10_police")
-network_path = NodePath("../Navigation/HoodWestPedestrianNetwork")
+network_paths = Array[NodePath]([NodePath("../Navigation/HoodWestPedestrianNetwork")])
 player_path = NodePath("../Gameplay/Player")
 npc_container_path = NodePath("../Gameplay/Civilians")
 
@@ -340,15 +333,6 @@ script = ExtResource("12_traffic_population")
 vehicle_scene = ExtResource("7_traffic_base")
 vehicle_catalog = ExtResource("7_traffic_catalog")
 network_path = NodePath("../Navigation/CityTrafficNetwork")
-player_path = NodePath("../Gameplay/Player")
-vehicle_container_path = NodePath("../Gameplay/TrafficVehicles")
-traffic_coordinator_path = NodePath("../TrafficWorldCoordinator")
-
-[node name="WestTrafficPopulationManager" type="Node3D" parent="." unique_id=552145384]
-script = ExtResource("12_traffic_population")
-vehicle_scene = ExtResource("7_traffic_base")
-vehicle_catalog = ExtResource("7_traffic_catalog")
-network_path = NodePath("../Navigation/HoodWestTrafficNetwork")
 player_path = NodePath("../Gameplay/Player")
 vehicle_container_path = NodePath("../Gameplay/TrafficVehicles")
 traffic_coordinator_path = NodePath("../TrafficWorldCoordinator")

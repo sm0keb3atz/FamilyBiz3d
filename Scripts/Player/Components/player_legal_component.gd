@@ -29,6 +29,7 @@ const COURT_DAYS_AFTER_RELEASE := 3
 @export var stats_path := NodePath("../StatsComponent")
 @export var wardrobe_path := NodePath("../WardrobeComponent")
 @export var vehicle_path := NodePath("../VehicleComponent")
+@export var vehicle_garage_path := NodePath("../VehicleGarageComponent")
 
 @onready var inventory := get_node(inventory_path) as PlayerInventoryComponent
 @onready var weapon := get_node(weapon_path) as PlayerWeaponComponent
@@ -39,6 +40,9 @@ const COURT_DAYS_AFTER_RELEASE := 3
 @onready var stats := get_node(stats_path) as PlayerStatsComponent
 @onready var wardrobe := get_node(wardrobe_path) as PlayerWardrobeComponent
 @onready var vehicle := get_node(vehicle_path) as PlayerVehicleComponent
+@onready var vehicle_garage := get_node(
+	vehicle_garage_path
+) as PlayerVehicleGarageComponent
 
 var _cases: Array[LegalCase] = []
 var _contracts: Dictionary[StringName, Dictionary] = {}
@@ -187,6 +191,7 @@ func begin_police_custody() -> LegalCase:
 	wallet.deduct_percentage(0.10)
 	if vehicle.is_driving():
 		vehicle.exit_vehicle(true)
+	vehicle_garage.reset_to_new_game()
 	wanted.resolve_arrest()
 	if _world_time != null:
 		_world_time.fast_forward_days(BOND_DAYS, &"bond", true)
