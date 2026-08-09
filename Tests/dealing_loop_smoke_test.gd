@@ -37,9 +37,12 @@ func _run() -> void:
 	)
 	assert(east != null)
 
-	# Missing Hustle data from an old save defaults safely to 1.
-	stats.import_save_data({"skill_points": 9})
+	# Missing Hustle and Motion data from an old save defaults safely to 1.
+	stats.import_save_data({"skill_points": 18})
 	assert(stats.hustle == 1)
+	assert(stats.motion == 1)
+	assert(stats.get_motion_follower_limit() == 1)
+	assert(is_equal_approx(stats.get_motion_loyalty_multiplier(), 1.0))
 	assert(is_equal_approx(stats.get_hustle_sale_multiplier(), 1.70))
 	assert(is_equal_approx(stats.get_hustle_experience_multiplier(), 1.0))
 	assert(stats.get_hustle_customer_limit() == 2)
@@ -50,9 +53,16 @@ func _run() -> void:
 	assert(stats.get_hustle_customer_limit() == 6)
 	assert(is_equal_approx(stats.get_hustle_sale_multiplier(), 3.05))
 	assert(is_equal_approx(stats.get_hustle_experience_multiplier(), 2.35))
+	for expected_motion in range(2, 11):
+		assert(stats.purchase_motion())
+		assert(stats.motion == expected_motion)
+	assert(not stats.purchase_motion())
+	assert(stats.get_motion_follower_limit() == 10)
+	assert(is_equal_approx(stats.get_motion_loyalty_multiplier(), 1.9))
 	var stats_save := stats.export_save_data()
 	stats.import_save_data(stats_save)
 	assert(stats.hustle == 10)
+	assert(stats.motion == 10)
 
 	# Better customers unlock gradually with Hustle instead of flooding new saves.
 	assert(CivilianRoleComponent.get_level_weights(1) == [88, 11, 1, 0])

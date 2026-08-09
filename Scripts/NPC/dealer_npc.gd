@@ -143,7 +143,8 @@ func is_shop_interaction_active() -> bool:
 func try_purchase(
 	player: CharacterBody3D,
 	requested_product: ProductDefinition = null,
-	amount := 1
+	amount := 1,
+	delivery_property_id: StringName = &""
 ) -> String:
 	if _is_player_operated():
 		return "Your dealer sells from territory stash supply."
@@ -153,7 +154,12 @@ func try_purchase(
 	var role := get_role_component()
 	if role == null:
 		return "Dealer is not ready."
-	return role.try_purchase(player, purchase_product, amount)
+	return role.try_purchase(
+		player,
+		purchase_product,
+		amount,
+		delivery_property_id
+	)
 
 
 func configure_dealer(level := 1, wholesaler := false) -> void:
@@ -634,7 +640,7 @@ func _tick_bodyguard_follow(delta: float) -> void:
 	if global_position.distance_squared_to(target) > 1.4 * 1.4:
 		if animation_component != null:
 			animation_component.use_sex_appropriate_walk()
-		advance_navigation(delta)
+		advance_companion_follow(target, _bodyguard_player, delta)
 	else:
 		stop_moving(delta)
 
@@ -941,7 +947,26 @@ func collect_corpse_loot(player: CharacterBody3D) -> void:
 		return
 	var wallet := player.get_node_or_null("Components/WalletComponent") as PlayerWalletComponent
 	var inventory := player.get_node_or_null("Components/InventoryComponent") as PlayerInventoryComponent
-	if wallet == null or inventory == null:
+	var carry_weight := player.get_node_or_null(
+		"Components/CarryWeightComponent"
+	) as PlayerCarryWeightComponent
+	if wallet == null or inventory == null or carry_weight == null:
+		return
+	if not carry_weight.can_add_products(_corpse_stock):
+		var added_weight := 0
+		for entry in _corpse_stock:
+			var product := entry.get("product") as ProductDefinition
+			if product != null:
+				added_weight += (
+					product.package_size_grams
+					* int(entry.get("quantity", 0))
+				)
+		var blocked_hud := player.get_node_or_null("PlayerHUD") as PlayerHUD
+		if blocked_hud != null:
+			blocked_hud.show_feedback(
+				carry_weight.get_capacity_failure_message(added_weight),
+				3.0
+			)
 		return
 	var product_units := 0
 	for entry in _corpse_stock:

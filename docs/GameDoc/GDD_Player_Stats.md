@@ -78,7 +78,10 @@ The first player stats implementation uses the following finalized rules:
 * EXP required for the next level is `100 x current level`. Excess EXP carries forward, including across multiple level-ups.
 * Every level awards `1` skill point and adds `2` maximum Stamina.
 * Strength starts at `1` and costs `1` skill point per increase.
-* Each Strength point after the first adds `10` maximum Health and `5` maximum Stamina.
+* Each Strength point after the first adds `10` maximum Health, `5` maximum Stamina, and `50g` carry capacity.
+* Carry capacity starts at `300g` at Strength 1 and is calculated as `300 + ((Strength - 1) x 50)`.
+* Carried product weighs its package size in grams. Carried weapons and equipped attachments use their configured weapon weights; ammunition is weightless.
+* Purchases, loot collections, and stash withdrawals that would exceed capacity fail atomically. Older overweight saves keep their items but cannot add weight until they unload or raise Strength.
 * Hustle starts at `1`, costs `1` skill point per increase, and caps at `10`.
 * Customer cash payout starts at `70%` over the local dealer price at Hustle 1.
 * Each Hustle point after the first adds another `15%` to street-sale cash and
@@ -91,3 +94,4 @@ The first player stats implementation uses the following finalized rules:
   scaling to `72.5%` at Hustle 10, except for the final unit.
 * Maximum Health is `100 + ((Strength - 1) x 10)`.
 * Maximum Stamina is `100 + ((Strength - 1) x 5) + ((Level - 1) x 2)`.
+* Maximum Carry Weight is `300 + ((Strength - 1) x 50)` grams.

@@ -27,6 +27,9 @@ const SELLABLE_PRODUCTS: Array[ProductDefinition] = [
 @onready var properties := player.get_node("Components/PropertyComponent") as PlayerPropertyComponent
 @onready var wallet := player.get_node("Components/WalletComponent") as PlayerWalletComponent
 @onready var trade := player.get_node("Components/TradeService") as TradeService
+@onready var entourage := player.get_node_or_null(
+	"Components/EntourageComponent"
+) as PlayerEntourageComponent
 
 var _territories: Dictionary = {}
 
@@ -150,6 +153,7 @@ func fire_dealer(territory_id: StringName, zone_id: StringName, member_id: Strin
 	if zone != null:
 		var dealer := zone.get_member_dealer(member_id)
 		if dealer != null and was_following:
+			_unregister_dealer(dealer)
 			dealer.end_bodyguard_following()
 		zone.set_member_employed(member_id, false)
 		zone.set_member_player_level(member_id, 1)
@@ -307,6 +311,9 @@ func call_dealer(
 		or dealer.is_defeated()
 	):
 		return false
+	if not _register_dealer(dealer, territory_id, zone_id, member_id):
+		_show_feedback(PlayerEntourageComponent.LIMIT_FEEDBACK)
+		return false
 	var now := world_time.get_absolute_minute()
 	var next_sale := int(state.get("next_sale_minute", -1))
 	state.paused_sale_minutes = (
@@ -316,8 +323,10 @@ func call_dealer(
 	)
 	state.next_sale_minute = -1
 	state.duty = DUTY_FOLLOWING
+	state.follow_slot = _get_dealer_follow_slot(dealer)
 	_set_slot_state(territory_id, key, state)
-	_reassign_follow_slots()
+	if entourage == null:
+		_reassign_follow_slots()
 	dealer.begin_bodyguard_following(player)
 	state_changed.emit(territory_id)
 	return true
@@ -348,6 +357,7 @@ func send_dealer_back(
 	state.follow_slot = -1
 	state.next_sale_minute = world_time.get_absolute_minute() + paused
 	_set_slot_state(territory_id, key, state)
+	_unregister_dealer(dealer)
 	dealer.end_bodyguard_following()
 	zone.return_member_to_post(member_id)
 	_reassign_follow_slots()
@@ -499,6 +509,9 @@ func export_save_data() -> Dictionary:
 
 
 func import_save_data(data: Dictionary) -> void:
+	# Clear live registrations before replacing their saved duty records. This
+	# keeps repeat loads and debug resets from leaving stale dealers in Motion.
+	send_all_followers_back()
 	_territories = data.duplicate(true)
 	for territory_key in _territories.keys():
 		var territory := _territories[territory_key] as Dictionary
@@ -662,6 +675,9 @@ func _on_zone_member_defeated(_zone_id: StringName, member_id: StringName, zone:
 	if not bool(state.get("employed", false)):
 		return
 	var was_following := StringName(state.get("duty", DUTY_WORKING)) == DUTY_FOLLOWING
+	var defeated_dealer := zone.get_member_dealer(member_id)
+	if was_following and defeated_dealer != null:
+		_unregister_dealer(defeated_dealer)
 	state.employed = false
 	state.level = 1
 	state.property_id = ""
@@ -810,21 +826,57 @@ func _can_assign_property(
 
 
 func _restore_followers() -> void:
-	_reassign_follow_slots()
+	var assignments: Array[Dictionary] = []
 	for territory_id in _owned_territory_ids():
 		for entry in get_roster(territory_id):
 			if not bool(entry.following):
 				continue
-			var zone := _find_zone(StringName(entry.zone_id))
-			var dealer := (
-				zone.get_member_dealer(StringName(entry.member_id))
-				if zone != null else null
-			)
-			if dealer != null and not dealer.is_defeated():
-				dealer.begin_bodyguard_following(player)
+			assignments.append({
+				"territory_id": territory_id,
+				"zone_id": StringName(entry.zone_id),
+				"member_id": StringName(entry.member_id),
+				"follow_slot": int(entry.get("follow_slot", -1)),
+			})
+	assignments.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_slot := int(a.follow_slot)
+		var b_slot := int(b.follow_slot)
+		if a_slot >= 0 and b_slot >= 0 and a_slot != b_slot:
+			return a_slot < b_slot
+		if a_slot >= 0 and b_slot < 0:
+			return true
+		if a_slot < 0 and b_slot >= 0:
+			return false
+		return "%s/%s/%s" % [a.territory_id, a.zone_id, a.member_id] < (
+			"%s/%s/%s" % [b.territory_id, b.zone_id, b.member_id]
+		)
+	)
+	for assignment in assignments:
+		var territory_id := StringName(assignment.territory_id)
+		var zone_id := StringName(assignment.zone_id)
+		var member_id := StringName(assignment.member_id)
+		var zone := _find_zone(zone_id)
+		var dealer := (
+			zone.get_member_dealer(member_id)
+			if zone != null else null
+		)
+		if dealer == null or dealer.is_defeated():
+			continue
+		if not _register_dealer(dealer, territory_id, zone_id, member_id):
+			send_dealer_back(territory_id, zone_id, member_id)
+			continue
+		var key := _slot_key(zone_id, member_id)
+		var state := _get_slot_state(territory_id, key)
+		state.follow_slot = _get_dealer_follow_slot(dealer)
+		_set_slot_state(territory_id, key, state)
+		dealer.begin_bodyguard_following(player)
+	if entourage == null:
+		_reassign_follow_slots()
 
 
 func _reassign_follow_slots() -> void:
+	if entourage != null:
+		entourage.refresh_slots()
+		return
 	var entries: Array[Dictionary] = []
 	for territory_id in _owned_territory_ids():
 		for entry in get_roster(territory_id):
@@ -852,6 +904,58 @@ func _reassign_follow_slots() -> void:
 		)
 		if dealer != null:
 			dealer.set_bodyguard_follow_slot(index)
+
+
+func _register_dealer(
+	dealer: DealerNPC,
+	territory_id: StringName,
+	zone_id: StringName,
+	member_id: StringName
+) -> bool:
+	if entourage == null:
+		return true
+	return entourage.try_register_follower(
+		dealer,
+		Callable(self, "_set_dealer_follow_slot").bind(
+			territory_id, zone_id, member_id, dealer
+		),
+		Callable(self, "_release_dealer").bind(
+			territory_id, zone_id, member_id
+		)
+	)
+
+
+func _unregister_dealer(dealer: DealerNPC) -> void:
+	if entourage != null:
+		entourage.unregister_follower(dealer)
+
+
+func _get_dealer_follow_slot(dealer: DealerNPC) -> int:
+	return maxi(entourage.get_slot(dealer), 0) if entourage != null else 0
+
+
+func _set_dealer_follow_slot(
+	slot: int,
+	territory_id: StringName,
+	zone_id: StringName,
+	member_id: StringName,
+	dealer: DealerNPC
+) -> void:
+	var key := _slot_key(zone_id, member_id)
+	var state := _get_slot_state(territory_id, key)
+	if not state.is_empty():
+		state.follow_slot = slot
+		_set_slot_state(territory_id, key, state)
+	if is_instance_valid(dealer):
+		dealer.set_bodyguard_follow_slot(slot)
+
+
+func _release_dealer(
+	territory_id: StringName,
+	zone_id: StringName,
+	member_id: StringName
+) -> void:
+	send_dealer_back(territory_id, zone_id, member_id)
 
 
 func _show_feedback(message: String, duration := 2.5) -> void:

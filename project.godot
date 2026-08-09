@@ -40,6 +40,11 @@ folder_colors={
 "res://docs/": "gray"
 }
 
+[gui]
+
+theme/custom="res://Assets/UI/FamilyBusinessTheme.tres"
+theme/custom_font="res://Assets/UI/CyberpunkCraftpixPixel.otf"
+
 [input]
 
 move_left={

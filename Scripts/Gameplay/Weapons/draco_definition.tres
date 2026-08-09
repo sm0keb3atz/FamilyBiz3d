@@ -13,6 +13,7 @@ description = "A hard-hitting compact rifle built for close and mid-range fights
 purchase_price = 2000
 ammo_bundle_amount = 64
 ammo_bundle_price = 300
+carry_weight_grams = 200
 damage = 24.0
 fire_interval = 0.11
 reload_duration = 1.3

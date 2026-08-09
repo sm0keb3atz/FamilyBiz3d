@@ -20,9 +20,13 @@ const ATTACHMENT_NAMES := {
 
 @export var wallet_component_path := NodePath("../WalletComponent")
 @export var weapon_component_path := NodePath("../WeaponComponent")
+@export var carry_weight_component_path := NodePath("../CarryWeightComponent")
 
 @onready var wallet := get_node(wallet_component_path) as PlayerWalletComponent
 @onready var weapon := get_node(weapon_component_path) as PlayerWeaponComponent
+@onready var carry_weight := get_node(
+	carry_weight_component_path
+) as PlayerCarryWeightComponent
 
 
 func buy_weapon(definition: WeaponDefinition) -> bool:
@@ -30,6 +34,13 @@ func buy_weapon(definition: WeaponDefinition) -> bool:
 		return _finish("Weapon is unavailable.", false)
 	if weapon.owns_weapon(definition.weapon_id):
 		return _finish("%s is already owned." % definition.display_name, false)
+	if not carry_weight.can_add_weapon(definition):
+		return _finish(
+			carry_weight.get_capacity_failure_message(
+				definition.get_carry_weight_grams()
+			),
+			false
+		)
 	if not wallet.can_spend_clean(definition.purchase_price):
 		return _finish("Not enough clean money.", false)
 	if not weapon.grant_weapon(definition):
@@ -69,8 +80,20 @@ func buy_attachment(definition: WeaponDefinition, attachment_id: StringName) -> 
 
 
 func set_attachment_equipped(definition: WeaponDefinition, attachment_id: StringName, enabled: bool) -> bool:
-	if definition == null or not weapon.equip_attachment(definition.weapon_id, attachment_id, enabled):
+	if definition == null:
 		return _finish("Attachment could not be changed.", false)
+	var previous_state := weapon.get_attachment_state(definition.weapon_id)
+	if not weapon.equip_attachment(definition.weapon_id, attachment_id, enabled):
+		var added_weight := definition.get_attachment_weight_grams(attachment_id)
+		if enabled and added_weight > 0:
+			return _finish(
+				carry_weight.get_capacity_failure_message(added_weight),
+				false
+			)
+		return _finish("Attachment could not be changed.", false)
+	var current_state := weapon.get_attachment_state(definition.weapon_id)
+	if previous_state == current_state:
+		return _finish("Attachment was already set.", false)
 	return _finish("%s %s." % [get_attachment_name(attachment_id), "equipped" if enabled else "removed"], true)
 
 

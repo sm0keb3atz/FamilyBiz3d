@@ -56,6 +56,7 @@ func _ready() -> void:
 	_root.visible = false
 	properties.stash_changed.connect(_on_property_data_changed)
 	properties.brick_station_changed.connect(_on_property_data_changed)
+	properties.runner_changed.connect(_on_property_data_changed)
 	properties.ownership_changed.connect(_on_ownership_changed)
 	properties.wallet.money_changed.connect(_on_money_changed)
 	inventory.quantity_changed.connect(_on_inventory_changed)
@@ -623,7 +624,9 @@ func _transfer_selected(force_max: bool) -> void:
 		)
 	else:
 		_set_feedback(
-			"The stash is full or nothing is available to transfer.",
+			properties.last_transfer_error
+			if not properties.last_transfer_error.is_empty()
+			else "The stash is full or nothing is available to transfer.",
 			true
 		)
 	_refresh()
@@ -874,8 +877,48 @@ func _build_operations_tab(definition: PropertyDefinition) -> void:
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_theme_constant_override("separation", 12)
 	page.add_child(columns)
+	columns.add_child(_build_runner_panel())
 	columns.add_child(_build_brick_station_panel(definition))
 	columns.add_child(_build_dealer_panel(definition))
+
+
+func _build_runner_panel() -> Control:
+	var panel := _section_panel("WHOLESALE RUNNER")
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var box := panel.get_meta("content") as VBoxContainer
+	var installed := properties.has_runner(_property_id)
+	box.add_child(_label(
+		"Receives complete wholesaler brick orders directly into this stash.",
+		13,
+		MUTED
+	))
+	var status := _label(
+		"RUNNER ACTIVE" if installed else "NOT INSTALLED",
+		18,
+		GREEN if installed else ACCENT
+	)
+	status.name = "RunnerStatus"
+	box.add_child(status)
+	if installed:
+		box.add_child(_label(
+			"Select this property from any wholesaler delivery menu.",
+			13,
+			MUTED
+		))
+		return panel
+	var purchase := Button.new()
+	purchase.name = "RunnerPurchase"
+	purchase.text = "HIRE RUNNER  $%s CLEAN" % _money(
+		PropertyCatalog.RUNNER_UPGRADE_COST
+	)
+	purchase.custom_minimum_size.y = 46
+	purchase.disabled = not properties.wallet.can_spend_clean(
+		PropertyCatalog.RUNNER_UPGRADE_COST
+	)
+	purchase.pressed.connect(_purchase_runner)
+	_style_button(purchase, CYAN)
+	box.add_child(purchase)
+	return panel
 
 
 func _build_brick_station_panel(definition: PropertyDefinition) -> Control:
@@ -1003,6 +1046,16 @@ func _build_dealer_panel(definition: PropertyDefinition) -> Control:
 func _purchase_brick_station() -> void:
 	var success := properties.purchase_brick_station(_property_id, _get_absolute_minute())
 	_set_feedback("Brick station installed." if success else "Could not install the brick station.", not success)
+	_refresh()
+
+
+func _purchase_runner() -> void:
+	var success := properties.purchase_runner(_property_id)
+	_set_feedback(
+		"Runner hired. Wholesalers can now deliver to this stash."
+		if success else properties.last_transfer_error,
+		not success
+	)
 	_refresh()
 
 

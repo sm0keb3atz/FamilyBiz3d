@@ -9,6 +9,7 @@ signal level_changed(current: int)
 signal skill_points_changed(current: int)
 signal strength_changed(current: int)
 signal hustle_changed(current: int)
+signal motion_changed(current: int)
 signal aura_changed(current: int)
 
 @export var config: PlayerStatsConfig
@@ -35,6 +36,9 @@ var strength: int:
 var hustle: int:
 	get:
 		return _hustle
+var motion: int:
+	get:
+		return _motion
 var aura: int:
 	get:
 		return _aura
@@ -46,6 +50,7 @@ var _level := 1
 var _skill_points := 0
 var _strength := 1
 var _hustle := 1
+var _motion := 1
 var _aura := 0
 var _time_since_damage := 0.0
 var _stamina_consumed_this_frame := false
@@ -58,6 +63,7 @@ func _ready() -> void:
 	_level = maxi(config.starting_level, 1)
 	_strength = maxi(config.starting_strength, 1)
 	_hustle = clampi(config.starting_hustle, 1, config.max_hustle)
+	_motion = clampi(config.starting_motion, 1, config.max_motion)
 	_skill_points = maxi(config.starting_skill_points, 0)
 	_experience = maxf(config.starting_experience, 0.0)
 	_health = get_max_health()
@@ -170,6 +176,17 @@ func purchase_hustle() -> bool:
 	return true
 
 
+func purchase_motion() -> bool:
+	if _skill_points <= 0 or _motion >= config.max_motion:
+		return false
+
+	_skill_points -= 1
+	_motion += 1
+	skill_points_changed.emit(_skill_points)
+	motion_changed.emit(_motion)
+	return true
+
+
 func get_hustle_sale_multiplier() -> float:
 	return (
 		1.0
@@ -187,6 +204,14 @@ func get_hustle_customer_limit() -> int:
 		config.base_solicitation_customer_limit + _hustle - 1,
 		config.max_solicitation_customer_limit
 	)
+
+
+func get_motion_follower_limit() -> int:
+	return _motion
+
+
+func get_motion_loyalty_multiplier() -> float:
+	return 1.0 + float(_motion - 1) * config.loyalty_bonus_per_motion
 
 
 func get_experience_required_for_next_level() -> float:
@@ -208,6 +233,13 @@ func get_max_stamina() -> float:
 	)
 
 
+func get_max_carry_weight_grams() -> int:
+	return (
+		config.base_carry_weight_grams
+		+ (_strength - 1) * config.carry_weight_per_strength
+	)
+
+
 func export_save_data() -> Dictionary:
 	return {
 		"health": _health,
@@ -217,6 +249,7 @@ func export_save_data() -> Dictionary:
 		"skill_points": _skill_points,
 		"strength": _strength,
 		"hustle": _hustle,
+		"motion": _motion,
 	}
 
 
@@ -227,6 +260,11 @@ func import_save_data(data: Dictionary) -> void:
 		int(data.get("hustle", config.starting_hustle)),
 		1,
 		config.max_hustle
+	)
+	_motion = clampi(
+		int(data.get("motion", config.starting_motion)),
+		1,
+		config.max_motion
 	)
 	_skill_points = maxi(int(data.get("skill_points", 0)), 0)
 	_experience = maxf(float(data.get("experience", 0.0)), 0.0)
@@ -293,3 +331,4 @@ func _emit_all_stats() -> void:
 	skill_points_changed.emit(_skill_points)
 	strength_changed.emit(_strength)
 	hustle_changed.emit(_hustle)
+	motion_changed.emit(_motion)

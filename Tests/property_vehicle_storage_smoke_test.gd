@@ -26,22 +26,36 @@ func _run() -> void:
 	) as PlayerVehicleGarageComponent
 	var property_id := &"hood_east_house_1"
 	var definition := PropertyCatalog.get_by_id(property_id)
-	assert(definition.vehicle_storage_capacity == 2)
-	for other_id in [
+	var property_ids: Array[StringName] = [
+		property_id,
 		&"hood_east_house_2",
 		&"hood_east_house_3",
 		&"hood_east_house_4",
-	]:
-		assert(PropertyCatalog.get_by_id(other_id).vehicle_storage_capacity == 0)
-	assert(wallet.add_clean(definition.purchase_price, false))
-	assert(properties.purchase(property_id))
+	]
+	for hood_property_id in property_ids:
+		assert(
+			PropertyCatalog.get_by_id(
+				hood_property_id
+			).vehicle_storage_capacity == 2
+		)
+	assert(wallet.add_clean(definition.purchase_price * property_ids.size(), false))
+	for hood_property_id in property_ids:
+		assert(properties.purchase(hood_property_id))
 
 	var building: PropertyBuilding
+	var verified_garages := 0
 	for node in get_nodes_in_group(&"property_buildings"):
 		var candidate := node as PropertyBuilding
-		if candidate != null and candidate.property_id == property_id:
+		if candidate == null or not property_ids.has(candidate.property_id):
+			continue
+		var candidate_controller := (
+			candidate.get_node("Garage") as PropertyGarageController
+		)
+		assert(candidate_controller != null and candidate_controller.is_available())
+		verified_garages += 1
+		if candidate.property_id == property_id:
 			building = candidate
-			break
+	assert(verified_garages == property_ids.size())
 	assert(building != null)
 	var controller := building.get_node("Garage") as PropertyGarageController
 	assert(controller != null and controller.is_available())

@@ -3,8 +3,10 @@ extends RefCounted
 
 const PURCHASE_PRICE := 10000
 const HOOD_DEALER_CAPACITY := 2
+const HOOD_VEHICLE_STORAGE_CAPACITY := 2
 const BRICK_STATION_COST := 5000
 const BRICK_STATION_INTERVAL_MINUTES := 3 * 60
+const RUNNER_UPGRADE_COST := 5000
 const PROPERTY_IDS: Array[StringName] = [
 	&"hood_east_house_1",
 	&"hood_east_house_2",
@@ -56,7 +58,7 @@ static func _ensure_catalog() -> void:
 			BRICK_STATION_COST,
 			BRICK_STATION_INTERVAL_MINUTES,
 			"Business",
-			2 if index == 0 else 0
+			HOOD_VEHICLE_STORAGE_CAPACITY
 		)
 		_definitions.append(definition)
 		_by_id[definition.property_id] = definition

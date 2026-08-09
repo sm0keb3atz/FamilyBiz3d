@@ -23,7 +23,7 @@ extends Node
 @export var stop_speed_threshold := 0.15
 
 @export_category("Stamina")
-@export_range(0.0, 1000.0, 0.1) var sprint_stamina_per_second := 20.0
+@export_range(0.0, 1000.0, 0.1) var sprint_stamina_per_second := 7.0
 @export_range(0.1, 1000.0, 0.1) var sprint_resume_stamina := 10.0
 
 @export_category("Crouching")

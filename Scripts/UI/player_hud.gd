@@ -551,7 +551,19 @@ func _apply_feedback_color(color: Color) -> void:
 
 
 func update_clock(date_text: String, time_text: String) -> void:
-	date_label.text = date_text
+	var clock_date := date_text
+	var world_time := (
+		get_tree().get_first_node_in_group(&"world_time") as WorldTimeComponent
+	)
+	if world_time != null:
+		var date_parts := date_text.split(" ", false, 1)
+		if date_parts.size() > 1:
+			clock_date = "%s • %s • Y%d" % [
+				date_parts[0], date_parts[1], world_time.year,
+			]
+		else:
+			clock_date = "%s • Y%d" % [date_text, world_time.year]
+	date_label.text = clock_date
 	time_label.text = time_text
 
 

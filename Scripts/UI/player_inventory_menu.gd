@@ -1,6 +1,28 @@
 class_name PlayerInventoryMenu
 extends CanvasLayer
 
+const INVENTORY_ICON: Texture2D = preload(
+	"res://Assets/UI/Inventory/Icons/inventory.svg"
+)
+const DRUGS_ICON: Texture2D = preload(
+	"res://Assets/UI/Inventory/Icons/drugs.svg"
+)
+const WEAPONS_ICON: Texture2D = preload(
+	"res://Assets/UI/Inventory/Icons/weapons.svg"
+)
+const PROPERTY_ICON: Texture2D = preload(
+	"res://Assets/UI/Inventory/Icons/property.svg"
+)
+const TERRITORY_ICON: Texture2D = preload(
+	"res://Assets/UI/Inventory/Icons/territory.svg"
+)
+const LEGAL_ICON: Texture2D = preload(
+	"res://Assets/UI/Inventory/Icons/legal.svg"
+)
+const GIRLFRIENDS_ICON: Texture2D = preload(
+	"res://Assets/UI/PlayerStats/Icons/heart.svg"
+)
+
 class TerritoryRevenueChart extends Control:
 	var values: Array[int] = []
 
@@ -60,12 +82,18 @@ class TerritoryRevenueChart extends Control:
 @export var property_component_path := NodePath("../Components/PropertyComponent")
 @export var wallet_component_path := NodePath("../Components/WalletComponent")
 @export var legal_component_path := NodePath("../Components/LegalComponent")
+@export var entourage_component_path := NodePath("../Components/EntourageComponent")
+@export var stats_component_path := NodePath("../Components/StatsComponent")
+@export var carry_weight_component_path := NodePath(
+	"../Components/CarryWeightComponent"
+)
 
 @onready var menu_root := %MenuRoot as Control
 @onready var tab_container := %TabContainer as TabContainer
 @onready var content := $MenuRoot/Panel/Margin/Content as VBoxContainer
 @onready var title_label := $MenuRoot/Panel/Margin/Content/Title as Label
 @onready var dashboard_panel := $MenuRoot/Panel as PanelContainer
+@onready var backdrop := $MenuRoot/Backdrop as ColorRect
 @onready var drug_list := %DrugList as VBoxContainer
 @onready var weapon_list := %WeaponList as VBoxContainer
 @onready var girlfriend_list := %GirlfriendList as VBoxContainer
@@ -89,34 +117,54 @@ class TerritoryRevenueChart extends Control:
 @onready var properties := get_node_or_null(property_component_path) as PlayerPropertyComponent
 @onready var wallet := get_node_or_null(wallet_component_path) as PlayerWalletComponent
 @onready var legal := get_node_or_null(legal_component_path) as PlayerLegalComponent
+@onready var entourage := get_node_or_null(
+	entourage_component_path
+) as PlayerEntourageComponent
+@onready var stats := get_node(stats_component_path) as PlayerStatsComponent
+@onready var carry_weight := get_node(
+	carry_weight_component_path
+) as PlayerCarryWeightComponent
 
 var _is_open := false
 var _territory_dealers: TerritoryDealerService
 var _navigation_buttons: Dictionary[int, Button] = {}
 var _body: HBoxContainer
 var _resize_tween: Tween
+var _open_tween: Tween
 var _selected_territory_id: StringName = &""
 var _territory_management_tab: StringName = &"properties"
 var _selected_property_id: StringName = &""
 var _legal_list: VBoxContainer
 var _expanded_legal_case_id := ""
 var _known_pending_case_ids: Array[String] = []
+var _page_icon: TextureRect
+var _page_title: Label
+var _page_subtitle: Label
+var _page_summary: Label
+var _page_summary_panel: PanelContainer
+var _carry_weight_value: Label
+var _carry_weight_bar: ProgressBar
 
 
 func _ready() -> void:
 	inventory.quantity_changed.connect(_on_quantity_changed)
 	if weapon_component != null:
 		weapon_component.weapon_changed.connect(_on_weapon_changed)
+		weapon_component.loadout_changed.connect(_on_weapon_loadout_changed)
 		weapon_component.ammo_changed.connect(_on_ammo_changed)
 		weapon_component.attachments_changed.connect(_on_attachments_changed)
 	if girlfriends != null:
 		girlfriends.roster_changed.connect(_on_roster_changed)
+	if entourage != null:
+		entourage.capacity_changed.connect(_on_entourage_capacity_changed)
+	carry_weight.weight_changed.connect(_on_carry_weight_changed)
 	if properties != null:
 		properties.ownership_changed.connect(_on_property_changed)
 		properties.stash_changed.connect(_on_property_stash_changed)
 		properties.brick_station_changed.connect(
 			_on_property_brick_station_changed
 		)
+		properties.runner_changed.connect(_on_property_runner_changed)
 	if wallet != null:
 		wallet.money_changed.connect(_on_wallet_changed)
 	if legal != null:
@@ -138,57 +186,282 @@ func _build_inventory_shell() -> void:
 	content.remove_child(tab_container)
 	_body = HBoxContainer.new()
 	_body.name = "DashboardBody"
+	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_body.add_theme_constant_override("separation", 14)
+	_body.add_theme_constant_override("separation", 16)
 	content.add_child(_body)
 	content.move_child(_body, 0)
+
+	var sidebar_panel := PanelContainer.new()
+	sidebar_panel.custom_minimum_size = Vector2(224, 0)
+	sidebar_panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.029, 0.04, 0.052, 0.98),
+			Color(0.13, 0.18, 0.22, 0.95),
+			14
+		)
+	)
+	_body.add_child(sidebar_panel)
+	var sidebar_margin := MarginContainer.new()
+	sidebar_margin.add_theme_constant_override("margin_left", 12)
+	sidebar_margin.add_theme_constant_override("margin_top", 14)
+	sidebar_margin.add_theme_constant_override("margin_right", 12)
+	sidebar_margin.add_theme_constant_override("margin_bottom", 12)
+	sidebar_panel.add_child(sidebar_margin)
 	var sidebar := VBoxContainer.new()
 	sidebar.name = "Navigation"
-	sidebar.custom_minimum_size = Vector2(190, 0)
-	sidebar.add_theme_constant_override("separation", 6)
-	_body.add_child(sidebar)
+	sidebar.add_theme_constant_override("separation", 7)
+	sidebar_margin.add_child(sidebar)
+	var brand_row := HBoxContainer.new()
+	brand_row.custom_minimum_size.y = 64
+	brand_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	brand_row.add_theme_constant_override("separation", 10)
+	sidebar.add_child(brand_row)
+	var brand_icon := TextureRect.new()
+	brand_icon.custom_minimum_size = Vector2(48, 48)
+	brand_icon.texture = INVENTORY_ICON
+	brand_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	brand_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	brand_row.add_child(brand_icon)
+	var brand_text := VBoxContainer.new()
+	brand_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	brand_text.alignment = BoxContainer.ALIGNMENT_CENTER
+	brand_text.add_theme_constant_override("separation", 0)
+	brand_row.add_child(brand_text)
 	var brand := Label.new()
 	brand.text = "FAMILY BUSINESS"
-	brand.add_theme_font_size_override("font_size", 18)
-	brand.add_theme_color_override("font_color", Color(0.28, 0.9, 0.96))
-	brand.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	brand.custom_minimum_size.y = 52
-	brand.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	sidebar.add_child(brand)
-	var separator := HSeparator.new()
-	separator.modulate = Color(0.2, 0.7, 0.75, 0.45)
+	brand.add_theme_font_size_override("font_size", 15)
+	brand.add_theme_color_override("font_color", Color(0.89, 0.95, 0.98))
+	brand_text.add_child(brand)
+	var brand_caption := Label.new()
+	brand_caption.text = "PLAYER INVENTORY"
+	brand_caption.add_theme_font_size_override("font_size", 10)
+	brand_caption.add_theme_color_override("font_color", Color(0.25, 0.78, 0.84))
+	brand_text.add_child(brand_caption)
+	var separator := ColorRect.new()
+	separator.custom_minimum_size.y = 1
+	separator.color = Color(0.16, 0.33, 0.37, 0.72)
 	sidebar.add_child(separator)
 	var page_order := [
-		{"label": "DRUGS", "index": 0},
+		{"label": "PRODUCT", "index": 0},
 		{"label": "WEAPONS", "index": 1},
-		{"label": "PROPERTY", "index": 3},
-		{"label": "TERRITORY", "index": 4},
+		{"label": "PROPERTIES", "index": 3},
+		{"label": "TERRITORIES", "index": 4},
 		{"label": "GIRLFRIENDS", "index": 2},
-		{"label": "LEGAL", "index": 5},
+		{"label": "LEGAL DESK", "index": 5},
 	]
 	for page in page_order:
 		var button := Button.new()
-		button.text = "   " + String(page.label)
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.custom_minimum_size = Vector2(0, 48)
+		button.custom_minimum_size = Vector2(0, 50)
+		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		button.pressed.connect(_select_sidebar_tab.bind(int(page.index)))
+		var nav_center := CenterContainer.new()
+		nav_center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		nav_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		button.add_child(nav_center)
+		var nav_content := HBoxContainer.new()
+		nav_content.add_theme_constant_override("separation", 10)
+		nav_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		nav_center.add_child(nav_content)
+		var nav_icon := TextureRect.new()
+		nav_icon.custom_minimum_size = Vector2(22, 22)
+		nav_icon.texture = _get_tab_icon(int(page.index))
+		nav_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		nav_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		nav_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		nav_content.add_child(nav_icon)
+		var nav_label := Label.new()
+		nav_label.text = String(page.label)
+		nav_label.add_theme_font_size_override("font_size", 13)
+		nav_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		nav_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		nav_content.add_child(nav_label)
+		button.set_meta("nav_icon", nav_icon)
+		button.set_meta("nav_label", nav_label)
 		sidebar.add_child(button)
 		_navigation_buttons[int(page.index)] = button
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	sidebar.add_child(spacer)
-	var hint := Label.new()
-	hint.text = "I / ESC  CLOSE"
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 12)
-	hint.add_theme_color_override("font_color", Color(0.42, 0.48, 0.54))
-	sidebar.add_child(hint)
-	var rail := VSeparator.new()
-	rail.modulate = Color(0.15, 0.55, 0.6, 0.45)
+	_build_carry_weight_panel(sidebar)
+	var close_caption := Label.new()
+	close_caption.text = "CLOSE MENU"
+	close_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	close_caption.add_theme_font_size_override("font_size", 10)
+	close_caption.add_theme_color_override("font_color", Color(0.38, 0.44, 0.5))
+	sidebar.add_child(close_caption)
+	var close_hint := Label.new()
+	close_hint.text = "I   /   ESC"
+	close_hint.custom_minimum_size.y = 30
+	close_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	close_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	close_hint.add_theme_font_size_override("font_size", 12)
+	close_hint.add_theme_color_override("font_color", Color(0.72, 0.77, 0.82))
+	close_hint.add_theme_stylebox_override(
+		"normal",
+		_make_panel_style(
+			Color(0.055, 0.068, 0.082, 0.96),
+			Color(0.19, 0.24, 0.29, 0.95),
+			7
+		)
+	)
+	sidebar.add_child(close_hint)
+
+	var rail := ColorRect.new()
+	rail.custom_minimum_size.x = 1
+	rail.color = Color(0.12, 0.2, 0.24, 0.72)
 	_body.add_child(rail)
-	_body.add_child(tab_container)
+
+	var workspace := VBoxContainer.new()
+	workspace.name = "InventoryWorkspace"
+	workspace.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	workspace.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	workspace.add_theme_constant_override("separation", 10)
+	_body.add_child(workspace)
+	var page_header := HBoxContainer.new()
+	page_header.custom_minimum_size.y = 70
+	page_header.add_theme_constant_override("separation", 14)
+	workspace.add_child(page_header)
+	_page_icon = TextureRect.new()
+	_page_icon.custom_minimum_size = Vector2(48, 48)
+	_page_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_page_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	page_header.add_child(_page_icon)
+	var page_copy := VBoxContainer.new()
+	page_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	page_copy.alignment = BoxContainer.ALIGNMENT_CENTER
+	page_copy.add_theme_constant_override("separation", 1)
+	page_header.add_child(page_copy)
+	_page_title = Label.new()
+	_page_title.add_theme_font_size_override("font_size", 27)
+	_page_title.add_theme_color_override("font_color", Color(0.96, 0.98, 1))
+	page_copy.add_child(_page_title)
+	_page_subtitle = Label.new()
+	_page_subtitle.add_theme_font_size_override("font_size", 13)
+	_page_subtitle.add_theme_color_override("font_color", Color(0.54, 0.61, 0.68))
+	page_copy.add_child(_page_subtitle)
+	_page_summary_panel = PanelContainer.new()
+	_page_summary_panel.custom_minimum_size = Vector2(150, 38)
+	_page_summary_panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.045, 0.057, 0.069, 0.96),
+			Color(0.18, 0.25, 0.3, 0.9),
+			9
+		)
+	)
+	page_header.add_child(_page_summary_panel)
+	_page_summary = Label.new()
+	_page_summary.add_theme_font_size_override("font_size", 12)
+	_page_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_page_summary.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_page_summary_panel.add_child(_page_summary)
+	var page_divider := ColorRect.new()
+	page_divider.custom_minimum_size.y = 1
+	page_divider.color = Color(0.13, 0.18, 0.22, 0.8)
+	workspace.add_child(page_divider)
+	workspace.add_child(tab_container)
 	tab_container.tab_changed.connect(_on_dashboard_tab_changed)
+
+	content.remove_child(feedback_label)
+	var feedback_panel := PanelContainer.new()
+	feedback_panel.name = "FeedbackBar"
+	feedback_panel.custom_minimum_size.y = 34
+	feedback_panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.035, 0.048, 0.059, 0.95),
+			Color(0.12, 0.2, 0.24, 0.9),
+			8
+		)
+	)
+	content.add_child(feedback_panel)
+	feedback_panel.add_child(feedback_label)
 	_update_navigation_styles()
+	_update_carry_weight_display(
+		carry_weight.get_current_weight_grams(),
+		carry_weight.get_max_weight_grams()
+	)
+
+
+func _build_carry_weight_panel(sidebar: VBoxContainer) -> void:
+	var panel := PanelContainer.new()
+	panel.name = "CarryWeightPanel"
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.035, 0.052, 0.063, 0.98),
+			Color(0.16, 0.35, 0.39, 0.9),
+			8
+		)
+	)
+	sidebar.add_child(panel)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_bottom", 9)
+	panel.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 5)
+	margin.add_child(box)
+	var heading := HBoxContainer.new()
+	box.add_child(heading)
+	var title := Label.new()
+	title.text = "CARRY WEIGHT"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.add_theme_font_size_override("font_size", 10)
+	title.add_theme_color_override("font_color", Color(0.5, 0.62, 0.68))
+	heading.add_child(title)
+	_carry_weight_value = Label.new()
+	_carry_weight_value.name = "CarryWeightValue"
+	_carry_weight_value.text = "0g / 300g"
+	_carry_weight_value.add_theme_font_size_override("font_size", 12)
+	_carry_weight_value.add_theme_color_override(
+		"font_color",
+		Color(0.22, 0.8, 0.87)
+	)
+	heading.add_child(_carry_weight_value)
+	_carry_weight_bar = ProgressBar.new()
+	_carry_weight_bar.name = "CarryWeightBar"
+	_carry_weight_bar.custom_minimum_size.y = 9
+	_carry_weight_bar.show_percentage = false
+	_carry_weight_bar.add_theme_stylebox_override(
+		"background",
+		_make_panel_style(
+			Color(0.025, 0.035, 0.043, 1.0),
+			Color(0.09, 0.13, 0.15, 1.0),
+			4
+		)
+	)
+	box.add_child(_carry_weight_bar)
+
+
+func _update_carry_weight_display(current: int, maximum: int) -> void:
+	if _carry_weight_value == null or _carry_weight_bar == null:
+		return
+	var safe_maximum := maxi(maximum, 1)
+	var ratio := float(current) / float(safe_maximum)
+	var color := Color(0.22, 0.8, 0.87)
+	if ratio >= 0.85:
+		color = Color(0.95, 0.3, 0.28)
+	elif ratio >= 0.6:
+		color = Color(0.95, 0.67, 0.22)
+	_carry_weight_value.text = "%dg / %dg" % [current, maximum]
+	_carry_weight_value.add_theme_color_override("font_color", color)
+	_carry_weight_bar.max_value = maxf(
+		maxf(float(maximum), float(current)),
+		1.0
+	)
+	_carry_weight_bar.value = current
+	_carry_weight_bar.add_theme_stylebox_override(
+		"fill",
+		_make_panel_style(color.darkened(0.18), color, 4)
+	)
+	_carry_weight_bar.tooltip_text = "%dg available" % (
+		maxi(maximum - current, 0)
+	)
 
 
 func _select_sidebar_tab(index: int) -> void:
@@ -251,11 +524,173 @@ func _update_navigation_styles() -> void:
 	for index in _navigation_buttons:
 		var button := _navigation_buttons[index]
 		var selected := int(index) == tab_container.current_tab
-		var accent := Color(0.18, 0.84, 0.9) if selected else Color(0.18, 0.22, 0.26)
-		button.add_theme_stylebox_override("normal", _make_panel_style(
-			Color(0.055, 0.085, 0.095, 0.98) if selected else Color(0.045, 0.052, 0.062, 0.94), accent))
-		button.add_theme_stylebox_override("hover", _make_panel_style(Color(0.07, 0.11, 0.12, 1.0), Color(0.2, 0.72, 0.78)))
-		button.add_theme_color_override("font_color", Color(0.88, 0.95, 0.97) if selected else Color(0.62, 0.68, 0.73))
+		var accent := _get_tab_accent(int(index))
+		var normal_style := _make_panel_style(
+			Color(accent.r * 0.12, accent.g * 0.12, accent.b * 0.12, 0.98)
+			if selected else Color(0.035, 0.044, 0.054, 0.84),
+			accent.darkened(0.08)
+			if selected else Color(0.09, 0.12, 0.15, 0.55),
+			10
+		)
+		normal_style.border_width_left = 3 if selected else 1
+		button.add_theme_stylebox_override("normal", normal_style)
+		button.add_theme_stylebox_override(
+			"hover",
+			_make_panel_style(
+				Color(accent.r * 0.16, accent.g * 0.16, accent.b * 0.16, 1.0),
+				accent.darkened(0.05),
+				10
+			)
+		)
+		button.add_theme_stylebox_override(
+			"pressed",
+			_make_panel_style(
+				Color(accent.r * 0.09, accent.g * 0.09, accent.b * 0.09, 1.0),
+				accent,
+				10
+			)
+		)
+		button.add_theme_color_override(
+			"font_color",
+			Color(0.93, 0.97, 0.99) if selected else Color(0.57, 0.63, 0.69)
+		)
+		button.add_theme_color_override("font_hover_color", Color(0.95, 0.98, 1))
+		button.add_theme_color_override(
+			"icon_normal_color",
+			Color(1, 1, 1, 1) if selected else Color(1, 1, 1, 0.62)
+		)
+		button.add_theme_color_override("icon_hover_color", Color(1, 1, 1, 1))
+		var nav_label := button.get_meta("nav_label") as Label
+		var nav_icon := button.get_meta("nav_icon") as TextureRect
+		if nav_label != null:
+			nav_label.add_theme_color_override(
+				"font_color",
+				Color(0.93, 0.97, 0.99)
+				if selected else Color(0.57, 0.63, 0.69)
+			)
+		if nav_icon != null:
+			nav_icon.modulate = (
+				Color(1, 1, 1, 1) if selected else Color(1, 1, 1, 0.62)
+			)
+	_update_page_header()
+
+
+func _update_page_header() -> void:
+	if _page_title == null:
+		return
+	var index := tab_container.current_tab
+	_page_icon.texture = _get_tab_icon(index)
+	_page_title.text = _get_tab_title(index)
+	_page_subtitle.text = _get_tab_subtitle(index)
+	var accent := _get_tab_accent(index)
+	_page_title.add_theme_color_override("font_color", Color(0.96, 0.98, 1))
+	_page_summary.text = _get_tab_summary(index)
+	_page_summary.add_theme_color_override("font_color", accent.lightened(0.2))
+	_page_summary_panel.visible = index > 2
+
+
+func _get_tab_icon(index: int) -> Texture2D:
+	match index:
+		0:
+			return DRUGS_ICON
+		1:
+			return WEAPONS_ICON
+		2:
+			return GIRLFRIENDS_ICON
+		3:
+			return PROPERTY_ICON
+		4:
+			return TERRITORY_ICON
+		5:
+			return LEGAL_ICON
+		_:
+			return INVENTORY_ICON
+
+
+func _get_tab_accent(index: int) -> Color:
+	match index:
+		0:
+			return Color(0.22, 0.8, 0.87)
+		1:
+			return Color(0.95, 0.34, 0.31)
+		2:
+			return Color(0.94, 0.31, 0.58)
+		3:
+			return Color(0.92, 0.65, 0.24)
+		4:
+			return Color(0.62, 0.43, 0.91)
+		5:
+			return Color(0.31, 0.78, 0.75)
+		_:
+			return Color(0.25, 0.78, 0.84)
+
+
+func _get_tab_title(index: int) -> String:
+	match index:
+		0:
+			return "PRODUCT INVENTORY"
+		1:
+			return "WEAPON LOADOUT"
+		2:
+			return "GIRLFRIEND ROSTER"
+		3:
+			return "PROPERTY PORTFOLIO"
+		4:
+			return "TERRITORY CONTROL"
+		5:
+			return "LEGAL DESK"
+		_:
+			return "INVENTORY"
+
+
+func _get_tab_subtitle(index: int) -> String:
+	match index:
+		0:
+			return "Review carried packages, street value, and breakdown options."
+		1:
+			return "Inspect your carried weapons, ammunition, and combat profile."
+		2:
+			return "Manage companions, availability, and relationship standing."
+		3:
+			return "Review owned properties, storage, automation, and operations."
+		4:
+			return "Control territory reputation, supply, dealers, and income."
+		5:
+			return "Manage active cases, retained counsel, and legal services."
+		_:
+			return "Manage everything your organization owns."
+
+
+func _get_tab_summary(index: int) -> String:
+	match index:
+		0:
+			var carried_types := 0
+			for product in EconomyCatalog.get_all_products():
+				if inventory.get_quantity(product) > 0:
+					carried_types += 1
+			return "%d CARRIED TYPES" % carried_types
+		1:
+			return "%d WEAPONS" % (
+				weapon_component.get_weapon_slots().size()
+				if weapon_component != null else 0
+			)
+		2:
+			return "%d CONTACTS" % (
+				girlfriends.get_roster().size() if girlfriends != null else 0
+			)
+		3:
+			return "%d PROPERTIES" % (
+				properties.get_owned_definitions().size()
+				if properties != null else 0
+			)
+		4:
+			return "%d TERRITORIES" % _get_owned_territories().size()
+		5:
+			return "%d ACTIVE CASES" % (
+				legal.get_pending_cases().size() if legal != null else 0
+			)
+		_:
+			return "PLAYER ASSETS"
 
 
 func _input(event: InputEvent) -> void:
@@ -283,18 +718,34 @@ func set_menu_open(open: bool) -> void:
 		return
 
 	_is_open = open
-	menu_root.visible = _is_open
 	if _is_open:
+		menu_root.visible = true
 		if tab_container.current_tab == 4:
 			_selected_territory_id = &""
 		_refresh()
+		_update_navigation_styles()
 		if tab_container.current_tab == 4:
 			_animate_panel_for_tab(false, 0)
 			_animate_panel_for_tab(true, 1)
 		else:
 			_animate_panel_for_tab(false)
+		_play_open_animation()
 	else:
+		if is_instance_valid(_open_tween):
+			_open_tween.kill()
+		menu_root.visible = false
 		_animate_panel_for_tab(false, 0)
+
+
+func _play_open_animation() -> void:
+	if is_instance_valid(_open_tween):
+		_open_tween.kill()
+	dashboard_panel.modulate.a = 0.0
+	backdrop.modulate.a = 0.0
+	_open_tween = create_tween().set_parallel(true)
+	_open_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_open_tween.tween_property(backdrop, "modulate:a", 1.0, 0.16)
+	_open_tween.tween_property(dashboard_panel, "modulate:a", 1.0, 0.22)
 
 
 func _refresh() -> void:
@@ -304,6 +755,7 @@ func _refresh() -> void:
 	_refresh_properties()
 	_refresh_territory()
 	_refresh_legal()
+	_update_page_header()
 
 
 func _create_legal_tab() -> void:
@@ -338,7 +790,7 @@ func _render_legal_dashboard() -> void:
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	titles.add_theme_constant_override("separation", 2)
 	title_row.add_child(titles)
-	var heading := _legal_note("LEGAL DESK")
+	var heading := _legal_note("CASE & COUNSEL OVERVIEW")
 	heading.add_theme_font_size_override("font_size", 28)
 	heading.add_theme_color_override("font_color", Color(0.9, 0.96, 0.98))
 	titles.add_child(heading)
@@ -1086,6 +1538,7 @@ func _lower_heat_with_lawyer(
 func _on_legal_state_changed() -> void:
 	if _is_open:
 		_refresh_legal()
+		_update_page_header()
 
 
 func _resolve_territory_dealers() -> void:
@@ -1422,10 +1875,15 @@ func _create_dealer_duty_row(
 	var duty_button := Button.new()
 	duty_button.text = "SEND HOME" if following else "CALL"
 	duty_button.custom_minimum_size = Vector2(112, 36)
+	duty_button.disabled = not following and not _has_follower_capacity()
 	duty_button.tooltip_text = (
 		"Return this dealer to their assigned property and resume income"
 		if following
-		else "Call this dealer to follow you as a bodyguard"
+		else (
+			"Call this dealer to follow you as a bodyguard"
+			if _has_follower_capacity()
+			else PlayerEntourageComponent.LIMIT_FEEDBACK
+		)
 	)
 	duty_button.pressed.connect(
 		_send_dealer_back.bind(
@@ -1480,29 +1938,37 @@ func _create_territory_header(display_name: String) -> Control:
 
 func _create_stat_card(card_title: String, value: String, subtitle: String, accent: Color, progress: float) -> Control:
 	var panel := PanelContainer.new()
+	panel.custom_minimum_size.y = 102
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.035, 0.047, 0.055, 0.98), Color(0.14, 0.22, 0.25, 0.9)))
+	var card_style := _make_panel_style(
+		Color(0.037, 0.048, 0.059, 0.98),
+		Color(accent.r, accent.g, accent.b, 0.42),
+		11,
+		0.16
+	)
+	card_style.border_width_top = 2
+	panel.add_theme_stylebox_override("panel", card_style)
 	var margin := MarginContainer.new()
 	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
-		margin.add_theme_constant_override(side, 12)
+		margin.add_theme_constant_override(side, 13)
 	panel.add_child(margin)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 4)
 	margin.add_child(box)
 	var heading := Label.new()
 	heading.text = card_title
-	heading.add_theme_font_size_override("font_size", 12)
-	heading.add_theme_color_override("font_color", Color(0.68, 0.74, 0.78))
+	heading.add_theme_font_size_override("font_size", 10)
+	heading.add_theme_color_override("font_color", Color(0.53, 0.6, 0.66))
 	box.add_child(heading)
 	var amount := Label.new()
 	amount.text = value
-	amount.add_theme_font_size_override("font_size", 22)
+	amount.add_theme_font_size_override("font_size", 23)
 	amount.add_theme_color_override("font_color", accent)
 	box.add_child(amount)
 	box.add_child(_detail_label(subtitle))
 	if progress >= 0.0:
 		var bar := ProgressBar.new()
-		bar.custom_minimum_size.y = 6
+		bar.custom_minimum_size.y = 7
 		bar.show_percentage = false
 		bar.max_value = 1.0
 		bar.value = clampf(progress, 0.0, 1.0)
@@ -1514,17 +1980,25 @@ func _create_stat_card(card_title: String, value: String, subtitle: String, acce
 
 func _create_section_panel(section_title: String) -> PanelContainer:
 	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.03, 0.042, 0.05, 0.98), Color(0.12, 0.22, 0.25, 0.9)))
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.031, 0.042, 0.052, 0.98),
+			Color(0.13, 0.21, 0.25, 0.92),
+			12,
+			0.14
+		)
+	)
 	var margin := MarginContainer.new()
 	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
-		margin.add_theme_constant_override(side, 10)
+		margin.add_theme_constant_override(side, 12)
 	panel.add_child(margin)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 7)
 	margin.add_child(box)
 	var heading := Label.new()
 	heading.text = section_title
-	heading.add_theme_font_size_override("font_size", 16)
+	heading.add_theme_font_size_override("font_size", 15)
 	heading.add_theme_color_override("font_color", Color(0.22, 0.86, 0.92))
 	box.add_child(heading)
 	panel.set_meta("content", box)
@@ -1791,10 +2265,15 @@ func _create_dealer_management_row(
 		var duty_button := Button.new()
 		duty_button.text = "SEND BACK" if following else "CALL"
 		duty_button.custom_minimum_size = Vector2(82, 34)
+		duty_button.disabled = not following and not _has_follower_capacity()
 		duty_button.tooltip_text = (
 			"Return this dealer to work and resume their paused sale timer"
 			if following
-			else "Call this dealer as a bodyguard; income pauses while following"
+			else (
+				"Call this dealer as a bodyguard; income pauses while following"
+				if _has_follower_capacity()
+				else PlayerEntourageComponent.LIMIT_FEEDBACK
+			)
 		)
 		duty_button.pressed.connect(
 			_send_dealer_back.bind(
@@ -1930,7 +2409,11 @@ func _call_dealer(
 	feedback_label.text = (
 		"Dealer is following you. Their income is paused."
 		if success
-		else "Could not call that dealer."
+		else (
+			PlayerEntourageComponent.LIMIT_FEEDBACK
+			if not _has_follower_capacity()
+			else "Could not call that dealer."
+		)
 	)
 	_refresh_territory()
 
@@ -2158,6 +2641,9 @@ func _render_property_dashboard(definition: PropertyDefinition) -> void:
 	property_list.add_child(stats_row)
 	var columns := HBoxContainer.new()
 	columns.add_theme_constant_override("separation", 10)
+	var runner_panel := _create_runner_panel(definition)
+	runner_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	columns.add_child(runner_panel)
 	var station_panel := _create_brick_station_panel(definition)
 	station_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	columns.add_child(station_panel)
@@ -2169,6 +2655,52 @@ func _render_property_dashboard(definition: PropertyDefinition) -> void:
 	dealer_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	columns.add_child(dealer_panel)
 	property_list.add_child(columns)
+
+
+func _create_runner_panel(
+	definition: PropertyDefinition
+) -> PanelContainer:
+	var panel := _create_section_panel("WHOLESALE RUNNER")
+	var box := panel.get_meta("content") as VBoxContainer
+	var installed := properties.has_runner(definition.property_id)
+	box.add_child(_detail_label(
+		"Receives complete wholesaler brick orders directly into this stash."
+	))
+	var status := Label.new()
+	status.name = "PropertyRunnerStatus"
+	status.text = "RUNNER ACTIVE" if installed else "NOT INSTALLED"
+	status.add_theme_font_size_override("font_size", 18)
+	status.add_theme_color_override(
+		"font_color",
+		Color(0.2, 0.82, 0.42)
+		if installed else Color(0.93, 0.68, 0.16)
+	)
+	box.add_child(status)
+	if installed:
+		box.add_child(_detail_label(
+			"Available as a destination at every wholesaler."
+		))
+		return panel
+	box.add_child(_detail_label(
+		"Cost: $%s Clean  |  Available: $%s Clean" % [
+			_money(PropertyCatalog.RUNNER_UPGRADE_COST),
+			_money(wallet.clean_cash),
+		]
+	))
+	var purchase := Button.new()
+	purchase.name = "PropertyRunnerPurchase"
+	purchase.text = "HIRE RUNNER  $%s CLEAN" % _money(
+		PropertyCatalog.RUNNER_UPGRADE_COST
+	)
+	purchase.disabled = not wallet.can_spend_clean(
+		PropertyCatalog.RUNNER_UPGRADE_COST
+	)
+	purchase.pressed.connect(
+		_purchase_property_runner.bind(definition.property_id)
+	)
+	_style_button(purchase, Color(0.2, 0.74, 0.7))
+	box.add_child(purchase)
+	return panel
 
 
 func _create_brick_station_panel(
@@ -2407,6 +2939,15 @@ func _purchase_property_brick_station(
 	_refresh_properties()
 
 
+func _purchase_property_runner(property_id: StringName) -> void:
+	var success := properties.purchase_runner(property_id)
+	feedback_label.text = (
+		"Runner hired. Wholesalers can now deliver to this stash."
+		if success else properties.last_transfer_error
+	)
+	_refresh_properties()
+
+
 func _on_property_station_product_selected(
 	index: int,
 	property_id: StringName,
@@ -2474,20 +3015,45 @@ func _refresh_girlfriends() -> void:
 	for child in girlfriend_list.get_children():
 		child.queue_free()
 	if girlfriends == null or girlfriends.get_roster().is_empty():
-		girlfriend_list.add_child(_create_center_label("No girlfriends recruited."))
+		girlfriend_list.add_child(_create_empty_dashboard(
+			"NO GIRLFRIENDS RECRUITED",
+			"Build relationships in the city to add companions to your roster."
+		))
 		return
-	for entry in girlfriends.get_roster():
+	var roster := girlfriends.get_roster()
+	girlfriend_list.add_child(_create_list_section_heading(
+		"ROSTER", "CALL OR SEND HOME", Color(0.94, 0.31, 0.58)
+	))
+	for entry in roster:
 		var npc: Variant = entry.get("npc")
 		if is_instance_valid(npc):
 			girlfriend_list.add_child(_create_girlfriend_row(entry))
 
 
 func _create_girlfriend_row(entry: Dictionary) -> Control:
+	var accent := Color(0.94, 0.31, 0.58)
 	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.055, 0.064, 0.078, 0.96), Color(0.95, 0.32, 0.62, 0.55)))
+	panel.custom_minimum_size.y = 104
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.042, 0.052, 0.064, 0.97),
+			Color(accent.r, accent.g, accent.b, 0.48),
+			11,
+			0.18
+		)
+	)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	panel.add_child(margin)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
-	panel.add_child(row)
+	row.add_theme_constant_override("separation", 14)
+	margin.add_child(row)
+	var npc := entry["npc"] as CustomerNPC
+	row.add_child(_create_girlfriend_model_preview(npc, accent))
 	var details := VBoxContainer.new()
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	details.add_theme_constant_override("separation", 4)
@@ -2495,29 +3061,46 @@ func _create_girlfriend_row(entry: Dictionary) -> Control:
 	var name_label := Label.new()
 	name_label.text = "%s  •  Level %d  •  %s" % [entry["name"], entry["level"], str(entry["status"]).capitalize()]
 	name_label.add_theme_font_size_override("font_size", 18)
+	name_label.add_theme_color_override("font_color", Color(0.96, 0.97, 0.99))
 	details.add_child(name_label)
 	var relationship := int(entry.get("relationship", 0))
 	var relationship_bar := ProgressBar.new()
-	relationship_bar.custom_minimum_size = Vector2(220, 24)
+	relationship_bar.custom_minimum_size = Vector2(220, 12)
 	relationship_bar.min_value = -100
 	relationship_bar.max_value = 100
 	relationship_bar.value = relationship
 	relationship_bar.show_percentage = false
 	relationship_bar.tooltip_text = "Relationship %d / 100" % relationship
 	var fill_color := Color(0.86, 0.24, 0.28, 1.0) if relationship < 0 else (Color(0.25, 0.82, 0.42, 1.0) if relationship > 0 else Color(0.62, 0.64, 0.68, 1.0))
-	relationship_bar.add_theme_stylebox_override("fill", _make_panel_style(fill_color, fill_color.lightened(0.15)))
+	relationship_bar.add_theme_stylebox_override(
+		"background",
+		_make_panel_style(Color(0.018, 0.024, 0.032), Color(0.12, 0.15, 0.18), 6)
+	)
+	relationship_bar.add_theme_stylebox_override(
+		"fill", _make_panel_style(fill_color, fill_color.lightened(0.15), 6)
+	)
 	details.add_child(relationship_bar)
 	var relationship_label := Label.new()
 	relationship_label.text = "Relationship: %d / 100" % relationship
 	relationship_label.add_theme_font_size_override("font_size", 13)
 	details.add_child(relationship_label)
-	var npc := entry["npc"] as CustomerNPC
 	var toggle := Button.new()
+	toggle.custom_minimum_size = Vector2(112, 40)
 	toggle.text = "CALL" if entry["status"] == PlayerGirlfriendComponent.STATUS_HOME else "SEND HOME"
+	var girlfriend_home: bool = entry["status"] == PlayerGirlfriendComponent.STATUS_HOME
+	toggle.disabled = girlfriend_home and not _has_follower_capacity()
+	toggle.tooltip_text = (
+		PlayerEntourageComponent.LIMIT_FEEDBACK
+		if toggle.disabled
+		else "Call this girlfriend to join your active crew"
+		if girlfriend_home
+		else "Send this girlfriend home and free a Motion follower slot"
+	)
 	toggle.pressed.connect(girlfriends.call_girlfriend.bind(npc) if entry["status"] == PlayerGirlfriendComponent.STATUS_HOME else girlfriends.send_home.bind(npc))
 	_style_button(toggle, Color(0.25, 0.65, 0.85, 1.0))
 	row.add_child(toggle)
 	var breakup := Button.new()
+	breakup.custom_minimum_size = Vector2(104, 40)
 	breakup.text = "BREAK UP"
 	breakup.pressed.connect(girlfriends.break_up.bind(npc))
 	_style_button(breakup, Color(0.8, 0.2, 0.3, 1.0))
@@ -2528,15 +3111,23 @@ func _create_girlfriend_row(entry: Dictionary) -> Control:
 func _refresh_drugs() -> void:
 	for child in drug_list.get_children():
 		child.queue_free()
-
-	var shown_count := 0
+	var carried: Array[ProductDefinition] = []
 	for product in EconomyCatalog.get_all_products():
-		if inventory.get_quantity(product) <= 0:
+		var quantity := inventory.get_quantity(product)
+		if quantity <= 0:
 			continue
+		carried.append(product)
+	if carried.is_empty():
+		drug_list.add_child(_create_empty_dashboard(
+			"NO PRODUCT CARRIED",
+			"Purchased and collected product will appear here."
+		))
+		return
+	drug_list.add_child(_create_list_section_heading(
+		"CARRIED PACKAGES", "VALUE AND RISK PROFILE", Color(0.22, 0.8, 0.87)
+	))
+	for product in carried:
 		drug_list.add_child(_create_drug_row(product))
-		shown_count += 1
-	if shown_count == 0:
-		drug_list.add_child(_create_center_label("No drugs carried."))
 
 
 func _refresh_weapons() -> void:
@@ -2544,60 +3135,110 @@ func _refresh_weapons() -> void:
 		child.queue_free()
 
 	if weapon_component == null:
-		weapon_list.add_child(_create_center_label("No weapon component found."))
+		weapon_list.add_child(_create_empty_dashboard(
+			"WEAPON LOADOUT UNAVAILABLE", "The player weapon system could not be found."
+		))
 		return
 
 	var weapons := weapon_component.get_weapon_slots()
 	if weapons.is_empty():
-		weapon_list.add_child(_create_center_label("No weapons carried."))
+		weapon_list.add_child(_create_empty_dashboard(
+			"NO WEAPONS CARRIED", "Purchased weapons will appear in this loadout."
+		))
 		return
 
 	var equipped := weapon_component.get_equipped_weapon()
+	weapon_list.add_child(_create_list_section_heading(
+		"WEAPON SLOTS", "COMBAT PROFILE", Color(0.95, 0.34, 0.31)
+	))
 	for weapon in weapons:
 		weapon_list.add_child(_create_weapon_row(weapon, equipped))
 
 
 func _create_drug_row(product: ProductDefinition) -> Control:
+	var accent := _get_drug_accent(product)
 	var panel := PanelContainer.new()
+	panel.custom_minimum_size.y = 104
 	panel.add_theme_stylebox_override(
 		"panel",
-		_make_panel_style(Color(0.055, 0.064, 0.078, 0.96), Color(0.16, 0.77, 0.86, 0.45))
+		_make_panel_style(
+			Color(0.042, 0.052, 0.064, 0.98),
+			Color(accent.r, accent.g, accent.b, 0.52),
+			11,
+			0.18
+		)
 	)
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_bottom", 10)
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
 	panel.add_child(margin)
 
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
+	row.add_theme_constant_override("separation", 14)
 	margin.add_child(row)
 
+	var icon_panel := PanelContainer.new()
+	icon_panel.custom_minimum_size = Vector2(72, 72)
+	icon_panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(accent.r * 0.13, accent.g * 0.13, accent.b * 0.13, 0.9),
+			Color(accent.r, accent.g, accent.b, 0.58),
+			12
+		)
+	)
+	row.add_child(icon_panel)
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(48, 48)
+	icon.custom_minimum_size = Vector2(50, 50)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = product.icon
-	row.add_child(icon)
+	icon.texture = product.icon if product.icon != null else DRUGS_ICON
+	icon_panel.add_child(icon)
 
 	var text_box := VBoxContainer.new()
 	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	text_box.add_theme_constant_override("separation", 5)
 	row.add_child(text_box)
 
+	var title_row := HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", 8)
+	text_box.add_child(title_row)
 	var name_label := Label.new()
 	name_label.text = _get_drug_label(product)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.add_theme_font_size_override("font_size", 20)
-	text_box.add_child(name_label)
-
-	var detail_label := Label.new()
-	detail_label.text = _get_drug_amount_text(product)
-	detail_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 1.0))
-	text_box.add_child(detail_label)
+	name_label.add_theme_color_override("font_color", Color(0.96, 0.98, 1))
+	title_row.add_child(name_label)
+	var package_label := Label.new()
+	package_label.text = (
+		"BRICK" if product.is_brick() else "%dG PACKAGE" % product.package_size_grams
+	)
+	package_label.add_theme_font_size_override("font_size", 10)
+	package_label.add_theme_color_override("font_color", accent.lightened(0.2))
+	package_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_row.add_child(package_label)
+	var metrics := HBoxContainer.new()
+	metrics.add_theme_constant_override("separation", 18)
+	text_box.add_child(metrics)
+	metrics.add_child(_create_inline_metric(
+		"CARRIED", _get_drug_amount_text(product), accent
+	))
+	metrics.add_child(_create_inline_metric(
+		"PACKAGES", str(inventory.get_quantity(product)), Color(0.72, 0.76, 0.82)
+	))
+	metrics.add_child(_create_inline_metric(
+		"STREET EACH", "$%s" % _money(product.sale_price), Color(0.34, 0.86, 0.5)
+	))
+	metrics.add_child(_create_inline_metric(
+		"HEAT", "+%d" % roundi(product.heat_reward), Color(0.96, 0.36, 0.34)
+	))
 
 	var breakdown_button := Button.new()
 	breakdown_button.text = "BREAK DOWN"
-	breakdown_button.custom_minimum_size = Vector2(118, 36)
+	breakdown_button.custom_minimum_size = Vector2(126, 42)
 	breakdown_button.visible = product.can_break_down()
 	breakdown_button.disabled = not inventory.has_product(product, 1)
 	_style_button(breakdown_button, Color(0.15, 0.62, 0.72, 1.0))
@@ -2611,41 +3252,306 @@ func _create_weapon_row(
 	weapon: WeaponDefinition,
 	equipped: WeaponDefinition
 ) -> Control:
+	var is_equipped := weapon == equipped
+	var accent := Color(0.95, 0.34, 0.31) if is_equipped else Color(0.46, 0.54, 0.62)
 	var panel := PanelContainer.new()
+	panel.custom_minimum_size.y = 104
 	panel.add_theme_stylebox_override(
 		"panel",
-		_make_panel_style(Color(0.055, 0.064, 0.078, 0.96), Color(0.55, 0.62, 0.7, 0.35))
+		_make_panel_style(
+			Color(0.042, 0.052, 0.064, 0.98),
+			Color(accent.r, accent.g, accent.b, 0.55),
+			11,
+			0.18
+		)
 	)
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_bottom", 10)
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
 	panel.add_child(margin)
 
-	var row := VBoxContainer.new()
-	row.add_theme_constant_override("separation", 4)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
 	margin.add_child(row)
+	row.add_child(_create_weapon_model_preview(weapon, accent))
+	var details := VBoxContainer.new()
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.alignment = BoxContainer.ALIGNMENT_CENTER
+	details.add_theme_constant_override("separation", 5)
+	row.add_child(details)
 
+	var heading := HBoxContainer.new()
+	heading.add_theme_constant_override("separation", 10)
+	details.add_child(heading)
 	var name_label := Label.new()
-	var equipped_text := " (Equipped)" if weapon == equipped else ""
-	name_label.text = "%s%s" % [weapon.display_name, equipped_text]
+	name_label.text = weapon.display_name
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.add_theme_font_size_override("font_size", 20)
-	row.add_child(name_label)
+	name_label.add_theme_color_override("font_color", Color(0.96, 0.98, 1))
+	heading.add_child(name_label)
+	var status := Label.new()
+	status.text = "EQUIPPED" if is_equipped else "STORED"
+	status.add_theme_font_size_override("font_size", 10)
+	status.add_theme_color_override("font_color", accent.lightened(0.2))
+	status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	heading.add_child(status)
+	var metrics := HBoxContainer.new()
+	metrics.add_theme_constant_override("separation", 20)
+	details.add_child(metrics)
+	metrics.add_child(_create_inline_metric(
+		"DAMAGE", "%d" % roundi(weapon.damage), Color(0.96, 0.42, 0.38)
+	))
+	metrics.add_child(_create_inline_metric(
+		"FIRE RATE", "%.1f / SEC" % weapon.get_rounds_per_second(),
+		Color(0.95, 0.67, 0.3)
+	))
+	metrics.add_child(_create_inline_metric(
+		"RANGE", "%d M" % roundi(weapon.max_range), Color(0.4, 0.75, 0.95)
+	))
+	metrics.add_child(_create_inline_metric(
+		"MODE", "AUTO" if weapon.supports_full_auto else "SEMI",
+		Color(0.7, 0.73, 0.78)
+	))
+	metrics.add_child(_create_inline_metric(
+		"WEIGHT",
+		"%dG" % weapon.get_carry_weight_grams(
+			weapon_component.get_attachment_state(weapon.weapon_id)
+		),
+		Color(0.34, 0.82, 0.84)
+	))
 
 	var detail_label := Label.new()
-	if weapon == equipped:
-		detail_label.text = "Magazine: %d/%d | Reserve: %d" % [
+	if is_equipped:
+		detail_label.text = "MAGAZINE  %d / %d     RESERVE  %d" % [
 			weapon_component.get_magazine_ammo(),
 			weapon_component.get_magazine_capacity(),
 			weapon_component.get_reserve_ammo(),
 		]
 	else:
-		detail_label.text = "Stored weapon"
-	detail_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 1.0))
-	row.add_child(detail_label)
+		detail_label.text = "READY IN WEAPON SLOT"
+	detail_label.add_theme_font_size_override("font_size", 11)
+	detail_label.add_theme_color_override("font_color", Color(0.55, 0.61, 0.67, 1.0))
+	details.add_child(detail_label)
 
 	return panel
+
+
+func _create_weapon_model_preview(
+	weapon: WeaponDefinition,
+	accent: Color
+) -> Control:
+	if weapon.visual_scene == null:
+		return _create_preview_fallback(
+			Vector2(124, 76), WEAPONS_ICON, accent, 12
+		)
+	var model := weapon.visual_scene.instantiate() as Node3D
+	if model == null:
+		return _create_preview_fallback(
+			Vector2(124, 76), WEAPONS_ICON, accent, 12
+		)
+
+	var preview := _create_model_preview_shell(Vector2(124, 76), accent, 12)
+	var viewport := preview.get_meta("viewport") as SubViewport
+	var pivot := Node3D.new()
+	viewport.add_child(pivot)
+	pivot.add_child(model)
+	model.process_mode = Node.PROCESS_MODE_DISABLED
+	model.rotation_degrees = Vector3(0, -90, 0)
+	model.scale = Vector3.ONE * (2.1 if weapon.weapon_id == &"pistol" else 1.35)
+	_hide_preview_extras(model)
+
+	var camera := Camera3D.new()
+	camera.position = Vector3(0.0, 0.18, 2.15)
+	camera.look_at_from_position(camera.position, Vector3(0, 0.04, 0))
+	camera.fov = 34.0
+	viewport.add_child(camera)
+	_add_preview_lighting(viewport, accent)
+	return preview
+
+
+func _create_girlfriend_model_preview(
+	npc: CustomerNPC,
+	accent: Color
+) -> Control:
+	var source: Node3D = null
+	if is_instance_valid(npc):
+		source = npc.get_node_or_null("Visual/PlayerTest2") as Node3D
+	if source == null:
+		return _create_preview_fallback(
+			Vector2(90, 82), GIRLFRIENDS_ICON, accent, 12
+		)
+	# Duplicate the live hierarchy instead of reinstantiating its source scene so
+	# the preview keeps this NPC's current body, outfit, colors, and pose.
+	var model := source.duplicate(Node.DUPLICATE_GROUPS) as Node3D
+	if model == null:
+		return _create_preview_fallback(
+			Vector2(90, 82), GIRLFRIENDS_ICON, accent, 12
+		)
+
+	var preview := _create_model_preview_shell(Vector2(90, 82), accent, 12)
+	var viewport := preview.get_meta("viewport") as SubViewport
+	var pivot := Node3D.new()
+	viewport.add_child(pivot)
+	pivot.add_child(model)
+	model.process_mode = Node.PROCESS_MODE_DISABLED
+	_hide_preview_extras(model)
+
+	var camera := Camera3D.new()
+	camera.position = Vector3(0.0, 1.28, 3.15)
+	camera.look_at_from_position(camera.position, Vector3(0, 1.2, 0))
+	camera.fov = 27.0
+	viewport.add_child(camera)
+	_add_preview_lighting(viewport, accent)
+	return preview
+
+
+func _create_model_preview_shell(
+	preview_size: Vector2,
+	accent: Color,
+	radius: int
+) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = preview_size
+	panel.clip_contents = true
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(accent.r * 0.1, accent.g * 0.1, accent.b * 0.1, 0.92),
+			Color(accent.r, accent.g, accent.b, 0.58),
+			radius
+		)
+	)
+	var container := SubViewportContainer.new()
+	container.stretch = true
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(container)
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(
+		maxi(roundi(preview_size.x * 2.0), 1),
+		maxi(roundi(preview_size.y * 2.0), 1)
+	)
+	viewport.transparent_bg = true
+	viewport.own_world_3d = true
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	container.add_child(viewport)
+	panel.set_meta("viewport", viewport)
+	return panel
+
+
+func _create_preview_fallback(
+	preview_size: Vector2,
+	icon_texture: Texture2D,
+	accent: Color,
+	radius: int
+) -> Control:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = preview_size
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(accent.r * 0.12, accent.g * 0.12, accent.b * 0.12, 0.9),
+			Color(accent.r, accent.g, accent.b, 0.58),
+			radius
+		)
+	)
+	var icon := TextureRect.new()
+	icon.custom_minimum_size = preview_size * 0.5
+	icon.texture = icon_texture
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(icon)
+	return panel
+
+
+func _add_preview_lighting(viewport: SubViewport, accent: Color) -> void:
+	var key := DirectionalLight3D.new()
+	key.rotation_degrees = Vector3(-35, -35, 0)
+	key.light_energy = 2.25
+	key.light_color = Color(1.0, 0.9, 0.76)
+	viewport.add_child(key)
+	var fill := DirectionalLight3D.new()
+	fill.rotation_degrees = Vector3(18, 145, 0)
+	fill.light_energy = 1.35
+	fill.light_color = accent.lightened(0.35)
+	viewport.add_child(fill)
+
+
+func _hide_preview_extras(root: Node3D) -> void:
+	for node in root.find_children("*", "Node3D", true, false):
+		var node_3d := node as Node3D
+		var clean_name := String(node_3d.name).to_lower()
+		if (
+			clean_name.contains("muzzleflash")
+			or clean_name.contains("laserbeam")
+			or clean_name == "equippedweapon"
+		):
+			node_3d.visible = false
+
+
+func _create_list_section_heading(
+	title: String,
+	caption: String,
+	accent: Color
+) -> Control:
+	var row := HBoxContainer.new()
+	row.custom_minimum_size.y = 34
+	row.add_theme_constant_override("separation", 10)
+	var marker := ColorRect.new()
+	marker.custom_minimum_size = Vector2(4, 20)
+	marker.color = accent
+	row.add_child(marker)
+	var heading := Label.new()
+	heading.text = title
+	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading.add_theme_font_size_override("font_size", 13)
+	heading.add_theme_color_override("font_color", Color(0.82, 0.86, 0.9))
+	heading.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(heading)
+	var note := Label.new()
+	note.text = caption
+	note.add_theme_font_size_override("font_size", 10)
+	note.add_theme_color_override("font_color", Color(0.41, 0.47, 0.53))
+	note.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(note)
+	return row
+
+
+func _create_inline_metric(
+	caption: String,
+	value: String,
+	accent: Color
+) -> Control:
+	var box := VBoxContainer.new()
+	box.custom_minimum_size.x = 90
+	box.add_theme_constant_override("separation", 0)
+	var caption_label := Label.new()
+	caption_label.text = caption
+	caption_label.add_theme_font_size_override("font_size", 9)
+	caption_label.add_theme_color_override("font_color", Color(0.42, 0.48, 0.54))
+	box.add_child(caption_label)
+	var value_label := Label.new()
+	value_label.text = value
+	value_label.add_theme_font_size_override("font_size", 14)
+	value_label.add_theme_color_override("font_color", accent)
+	box.add_child(value_label)
+	return box
+
+
+func _get_drug_accent(product: ProductDefinition) -> Color:
+	match product.drug_type:
+		ProductDefinition.DrugType.WEED:
+			return Color(0.3, 0.82, 0.48)
+		ProductDefinition.DrugType.COKE:
+			return Color(0.29, 0.75, 0.94)
+		ProductDefinition.DrugType.FENT:
+			return Color(0.68, 0.46, 0.91)
+		_:
+			return Color(0.22, 0.8, 0.87)
 
 
 func _create_center_label(text: String) -> Label:
@@ -2680,7 +3586,12 @@ func _get_drug_name(drug_type: int) -> String:
 			return "Product"
 
 
-func _make_panel_style(fill: Color, border: Color) -> StyleBoxFlat:
+func _make_panel_style(
+	fill: Color,
+	border: Color,
+	radius := 10,
+	shadow_strength := 0.0
+) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = fill
 	style.border_color = border
@@ -2688,31 +3599,59 @@ func _make_panel_style(fill: Color, border: Color) -> StyleBoxFlat:
 	style.border_width_top = 1
 	style.border_width_right = 1
 	style.border_width_bottom = 1
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
+	style.corner_radius_top_left = radius
+	style.corner_radius_top_right = radius
+	style.corner_radius_bottom_right = radius
+	style.corner_radius_bottom_left = radius
+	style.anti_aliasing = true
+	if shadow_strength > 0.0:
+		style.shadow_color = Color(0, 0, 0, shadow_strength)
+		style.shadow_size = 8
 	return style
 
 
 func _style_button(button: Button, accent: Color) -> void:
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	button.add_theme_font_size_override("font_size", 13)
 	button.add_theme_stylebox_override(
 		"normal",
-		_make_panel_style(Color(0.08, 0.095, 0.11, 1.0), accent.darkened(0.15))
+		_make_panel_style(
+			Color(accent.r * 0.13, accent.g * 0.13, accent.b * 0.13, 0.96),
+			accent.darkened(0.2),
+			8
+		)
 	)
 	button.add_theme_stylebox_override(
 		"hover",
-		_make_panel_style(accent.darkened(0.2), accent.lightened(0.15))
+		_make_panel_style(accent.darkened(0.25), accent.lightened(0.12), 8, 0.22)
 	)
 	button.add_theme_stylebox_override(
 		"pressed",
-		_make_panel_style(accent.darkened(0.35), accent.lightened(0.25))
+		_make_panel_style(accent.darkened(0.42), accent.lightened(0.2), 8)
 	)
 	button.add_theme_stylebox_override(
 		"disabled",
-		_make_panel_style(Color(0.05, 0.055, 0.065, 0.7), Color(0.18, 0.19, 0.21, 0.7))
+		_make_panel_style(
+			Color(0.045, 0.052, 0.062, 0.76),
+			Color(0.14, 0.16, 0.19, 0.72),
+			8
+		)
 	)
+	var focus_style := _make_panel_style(
+		Color(0, 0, 0, 0), accent.lightened(0.22), 8
+	)
+	focus_style.border_width_left = 2
+	focus_style.border_width_top = 2
+	focus_style.border_width_right = 2
+	focus_style.border_width_bottom = 2
+	focus_style.expand_margin_left = 2
+	focus_style.expand_margin_top = 2
+	focus_style.expand_margin_right = 2
+	focus_style.expand_margin_bottom = 2
+	button.add_theme_stylebox_override("focus", focus_style)
 	button.add_theme_color_override("font_color", Color(0.92, 0.96, 0.98, 1.0))
+	button.add_theme_color_override("font_hover_color", Color(1, 1, 1, 1))
+	button.add_theme_color_override("font_pressed_color", accent.lightened(0.36))
 	button.add_theme_color_override("font_disabled_color", Color(0.42, 0.44, 0.48, 1.0))
 
 
@@ -2767,6 +3706,13 @@ func _on_quantity_changed(
 func _on_weapon_changed(_definition: WeaponDefinition) -> void:
 	if _is_open:
 		_refresh_weapons()
+		_update_page_header()
+
+
+func _on_weapon_loadout_changed() -> void:
+	if _is_open:
+		_refresh_weapons()
+		_update_page_header()
 
 
 func _on_ammo_changed(_magazine: int, _reserve: int) -> void:
@@ -2779,15 +3725,33 @@ func _on_attachments_changed() -> void:
 		_refresh_weapons()
 
 
+func _on_carry_weight_changed(current: int, maximum: int) -> void:
+	_update_carry_weight_display(current, maximum)
+	if _is_open:
+		_refresh_weapons()
+
+
 func _on_roster_changed() -> void:
 	if _is_open:
 		_refresh_girlfriends()
+		_update_page_header()
+
+
+func _on_entourage_capacity_changed(_active: int, _maximum: int) -> void:
+	if _is_open:
+		_refresh_girlfriends()
+		_refresh_territory()
+
+
+func _has_follower_capacity() -> bool:
+	return entourage == null or entourage.has_capacity()
 
 
 func _on_property_changed(_property_id: StringName, _owned: bool) -> void:
 	if _is_open:
 		_refresh_properties()
 		_refresh_territory()
+		_update_page_header()
 
 
 func _on_property_stash_changed(_property_id: StringName) -> void:
@@ -2800,6 +3764,11 @@ func _on_property_brick_station_changed(_property_id: StringName) -> void:
 	if _is_open:
 		_refresh_properties()
 		_refresh_territory()
+
+
+func _on_property_runner_changed(_property_id: StringName) -> void:
+	if _is_open:
+		_refresh_properties()
 
 
 func _on_territory_dealer_state_changed(_territory_id: StringName) -> void:

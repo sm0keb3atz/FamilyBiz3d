@@ -16,6 +16,10 @@ func _run() -> void:
 	var wallet := player.get_node("Components/WalletComponent") as PlayerWalletComponent
 	var inventory := player.get_node("Components/InventoryComponent") as PlayerInventoryComponent
 	var properties := player.get_node("Components/PropertyComponent") as PlayerPropertyComponent
+	var stats := player.get_node("Components/StatsComponent") as PlayerStatsComponent
+	var entourage := player.get_node(
+		"Components/EntourageComponent"
+	) as PlayerEntourageComponent
 	var service := world.get_node("TerritoryDealerService") as TerritoryDealerService
 	var encounter := world.get_node("TerritoryEncounterController") as TerritoryEncounterController
 	var world_time := world.get_node("WorldTimeComponent") as WorldTimeComponent
@@ -154,6 +158,24 @@ func _run() -> void:
 	assert(properties.transfer_product(
 		&"hood_east_house_1", EconomyCatalog.WEED_1G, 2, true
 	) == 2)
+	assert(stats.motion == 1)
+	assert(service.call_dealer(
+		&"hood_east", &"hood_east_north", &"north_l2"
+	))
+	var blocked_sale_minute := int(_find_entry(
+		service.get_roster(&"hood_east"), &"north_l3"
+	).next_sale_minute)
+	assert(not service.call_dealer(
+		&"hood_east", &"hood_east_north", &"north_l3"
+	))
+	assert(int(_find_entry(
+		service.get_roster(&"hood_east"), &"north_l3"
+	).next_sale_minute) == blocked_sale_minute)
+	assert(entourage.get_active_count() == 1)
+	assert(service.send_dealer_back(
+		&"hood_east", &"hood_east_north", &"north_l2"
+	))
+	stats.import_save_data({"motion": 2})
 	assert(service.call_dealer(
 		&"hood_east", &"hood_east_north", &"north_l2"
 	))
@@ -161,6 +183,7 @@ func _run() -> void:
 		&"hood_east", &"hood_east_north", &"north_l3"
 	))
 	assert(service.get_following_dealers().size() == 2)
+	assert(entourage.get_active_count() == 2)
 	assert(north.get_member_dealer(&"north_l2").is_bodyguard_following())
 	assert(north.get_member_dealer(&"north_l3").is_bodyguard_following())
 	var paused_supply := properties.get_stashed_product_quantity(
@@ -302,6 +325,26 @@ func _run() -> void:
 	assert(int(service.get_earnings_summary(&"hood_east").total_slots) == 8)
 	for property_id in PropertyCatalog.PROPERTY_IDS:
 		assert(service.get_property_roster(property_id).size() == 2)
+	var overflow_entries := service.get_roster(&"hood_east")
+	assert(service.call_dealer(
+		&"hood_east",
+		StringName(overflow_entries[0].zone_id),
+		StringName(overflow_entries[0].member_id)
+	))
+	assert(service.call_dealer(
+		&"hood_east",
+		StringName(overflow_entries[1].zone_id),
+		StringName(overflow_entries[1].member_id)
+	))
+	var overflow_save := service.export_save_data()
+	stats.import_save_data({})
+	service.import_save_data(overflow_save)
+	await process_frame
+	await process_frame
+	assert(stats.motion == 1)
+	assert(service.get_following_dealers().size() == 1)
+	assert(entourage.get_active_count() == 1)
+	service.send_all_followers_back()
 	properties.forfeit_stash_houses()
 	await process_frame
 	for entry in service.get_roster(&"hood_east"):

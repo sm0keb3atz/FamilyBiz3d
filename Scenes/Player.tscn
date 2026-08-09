@@ -18,7 +18,9 @@
 [ext_resource type="Script" uid="uid://cj3swlfkjnljr" path="res://Scripts/Player/Components/player_wallet_component.gd" id="15_wallet"]
 [ext_resource type="AudioStream" uid="uid://kvrkr72ac7f8" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 01_AUDIOELK_AUDIOELK.wav" id="15_wenux"]
 [ext_resource type="Script" uid="uid://dfie7rnpu56wa" path="res://Scripts/Player/Components/player_inventory_component.gd" id="16_inventory"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_carry_weight_component.gd" id="16_carry_weight"]
 [ext_resource type="Script" path="res://Scripts/Player/Components/player_girlfriend_component.gd" id="16_girlfriend"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_entourage_component.gd" id="16_entourage"]
 [ext_resource type="Script" path="res://Scripts/UI/girlfriend_gift_menu.gd" id="16_gift_menu"]
 [ext_resource type="AudioStream" uid="uid://m21i7r3q05vx" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 02_AUDIOELK_AUDIOELK.wav" id="16_vy33c"]
 [ext_resource type="AudioStream" uid="uid://dbcj4vwedcaxv" path="res://Assets/Audio/Footsteps/New Footsteps/FEETHmn-CONCRETE_AUDIOELK-Fs Concrete Shoes Pant Ruffles 03_AUDIOELK_AUDIOELK.wav" id="17_h1ppb"]
@@ -503,6 +505,9 @@ aim_facing_offset_degrees = -7.5
 script = ExtResource("7_stats")
 config = ExtResource("8_stats_config")
 
+[node name="EntourageComponent" type="Node" parent="Components"]
+script = ExtResource("16_entourage")
+
 [node name="HealthComponent" type="Node" parent="Components" unique_id=820442258]
 script = ExtResource("10_health")
 
@@ -552,6 +557,9 @@ script = ExtResource("15_wallet")
 
 [node name="InventoryComponent" type="Node" parent="Components" unique_id=92819809]
 script = ExtResource("16_inventory")
+
+[node name="CarryWeightComponent" type="Node" parent="Components"]
+script = ExtResource("16_carry_weight")
 
 [node name="GirlfriendComponent" type="Node" parent="Components"]
 script = ExtResource("16_girlfriend")

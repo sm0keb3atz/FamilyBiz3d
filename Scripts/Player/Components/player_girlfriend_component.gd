@@ -15,6 +15,8 @@ const AURA_REQUIREMENTS := {1: 50, 2: 75, 3: 100, 4: 150}
 @export var hud_path := NodePath("../../PlayerHUD")
 @export var wallet_component_path := NodePath("../WalletComponent")
 @export var player_path := NodePath("../..")
+@export var entourage_component_path := NodePath("../EntourageComponent")
+@export var stats_component_path := NodePath("../StatsComponent")
 @export_range(0.1, 120.0, 0.1) var following_seconds_per_point := 10.0
 @export_range(0.1, 120.0, 0.1) var home_seconds_per_point := 30.0
 @export_range(0.0, 10.0, 0.05) var heat_decay_per_level := 0.25
@@ -39,18 +41,30 @@ func can_recruit(npc: CustomerNPC) -> bool:
 func recruit(npc: CustomerNPC) -> bool:
 	if not can_recruit(npc):
 		return false
-	var entry := {"npc": npc, "name": _next_name(), "level": npc.get_customer_level(), "status": STATUS_FOLLOWING, "relationship": 0, "relationship_elapsed": 0.0}
+	var entry := {"npc": npc, "name": _next_name(), "level": npc.get_customer_level(), "status": STATUS_HOME, "relationship": 0, "relationship_elapsed": 0.0}
 	_entries.append(entry)
-	npc.begin_girlfriend_following(get_parent().get_parent(), self, _entries.size() - 1)
+	var following := _register_follower(npc)
+	if following:
+		entry["status"] = STATUS_FOLLOWING
+	var follow_slot := _get_follow_slot(npc)
+	npc.begin_girlfriend_relationship(
+		get_parent().get_parent(), self, str(entry["name"]), following, follow_slot
+	)
 	roster_changed.emit()
-	_show_feedback("%s: I'd love to!" % entry["name"])
+	_show_feedback(
+		"%s: I'd love to!" % entry["name"]
+		if following
+		else "%s joined your roster and went home. Your Motion crew is full."
+		% entry["name"]
+	)
 	return true
 
 
 func send_home(npc: CustomerNPC) -> bool:
 	var index := _find_index(npc)
-	if index < 0:
+	if index < 0 or _entries[index]["status"] != STATUS_FOLLOWING:
 		return false
+	_unregister_follower(npc)
 	_entries[index]["status"] = STATUS_HOME
 	npc.send_girlfriend_home()
 	status_changed.emit(npc, STATUS_HOME)
@@ -61,10 +75,13 @@ func send_home(npc: CustomerNPC) -> bool:
 
 func call_girlfriend(npc: CustomerNPC) -> bool:
 	var index := _find_index(npc)
-	if index < 0:
+	if index < 0 or _entries[index]["status"] == STATUS_FOLLOWING:
+		return false
+	if not _register_follower(npc):
+		_show_feedback(PlayerEntourageComponent.LIMIT_FEEDBACK)
 		return false
 	_entries[index]["status"] = STATUS_FOLLOWING
-	npc.call_girlfriend(get_parent().get_parent(), index)
+	npc.call_girlfriend(get_parent().get_parent(), _get_follow_slot(npc))
 	status_changed.emit(npc, STATUS_FOLLOWING)
 	roster_changed.emit()
 	_show_feedback("%s is on her way." % _entries[index]["name"])
@@ -76,6 +93,7 @@ func break_up(npc: CustomerNPC) -> bool:
 	if index < 0:
 		return false
 	var display_name := str(_entries[index]["name"])
+	_unregister_follower(npc)
 	_entries.remove_at(index)
 	npc.end_girlfriend_relationship()
 	_reassign_follow_slots()
@@ -89,6 +107,7 @@ func remove_girlfriend_due_to_death(npc: CustomerNPC) -> void:
 	if index < 0:
 		return
 	var display_name := str(_entries[index]["name"])
+	_unregister_follower(npc)
 	_entries.remove_at(index)
 	_reassign_follow_slots()
 	roster_changed.emit()
@@ -104,6 +123,7 @@ func clear_all_due_to_conviction() -> void:
 	for entry in _entries:
 		var npc := entry.get("npc") as CustomerNPC
 		if is_instance_valid(npc):
+			_unregister_follower(npc)
 			npc.end_girlfriend_relationship()
 	_entries.clear()
 	_reassign_follow_slots()
@@ -180,10 +200,16 @@ func _next_name() -> String:
 
 
 func _reassign_follow_slots() -> void:
-	for index in _entries.size():
-		var npc := _entries[index]["npc"] as CustomerNPC
-		if is_instance_valid(npc):
-			npc.set_girlfriend_follow_slot(index)
+	var entourage := _get_entourage()
+	if entourage != null:
+		entourage.refresh_slots()
+		return
+	var follow_slot := 0
+	for entry in _entries:
+		var npc := entry["npc"] as CustomerNPC
+		if is_instance_valid(npc) and entry["status"] == STATUS_FOLLOWING:
+			npc.set_girlfriend_follow_slot(follow_slot)
+			follow_slot += 1
 
 
 func _prune_invalid_entries() -> void:
@@ -211,7 +237,12 @@ func _update_relationships(delta: float) -> void:
 			continue
 		entry["relationship_elapsed"] = float(entry["relationship_elapsed"]) + delta
 		var following: bool = entry["status"] == STATUS_FOLLOWING
-		var interval: float = following_seconds_per_point if following else home_seconds_per_point
+		var loyalty_multiplier := _get_loyalty_multiplier()
+		var interval: float = (
+			following_seconds_per_point / loyalty_multiplier
+			if following
+			else home_seconds_per_point * loyalty_multiplier
+		)
 		while float(entry["relationship_elapsed"]) >= interval:
 			entry["relationship_elapsed"] = float(entry["relationship_elapsed"]) - interval
 			var next_value := clampi(int(entry["relationship"]) + (1 if following else -1), -100, 100)
@@ -232,6 +263,7 @@ func _automatic_break_up(npc: CustomerNPC) -> void:
 	if index < 0:
 		return
 	var display_name := str(_entries[index]["name"])
+	_unregister_follower(npc)
 	_entries.remove_at(index)
 	npc.end_girlfriend_relationship()
 	_reassign_follow_slots()
@@ -250,3 +282,47 @@ func _apply_following_heat_decay(delta: float) -> void:
 	var boundary := TerritoryBoundary.find_at_position(get_tree(), player.global_position)
 	if boundary != null and boundary.stats != null and boundary.stats.heat > 0.0:
 		boundary.stats.set_heat(boundary.stats.heat - bonus * delta)
+
+
+func _register_follower(npc: CustomerNPC) -> bool:
+	var entourage := _get_entourage()
+	if entourage == null:
+		return true
+	return entourage.try_register_follower(
+		npc,
+		Callable(npc, "set_girlfriend_follow_slot"),
+		Callable(self, "_release_girlfriend").bind(npc)
+	)
+
+
+func _unregister_follower(npc: CustomerNPC) -> void:
+	var entourage := _get_entourage()
+	if entourage != null:
+		entourage.unregister_follower(npc)
+
+
+func _release_girlfriend(npc: CustomerNPC) -> void:
+	send_home(npc)
+
+
+func _get_follow_slot(npc: CustomerNPC) -> int:
+	var entourage := _get_entourage()
+	if entourage != null:
+		return maxi(entourage.get_slot(npc), 0)
+	var slot := 0
+	for entry in _entries:
+		if entry["status"] != STATUS_FOLLOWING:
+			continue
+		if entry["npc"] == npc:
+			return slot
+		slot += 1
+	return slot
+
+
+func _get_loyalty_multiplier() -> float:
+	var stats := get_node_or_null(stats_component_path) as PlayerStatsComponent
+	return stats.get_motion_loyalty_multiplier() if stats != null else 1.0
+
+
+func _get_entourage() -> PlayerEntourageComponent:
+	return get_node_or_null(entourage_component_path) as PlayerEntourageComponent

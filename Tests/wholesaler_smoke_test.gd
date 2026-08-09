@@ -24,6 +24,9 @@ func _run() -> void:
 	var stats := player.get_node(
 		"Components/StatsComponent"
 	) as PlayerStatsComponent
+	var properties := player.get_node(
+		"Components/PropertyComponent"
+	) as PlayerPropertyComponent
 	var market := world.get_node(
 		"TerritoryMarketService"
 	) as TerritoryMarketService
@@ -60,6 +63,7 @@ func _run() -> void:
 	assert(wholesaler.get_minimum_purchase_quantity() == 10)
 
 	var offer_product := east_spawn.get_offer_product()
+	var delivery_property_id := PropertyCatalog.PROPERTY_IDS[0]
 	var initial_stock := east_spawn.remaining_stock
 	assert(offer_product != null and offer_product.is_brick())
 	assert(initial_stock >= 50 and initial_stock <= 100)
@@ -73,10 +77,49 @@ func _run() -> void:
 	)
 
 	wallet.add_dirty(1000000)
+	wallet.add_clean(15000, false)
+	assert(properties.purchase(delivery_property_id, time.get_absolute_minute()))
 	var cash_before_invalid := wallet.dirty_cash
 	var carried_before_invalid := inventory.get_quantity(offer_product)
 	assert(
-		wholesaler.try_purchase(player, offer_product, 9)
+		wholesaler.try_purchase(
+			player,
+			offer_product,
+			10,
+			delivery_property_id
+		).contains("Runner")
+	)
+	assert(properties.purchase_runner(delivery_property_id))
+	assert(properties.has_runner(delivery_property_id))
+	var runner_save := properties.export_save_data()
+	properties.import_save_data(runner_save)
+	assert(properties.has_runner(delivery_property_id))
+	var before_capacity_check := properties.export_save_data()
+	assert(properties.deliver_wholesale_product(
+		delivery_property_id,
+		offer_product,
+		991
+	))
+	var capacity_cash_before := wallet.dirty_cash
+	var capacity_stock_before := east_spawn.remaining_stock
+	assert(
+		wholesaler.try_purchase(
+			player,
+			offer_product,
+			10,
+			delivery_property_id
+		).contains("stash slots")
+	)
+	assert(wallet.dirty_cash == capacity_cash_before)
+	assert(east_spawn.remaining_stock == capacity_stock_before)
+	properties.import_save_data(before_capacity_check)
+	assert(
+		wholesaler.try_purchase(
+			player,
+			offer_product,
+			9,
+			delivery_property_id
+		)
 		== "Wholesaler minimum order is 10 bricks."
 	)
 	assert(wallet.dirty_cash == cash_before_invalid)
@@ -84,13 +127,56 @@ func _run() -> void:
 	assert(east_spawn.remaining_stock == initial_stock)
 
 	var unit_price := market.get_buy_quote(east.territory_id, offer_product)
+	var stashed_before := properties.get_stashed_product_quantity(
+		delivery_property_id,
+		offer_product
+	)
 	assert(
-		wholesaler.try_purchase(player, offer_product, 10).begins_with(
+		wholesaler.try_purchase(
+			player,
+			offer_product,
+			10,
+			delivery_property_id
+		).begins_with(
 			"Purchased"
 		)
 	)
 	assert(wallet.dirty_cash == cash_before_invalid - unit_price * 10)
-	assert(inventory.get_quantity(offer_product) == carried_before_invalid + 10)
+	assert(inventory.get_quantity(offer_product) == carried_before_invalid)
+	assert(
+		properties.get_stashed_product_quantity(
+			delivery_property_id,
+			offer_product
+		) == stashed_before + 10
+	)
+	wallet.add_clean(5000, false)
+	assert(properties.purchase_brick_station(
+		delivery_property_id,
+		time.get_absolute_minute()
+	))
+	assert(properties.set_brick_station_product(
+		delivery_property_id,
+		offer_product.product_id,
+		time.get_absolute_minute()
+	))
+	var station := properties.get_brick_station_state(delivery_property_id)
+	var bricks_before_process := properties.get_stashed_product_quantity(
+		delivery_property_id,
+		offer_product
+	)
+	var grams_before_process := properties.get_stashed_product_quantity(
+		delivery_property_id,
+		offer_product.breakdown_product
+	)
+	properties.process_brick_stations_to(int(station.next_process_minute))
+	assert(properties.get_stashed_product_quantity(
+		delivery_property_id,
+		offer_product
+	) == bricks_before_process - 1)
+	assert(properties.get_stashed_product_quantity(
+		delivery_property_id,
+		offer_product.breakdown_product
+	) == grams_before_process + offer_product.breakdown_amount)
 	assert(east_spawn.remaining_stock == initial_stock - 10)
 
 	var preserved_stock := east_spawn.remaining_stock
@@ -107,7 +193,8 @@ func _run() -> void:
 		wholesaler.try_purchase(
 			player,
 			offer_product,
-			preserved_stock
+			preserved_stock,
+			delivery_property_id
 		).begins_with("Purchased")
 	)
 	assert(east_spawn.remaining_stock == 0)
@@ -115,7 +202,8 @@ func _run() -> void:
 	assert(not wholesaler.try_purchase(
 		player,
 		offer_product,
-		10
+		10,
+		delivery_property_id
 	).begins_with("Purchased"))
 	east_spawn.import_save_data(saved_offer)
 	assert(east_spawn.remaining_stock == preserved_stock)
@@ -172,8 +260,13 @@ func _run() -> void:
 	)
 	assert(wholesaler.has_corpse_loot())
 	wholesaler.collect_corpse_loot(player)
-	assert(wallet.dirty_cash == cash_before_loot + 50000)
+	assert(wallet.dirty_cash == cash_before_loot)
 	assert(inventory.get_quantity(offer_product) == carried_before_kill)
+	assert(wholesaler.has_corpse_loot())
+	stats.import_save_data({"strength": 1000})
+	wholesaler.collect_corpse_loot(player)
+	assert(wallet.dirty_cash == cash_before_loot + 50000)
+	assert(inventory.get_quantity(offer_product) > carried_before_kill)
 	assert(not wholesaler.has_corpse_loot())
 
 	var defeated_save := east_spawn.export_save_data()

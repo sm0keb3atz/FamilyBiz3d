@@ -19,24 +19,17 @@
 [ext_resource type="ArrayMesh" uid="uid://bskyinaat4ttr" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01.glb" id="13_33r63"]
 [ext_resource type="PackedScene" uid="uid://df2a8o772ovav" path="res://Scenes/Maps/Buildings/corner_store.tscn" id="14_lesti"]
 [ext_resource type="PackedScene" uid="uid://b3h0idtwnkbwm" path="res://Scenes/Maps/Buildings/hood_house_1.tscn" id="15_knlt2"]
-[ext_resource type="PackedScene" uid="uid://cexxortle2liv" path="res://Scenes/Maps/Buildings/corner_store2.tscn" id="16_8ekqm"]
 [ext_resource type="PackedScene" uid="uid://d3xabu82dh8p" path="res://Assets/MapStuff/Meshs/StreetProps/SM_metal_box_2.gltf" id="16_rudg4"]
-[ext_resource type="PackedScene" uid="uid://dpnk5qdg1ja16" path="res://Assets/MapStuff/Meshs/StreetProps/SM_gasStationCarPort_01.gltf" id="17_4tc2c"]
+[ext_resource type="PackedScene" uid="uid://djk65j3isfkdv" path="res://Scenes/Maps/Buildings/gas_station.tscn" id="16_ucg5e"]
 [ext_resource type="PackedScene" uid="uid://bqvc6b4klapep" path="res://Assets/MapStuff/Meshs/StreetProps/SM_trash.gltf" id="17_ucg5e"]
 [ext_resource type="PackedScene" uid="uid://c8q5ml4m4g8mv" path="res://Assets/MapStuff/Meshs/StreetProps/SM_spray_Can.gltf" id="18_3hmpi"]
-[ext_resource type="PackedScene" uid="uid://cpo2lf5x4gu32" path="res://Assets/MapStuff/Meshs/StreetProps/SM_gasPumpsModern.gltf" id="18_b6t0y"]
 [ext_resource type="Texture2D" uid="uid://bmtr2h6syxppe" path="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/T_brickLarge_01_white.PNG" id="18_uniy5"]
 [ext_resource type="PackedScene" uid="uid://dlx2n61a113ri" path="res://Scenes/Maps/Buildings/building_2.tscn" id="19_cb2ff"]
 [ext_resource type="PackedScene" uid="uid://8ae4t8oc7ddx" path="res://Assets/MapStuff/Meshs/StreetProps/SM_crate_4_set.gltf" id="19_klnlj"]
 [ext_resource type="Texture2D" uid="uid://cwix0vsbklkip" path="res://Assets/MapStuff/Meshs/StreetProps/M_BaseColorPalette_MetallicRoughness.png" id="20_4kyli"]
 [ext_resource type="PackedScene" uid="uid://dij6sn351vtdx" path="res://Assets/MapStuff/Meshs/StreetProps/SM_carton_flat_set.gltf" id="20_cy430"]
-[ext_resource type="PackedScene" uid="uid://bakja128g38e8" path="res://Scenes/Maps/Buildings/Garage1.tscn" id="20_uniy5"]
-[ext_resource type="PackedScene" uid="uid://b772awevxvct6" path="res://Assets/MapStuff/Meshs/StreetProps/SM_billboard_86Gasoline.gltf" id="21_4kyli"]
 [ext_resource type="PackedScene" uid="uid://hinn1eh4joei" path="res://Assets/MapStuff/Meshs/StreetProps/SM_carton_flat.gltf" id="21_8wc7h"]
-[ext_resource type="PackedScene" uid="uid://cr2lp6muwvcdw" path="res://Assets/MapStuff/Meshs/StreetProps/SM_fence_104a.gltf" id="21_cb2ff"]
 [ext_resource type="PackedScene" uid="uid://c7ubrndtnqmic" path="res://Assets/MapStuff/Meshs/StreetProps/SM_Bicycle_01.gltf" id="22_jlj7j"]
-[ext_resource type="PackedScene" uid="uid://me1l3lm3xpb6" path="res://Assets/MapStuff/Meshs/StreetProps/SM_ice_machine.gltf" id="22_xeelq"]
-[ext_resource type="PackedScene" uid="uid://dvkfgc8kvmlv8" path="res://Assets/MapStuff/Meshs/StreetProps/SM_rolledBars_02.gltf" id="23_6uajf"]
 [ext_resource type="PackedScene" uid="uid://ck5s08wprfm3e" path="res://Assets/MapStuff/Meshs/StreetProps/SM_metal_box_3.gltf" id="24_yo30c"]
 [ext_resource type="PackedScene" uid="uid://b8mgu7gr1ehv" path="res://Assets/MapStuff/Meshs/StreetProps/SM_metal_box.gltf" id="25_gnq75"]
 [ext_resource type="PackedScene" uid="uid://cq7amft5bu3df" path="res://Assets/MapStuff/Meshs/StreetProps/SM_wooden_blocks.gltf" id="26_rxbxa"]
@@ -557,21 +550,6 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_nx43h")
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_bmgk1"]
-size = Vector3(0.7, 1, 1.7)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_4kyli"]
-size = Vector3(0.2, 2, 15.6)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_xeelq"]
-size = Vector3(0.7, 1, 1.7)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_6uajf"]
-size = Vector3(0.7, 1, 1.7)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_fax7o"]
-size = Vector3(0.7, 1, 1.7)
-
 [node name="HoodEastBlock1" type="Node3D" unique_id=177450189]
 
 [node name="Ground" type="Node3D" parent="." unique_id=1293875439]
@@ -728,10 +706,6 @@ mesh = ExtResource("1_32wh2")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0, -4)
 mesh = ExtResource("1_32wh2")
 
-[node name="SmDirtEdge06" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=1354641111]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 20, 0, -84)
-mesh = ExtResource("1_32wh2")
-
 [node name="SmDirtEdge07" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=1976761025]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 36, 0, -84)
 mesh = ExtResource("1_32wh2")
@@ -748,16 +722,8 @@ mesh = ExtResource("1_32wh2")
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 84, 0, -84)
 mesh = ExtResource("1_32wh2")
 
-[node name="SmDirtEdge11" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=1429021688]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 4, 0, -84)
-mesh = ExtResource("1_32wh2")
-
-[node name="SmDirtEdge12" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=947097420]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 4, 0, -68)
-mesh = ExtResource("1_32wh2")
-
 [node name="SmDirtEdge13" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=1875407449]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 4, 0, -52)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 4, 0, -47.1)
 mesh = ExtResource("1_32wh2")
 
 [node name="SmDirtEdge14" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=1173504686]
@@ -796,24 +762,12 @@ mesh = ExtResource("2_uurtm")
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 84, 0, -84)
 mesh = ExtResource("2_uurtm")
 
-[node name="SmDirtEdge01Corner3" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=585710244]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 4, 0, -84)
-mesh = ExtResource("2_uurtm")
-
 [node name="SmDirtEdge01Corner4" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=61761059]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 4, 0, -4)
 mesh = ExtResource("2_uurtm")
 
-[node name="SmGrass00" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=1461620620]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -68)
-mesh = ExtResource("3_t0bht")
-
-[node name="SmGrass01" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=1705700078]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -52)
-mesh = ExtResource("3_t0bht")
-
 [node name="SmGrass02" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=1099438482]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -36)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -31.099998)
 mesh = ExtResource("3_t0bht")
 
 [node name="SmGrass03" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=811382339]
@@ -826,14 +780,6 @@ mesh = ExtResource("3_t0bht")
 
 [node name="SmGrass05" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=259490970]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -68)
-mesh = ExtResource("3_t0bht")
-
-[node name="SmGrass06" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=1660644384]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -52)
-mesh = ExtResource("3_t0bht")
-
-[node name="SmGrass07" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=1885967671]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -36)
 mesh = ExtResource("3_t0bht")
 
 [node name="SmGrass08" type="MeshInstance3D" parent="Ground/Plot/Dirt" unique_id=350854777]
@@ -1480,6 +1426,9 @@ property_id = &"hood_east_house_3"
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 31.649996, 0, -69.75)
 property_id = &"hood_east_house_4"
 
+[node name="GasStation" parent="Ground/Plot/Buildings" unique_id=418601860 instance=ExtResource("16_ucg5e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.370274, 0, -28.04297)
+
 [node name="Alleys" type="Node3D" parent="Ground/Plot" unique_id=547023799]
 
 [node name="Props" type="Node3D" parent="Ground/Plot/Alleys" unique_id=784794598]
@@ -1575,7 +1524,7 @@ transform = Transform3D(-1.823639e-07, 0, -1.144, 0, 1, 0, 4.172, 0, -5.000583e-
 mesh = ExtResource("9_8ekqm")
 
 [node name="SmRoad08" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=221990817]
-transform = Transform3D(-1.2765473e-07, 0, -1.3728001, 0, 1, 0, 2.9204, 0, -6.0007e-08, 3.8146973e-06, 0.0010000002, -88.049995)
+transform = Transform3D(-1.2765473e-07, 0, -1.3728001, 0, 1, 0, 2.9204, 0, -6.0007e-08, 3.9599972, -0.01, -88.05)
 mesh = ExtResource("9_8ekqm")
 
 [node name="SmParkingSpot01" type="MeshInstance3D" parent="Ground/Plot/Alleys/Ground" unique_id=1993872044]
@@ -1596,92 +1545,6 @@ mesh = ExtResource("9_8ekqm")
 
 [node name="SM_carton_box_tray" parent="Ground/Plot/Alleys/Ground" unique_id=778909238 instance=ExtResource("31_gnq75")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71, 0, -76.9)
-
-[node name="GasStation" type="Node3D" parent="Ground/Plot" unique_id=95022381]
-
-[node name="CornerStore2" parent="Ground/Plot/GasStation" unique_id=706825827 instance=ExtResource("16_8ekqm")]
-transform = Transform3D(-1, 0, -1.3909066e-08, 0, 1, 0, 1.3909066e-08, 0, -1, 16.650002, 0, -87.9)
-
-[node name="Props" type="Node3D" parent="Ground/Plot/GasStation/CornerStore2" unique_id=1205765226]
-
-[node name="SM_gasStationCarPort_01" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=1744133237 instance=ExtResource("17_4tc2c")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 9.149998, 0, -18.599998)
-
-[node name="SM_gasPumpsModern" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=132398906 instance=ExtResource("18_b6t0y")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 9.200001, 0, -18.599998)
-
-[node name="SM_gasStationCarPort_02" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=1553143429 instance=ExtResource("17_4tc2c")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 9.149998, 0, -6.8499985)
-
-[node name="SM_gasPumpsModern2" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=908611239 instance=ExtResource("18_b6t0y")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 9.200001, 0, -6.8499985)
-
-[node name="Garage" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=1717629404 instance=ExtResource("20_uniy5")]
-transform = Transform3D(1, 0, -1.0133184e-07, 0, 1, 0, 1.0133184e-07, 0, 1, 0, 0, -24)
-
-[node name="SM_billboard_86Gasoline" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=1836133150 instance=ExtResource("21_4kyli")]
-transform = Transform3D(1, 0, -1.0133184e-07, 0, 1, 0, 1.0133184e-07, 0, 1, 0.3500023, 3.6999998, -3.7999954)
-
-[node name="SM_ice_machine" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=447328426 instance=ExtResource("22_xeelq")]
-transform = Transform3D(1, 0, -1.0133184e-07, 0, 1, 0, 1.0133184e-07, 0, 1, 1.0499992, 0, -7)
-
-[node name="SM_rolledBars_02" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=1116164975 instance=ExtResource("23_6uajf")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 0.45000076, 0, -4)
-
-[node name="SM_rolledBars_03" parent="Ground/Plot/GasStation/CornerStore2/Props" unique_id=777684275 instance=ExtResource("23_6uajf")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 0.45000076, 0, -6)
-
-[node name="PsrkingLot" type="Node3D" parent="Ground/Plot/GasStation/CornerStore2" unique_id=1438158409]
-
-[node name="SmParkingSpot01" type="MeshInstance3D" parent="Ground/Plot/GasStation/CornerStore2/PsrkingLot" unique_id=66174703]
-transform = Transform3D(5.7620454e-08, 0, 1, 0, 1, 0, -1, 0, 5.7620454e-08, -8.349998, 0.02, -7.9000015)
-mesh = ExtResource("7_04mrp")
-
-[node name="SmParkingSpot02" type="MeshInstance3D" parent="Ground/Plot/GasStation/CornerStore2/PsrkingLot" unique_id=1307435173]
-transform = Transform3D(5.7620454e-08, 0, 1, 0, 1, 0, -1, 0, 5.7620454e-08, -8.349998, 0.02, -11.900002)
-mesh = ExtResource("7_04mrp")
-
-[node name="SmParkingSpot03" type="MeshInstance3D" parent="Ground/Plot/GasStation/CornerStore2/PsrkingLot" unique_id=1041711582]
-transform = Transform3D(5.7620454e-08, 0, 1, 0, 1, 0, -1, 0, 5.7620454e-08, -8.349998, 0.02, -15.900002)
-mesh = ExtResource("7_04mrp")
-
-[node name="SmParkingSpot04" type="MeshInstance3D" parent="Ground/Plot/GasStation/CornerStore2/PsrkingLot" unique_id=1170143293]
-transform = Transform3D(5.7620454e-08, 0, 1, 0, 1, 0, -1, 0, 5.7620454e-08, -8.349998, 0.02, -19.900002)
-mesh = ExtResource("7_04mrp")
-
-[node name="SM_fence_104a" parent="Ground/Plot/GasStation/CornerStore2" unique_id=1329528477 instance=ExtResource("21_cb2ff")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -8.349998, 0, -11.900002)
-
-[node name="SM_fence_104a2" parent="Ground/Plot/GasStation/CornerStore2" unique_id=1409896251 instance=ExtResource("21_cb2ff")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -8.349998, 0, -15.900002)
-
-[node name="SM_fence_104a3" parent="Ground/Plot/GasStation/CornerStore2" unique_id=382665908 instance=ExtResource("21_cb2ff")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -8.349998, 0, -19.900002)
-
-[node name="SM_fence_104a4" parent="Ground/Plot/GasStation/CornerStore2" unique_id=1178248683 instance=ExtResource("21_cb2ff")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -8.349998, 0, -23.900002)
-
-[node name="StaticBody3D" type="StaticBody3D" parent="Ground/Plot/GasStation" unique_id=1174134689]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Plot/GasStation/StaticBody3D" unique_id=171024097]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.450001, 0.7, -67.95)
-shape = SubResource("BoxShape3D_bmgk1")
-
-[node name="CollisionShape3D5" type="CollisionShape3D" parent="Ground/Plot/GasStation/StaticBody3D" unique_id=723596764]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 0.99999994, -71.9)
-shape = SubResource("BoxShape3D_4kyli")
-
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="Ground/Plot/GasStation/StaticBody3D" unique_id=82151331]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.450001, 0.7, -70.649994)
-shape = SubResource("BoxShape3D_xeelq")
-
-[node name="CollisionShape3D3" type="CollisionShape3D" parent="Ground/Plot/GasStation/StaticBody3D" unique_id=425193571]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.450001, 0.7, -79.65)
-shape = SubResource("BoxShape3D_6uajf")
-
-[node name="CollisionShape3D4" type="CollisionShape3D" parent="Ground/Plot/GasStation/StaticBody3D" unique_id=1114453147]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.450001, 0.7, -82.35)
-shape = SubResource("BoxShape3D_fax7o")
 
 [node name="Sidewalk" type="Node3D" parent="." unique_id=154877620]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27, 0, -28)
@@ -2428,7 +2291,7 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 112,
 mesh = ExtResource("13_33r63")
 
 [node name="SmRoad07" type="MeshInstance3D" parent="Roads/TestWorld4" unique_id=889767227]
-transform = Transform3D(-2.1855694e-08, 0, -0.5, 0, 1, 0, 0.5, 0, -2.1855694e-08, 68, 0, 3.8146973e-06)
+transform = Transform3D(-3.400746e-08, 0, -0.558, 0, 1.032, 0, 0.778, 0, -2.4390955e-08, 67.1, 0, 3.8146973e-06)
 mesh = ExtResource("9_8ekqm")
 
 [node name="SmSidewalk01Corner" type="MeshInstance3D" parent="Roads/TestWorld4" unique_id=966750291]
@@ -2585,6 +2448,34 @@ mesh = ExtResource("13_33r63")
 transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, 20, 0, 8)
 mesh = ExtResource("13_33r63")
 
+[node name="SmSidewalk51" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=805571729]
+transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, 20, 0, 12)
+mesh = ExtResource("13_33r63")
+
+[node name="SmSidewalk52" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=543546231]
+transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, 20, 0, 16)
+mesh = ExtResource("13_33r63")
+
+[node name="SmSidewalk53" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=46462967]
+transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, 20, 0, 20)
+mesh = ExtResource("13_33r63")
+
+[node name="SmSidewalk54" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=306086829]
+transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, 20, 0, 24)
+mesh = ExtResource("13_33r63")
+
+[node name="SmSidewalk55" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=872786859]
+transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, 20, 0, 28)
+mesh = ExtResource("13_33r63")
+
+[node name="SmSidewalk56" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=92204513]
+transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, 20, 0, 32)
+mesh = ExtResource("13_33r63")
+
+[node name="SmSidewalk57" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=1218915616]
+transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, 20, 0, 36)
+mesh = ExtResource("13_33r63")
+
 [node name="SmSidewalk30" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=200573947]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 48, 0, 4)
 mesh = ExtResource("13_33r63")
@@ -2661,8 +2552,12 @@ mesh = ExtResource("11_4tc2c")
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 20, 0, 4)
 mesh = ExtResource("11_4tc2c")
 
+[node name="SmSidewalk01Corner3" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=1353632992]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, 36)
+mesh = ExtResource("11_4tc2c")
+
 [node name="SmRoad00" type="MeshInstance3D" parent="Roads/TestWorld3" unique_id=1322806507]
-transform = Transform3D(-2.1855694e-08, 0, -0.75, 0, 1, 0, 0.5, 0, -3.278354e-08, 24, 0, 0)
+transform = Transform3D(-2.1855694e-08, 0, -0.751, 0, 1, 0, 0.5, 0, -3.2827252e-08, 24, 0, 0)
 mesh = ExtResource("9_8ekqm")
 
 [node name="Intersection7" parent="Roads" unique_id=1128809999 instance=ExtResource("7_86gvs")]

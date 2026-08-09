@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 16
+const SAVE_VERSION := 18
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -168,6 +168,7 @@ func load_game() -> bool:
 	if police_dispatch != null:
 		police_dispatch.reset_for_load()
 	wallet.import_save_data(player_data.get("wallet", {}) as Dictionary)
+	stats.import_save_data(player_data.get("stats", {}) as Dictionary)
 	properties.import_save_data(
 		player_data.get("properties", {}) as Dictionary
 	)
@@ -181,7 +182,6 @@ func load_game() -> bool:
 		player_data.get("weapons", {}) as Dictionary,
 		int(data.get("version", 1)) < 3
 	)
-	stats.import_save_data(player_data.get("stats", {}) as Dictionary)
 	wanted.import_save_data(
 		player_data.get("wanted", {}) as Dictionary
 	)

@@ -10,6 +10,7 @@ extends Node
 @export_range(0.05, 2.0, 0.05) var minimum_retarget_interval := 0.25
 @export_range(0.5, 10.0, 0.25) var navigation_stuck_timeout := 2.5
 @export_range(0.05, 1.0, 0.05) var navigation_progress_distance := 0.2
+@export_range(5.0, 50.0, 0.5) var direct_follow_range := 32.0
 
 @export_category("Local Obstacle Steering")
 @export_range(0.5, 4.0, 0.1) var obstacle_probe_distance := 1.6
@@ -228,6 +229,25 @@ func advance_navigation(delta: float) -> void:
 	_submit_horizontal_movement(desired_velocity, delta)
 
 
+func advance_companion_follow(
+	target: Vector3,
+	followed_body: CollisionObject3D,
+	delta: float
+) -> void:
+	var offset: Vector3 = target - npc.global_position
+	offset.y = 0.0
+	if (
+		offset.length_squared() <= direct_follow_range * direct_follow_range
+		and _has_clear_direct_follow_path(target, followed_body)
+	):
+		# Sidewalk navigation can stop at a curb while the player is crossing a
+		# road. In clear open space, follow directly and let local steering avoid
+		# traffic and nearby actors. Walls still force the normal navigation path.
+		move_in_world_direction(offset, npc.move_speed, delta)
+		return
+	advance_navigation(delta)
+
+
 func stop_moving(delta: float) -> void:
 	if npc.is_defeated():
 		return
@@ -239,6 +259,23 @@ func stop_moving(delta: float) -> void:
 		npc.velocity.z, 0.0, npc.acceleration * delta
 	)
 	_submit_horizontal_movement(desired_velocity, delta)
+
+
+func _has_clear_direct_follow_path(
+	target: Vector3,
+	followed_body: CollisionObject3D
+) -> bool:
+	var origin: Vector3 = npc.global_position + Vector3.UP * 0.9
+	var destination := target + Vector3.UP * 0.9
+	var query := PhysicsRayQueryParameters3D.create(origin, destination)
+	# Static world geometry uses layer 1. Dynamic actors and vehicles are left
+	# to NavigationAgent avoidance and the existing local obstacle probes.
+	query.collision_mask = 1
+	query.exclude = [npc.get_rid()]
+	if is_instance_valid(followed_body):
+		query.exclude.append(followed_body.get_rid())
+	query.collide_with_areas = false
+	return npc.get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
 
 func get_horizontal_speed() -> float:

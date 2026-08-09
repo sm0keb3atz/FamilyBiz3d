@@ -1,0 +1,44 @@
+[gd_resource type="Theme" load_steps=2 format=3]
+
+[ext_resource type="FontFile" uid="uid://w70ch1vtkdtd" path="res://Assets/UI/CyberpunkCraftpixPixel.otf" id="1_cyberpunk"]
+
+[resource]
+default_font = ExtResource("1_cyberpunk")
+Button/colors/font_outline_color = Color(0, 0, 0, 1)
+Button/constants/outline_size = 1
+CheckBox/colors/font_outline_color = Color(0, 0, 0, 1)
+CheckBox/constants/outline_size = 1
+CheckButton/colors/font_outline_color = Color(0, 0, 0, 1)
+CheckButton/constants/outline_size = 1
+CodeEdit/colors/font_outline_color = Color(0, 0, 0, 1)
+CodeEdit/constants/outline_size = 1
+ColorPickerButton/colors/font_outline_color = Color(0, 0, 0, 1)
+ColorPickerButton/constants/outline_size = 1
+ItemList/colors/font_outline_color = Color(0, 0, 0, 1)
+ItemList/constants/outline_size = 1
+Label/colors/font_outline_color = Color(0, 0, 0, 1)
+Label/constants/outline_size = 1
+LineEdit/colors/font_outline_color = Color(0, 0, 0, 1)
+LineEdit/constants/outline_size = 1
+LinkButton/colors/font_outline_color = Color(0, 0, 0, 1)
+LinkButton/constants/outline_size = 1
+MenuButton/colors/font_outline_color = Color(0, 0, 0, 1)
+MenuButton/constants/outline_size = 1
+OptionButton/colors/font_outline_color = Color(0, 0, 0, 1)
+OptionButton/constants/outline_size = 1
+PopupMenu/colors/font_outline_color = Color(0, 0, 0, 1)
+PopupMenu/constants/outline_size = 1
+ProgressBar/colors/font_outline_color = Color(0, 0, 0, 1)
+ProgressBar/constants/outline_size = 1
+RichTextLabel/colors/font_outline_color = Color(0, 0, 0, 1)
+RichTextLabel/constants/outline_size = 1
+SpinBox/colors/font_outline_color = Color(0, 0, 0, 1)
+SpinBox/constants/outline_size = 1
+TabBar/colors/font_outline_color = Color(0, 0, 0, 1)
+TabBar/constants/outline_size = 1
+TextEdit/colors/font_outline_color = Color(0, 0, 0, 1)
+TextEdit/constants/outline_size = 1
+TooltipLabel/colors/font_outline_color = Color(0, 0, 0, 1)
+TooltipLabel/constants/outline_size = 1
+Tree/colors/font_outline_color = Color(0, 0, 0, 1)
+Tree/constants/outline_size = 1

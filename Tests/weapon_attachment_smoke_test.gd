@@ -16,6 +16,10 @@ func _run() -> void:
 	var weapon := player.get_node(
 		"Components/WeaponComponent"
 	) as PlayerWeaponComponent
+	var stats := player.get_node(
+		"Components/StatsComponent"
+	) as PlayerStatsComponent
+	stats.import_save_data({"strength": 3})
 	assert(weapon != null)
 	assert(weapon.get_weapon_slots().is_empty())
 	assert(weapon.grant_weapon(weapon.pistol_definition))

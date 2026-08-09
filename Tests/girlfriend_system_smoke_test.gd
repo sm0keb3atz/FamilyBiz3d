@@ -24,8 +24,13 @@ func _run() -> void:
 	assert(player_scene != null)
 	var player := player_scene.instantiate()
 	assert(player.get_node("Components/GirlfriendComponent") is PlayerGirlfriendComponent)
+	assert(player.get_node("Components/EntourageComponent") is PlayerEntourageComponent)
 	root.add_child(player)
 	await process_frame
+	var stats_menu := player.get_node("PlayerStatsMenu") as PlayerStatsMenu
+	assert(stats_menu.find_child("AttributesScroll", true, false) != null)
+	assert(stats_menu.find_child("MotionCard", true, false) != null)
+	assert(stats_menu.find_child("PurchaseMotionButton", true, false) != null)
 	var appearance := player.get_node("Components/AppearanceComponent") as PlayerAppearanceComponent
 	assert(appearance.get_current_aura() == 0)
 	appearance.set_option(PlayerAppearanceComponent.SLOT_SHOES, 1)
@@ -68,6 +73,20 @@ func _run() -> void:
 	player_roster._update_relationships(30.0)
 	assert(player_roster.get_relationship(fake_girlfriend) == -1)
 	assert(is_zero_approx(player_roster.get_following_heat_decay_bonus()))
+	var stats := player.get_node("Components/StatsComponent") as PlayerStatsComponent
+	stats.import_save_data({"motion": 10})
+	player_roster._entries[0]["status"] = PlayerGirlfriendComponent.STATUS_FOLLOWING
+	player_roster._entries[0]["relationship"] = 0
+	player_roster._entries[0]["relationship_elapsed"] = 0.0
+	player_roster._update_relationships(10.0 / 1.9)
+	assert(player_roster.get_relationship(fake_girlfriend) == 1)
+	player_roster._entries[0]["status"] = PlayerGirlfriendComponent.STATUS_HOME
+	player_roster._entries[0]["relationship"] = 0
+	player_roster._entries[0]["relationship_elapsed"] = 0.0
+	player_roster._update_relationships(56.9)
+	assert(player_roster.get_relationship(fake_girlfriend) == 0)
+	player_roster._update_relationships(0.2)
+	assert(player_roster.get_relationship(fake_girlfriend) == -1)
 	fake_girlfriend.free()
 	print("GIRLFRIEND_SYSTEM_SMOKE_TEST_PASS")
 	quit(0)

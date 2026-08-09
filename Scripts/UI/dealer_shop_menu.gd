@@ -6,6 +6,7 @@ extends CanvasLayer
 	"../Components/InventoryComponent"
 )
 @export var wallet_component_path := NodePath("../Components/WalletComponent")
+@export var property_component_path := NodePath("../Components/PropertyComponent")
 @export var menu_controller_path := NodePath("../Components/MenuController")
 
 @onready var menu_root := %MenuRoot as Control
@@ -23,12 +24,16 @@ extends CanvasLayer
 @onready var wallet := (
 	get_node(wallet_component_path) as PlayerWalletComponent
 )
+@onready var properties := (
+	get_node(property_component_path) as PlayerPropertyComponent
+)
 @onready var menu_controller := (
 	get_node(menu_controller_path) as PlayerMenuController
 )
 
 var _dealer: DealerNPC
 var _is_open := false
+var _delivery_property_id: StringName = &""
 
 
 func _ready() -> void:
@@ -97,7 +102,12 @@ func _purchase(product: ProductDefinition, amount: int) -> void:
 	if _dealer == null:
 		return
 
-	feedback_label.text = _dealer.try_purchase(player, product, amount)
+	feedback_label.text = _dealer.try_purchase(
+		player,
+		product,
+		amount,
+		_delivery_property_id if _dealer.is_wholesaler() else &""
+	)
 	_refresh()
 
 
@@ -120,6 +130,8 @@ func _refresh() -> void:
 	var cooldown := _dealer.get_cooldown_remaining()
 	cooldown_label.visible = not wholesaler and cooldown > 0.0
 	cooldown_label.text = "Restocking in %ds" % ceili(cooldown)
+	if wholesaler:
+		_build_runner_destination_selector()
 
 	var items := _dealer.get_stock_items()
 	if _dealer.can_purchase_territory():
@@ -158,6 +170,72 @@ func _refresh() -> void:
 			stock_list.add_child(
 				_create_stock_row(product, quantity, unit_price, cooldown)
 			)
+
+
+func _build_runner_destination_selector() -> void:
+	var destinations := properties.get_runner_stash_definitions()
+	var valid_ids: Array[StringName] = []
+	for definition in destinations:
+		valid_ids.append(definition.property_id)
+	if _delivery_property_id not in valid_ids:
+		_delivery_property_id = (
+			destinations[0].property_id if not destinations.is_empty() else &""
+		)
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override(
+		"panel",
+		_make_panel_style(
+			Color(0.045, 0.07, 0.075, 0.98),
+			Color(0.2, 0.78, 0.72, 0.55)
+		)
+	)
+	var margin := MarginContainer.new()
+	for side in ["left", "top", "right", "bottom"]:
+		margin.add_theme_constant_override("margin_%s" % side, 10)
+	panel.add_child(margin)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	margin.add_child(row)
+	var label := Label.new()
+	label.text = "RUNNER DELIVERY"
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(label)
+	if destinations.is_empty():
+		var locked := Label.new()
+		locked.text = "Install a $5,000 Clean Runner at an owned stash."
+		locked.add_theme_color_override(
+			"font_color",
+			Color(0.95, 0.45, 0.3)
+		)
+		row.add_child(locked)
+	else:
+		var selector := OptionButton.new()
+		selector.name = "RunnerDestinationSelector"
+		selector.custom_minimum_size = Vector2(250, 38)
+		var selected_index := 0
+		for definition in destinations:
+			selector.add_item(
+				"%s  (%d FREE)" % [
+					definition.display_name.to_upper(),
+					properties.get_stash_remaining_capacity(
+						definition.property_id
+					),
+				]
+			)
+			var index := selector.item_count - 1
+			selector.set_item_metadata(index, String(definition.property_id))
+			if definition.property_id == _delivery_property_id:
+				selected_index = index
+		selector.select(selected_index)
+		selector.item_selected.connect(
+			func(index: int) -> void:
+				_delivery_property_id = StringName(
+					String(selector.get_item_metadata(index))
+				)
+				_refresh()
+		)
+		row.add_child(selector)
+	stock_list.add_child(panel)
 
 
 func _purchase_territory() -> void:
@@ -282,9 +360,16 @@ func _create_wholesaler_stock_row(
 	text_box.add_child(name_label)
 
 	var detail_label := Label.new()
-	detail_label.text = "Stock: %d | Owned: %d | $%d each" % [
+	var delivered_quantity := (
+		properties.get_stashed_product_quantity(
+			_delivery_property_id,
+			product
+		)
+		if not _delivery_property_id.is_empty() else 0
+	)
+	detail_label.text = "Stock: %d | At destination: %d | $%d each" % [
 		quantity,
-		inventory.get_quantity(product),
+		delivered_quantity,
 		unit_price,
 	]
 	detail_label.add_theme_color_override(
@@ -353,6 +438,10 @@ func _create_wholesaler_stock_row(
 		purchase_button.disabled = (
 			amount < minimum
 			or amount > quantity
+			or _delivery_property_id.is_empty()
+			or properties.get_stash_remaining_capacity(
+				_delivery_property_id
+			) < amount
 			or not wallet.can_spend_dirty(total)
 		)
 	quantity_input.value_changed.connect(refresh_total)

@@ -101,10 +101,11 @@ are now subject to Polish Pass 1 review rather than being treated as future
 milestones:
 
 - purchasable stash-house properties with persistent storage, wardrobes, beds,
-  and brick-breakdown stations;
+  brick-breakdown stations, and $5,000 Clean Runner upgrades;
 - front businesses with Dirty Cash restocking and passive Clean Cash earnings;
 - automated player dealers supplied by owned-territory stash inventory;
-- wholesalers, brick inventory, and brick processing;
+- wholesalers whose 10-brick minimum orders require a Runner-enabled delivery
+  stash, plus brick inventory and automated brick processing;
 - police response, arrests, court hearings, retained lawyers, and legal
   services;
 - girlfriend recruitment and management gated by Aura;

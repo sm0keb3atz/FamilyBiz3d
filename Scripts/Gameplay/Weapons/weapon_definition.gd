@@ -11,6 +11,14 @@ extends Resource
 @export_range(1, 9999, 1) var ammo_bundle_amount := 30
 @export_range(0, 1000000, 1) var ammo_bundle_price := 100
 
+@export_category("Carry Weight")
+@export_range(0, 10000, 1) var carry_weight_grams := 0
+@export_range(0, 10000, 1) var sights_weight_grams := 10
+@export_range(0, 10000, 1) var laser_weight_grams := 10
+@export_range(0, 10000, 1) var switch_weight_grams := 5
+@export_range(0, 10000, 1) var extended_weight_grams := 25
+@export_range(0, 10000, 1) var drum_weight_grams := 50
+
 @export_category("Combat")
 @export_range(0.0, 1000.0, 0.1) var damage := 10.0
 @export_range(0.01, 5.0, 0.01) var fire_interval := 0.25
@@ -45,3 +53,32 @@ func get_capacity_for_magazine_type(magazine_type: int) -> int:
 
 func get_rounds_per_second() -> float:
 	return 1.0 / maxf(fire_interval, 0.01)
+
+
+func get_attachment_weight_grams(attachment_id: StringName) -> int:
+	match attachment_id:
+		&"sights":
+			return sights_weight_grams
+		&"laser":
+			return laser_weight_grams
+		&"switch":
+			return switch_weight_grams
+		&"extended":
+			return extended_weight_grams
+		&"drum":
+			return drum_weight_grams
+		_:
+			return 0
+
+
+func get_carry_weight_grams(attachment_state: Dictionary = {}) -> int:
+	var total := carry_weight_grams
+	for attachment_id in [&"sights", &"laser", &"switch"]:
+		if bool(attachment_state.get(String(attachment_id), false)):
+			total += get_attachment_weight_grams(attachment_id)
+	match int(attachment_state.get("magazine_type", 0)):
+		1:
+			total += extended_weight_grams
+		2:
+			total += drum_weight_grams
+	return total

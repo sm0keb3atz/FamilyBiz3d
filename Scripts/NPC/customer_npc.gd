@@ -472,18 +472,43 @@ func attempt_girlfriend_recruitment(player: CharacterBody3D) -> void:
 
 
 func begin_girlfriend_following(player: CharacterBody3D, roster: PlayerGirlfriendComponent, follow_slot: int) -> void:
+	var roster_entries := roster.get_roster()
+	var display_name := (
+		str(roster_entries[follow_slot].get("name", "Girlfriend"))
+		if follow_slot >= 0 and follow_slot < roster_entries.size()
+		else "Girlfriend"
+	)
+	begin_girlfriend_relationship(
+		player, roster, display_name, true, follow_slot
+	)
+
+
+func begin_girlfriend_relationship(
+	player: CharacterBody3D,
+	roster: PlayerGirlfriendComponent,
+	display_name: String,
+	start_following: bool,
+	follow_slot: int
+) -> void:
 	cancel_activity(false)
 	cancel_store_visit(false)
-	_girlfriend_player = player
 	_girlfriend_roster = roster
-	_girlfriend_follow_slot = follow_slot
-	_girlfriend_status = GIRLFRIEND_FOLLOWING
-	_civilian_name = str(roster.get_roster()[follow_slot]["name"])
-	hsm.set_active(false)
-	role_component.deactivate()
+	_civilian_name = display_name
 	add_to_group(&"girlfriend_npc")
-	add_to_group(&"interactable")
 	set_physics_process(true)
+	if start_following:
+		_girlfriend_player = player
+		_girlfriend_follow_slot = maxi(follow_slot, 0)
+		_girlfriend_status = GIRLFRIEND_FOLLOWING
+		hsm.set_active(false)
+		role_component.deactivate()
+		add_to_group(&"interactable")
+	else:
+		_girlfriend_player = null
+		_girlfriend_status = GIRLFRIEND_HOME
+		remove_from_group(&"interactable")
+		hsm.set_active(true)
+		role_component.activate()
 
 
 func set_girlfriend_follow_slot(slot: int) -> void:
@@ -547,7 +572,7 @@ func _physics_process(delta: float) -> void:
 		set_navigation_target(target)
 		_girlfriend_repath_remaining = 0.25
 	if global_position.distance_squared_to(target) > 1.4 * 1.4:
-		advance_navigation(delta)
+		advance_companion_follow(target, _girlfriend_player, delta)
 	else:
 		stop_moving(delta)
 

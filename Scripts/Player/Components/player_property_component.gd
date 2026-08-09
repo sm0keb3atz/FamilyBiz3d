@@ -4,6 +4,7 @@ extends Node
 signal ownership_changed(property_id: StringName, owned: bool)
 signal stash_changed(property_id: StringName)
 signal brick_station_changed(property_id: StringName)
+signal runner_changed(property_id: StringName)
 signal business_state_changed(property_id: StringName)
 signal business_sale_processed(
 	property_id: StringName,
@@ -13,14 +14,94 @@ signal business_sale_processed(
 @export var wallet_component_path := NodePath("../WalletComponent")
 @export var inventory_component_path := NodePath("../InventoryComponent")
 @export var weapon_component_path := NodePath("../WeaponComponent")
+@export var carry_weight_component_path := NodePath("../CarryWeightComponent")
 
 @onready var wallet := get_node(wallet_component_path) as PlayerWalletComponent
 @onready var inventory := get_node(inventory_component_path) as PlayerInventoryComponent
 @onready var weapon := get_node(weapon_component_path) as PlayerWeaponComponent
+@onready var carry_weight := get_node(
+	carry_weight_component_path
+) as PlayerCarryWeightComponent
 
 var _owned: Dictionary[StringName, bool] = {}
 var _stashes: Dictionary[StringName, Dictionary] = {}
 var _businesses: Dictionary[StringName, Dictionary] = {}
+var last_transfer_error := ""
+
+
+func has_runner(property_id: StringName) -> bool:
+	return (
+		owns(property_id)
+		and _is_stash_house(property_id)
+		and bool(_ensure_stash(property_id).get("runner_installed", false))
+	)
+
+
+func purchase_runner(property_id: StringName) -> bool:
+	last_transfer_error = ""
+	if not owns(property_id) or not _is_stash_house(property_id):
+		last_transfer_error = "Own this stash before hiring a Runner."
+		return false
+	if has_runner(property_id):
+		last_transfer_error = "This stash already has a Runner."
+		return false
+	if not wallet.spend_clean(PropertyCatalog.RUNNER_UPGRADE_COST):
+		last_transfer_error = "Not enough Clean Cash."
+		return false
+	var stash := _ensure_stash(property_id)
+	stash["runner_installed"] = true
+	runner_changed.emit(property_id)
+	stash_changed.emit(property_id)
+	return true
+
+
+func get_runner_stash_definitions() -> Array[PropertyDefinition]:
+	var result: Array[PropertyDefinition] = []
+	for definition in get_owned_stash_definitions():
+		if has_runner(definition.property_id):
+			result.append(definition)
+	return result
+
+
+func get_runner_delivery_error(
+	property_id: StringName,
+	product: ProductDefinition,
+	amount: int
+) -> String:
+	if not owns(property_id) or not _is_stash_house(property_id):
+		return "Choose an owned stash for delivery."
+	if not has_runner(property_id):
+		return "Install the $5,000 Clean Runner upgrade at this stash."
+	if product == null or not product.is_brick() or amount <= 0:
+		return "Runners only accept valid brick orders."
+	var available := get_stash_remaining_capacity(property_id)
+	if available < amount:
+		return "Destination needs %d free stash slots; %d available." % [
+			amount,
+			available,
+		]
+	return ""
+
+
+func deliver_wholesale_product(
+	property_id: StringName,
+	product: ProductDefinition,
+	amount: int
+) -> bool:
+	last_transfer_error = get_runner_delivery_error(
+		property_id,
+		product,
+		amount
+	)
+	if not last_transfer_error.is_empty():
+		return false
+	var stash := _ensure_stash(property_id)
+	var products := stash.get("products", {}) as Dictionary
+	var key := String(product.product_id)
+	products[key] = int(products.get(key, 0)) + amount
+	stash["products"] = products
+	stash_changed.emit(property_id)
+	return true
 
 
 func owns(property_id: StringName) -> bool:
@@ -480,6 +561,7 @@ func process_territory_dealer_sale(territory_id: StringName, product: ProductDef
 
 
 func transfer_product(property_id: StringName, product: ProductDefinition, requested_amount: int, to_stash: bool) -> int:
+	last_transfer_error = ""
 	if not owns(property_id) or not _is_stash_house(property_id) or product == null or requested_amount <= 0:
 		return 0
 	var stash := _ensure_stash(property_id)
@@ -496,6 +578,11 @@ func transfer_product(property_id: StringName, product: ProductDefinition, reque
 			return 0
 		products[String(product.product_id)] = stored + amount
 	else:
+		if not inventory.can_add_product(product, amount):
+			last_transfer_error = carry_weight.get_capacity_failure_message(
+				product.package_size_grams * amount
+			)
+			return 0
 		products[String(product.product_id)] = stored - amount
 		if not inventory.add_product(product, amount):
 			products[String(product.product_id)] = stored
@@ -515,6 +602,7 @@ func get_stashed_weapon_ids(property_id: StringName) -> Array[StringName]:
 
 
 func store_weapon(property_id: StringName, weapon_id: StringName) -> bool:
+	last_transfer_error = ""
 	if not owns(property_id) or not _is_stash_house(property_id) or get_stash_remaining_capacity(property_id) <= 0:
 		return false
 	var stash := _ensure_stash(property_id)
@@ -531,11 +619,22 @@ func store_weapon(property_id: StringName, weapon_id: StringName) -> bool:
 
 
 func take_weapon(property_id: StringName, weapon_id: StringName) -> bool:
+	last_transfer_error = ""
 	if not owns(property_id) or not _is_stash_house(property_id) or weapon.owns_weapon(weapon_id):
 		return false
 	var stash := _ensure_stash(property_id)
 	var weapons := stash.get("weapons", {}) as Dictionary
 	var state := weapons.get(String(weapon_id), {}) as Dictionary
+	var definition := weapon.get_weapon_definition(weapon_id)
+	var attachment_state := state.get("attachment_state", {}) as Dictionary
+	if (
+		definition != null
+		and not carry_weight.can_add_weapon(definition, attachment_state)
+	):
+		last_transfer_error = carry_weight.get_capacity_failure_message(
+			definition.get_carry_weight_grams(attachment_state)
+		)
+		return false
 	if state.is_empty() or not weapon.restore_weapon_state(state):
 		return false
 	weapons.erase(String(weapon_id))
@@ -594,6 +693,7 @@ func import_save_data(data: Dictionary) -> void:
 				var saved := saved_stashes.get(String(property_id), {}) as Dictionary
 				_stashes[property_id] = _sanitize_stash(saved)
 				stash_changed.emit(property_id)
+				runner_changed.emit(property_id)
 			elif definition.is_front_business():
 				var saved := saved_businesses.get(String(property_id), {}) as Dictionary
 				_businesses[property_id] = _sanitize_business(property_id, saved)
@@ -639,11 +739,14 @@ func _ensure_stash(property_id: StringName) -> Dictionary:
 			"products": {},
 			"weapons": {},
 			"brick_station": _default_brick_station(),
+			"runner_installed": false,
 		}
 	elif not (_stashes[property_id] as Dictionary).has("brick_station"):
 		(_stashes[property_id] as Dictionary)["brick_station"] = (
 			_default_brick_station()
 		)
+	if not (_stashes[property_id] as Dictionary).has("runner_installed"):
+		(_stashes[property_id] as Dictionary)["runner_installed"] = false
 	return _stashes[property_id]
 
 
@@ -679,6 +782,7 @@ func _sanitize_stash(source: Dictionary) -> Dictionary:
 		"brick_station": _sanitize_brick_station(
 			source.get("brick_station", {}) as Dictionary
 		),
+		"runner_installed": bool(source.get("runner_installed", false)),
 	}
 	var source_products := source.get("products", {}) as Dictionary
 	var products := result["products"] as Dictionary

@@ -24,6 +24,11 @@ func _run() -> void:
 	var inventory := player.get_node(
 		"Components/InventoryComponent"
 	) as PlayerInventoryComponent
+	var stats := player.get_node(
+		"Components/StatsComponent"
+	) as PlayerStatsComponent
+	# This fixture stages a full 1,000-unit stash through carried inventory.
+	stats.import_save_data({"strength": 100})
 	var world_time := world.get_node(
 		"WorldTimeComponent"
 	) as WorldTimeComponent

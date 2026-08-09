@@ -1,21 +1,242 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/player_stats_menu.gd" id="1_menu"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PlayerStats/Icons/level.svg" id="2_level"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PlayerStats/Icons/xp.svg" id="3_xp"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PlayerStats/Icons/star.svg" id="4_star"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PlayerStats/Icons/strength.svg" id="5_strength"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PlayerStats/Icons/heart.svg" id="6_heart"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PlayerStats/Icons/stamina.svg" id="7_stamina"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PlayerStats/Icons/aura.svg" id="8_aura"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PlayerStats/Icons/hustle.svg" id="9_hustle"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PlayerStats/Icons/customer.svg" id="10_customer"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PlayerStats/Icons/cash.svg" id="11_cash"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PlayerStats/Icons/lock.svg" id="12_lock"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.035, 0.043, 0.055, 0.98)
+[sub_resource type="Shader" id="Shader_backdrop"]
+code = "shader_type canvas_item;\n\nuniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;\n\nvoid fragment() {\n\tvec4 scene = textureLod(screen_texture, SCREEN_UV, 3.2);\n\tvec3 graded = mix(scene.rgb, vec3(0.018, 0.027, 0.038), 0.58);\n\tCOLOR = vec4(graded, 0.93);\n}\n"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_backdrop"]
+shader = SubResource("Shader_backdrop")
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_main"]
+bg_color = Color(0.027, 0.035, 0.046, 0.975)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.33, 0.39, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0, 0, 0, 0.68)
+shadow_size = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_summary"]
+bg_color = Color(0.048, 0.059, 0.073, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.23, 0.27, 0.32, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_strength"]
+bg_color = Color(0.044, 0.053, 0.064, 0.96)
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.36, 0.4, 0.9)
+border_blend = true
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.95, 0.18, 0.22, 0.12)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_hustle"]
+bg_color = Color(0.044, 0.053, 0.064, 0.96)
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.36, 0.4, 0.9)
+border_blend = true
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.92, 0.66, 0.2, 0.12)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_level_badge_strength"]
+bg_color = Color(0.28, 0.08, 0.095, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.32, 0.36, 0.68)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_level_badge_hustle"]
+bg_color = Color(0.25, 0.18, 0.055, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.88, 0.65, 0.24, 0.68)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_xp_background"]
+bg_color = Color(0.012, 0.017, 0.023, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.33, 0.38, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_xp_fill"]
+bg_color = Color(0.95, 0.7, 0.22, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_strength_button"]
+bg_color = Color(0.29, 0.085, 0.1, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.94, 0.28, 0.32, 0.9)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_strength_hover"]
+bg_color = Color(0.42, 0.1, 0.12, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.42, 0.46, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+shadow_color = Color(0.94, 0.22, 0.27, 0.25)
+shadow_size = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_strength_pressed"]
+bg_color = Color(0.21, 0.055, 0.07, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.95, 0.32, 0.37, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_hustle_button"]
+bg_color = Color(0.25, 0.18, 0.05, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9, 0.66, 0.2, 0.9)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_hustle_hover"]
+bg_color = Color(0.36, 0.25, 0.06, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.77, 0.31, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+shadow_color = Color(0.95, 0.67, 0.2, 0.24)
+shadow_size = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_hustle_pressed"]
+bg_color = Color(0.18, 0.125, 0.035, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.92, 0.68, 0.25, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_disabled"]
+bg_color = Color(0.07, 0.08, 0.095, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.21, 0.24, 0.9)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_focus"]
+bg_color = Color(0, 0, 0, 0)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.75, 0.57, 0.16, 0.9)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+border_color = Color(1, 0.84, 0.48, 0.9)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_key"]
+bg_color = Color(0.075, 0.089, 0.106, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.31, 0.35, 0.4, 0.9)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [node name="PlayerStatsMenu" type="CanvasLayer"]
-layer = 10
+process_mode = 3
+layer = 30
 script = ExtResource("1_menu")
 
 [node name="MenuRoot" type="Control" parent="."]
@@ -28,7 +249,11 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 
-[node name="Dimmer" type="ColorRect" parent="MenuRoot"]
+[node name="BackBufferCopy" type="BackBufferCopy" parent="MenuRoot"]
+copy_mode = 2
+
+[node name="Backdrop" type="ColorRect" parent="MenuRoot"]
+material = SubResource("ShaderMaterial_backdrop")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -36,200 +261,572 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
-color = Color(0, 0, 0, 0.55)
+color = Color(1, 1, 1, 1)
 
 [node name="Panel" type="PanelContainer" parent="MenuRoot"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -230.0
-offset_top = -340.0
-offset_right = 230.0
-offset_bottom = 340.0
+offset_left = -350.0
+offset_top = -457.0
+offset_right = 350.0
+offset_bottom = 457.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+pivot_offset = Vector2(350, 457)
+theme_override_styles/panel = SubResource("StyleBox_main")
 
 [node name="Margin" type="MarginContainer" parent="MenuRoot/Panel"]
+layout_mode = 2
 theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 24
+theme_override_constants/margin_top = 22
 theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_bottom = 18
 
 [node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 11
 
-[node name="Title" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+[node name="Header" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.82, 0.25, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="MenuRoot/Panel/Margin/Content/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.985, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.75)
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 32
 text = "PLAYER ATTRIBUTES"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+[node name="Subtitle" type="Label" parent="MenuRoot/Panel/Margin/Content/Header"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.68, 0.72, 1)
-text = "Spend skill points earned from leveling up"
+theme_override_colors/font_color = Color(0.68, 0.72, 0.78, 1)
+theme_override_font_sizes/font_size = 15
+text = "Spend skill points earned from leveling up."
 horizontal_alignment = 1
 
-[node name="SeparatorTop" type="HSeparator" parent="MenuRoot/Panel/Margin/Content"]
+[node name="SummaryCard" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content"]
+custom_minimum_size = Vector2(0, 148)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_summary")
 
-[node name="LevelRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+[node name="Margin" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/SummaryCard"]
 layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 13
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 13
 
-[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/LevelRow"]
+[node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LevelRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content"]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+theme_override_constants/separation = 11
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content/LevelRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("2_level")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content/LevelRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.94, 0.97, 1)
+theme_override_font_sizes/font_size = 17
 text = "Level"
+vertical_alignment = 1
 
-[node name="LevelValue" type="Label" parent="MenuRoot/Panel/Margin/Content/LevelRow"]
+[node name="LevelValue" type="Label" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content/LevelRow"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
 text = "1"
+horizontal_alignment = 2
+vertical_alignment = 1
 
-[node name="ExperienceRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+[node name="ExperienceRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content"]
+custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
+theme_override_constants/separation = 11
+alignment = 1
 
-[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/ExperienceRow"]
+[node name="Icon" type="TextureRect" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content/ExperienceRow"]
+custom_minimum_size = Vector2(24, 22)
+layout_mode = 2
+texture = ExtResource("3_xp")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content/ExperienceRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.88, 0.9, 0.94, 1)
+theme_override_font_sizes/font_size = 16
 text = "Experience"
+vertical_alignment = 1
 
-[node name="ExperienceValue" type="Label" parent="MenuRoot/Panel/Margin/Content/ExperienceRow"]
+[node name="ExperienceValue" type="Label" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content/ExperienceRow"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(112, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.96, 0.98, 1)
+theme_override_font_sizes/font_size = 16
 text = "0 / 100"
+horizontal_alignment = 2
+vertical_alignment = 1
 
-[node name="SkillPointsRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+[node name="ExperienceBar" type="ProgressBar" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 11)
 layout_mode = 2
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBox_xp_background")
+theme_override_styles/fill = SubResource("StyleBox_xp_fill")
+show_percentage = false
 
-[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/SkillPointsRow"]
+[node name="Divider" type="ColorRect" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.2, 0.24, 0.29, 0.82)
+
+[node name="SkillPointsRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content"]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+theme_override_constants/separation = 11
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content/SkillPointsRow"]
+custom_minimum_size = Vector2(24, 22)
+layout_mode = 2
+texture = ExtResource("4_star")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content/SkillPointsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 0.82, 0.25, 1)
+theme_override_colors/font_color = Color(1, 0.81, 0.35, 1)
+theme_override_font_sizes/font_size = 17
 text = "Available Skill Points"
+vertical_alignment = 1
 
-[node name="SkillPointsValue" type="Label" parent="MenuRoot/Panel/Margin/Content/SkillPointsRow"]
+[node name="SkillPointsValue" type="Label" parent="MenuRoot/Panel/Margin/Content/SummaryCard/Margin/Content/SkillPointsRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.35, 1)
+theme_override_font_sizes/font_size = 19
+text = "0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="StrengthCard" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content"]
+custom_minimum_size = Vector2(0, 248)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_strength")
+
+[node name="Margin" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/StrengthCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 21
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 15
+
+[node name="Row" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Icon" type="TextureRect" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row"]
+custom_minimum_size = Vector2(76, 76)
+layout_mode = 2
+texture = ExtResource("5_strength")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Body" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Heading" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/Heading"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.98, 0.985, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "STRENGTH"
+vertical_alignment = 1
+
+[node name="CurrentLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/Heading"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.63, 0.69, 1)
+theme_override_font_sizes/font_size = 12
+text = "CURRENT LEVEL"
+vertical_alignment = 1
+
+[node name="LevelBadge" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/Heading"]
+custom_minimum_size = Vector2(38, 30)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_level_badge_strength")
+
+[node name="StrengthValue" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/Heading/LevelBadge"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.82, 0.25, 1)
-text = "0"
+theme_override_colors/font_color = Color(1, 0.72, 0.74, 1)
+theme_override_font_sizes/font_size = 17
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="SeparatorMiddle" type="HSeparator" parent="MenuRoot/Panel/Margin/Content"]
+[node name="StrengthDescription" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
 layout_mode = 2
-
-[node name="StrengthHeading" type="Label" parent="MenuRoot/Panel/Margin/Content"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 21
-text = "STRENGTH"
-
-[node name="StrengthDescription" type="Label" parent="MenuRoot/Panel/Margin/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.73, 0.78, 1)
+theme_override_colors/font_color = Color(0.71, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 14
 text = "Each point grants +10 maximum Health and +5 maximum Stamina."
 autowrap_mode = 2
 
-[node name="StrengthRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+[node name="Divider" type="ColorRect" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body"]
+custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
+mouse_filter = 2
+color = Color(0.21, 0.25, 0.29, 0.8)
 
-[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthRow"]
+[node name="HealthRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body"]
+custom_minimum_size = Vector2(0, 21)
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="Icon" type="TextureRect" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/HealthRow"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("6_heart")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/HealthRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Current Strength"
-
-[node name="StrengthValue" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthRow"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "1"
-
-[node name="HealthRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
-layout_mode = 2
-
-[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/HealthRow"]
-layout_mode = 2
-size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.76, 0.79, 0.83, 1)
+theme_override_font_sizes/font_size = 14
 text = "Maximum Health"
 
-[node name="HealthValue" type="Label" parent="MenuRoot/Panel/Margin/Content/HealthRow"]
+[node name="HealthValue" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/HealthRow"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.97, 0.99, 1)
+theme_override_font_sizes/font_size = 15
 text = "100"
+horizontal_alignment = 2
 
-[node name="StaminaRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+[node name="StaminaRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body"]
+custom_minimum_size = Vector2(0, 21)
 layout_mode = 2
+theme_override_constants/separation = 9
 
-[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/StaminaRow"]
+[node name="Icon" type="TextureRect" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/StaminaRow"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("7_stamina")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/StaminaRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.76, 0.79, 0.83, 1)
+theme_override_font_sizes/font_size = 14
 text = "Maximum Stamina"
 
-[node name="StaminaValue" type="Label" parent="MenuRoot/Panel/Margin/Content/StaminaRow"]
+[node name="StaminaValue" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/StaminaRow"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.97, 0.99, 1)
+theme_override_font_sizes/font_size = 15
 text = "100"
+horizontal_alignment = 2
 
-[node name="AuraRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+[node name="AuraRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body"]
+custom_minimum_size = Vector2(0, 21)
 layout_mode = 2
+theme_override_constants/separation = 9
 
-[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/AuraRow"]
+[node name="Icon" type="TextureRect" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/AuraRow"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("8_aura")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/AuraRow"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.76, 0.79, 0.83, 1)
+theme_override_font_sizes/font_size = 14
 text = "Clothing Aura"
 
-[node name="AuraValue" type="Label" parent="MenuRoot/Panel/Margin/Content/AuraRow"]
+[node name="AuraValue" type="Label" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body/AuraRow"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.97, 0.99, 1)
+theme_override_font_sizes/font_size = 15
 text = "0"
+horizontal_alignment = 2
 
-[node name="PurchaseStrengthButton" type="Button" parent="MenuRoot/Panel/Margin/Content"]
+[node name="PurchaseStrengthButton" type="Button" parent="MenuRoot/Panel/Margin/Content/StrengthCard/Margin/Row/Body"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
+focus_neighbor_bottom = NodePath("../../../../../../HustleCard/Margin/Row/Body/PurchaseHustleButton")
+theme_override_colors/font_color = Color(1, 0.9, 0.91, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.82, 0.84, 1)
+theme_override_colors/font_disabled_color = Color(0.45, 0.48, 0.52, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBox_strength_button")
+theme_override_styles/hover = SubResource("StyleBox_strength_hover")
+theme_override_styles/pressed = SubResource("StyleBox_strength_pressed")
+theme_override_styles/disabled = SubResource("StyleBox_disabled")
+theme_override_styles/focus = SubResource("StyleBox_focus")
 disabled = true
+icon = ExtResource("12_lock")
+expand_icon = true
 text = "Requires 1 Skill Point"
 
-[node name="HustleSeparator" type="HSeparator" parent="MenuRoot/Panel/Margin/Content"]
+[node name="HustleCard" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content"]
+custom_minimum_size = Vector2(0, 260)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_hustle")
 
-[node name="HustleHeading" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+[node name="Margin" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/HustleCard"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 21
-text = "HUSTLE"
+theme_override_constants/margin_left = 21
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 15
 
-[node name="HustleDescription" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+[node name="Row" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.73, 0.78, 1)
-text = "Each point attracts more customers, improves the chance of higher-level buyers, and adds 5% sale cash and EXP. Customer capacity is capped at 6."
-autowrap_mode = 2
+theme_override_constants/separation = 18
 
-[node name="HustleRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+[node name="Icon" type="TextureRect" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row"]
+custom_minimum_size = Vector2(76, 76)
 layout_mode = 2
+texture = ExtResource("9_hustle")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleRow"]
+[node name="Body" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Current Hustle"
+theme_override_constants/separation = 6
 
-[node name="HustleValue" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleRow"]
+[node name="Heading" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/Heading"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.98, 0.985, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "HUSTLE"
+vertical_alignment = 1
+
+[node name="CurrentLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/Heading"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.58, 0.63, 0.69, 1)
+theme_override_font_sizes/font_size = 12
+text = "CURRENT LEVEL"
+vertical_alignment = 1
+
+[node name="LevelBadge" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/Heading"]
+custom_minimum_size = Vector2(38, 30)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_level_badge_hustle")
+
+[node name="HustleValue" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/Heading/LevelBadge"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.55, 1)
+theme_override_font_sizes/font_size = 17
 text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="PurchaseHustleButton" type="Button" parent="MenuRoot/Panel/Margin/Content"]
+[node name="HustleDescription" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.71, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 14
+text = "Attract more customers, improve buyer quality, and increase sale cash and experience rewards."
+autowrap_mode = 2
+
+[node name="Divider" type="ColorRect" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.21, 0.25, 0.29, 0.8)
+
+[node name="CustomerRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body"]
+custom_minimum_size = Vector2(0, 21)
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="Icon" type="TextureRect" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/CustomerRow"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("10_customer")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/CustomerRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.76, 0.79, 0.83, 1)
+theme_override_font_sizes/font_size = 14
+text = "Customer Capacity"
+
+[node name="CustomerCapacityValue" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/CustomerRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.97, 0.99, 1)
+theme_override_font_sizes/font_size = 15
+text = "2 / 6"
+horizontal_alignment = 2
+
+[node name="SaleBonusRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body"]
+custom_minimum_size = Vector2(0, 21)
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="Icon" type="TextureRect" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/SaleBonusRow"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("11_cash")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/SaleBonusRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.76, 0.79, 0.83, 1)
+theme_override_font_sizes/font_size = 14
+text = "Sale Cash Multiplier"
+
+[node name="SaleBonusValue" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/SaleBonusRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.38, 0.89, 0.52, 1)
+theme_override_font_sizes/font_size = 15
+text = "1.70x"
+horizontal_alignment = 2
+
+[node name="ExperienceBonusRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body"]
+custom_minimum_size = Vector2(0, 21)
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="Icon" type="TextureRect" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/ExperienceBonusRow"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("3_xp")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/ExperienceBonusRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.76, 0.79, 0.83, 1)
+theme_override_font_sizes/font_size = 14
+text = "Experience Bonus"
+
+[node name="ExperienceBonusValue" type="Label" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body/ExperienceBonusRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.79, 0.3, 1)
+theme_override_font_sizes/font_size = 15
+text = "+0%"
+horizontal_alignment = 2
+
+[node name="PurchaseHustleButton" type="Button" parent="MenuRoot/Panel/Margin/Content/HustleCard/Margin/Row/Body"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+focus_neighbor_top = NodePath("../../../../../../StrengthCard/Margin/Row/Body/PurchaseStrengthButton")
+theme_override_colors/font_color = Color(1, 0.93, 0.78, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 0.88, 0.65, 1)
+theme_override_colors/font_disabled_color = Color(0.45, 0.48, 0.52, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBox_hustle_button")
+theme_override_styles/hover = SubResource("StyleBox_hustle_hover")
+theme_override_styles/pressed = SubResource("StyleBox_hustle_pressed")
+theme_override_styles/disabled = SubResource("StyleBox_disabled")
+theme_override_styles/focus = SubResource("StyleBox_focus")
 disabled = true
+icon = ExtResource("12_lock")
+expand_icon = true
 text = "Requires 1 Skill Point"
 
-[node name="DebugHint" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+[node name="Footer" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.52, 0.55, 0.6, 1)
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="DebugHint" type="Label" parent="MenuRoot/Panel/Margin/Content/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.42, 0.46, 0.51, 1)
+theme_override_font_sizes/font_size = 11
+text = "DEBUG: Press 2 to gain 100 EXP"
+vertical_alignment = 1
+
+[node name="CloseLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/Footer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.53, 0.57, 0.62, 1)
 theme_override_font_sizes/font_size = 12
-text = "DEBUG: Press 2 to gain 100 EXP   •   TAB to close"
+text = "CLOSE"
+vertical_alignment = 1
+
+[node name="Key" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content/Footer"]
+custom_minimum_size = Vector2(42, 24)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBox_key")
+
+[node name="Label" type="Label" parent="MenuRoot/Panel/Margin/Content/Footer/Key"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 11
+text = "TAB"
 horizontal_alignment = 1
+vertical_alignment = 1

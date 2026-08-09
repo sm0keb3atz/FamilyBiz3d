@@ -174,6 +174,18 @@ func advance_navigation(delta: float) -> void:
 	movement_component.advance_navigation(delta)
 
 
+func advance_companion_follow(
+	target: Vector3,
+	followed_body: CollisionObject3D,
+	delta: float
+) -> void:
+	movement_component.advance_companion_follow(
+		target,
+		followed_body,
+		delta
+	)
+
+
 func stop_moving(delta: float) -> void:
 	movement_component.stop_moving(delta)
 

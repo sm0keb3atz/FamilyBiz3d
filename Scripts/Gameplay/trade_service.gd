@@ -16,6 +16,12 @@ extends Node
 @onready var wanted := player.get_node(
 	"Components/WantedComponent"
 ) as PlayerWantedComponent
+@onready var carry_weight := player.get_node(
+	"Components/CarryWeightComponent"
+) as PlayerCarryWeightComponent
+@onready var properties := player.get_node(
+	"Components/PropertyComponent"
+) as PlayerPropertyComponent
 
 var _market: TerritoryMarketService
 
@@ -32,6 +38,12 @@ func buy_product(
 
 	var price := get_buy_unit_price(product, territory_id)
 	var total_price := price * amount
+	if not carry_weight.can_add_product(product, amount):
+		return TradeResult.failed(
+			carry_weight.get_capacity_failure_message(
+				product.package_size_grams * amount
+			)
+		)
 	if not wallet.can_spend_dirty(total_price):
 		return TradeResult.failed("Not enough Dirty Cash.")
 
@@ -113,6 +125,51 @@ func sell_product(
 			total_heat,
 		]
 	)
+	return result
+
+
+func buy_product_to_stash(
+	product: ProductDefinition,
+	territory_id: StringName,
+	amount: int,
+	property_id: StringName
+) -> TradeResult:
+	if product == null or amount <= 0:
+		return TradeResult.failed("Invalid wholesale order.")
+	var delivery_error := properties.get_runner_delivery_error(
+		property_id,
+		product,
+		amount
+	)
+	if not delivery_error.is_empty():
+		return TradeResult.failed(delivery_error)
+	var total_price := get_buy_unit_price(product, territory_id) * amount
+	if not wallet.can_spend_dirty(total_price):
+		return TradeResult.failed("Not enough Dirty Cash.")
+	if not wallet.spend_dirty(total_price, false):
+		return TradeResult.failed("Purchase failed.")
+	if not properties.deliver_wholesale_product(
+		property_id,
+		product,
+		amount
+	):
+		wallet.add_dirty(total_price, false)
+		return TradeResult.failed(
+			properties.last_transfer_error
+			if not properties.last_transfer_error.is_empty()
+			else "Delivery failed."
+		)
+	wallet.record_transaction(-total_price, 0)
+	var definition := PropertyCatalog.get_by_id(property_id)
+	var result := TradeResult.new()
+	result.success = true
+	result.message = "Purchased %d %s for delivery to %s." % [
+		amount,
+		product.display_name,
+		definition.display_name if definition != null else "stash",
+	]
+	result.dirty_cash_delta = -total_price
+	result.product_quantity_delta = amount
 	return result
 
 

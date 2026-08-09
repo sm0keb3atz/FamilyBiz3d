@@ -1,20 +1,48 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/player_inventory_menu.gd" id="1_menu"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.035, 0.043, 0.055, 0.98)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.2, 0.72, 0.78, 0.9)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+[sub_resource type="Shader" id="Shader_backdrop"]
+code = "shader_type canvas_item;\n\nuniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;\n\nvoid fragment() {\n\tvec4 scene = textureLod(screen_texture, SCREEN_UV, 3.0);\n\tvec3 graded = mix(scene.rgb, vec3(0.012, 0.021, 0.03), 0.62);\n\tCOLOR = vec4(graded, 0.95);\n}\n"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_backdrop"]
+shader = SubResource("Shader_backdrop")
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_panel"]
+bg_color = Color(0.022, 0.03, 0.041, 0.982)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.29, 0.35, 0.95)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.72)
+shadow_size = 26
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_tab_panel"]
+bg_color = Color(0.025, 0.034, 0.044, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.1, 0.14, 0.18, 0.7)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_scrollbar"]
+bg_color = Color(0.1, 0.13, 0.16, 0.7)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [node name="PlayerInventoryMenu" type="CanvasLayer"]
+process_mode = 3
 layer = 40
 script = ExtResource("1_menu")
 
@@ -28,7 +56,11 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 
-[node name="Dimmer" type="ColorRect" parent="MenuRoot"]
+[node name="BackBufferCopy" type="BackBufferCopy" parent="MenuRoot"]
+copy_mode = 2
+
+[node name="Backdrop" type="ColorRect" parent="MenuRoot"]
+material = SubResource("ShaderMaterial_backdrop")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -36,9 +68,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
-color = Color(0, 0, 0, 0.55)
+color = Color(1, 1, 1, 1)
 
 [node name="Panel" type="PanelContainer" parent="MenuRoot"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -51,17 +84,18 @@ offset_right = 600.0
 offset_bottom = 360.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+theme_override_styles/panel = SubResource("StyleBox_panel")
 
 [node name="Margin" type="MarginContainer" parent="MenuRoot/Panel"]
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 14
 
 [node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="MenuRoot/Panel/Margin/Content"]
 layout_mode = 2
@@ -74,13 +108,14 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBox_tab_panel")
 
 [node name="Drugs" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 12
 
 [node name="DrugScroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Drugs"]
 layout_mode = 2
@@ -89,14 +124,14 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="Weapons" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 12
 
 [node name="WeaponScroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Weapons"]
 layout_mode = 2
@@ -105,14 +140,14 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="Girlfriends" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 12
 
 [node name="GirlfriendScroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Girlfriends"]
 layout_mode = 2
@@ -121,14 +156,14 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="Property" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 12
 
 [node name="PropertyScroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Property"]
 layout_mode = 2
@@ -137,14 +172,14 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="Territory" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 12
 
 [node name="TerritoryScroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content/TabContainer/Territory"]
 layout_mode = 2
@@ -156,14 +191,16 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="FeedbackLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
+custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.84, 0.9, 1)
+theme_override_colors/font_color = Color(0.73, 0.82, 0.88, 1)
+theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Hint" type="Label" parent="MenuRoot/Panel/Margin/Content"]
 layout_mode = 2

@@ -139,7 +139,8 @@ func interact(player: CharacterBody3D) -> void:
 func try_purchase(
 	player: CharacterBody3D,
 	requested_product: ProductDefinition,
-	amount := 1
+	amount := 1,
+	delivery_property_id: StringName = &""
 ) -> String:
 	if requested_product == null:
 		return "This dealer has nothing for sale."
@@ -174,10 +175,19 @@ func try_purchase(
 	var territory := _find_territory()
 	if territory == null:
 		return "This dealer is outside a territory."
-	var result := trade_service.buy_product(
-		requested_product,
-		territory.territory_id,
-		amount
+	var result := (
+		trade_service.buy_product_to_stash(
+			requested_product,
+			territory.territory_id,
+			amount,
+			delivery_property_id
+		)
+		if is_wholesaler
+		else trade_service.buy_product(
+			requested_product,
+			territory.territory_id,
+			amount
+		)
 	)
 	if not result.success:
 		return result.message

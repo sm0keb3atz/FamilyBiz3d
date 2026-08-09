@@ -36,6 +36,8 @@ func _run() -> void:
 	var controller := world.get_node("WorldController") as WorldController
 	var time := world.get_node("WorldTimeComponent") as WorldTimeComponent
 	assert(properties != null and wallet != null and inventory != null and weapons != null)
+	# This storage-capacity fixture intentionally carries bulk setup stock.
+	stats.import_save_data({"strength": 1000})
 
 	var buildings := get_nodes_in_group(&"property_buildings")
 	assert(buildings.size() == 4)

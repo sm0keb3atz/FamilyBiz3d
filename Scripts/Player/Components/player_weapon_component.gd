@@ -16,6 +16,7 @@ signal hit_confirmed(fatal_hit: bool)
 signal reload_started
 signal reload_completed
 signal attachments_changed
+signal loadout_changed
 
 enum MagazineType {
 	STANDARD,
@@ -46,6 +47,7 @@ const STORE_ATTACHMENT_IDS: Array[StringName] = [
 @export var weapon_socket_path := NodePath(
 	"../../Visual/PlayerTest2/Armature/GeneralSkeleton/WeaponSocket"
 )
+@export var carry_weight_component_path := NodePath("../CarryWeightComponent")
 
 @export_category("Loadout")
 @export var pistol_definition: WeaponDefinition
@@ -152,9 +154,23 @@ func _initialize_weapon_slots() -> void:
 
 
 func grant_weapon(definition: WeaponDefinition) -> bool:
+	return _grant_weapon_internal(definition, true)
+
+
+func _grant_weapon_internal(
+	definition: WeaponDefinition,
+	enforce_carry_weight: bool
+) -> bool:
 	if definition == null or String(definition.weapon_id).is_empty():
 		return false
 	if owns_weapon(definition.weapon_id):
+		return false
+	var carry_weight := _get_carry_weight()
+	if (
+		enforce_carry_weight
+		and carry_weight != null
+		and not carry_weight.can_add_weapon(definition)
+	):
 		return false
 	_owned_weapon_ids[definition.weapon_id] = true
 	_slots.append(definition)
@@ -162,6 +178,7 @@ func grant_weapon(definition: WeaponDefinition) -> bool:
 	_reserve_ammo[definition.weapon_id] = definition.starting_reserve_ammo
 	_unlocked_attachments[definition.weapon_id] = {}
 	_attachment_states[definition.weapon_id] = _default_attachment_state()
+	loadout_changed.emit()
 	return true
 
 
@@ -228,13 +245,14 @@ func remove_weapon_with_state(weapon_id: StringName) -> Dictionary:
 	_equipped_slot = clampi(_equipped_slot, 0, _slots.size() - 1)
 	_apply_equipped_weapon()
 	attachments_changed.emit()
+	loadout_changed.emit()
 	return state
 
 
 func restore_weapon_state(state: Dictionary) -> bool:
 	var weapon_id := StringName(String(state.get("weapon_id", "")))
 	var definition := get_weapon_definition(weapon_id)
-	if definition == null or owns_weapon(weapon_id) or not grant_weapon(definition):
+	if definition == null or owns_weapon(weapon_id):
 		return false
 	var unlocks := {}
 	var saved_unlocks := state.get("attachment_unlocks", {}) as Dictionary
@@ -245,13 +263,24 @@ func restore_weapon_state(state: Dictionary) -> bool:
 	var saved_state := state.get("attachment_state", {}) as Dictionary
 	var safe_state := _default_attachment_state()
 	for attachment_id in [ATTACHMENT_SIGHTS, ATTACHMENT_LASER, ATTACHMENT_SWITCH]:
-		safe_state[String(attachment_id)] = bool(saved_state.get(String(attachment_id), false)) and owns_attachment(weapon_id, attachment_id)
+		safe_state[String(attachment_id)] = (
+			bool(saved_state.get(String(attachment_id), false))
+			and bool(unlocks.get(attachment_id, false))
+		)
 	var magazine_type := clampi(int(saved_state.get("magazine_type", MagazineType.STANDARD)), MagazineType.STANDARD, MagazineType.DRUM)
-	if magazine_type == MagazineType.EXTENDED and not owns_attachment(weapon_id, ATTACHMENT_EXTENDED):
+	if magazine_type == MagazineType.EXTENDED and not bool(unlocks.get(ATTACHMENT_EXTENDED, false)):
 		magazine_type = MagazineType.STANDARD
-	if magazine_type == MagazineType.DRUM and not owns_attachment(weapon_id, ATTACHMENT_DRUM):
+	if magazine_type == MagazineType.DRUM and not bool(unlocks.get(ATTACHMENT_DRUM, false)):
 		magazine_type = MagazineType.STANDARD
 	safe_state["magazine_type"] = magazine_type
+	var carry_weight := _get_carry_weight()
+	if (
+		carry_weight != null
+		and not carry_weight.can_add_weapon(definition, safe_state)
+	):
+		return false
+	if not _grant_weapon_internal(definition, false):
+		return false
 	_attachment_states[weapon_id] = safe_state
 	_magazine_ammo[weapon_id] = clampi(int(state.get("magazine_ammo", definition.magazine_capacity)), 0, definition.drum_magazine_capacity)
 	_reserve_ammo[weapon_id] = maxi(int(state.get("reserve_ammo", definition.starting_reserve_ammo)), 0)
@@ -304,7 +333,7 @@ func import_save_data(data: Dictionary, preserve_legacy_weapons := false) -> voi
 	for id_value in owned_values:
 		var definition := get_weapon_definition(StringName(String(id_value)))
 		if definition != null:
-			grant_weapon(definition)
+			_grant_weapon_internal(definition, false)
 
 	var magazine_data := data.get("magazine_ammo", {}) as Dictionary
 	var reserve_data := data.get("reserve_ammo", {}) as Dictionary
@@ -339,6 +368,8 @@ func import_save_data(data: Dictionary, preserve_legacy_weapons := false) -> voi
 			_equipped_slot = index
 			break
 	_apply_equipped_weapon()
+	attachments_changed.emit()
+	loadout_changed.emit()
 
 
 func confiscate_all() -> Dictionary:
@@ -384,7 +415,10 @@ func is_attachment_equipped(weapon_id: StringName, attachment_id: StringName) ->
 func equip_attachment(weapon_id: StringName, attachment_id: StringName, enabled := true) -> bool:
 	if not owns_attachment(weapon_id, attachment_id):
 		return false
-	var state: Dictionary = _attachment_states.get(weapon_id, _default_attachment_state())
+	if get_equipped_weapon() != null and get_equipped_weapon().weapon_id == weapon_id:
+		_store_current_attachment_state()
+	var current_state := get_attachment_state(weapon_id)
+	var state := current_state.duplicate(true)
 	match attachment_id:
 		ATTACHMENT_EXTENDED:
 			state["magazine_type"] = MagazineType.EXTENDED if enabled else MagazineType.STANDARD
@@ -392,13 +426,24 @@ func equip_attachment(weapon_id: StringName, attachment_id: StringName, enabled 
 			state["magazine_type"] = MagazineType.DRUM if enabled else MagazineType.STANDARD
 		_:
 			state[String(attachment_id)] = enabled
+	var definition := get_weapon_definition(weapon_id)
+	var carry_weight := _get_carry_weight()
+	if (
+		carry_weight != null
+		and not carry_weight.can_change_weapon_state(
+			definition,
+			current_state,
+			state
+		)
+	):
+		return false
 	_attachment_states[weapon_id] = state
 	_clamp_loaded_ammo_for_state(weapon_id)
 	if get_equipped_weapon() != null and get_equipped_weapon().weapon_id == weapon_id:
 		_load_attachment_state(weapon_id)
 		_apply_attachment_visuals()
-		attachments_changed.emit()
 		ammo_changed.emit(get_magazine_ammo(), get_reserve_ammo())
+	attachments_changed.emit()
 	return true
 
 
@@ -422,6 +467,12 @@ func _default_attachment_state() -> Dictionary:
 		"switch": false,
 		"magazine_type": MagazineType.STANDARD,
 	}
+
+
+func _get_carry_weight() -> PlayerCarryWeightComponent:
+	return get_node_or_null(
+		carry_weight_component_path
+	) as PlayerCarryWeightComponent
 
 
 func _clear_weapon_visual() -> void:
@@ -612,6 +663,17 @@ func get_weapon_slots() -> Array[WeaponDefinition]:
 	return weapons.duplicate()
 
 
+func get_attachment_state(weapon_id: StringName) -> Dictionary:
+	if get_equipped_weapon() != null and get_equipped_weapon().weapon_id == weapon_id:
+		_store_current_attachment_state()
+	return (
+		_attachment_states.get(
+			weapon_id,
+			_default_attachment_state()
+		) as Dictionary
+	).duplicate(true)
+
+
 func get_magazine_ammo() -> int:
 	var definition := get_equipped_weapon()
 	if definition == null:
@@ -649,18 +711,24 @@ func set_magazine_type(magazine_type: int) -> bool:
 		return false
 	if magazine_type == MagazineType.DRUM and not owns_attachment(definition.weapon_id, ATTACHMENT_DRUM):
 		return false
-	_magazine_type = magazine_type
-	_store_current_attachment_state()
-	var loaded_ammo := get_magazine_ammo()
-	var capacity := get_magazine_capacity()
-	if loaded_ammo > capacity:
-		var overflow := loaded_ammo - capacity
-		_magazine_ammo[definition.weapon_id] = capacity
-		_reserve_ammo[definition.weapon_id] = get_reserve_ammo() + overflow
-	_apply_attachment_visuals()
-	attachments_changed.emit()
-	ammo_changed.emit(get_magazine_ammo(), get_reserve_ammo())
-	return true
+	if magazine_type == MagazineType.EXTENDED:
+		return equip_attachment(
+			definition.weapon_id,
+			ATTACHMENT_EXTENDED,
+			true
+		)
+	if magazine_type == MagazineType.DRUM:
+		return equip_attachment(
+			definition.weapon_id,
+			ATTACHMENT_DRUM,
+			true
+		)
+	var current_attachment := (
+		ATTACHMENT_EXTENDED
+		if _magazine_type == MagazineType.EXTENDED
+		else ATTACHMENT_DRUM
+	)
+	return equip_attachment(definition.weapon_id, current_attachment, false)
 
 
 func is_sights_enabled() -> bool:
@@ -673,11 +741,7 @@ func set_sights_enabled(enabled: bool) -> bool:
 		return false
 	if _sights_enabled == enabled:
 		return true
-	_sights_enabled = enabled
-	_store_current_attachment_state()
-	_apply_attachment_visuals()
-	attachments_changed.emit()
-	return true
+	return equip_attachment(definition.weapon_id, ATTACHMENT_SIGHTS, enabled)
 
 
 func is_laser_enabled() -> bool:
@@ -690,12 +754,10 @@ func set_laser_enabled(enabled: bool) -> bool:
 		return false
 	if _laser_enabled == enabled:
 		return true
-	_laser_enabled = enabled
-	_store_current_attachment_state()
-	if not _laser_enabled and target_lock_component != null:
+	if not equip_attachment(definition.weapon_id, ATTACHMENT_LASER, enabled):
+		return false
+	if not enabled and target_lock_component != null:
 		target_lock_component.clear_lock()
-	_apply_attachment_visuals()
-	attachments_changed.emit()
 	return true
 
 
@@ -709,11 +771,7 @@ func set_switch_enabled(enabled: bool) -> bool:
 		return false
 	if _switch_enabled == enabled:
 		return true
-	_switch_enabled = enabled
-	_store_current_attachment_state()
-	_apply_attachment_visuals()
-	attachments_changed.emit()
-	return true
+	return equip_attachment(definition.weapon_id, ATTACHMENT_SWITCH, enabled)
 
 
 func is_fully_automatic() -> bool:
