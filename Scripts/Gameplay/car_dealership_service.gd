@@ -43,7 +43,9 @@ func purchase_vehicle(
 		_finish("Vehicle delivery failed.", false)
 		return null
 	dealership.register_delivery(delivery, vehicle)
-	if not wallet.spend_clean(definition.purchase_price):
+	if not wallet.spend_clean(
+		definition.purchase_price, true, "Vehicle Purchase", definition.display_name
+	):
 		garage.remove_owned_vehicle(vehicle)
 		_finish("Purchase could not be completed.", false)
 		return null
@@ -68,7 +70,7 @@ func sell_vehicle(
 		return _finish("This vehicle cannot be sold.", false)
 	if not garage.remove_owned_vehicle(vehicle):
 		return _finish("Vehicle sale failed.", false)
-	if not wallet.add_clean(value):
+	if not wallet.add_clean(value, true, "Vehicle Sale", definition.display_name):
 		return _finish("Vehicle sale failed.", false)
 	return _finish("Sold %s for $%d Clean Cash." % [definition.display_name, value], true)
 

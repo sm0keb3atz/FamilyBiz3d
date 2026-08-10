@@ -45,7 +45,9 @@ func purchase_runner(property_id: StringName) -> bool:
 	if has_runner(property_id):
 		last_transfer_error = "This stash already has a Runner."
 		return false
-	if not wallet.spend_clean(PropertyCatalog.RUNNER_UPGRADE_COST):
+	if not wallet.spend_clean(
+		PropertyCatalog.RUNNER_UPGRADE_COST, true, "Property Upgrade", "Stash runner"
+	):
 		last_transfer_error = "Not enough Clean Cash."
 		return false
 	var stash := _ensure_stash(property_id)
@@ -112,7 +114,9 @@ func purchase(property_id: StringName, current_absolute_minute := -1) -> bool:
 	var definition := PropertyCatalog.get_by_id(property_id)
 	if definition == null or owns(property_id):
 		return false
-	if not wallet.spend_clean(definition.purchase_price):
+	if not wallet.spend_clean(
+		definition.purchase_price, true, "Property Purchase", definition.display_name
+	):
 		return false
 	_owned[property_id] = true
 	if definition.is_stash_house():
@@ -173,7 +177,10 @@ func restock_business(property_id: StringName, requested_units: int) -> bool:
 	if stock + requested_units > definition.business_stock_capacity:
 		return false
 	var total_cost := requested_units * definition.business_restock_unit_cost
-	if not wallet.spend_dirty(total_cost):
+	if not wallet.spend_dirty(
+		total_cost, true, "Business Restock",
+		"%d units for %s" % [requested_units, definition.display_name]
+	):
 		return false
 	state["stock"] = stock + requested_units
 	state["total_restock_spent"] = int(state.get("total_restock_spent", 0)) + total_cost
@@ -296,7 +303,10 @@ func purchase_brick_station(
 	var station := stash.get("brick_station", {}) as Dictionary
 	if bool(station.get("installed", false)):
 		return false
-	if not wallet.spend_clean(definition.brick_station_cost):
+	if not wallet.spend_clean(
+		definition.brick_station_cost, true, "Property Upgrade",
+		"Brick station at %s" % definition.display_name
+	):
 		return false
 	station["installed"] = true
 	station["selected_product_id"] = ""
@@ -378,7 +388,9 @@ func settle_business_earnings() -> int:
 		var amount := int(state.get("accumulated_earnings", 0))
 		if amount <= 0:
 			continue
-		if wallet.add_clean(amount):
+		var definition := PropertyCatalog.get_by_id(property_id)
+		var business_name := definition.display_name if definition != null else String(property_id)
+		if wallet.add_clean(amount, true, "Business Revenue", business_name):
 			state["accumulated_earnings"] = 0
 			deposited += amount
 			business_state_changed.emit(property_id)

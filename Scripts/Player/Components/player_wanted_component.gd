@@ -85,7 +85,7 @@ var _is_escaping := false
 var _police_search_position := Vector3.ZERO
 var _police_search_revision := 0
 var _has_police_search_position := false
-var _gang_war_suppressed := false
+var _territory_event_suppressed := false
 var _suspended_wanted_level := 0
 var _suspended_trigger_territory_id := &""
 var _active_incident
@@ -128,7 +128,7 @@ func _process(delta: float) -> void:
 		0.0
 	)
 	_update_escape(delta)
-	if _gang_war_suppressed:
+	if _territory_event_suppressed:
 		return
 	if _weapon_witness_remaining > 0.0 and _wanted_level == 0:
 		add_suspicion_heat(
@@ -175,7 +175,7 @@ func _get_cached_player_boundary(delta: float) -> TerritoryBoundary:
 
 
 func report_visible_weapon_witness() -> void:
-	if _gang_war_suppressed:
+	if _territory_event_suppressed:
 		return
 	if weapon_component.get_equipped_weapon() == null:
 		return
@@ -185,7 +185,7 @@ func report_visible_weapon_witness() -> void:
 func report_police_visual_contact(
 	world_position: Vector3 = Vector3.INF
 ) -> void:
-	if _gang_war_suppressed:
+	if _territory_event_suppressed:
 		return
 	if _wanted_level <= 0:
 		return
@@ -201,7 +201,7 @@ func report_police_incident(
 	crime_type: int = PoliceIncidentData.CrimeType.UNKNOWN,
 	severity := 1
 ) -> void:
-	if _gang_war_suppressed:
+	if _territory_event_suppressed:
 		return
 	if not world_position.is_finite():
 		return
@@ -250,7 +250,7 @@ func report_police_incident(
 
 
 func report_sale(world_position: Vector3) -> void:
-	if _gang_war_suppressed:
+	if _territory_event_suppressed:
 		return
 	if _has_police_witness(world_position):
 		report_police_incident(
@@ -265,7 +265,7 @@ func report_solicitation(
 	world_position: Vector3,
 	solicitation_radius: float
 ) -> void:
-	if _gang_war_suppressed:
+	if _territory_event_suppressed:
 		return
 	if _has_police_in_radius(world_position, solicitation_radius):
 		report_police_incident(
@@ -280,7 +280,7 @@ func report_solicitation(
 
 
 func add_suspicion_heat(world_position: Vector3, amount: float) -> void:
-	if _gang_war_suppressed or amount <= 0.0:
+	if _territory_event_suppressed or amount <= 0.0:
 		return
 	var boundary := TerritoryBoundary.find_at_position(
 		get_tree(),
@@ -295,7 +295,7 @@ func add_suspicion_heat(world_position: Vector3, amount: float) -> void:
 
 
 func report_violence(target: Node, fatal: bool) -> void:
-	if _gang_war_suppressed or target == null:
+	if _territory_event_suppressed or target == null:
 		return
 	var was_wanted := _wanted_level > 0
 	var next_level := 3 if fatal else 2
@@ -334,7 +334,7 @@ func report_violence(target: Node, fatal: bool) -> void:
 
 func set_wanted_level(level: int) -> void:
 	var next_level := clampi(level, 0, MAX_WANTED_LEVEL)
-	if _gang_war_suppressed and next_level > _wanted_level:
+	if _territory_event_suppressed and next_level > _wanted_level:
 		return
 	if next_level == _wanted_level:
 		return
@@ -392,8 +392,8 @@ func set_force_authorized(authorized: bool) -> void:
 	incident_updated.emit(_active_incident)
 
 
-func set_gang_war_suppressed(active: bool) -> void:
-	if active == _gang_war_suppressed:
+func set_territory_event_suppressed(active: bool) -> void:
+	if active == _territory_event_suppressed:
 		return
 	if active:
 		_suspended_wanted_level = _wanted_level
@@ -402,10 +402,10 @@ func set_gang_war_suppressed(active: bool) -> void:
 			_active_incident.to_dictionary()
 			if _active_incident != null else {}
 		)
-		_gang_war_suppressed = true
+		_territory_event_suppressed = true
 		clear_wanted(false)
 		return
-	_gang_war_suppressed = false
+	_territory_event_suppressed = false
 	_trigger_territory_id = _suspended_trigger_territory_id
 	var restore_level := _suspended_wanted_level
 	_suspended_wanted_level = 0
@@ -421,17 +421,28 @@ func set_gang_war_suppressed(active: bool) -> void:
 		set_wanted_level(restore_level)
 		if _active_incident != null:
 			incident_reported.emit(_active_incident)
+	else:
+		_suspended_incident_data = {}
+
+
+func is_territory_event_suppressed() -> bool:
+	return _territory_event_suppressed
+
+
+func set_gang_war_suppressed(active: bool) -> void:
+	set_territory_event_suppressed(active)
 
 
 func is_gang_war_suppressed() -> bool:
-	return _gang_war_suppressed
+	return is_territory_event_suppressed()
 
 
 func export_save_data() -> Dictionary:
 	return {
 		"wanted_level": _wanted_level,
 		"trigger_territory_id": String(_trigger_territory_id),
-		"gang_war_suppressed": _gang_war_suppressed,
+		"territory_event_suppressed": _territory_event_suppressed,
+		"gang_war_suppressed": _territory_event_suppressed,
 		"suspended_wanted_level": _suspended_wanted_level,
 		"suspended_trigger_territory_id": String(
 			_suspended_trigger_territory_id
@@ -447,7 +458,10 @@ func export_save_data() -> Dictionary:
 
 func import_save_data(data: Dictionary) -> void:
 	_importing_save_data = true
-	_gang_war_suppressed = bool(data.get("gang_war_suppressed", false))
+	_territory_event_suppressed = bool(data.get(
+		"territory_event_suppressed",
+		data.get("gang_war_suppressed", false)
+	))
 	_suspended_wanted_level = clampi(
 		int(data.get("suspended_wanted_level", 0)), 0, MAX_WANTED_LEVEL
 	)
@@ -512,7 +526,7 @@ func _on_player_shot_resolved(
 	fatal: bool,
 	_hit_position: Vector3
 ) -> void:
-	if _gang_war_suppressed:
+	if _territory_event_suppressed:
 		return
 	var was_wanted := _wanted_level > 0
 	if target != null:
@@ -726,7 +740,7 @@ func _on_territory_heat_changed(
 	current: float,
 	boundary: TerritoryBoundary
 ) -> void:
-	if _gang_war_suppressed or current < 100.0 or _wanted_level > 0:
+	if _territory_event_suppressed or current < 100.0 or _wanted_level > 0:
 		return
 	_trigger_territory_id = boundary.territory_id
 	set_wanted_level(1)

@@ -1,44 +1,54 @@
 [gd_scene format=3 uid="uid://cmyoinaojjcgt"]
 
-[ext_resource type="PackedScene" path="res://Scenes/Vehicles/BaseVehicle.tscn" id="1_base"]
+[ext_resource type="PackedScene" uid="uid://cyreq2x33fsli" path="res://Scenes/Vehicles/BaseVehicle.tscn" id="1_base"]
 [ext_resource type="Resource" uid="uid://bqbwuivnubdi2" path="res://Scripts/Vehicles/Resources/muscle_car_definition.tres" id="2_definition"]
 [ext_resource type="PackedScene" uid="uid://e4b44vss631q" path="res://Assets/MapStuff/Meshs/Vehicles/SK_veh_Muscle_01.gltf" id="3_model"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_baheq"]
+size = Vector3(1.784195, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5xgod"]
+size = Vector3(0.375, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_efdnf"]
+size = Vector3(1.784195, 1, 1)
 
 [node name="MuscleCar" unique_id=725778669 instance=ExtResource("1_base")]
 definition = ExtResource("2_definition")
 
-[node name="CollisionShape3D" parent="." index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.83, 0)
-
-[node name="VehicleModel" parent="VisualRoot" index="0" unique_id=637540557 instance=ExtResource("3_model")]
+[node name="VehicleModel" parent="VisualRoot" parent_id_path=PackedInt32Array(200744293) index="0" unique_id=637540557 instance=ExtResource("3_model")]
 transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, 0, 0, 0)
 
-[node name="WheelFL" parent="." index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.806, 0.48, 1.517)
-
-[node name="WheelFR" parent="." index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.806, 0.48, 1.517)
-
-[node name="WheelRL" parent="." index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.806, 0.48, -1.523)
-
-[node name="WheelRR" parent="." index="5"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.806, 0.48, -1.523)
-
-[node name="DriverMarker" parent="." index="6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.72, 0.35)
-
-[node name="ExitLeft" parent="." index="7"]
+[node name="ExitLeft" parent="." index="7" unique_id=370190019]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.05, 0.25)
 
-[node name="ExitRight" parent="." index="8"]
+[node name="ExitRight" parent="." index="8" unique_id=1169218335]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0.05, 0.25)
 
-[node name="CameraPivot" parent="." index="9"]
-transform = Transform3D(1, 0, 0, 0, 0.9848077, 0.17364825, 0, -0.17364825, 0.9848077, 0, 1.8, 0)
-
-[node name="TailpipeExhaust" parent="." index="11"]
+[node name="TailpipeExhaust" parent="." index="11" unique_id=975660813]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.48, -2.6539216)
 
 [node name="TailpipeExhaust2" type="Marker3D" parent="." index="12" unique_id=1955036793]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5842225, 0.48, -2.6539216)
+
+[node name="HeadlightLeft" parent="VehicleLights/Headlights" index="0"]
+transform = Transform3D(0.3495227, 0.050244056, 0.0030510696, -0.14744857, 0.1198066, 0.00047416866, -0.02219682, -0.0046800654, 0.044893935, 0.5931707, 0.743092, 2.4783242)
+mesh = SubResource("BoxMesh_baheq")
+
+[node name="HeadlightRight" parent="VehicleLights/Headlights" index="1"]
+transform = Transform3D(0.16329724, 0.117384486, 0, -0.34312388, 0.05586485, 0, 0, 0, 0.045, -0.60433424, 0.7353331, 2.4834518)
+mesh = SubResource("BoxMesh_5xgod")
+
+[node name="HeadlightBeamLeft" parent="VehicleLights/Headlights" index="2"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.65, 0.7363146, 2.5582857)
+
+[node name="HeadlightBeamRight" parent="VehicleLights/Headlights" index="3"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.65, 0.8, 2.5825412)
+
+[node name="TailLightLeft" parent="VehicleLights/TailLights" index="0"]
+transform = Transform3D(0.38, 0, 0, 0, 0.12820472, -0.007452747, 0, 0.021530159, 0.044378564, 0.51765, 0.77757233, -2.6622562)
+mesh = SubResource("BoxMesh_baheq")
+
+[node name="TailLightRight" parent="VehicleLights/TailLights" index="1"]
+transform = Transform3D(0.38, 0, 0, 0, 0.12745008, -0.008869079, 0, 0.025621781, 0.04411734, -0.52895784, 0.7681882, -2.6603367)
+mesh = SubResource("BoxMesh_efdnf")

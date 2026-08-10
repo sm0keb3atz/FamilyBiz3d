@@ -1,0 +1,201 @@
+[gd_scene load_steps=23 format=3]
+
+[ext_resource type="Script" path="res://Scripts/World/weather_system.gd" id="1_weather"]
+[ext_resource type="Shader" path="res://Assets/VFX/Shaders/weather_screen.gdshader" id="2_overlay"]
+
+[sub_resource type="Gradient" id="RainDropGradient"]
+offsets = PackedFloat32Array(0, 0.18, 0.58, 1)
+colors = PackedColorArray(0.82, 0.9, 1, 0.88, 0.66, 0.78, 0.94, 0.72, 0.44, 0.58, 0.76, 0.24, 0.32, 0.44, 0.62, 0)
+
+[sub_resource type="GradientTexture2D" id="RainDropTexture"]
+gradient = SubResource("RainDropGradient")
+width = 32
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="RainMaterial"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("RainDropTexture")
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="FarRainQuad"]
+material = SubResource("RainMaterial")
+size = Vector2(0.022, 0.52)
+
+[sub_resource type="ParticleProcessMaterial" id="FarRainProcess"]
+emission_shape = 3
+emission_box_extents = Vector3(18, 1.5, 18)
+direction = Vector3(0, -1, 0)
+spread = 2.5
+initial_velocity_min = 20.0
+initial_velocity_max = 25.0
+gravity = Vector3(0, -3, 0)
+scale_min = 0.72
+scale_max = 1.18
+color = Color(0.64, 0.76, 0.9, 0.52)
+
+[sub_resource type="QuadMesh" id="NearRainQuad"]
+material = SubResource("RainMaterial")
+size = Vector2(0.034, 0.88)
+
+[sub_resource type="ParticleProcessMaterial" id="NearRainProcess"]
+emission_shape = 3
+emission_box_extents = Vector3(8, 1.4, 8)
+direction = Vector3(0, -1, 0)
+spread = 2.0
+initial_velocity_min = 17.0
+initial_velocity_max = 22.0
+gravity = Vector3(0, -2, 0)
+scale_min = 0.65
+scale_max = 1.1
+color = Color(0.7, 0.82, 0.96, 0.4)
+
+[sub_resource type="Gradient" id="MistGradient"]
+offsets = PackedFloat32Array(0, 0.38, 0.72, 1)
+colors = PackedColorArray(0.72, 0.79, 0.88, 0, 0.72, 0.79, 0.88, 0.16, 0.54, 0.62, 0.72, 0.08, 0.54, 0.62, 0.72, 0)
+
+[sub_resource type="GradientTexture2D" id="MistTexture"]
+gradient = SubResource("MistGradient")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="MistMaterial"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("MistTexture")
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="MistQuad"]
+material = SubResource("MistMaterial")
+size = Vector2(1.6, 0.55)
+
+[sub_resource type="ParticleProcessMaterial" id="MistProcess"]
+emission_shape = 3
+emission_box_extents = Vector3(17, 0.35, 17)
+direction = Vector3(0, 1, 0)
+spread = 65.0
+initial_velocity_min = 0.15
+initial_velocity_max = 0.55
+gravity = Vector3(0, 0.08, 0)
+scale_min = 2.0
+scale_max = 5.0
+color = Color(0.66, 0.72, 0.8, 0.18)
+
+[sub_resource type="StandardMaterial3D" id="SplashMaterial"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+vertex_color_use_as_albedo = true
+
+[sub_resource type="TorusMesh" id="SplashRing"]
+material = SubResource("SplashMaterial")
+inner_radius = 0.052
+outer_radius = 0.072
+rings = 6
+ring_segments = 10
+
+[sub_resource type="Curve" id="SplashScaleCurve"]
+max_value = 1.6
+_data = [Vector2(0, 0.28), 2.8, 2.8, 0, 0, Vector2(0.45, 1), 1.15, 1.15, 0, 0, Vector2(1, 1.45), 0.35, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="SplashScaleTexture"]
+curve = SubResource("SplashScaleCurve")
+
+[sub_resource type="Curve" id="SplashAlphaCurve"]
+_data = [Vector2(0, 0), 0.0, 7.0, 0, 0, Vector2(0.1, 1), 0.0, 0.0, 0, 0, Vector2(0.55, 0.42), -0.9, -0.9, 0, 0, Vector2(1, 0), -1.2, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="SplashAlphaTexture"]
+curve = SubResource("SplashAlphaCurve")
+
+[sub_resource type="ParticleProcessMaterial" id="SplashProcess"]
+emission_shape = 3
+emission_box_extents = Vector3(16, 0.015, 16)
+direction = Vector3(0, 1, 0)
+spread = 18.0
+initial_velocity_min = 0.08
+initial_velocity_max = 0.22
+gravity = Vector3(0, -0.6, 0)
+scale_min = 0.7
+scale_max = 1.25
+scale_curve = SubResource("SplashScaleTexture")
+color = Color(0.58, 0.7, 0.86, 0.46)
+alpha_curve = SubResource("SplashAlphaTexture")
+
+[sub_resource type="ShaderMaterial" id="OverlayMaterial"]
+shader = ExtResource("2_overlay")
+shader_parameter/rain_intensity = 0.0
+shader_parameter/lightning = 0.0
+
+[node name="WeatherSystem" type="Node3D"]
+script = ExtResource("1_weather")
+
+[node name="RainStreaks" type="GPUParticles3D" parent="."]
+position = Vector3(0, 12, 0)
+emitting = false
+amount = 2200
+amount_ratio = 0.0
+lifetime = 1.35
+preprocess = 1.35
+randomness = 0.62
+visibility_aabb = AABB(-20, -17, -20, 40, 20, 40)
+process_material = SubResource("FarRainProcess")
+draw_pass_1 = SubResource("FarRainQuad")
+
+[node name="NearRain" type="GPUParticles3D" parent="."]
+position = Vector3(0, 8.6, 0)
+emitting = false
+amount = 320
+amount_ratio = 0.0
+lifetime = 0.95
+preprocess = 0.95
+randomness = 0.7
+visibility_aabb = AABB(-10, -14, -10, 20, 17, 20)
+process_material = SubResource("NearRainProcess")
+draw_pass_1 = SubResource("NearRainQuad")
+
+[node name="GroundMist" type="GPUParticles3D" parent="."]
+position = Vector3(0, 0.2, 0)
+emitting = false
+amount = 84
+amount_ratio = 0.0
+lifetime = 4.5
+preprocess = 2.0
+randomness = 0.75
+visibility_aabb = AABB(-20, -2, -20, 40, 7, 40)
+process_material = SubResource("MistProcess")
+draw_pass_1 = SubResource("MistQuad")
+
+[node name="RainSplashes" type="GPUParticles3D" parent="."]
+position = Vector3(0, 0.045, 0)
+emitting = false
+amount = 320
+amount_ratio = 0.0
+lifetime = 0.34
+preprocess = 0.34
+randomness = 0.92
+visibility_aabb = AABB(-18, -0.2, -18, 36, 1.2, 36)
+process_material = SubResource("SplashProcess")
+draw_pass_1 = SubResource("SplashRing")
+
+[node name="RainScreenOverlay" type="CanvasLayer" parent="."]
+layer = 4
+
+[node name="WeatherOverlay" type="ColorRect" parent="RainScreenOverlay"]
+material = SubResource("OverlayMaterial")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

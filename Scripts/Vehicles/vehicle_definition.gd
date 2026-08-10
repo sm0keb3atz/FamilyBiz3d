@@ -14,6 +14,14 @@ extends Resource
 @export var visual_rotation_degrees := Vector3(0.0, -90.0, 0.0)
 @export var visual_offset := Vector3.ZERO
 
+@export_category("Condition and Customization")
+@export_range(1.0, 50.0, 0.5) var fuel_tank_capacity_gallons := 16.0
+@export_range(0.0, 0.01, 0.0001) var fuel_gallons_per_meter := 0.001
+@export_range(0.0, 1.0, 0.001) var idle_fuel_gallons_per_real_minute := 0.02
+@export var primary_surface_indices: Array[int] = [0]
+@export var secondary_surface_indices: Array[int] = [1]
+@export var window_surface_indices: Array[int] = [3]
+
 @export_category("Geometry")
 @export var collision_size := Vector3(1.9, 0.8, 4.7)
 @export var collision_offset := Vector3(0.0, 0.83, 0.0)

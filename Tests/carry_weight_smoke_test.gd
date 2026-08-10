@@ -180,5 +180,23 @@ func _run() -> void:
 		== Color(0.95, 0.3, 0.28)
 	)
 
+	# Legal supplies share the carry limit and retain their nested save format.
+	inventory.import_save_data({})
+	var water := ConsumableCatalog.get_by_id(&"bottled_water")
+	var fuel_can := ConsumableCatalog.get_by_id(&"emergency_fuel_can")
+	assert(water != null and fuel_can != null)
+	assert(inventory.add_consumable(water, 3))
+	assert(inventory.add_consumable(fuel_can, 1))
+	assert(carry.get_current_weight_grams() == 270)
+	assert(not inventory.add_consumable(water, 1))
+	var supply_save := inventory.export_save_data()
+	assert((supply_save.get("consumables", {}) as Dictionary).get("bottled_water") == 3)
+	inventory.import_save_data({})
+	assert(inventory.get_consumable_quantity(water) == 0)
+	inventory.import_save_data(supply_save)
+	assert(inventory.get_consumable_quantity(water) == 3)
+	assert(inventory.get_consumable_quantity(fuel_can) == 1)
+	assert(menu.find_child("SuppliesPage", true, false) != null)
+
 	print("CARRY_WEIGHT_SMOKE_TEST_PASS")
 	quit(0)

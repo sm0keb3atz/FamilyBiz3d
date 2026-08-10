@@ -5,6 +5,9 @@ const ACCENT := Color(0.2, 0.58, 0.94)
 const GREEN := Color(0.32, 0.75, 0.34)
 const RED := Color(0.82, 0.25, 0.2)
 const MUTED := Color(0.68, 0.7, 0.74)
+const PANEL_BG := Color(0.022, 0.032, 0.045, 0.98)
+const SECTION_BG := Color(0.035, 0.05, 0.068, 0.96)
+const BORDER := Color(0.12, 0.19, 0.26, 0.95)
 const BusinessManagementPanelScript := preload(
 	"res://Scripts/UI/business_management_panel.gd"
 )
@@ -53,11 +56,12 @@ var _preview_camera: Camera3D
 var _name_label: Label
 var _description_label: Label
 var _price_label: Label
-var _stats_label: Label
 var _owned_label: Label
 var _delivery_label: Label
 var _purchase_button: Button
 var _feedback_label: Label
+var _stat_bars: Dictionary = {}
+var _stat_values: Dictionary = {}
 var _selected: VehicleDefinition
 var _dealership: CarDealershipController
 var _pending_sale_id: StringName
@@ -128,40 +132,45 @@ func _build_ui() -> void:
 	add_child(_root)
 	var dimmer := ColorRect.new()
 	dimmer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	dimmer.color = Color(0.004, 0.008, 0.014, 0.93)
+	dimmer.color = Color(0.003, 0.006, 0.011, 0.95)
 	_root.add_child(dimmer)
 	var outer := MarginContainer.new()
 	outer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
-		outer.add_theme_constant_override(side, 22)
+		outer.add_theme_constant_override(side, 18)
 	_root.add_child(outer)
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override(
 		"panel",
-		_panel_style(Color(0.025, 0.035, 0.05), Color(0.12, 0.3, 0.5), 3, 10)
+		_panel_style(PANEL_BG, Color(0.11, 0.25, 0.38), 2, 12)
 	)
 	outer.add_child(panel)
 	var page := VBoxContainer.new()
-	page.add_theme_constant_override("separation", 14)
+	page.add_theme_constant_override("separation", 12)
 	panel.add_child(page)
 	var header := HBoxContainer.new()
-	header.custom_minimum_size.y = 72
+	header.custom_minimum_size.y = 68
 	header.add_theme_constant_override("separation", 18)
 	page.add_child(header)
+	var title_accent := ColorRect.new()
+	title_accent.custom_minimum_size = Vector2(5, 40)
+	title_accent.color = ACCENT
+	title_accent.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(title_accent)
 	var title := Label.new()
-	title.text = "  DOWNTOWN AUTO"
+	title.text = "DOWNTOWN AUTO"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.add_theme_font_size_override("font_size", 34)
 	title.add_theme_color_override("font_color", Color(0.9, 0.94, 1.0))
 	header.add_child(title)
 	_balance_label = Label.new()
-	_balance_label.add_theme_font_size_override("font_size", 23)
+	_balance_label.add_theme_font_size_override("font_size", 22)
 	_balance_label.add_theme_color_override("font_color", GREEN)
 	_balance_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(_balance_label)
 	var close_button := Button.new()
 	close_button.text = "X"
-	close_button.custom_minimum_size = Vector2(70, 52)
+	close_button.custom_minimum_size = Vector2(64, 52)
 	_style_button(close_button, RED)
 	close_button.pressed.connect(close)
 	header.add_child(close_button)
@@ -194,7 +203,7 @@ func _build_buy_content(page: VBoxContainer) -> void:
 	_buy_content.add_theme_constant_override("separation", 14)
 	page.add_child(_buy_content)
 	var left := _section("VEHICLES")
-	left.custom_minimum_size.x = 285
+	left.custom_minimum_size.x = 300
 	_buy_content.add_child(left)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -208,7 +217,7 @@ func _build_buy_content(page: VBoxContainer) -> void:
 	_buy_content.add_child(middle)
 	var middle_box := middle.get_child(0) as VBoxContainer
 	var viewport_container := SubViewportContainer.new()
-	viewport_container.custom_minimum_size = Vector2(430, 390)
+	viewport_container.custom_minimum_size = Vector2(450, 400)
 	viewport_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	viewport_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	viewport_container.stretch = true
@@ -221,6 +230,7 @@ func _build_buy_content(page: VBoxContainer) -> void:
 	viewport_container.add_child(viewport)
 	_preview_pivot = Node3D.new()
 	viewport.add_child(_preview_pivot)
+	_add_preview_stage(_preview_pivot)
 	_preview_camera = Camera3D.new()
 	viewport.add_child(_preview_camera)
 	var key := DirectionalLight3D.new()
@@ -239,7 +249,7 @@ func _build_buy_content(page: VBoxContainer) -> void:
 	hint.add_theme_color_override("font_color", MUTED)
 	middle_box.add_child(hint)
 	var right := _section("DETAILS")
-	right.custom_minimum_size.x = 365
+	right.custom_minimum_size.x = 380
 	_buy_content.add_child(right)
 	var box := right.get_child(0) as VBoxContainer
 	_name_label = Label.new()
@@ -248,15 +258,20 @@ func _build_buy_content(page: VBoxContainer) -> void:
 	box.add_child(_name_label)
 	_description_label = Label.new()
 	_description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_description_label.custom_minimum_size.y = 58
 	_description_label.add_theme_color_override("font_color", MUTED)
 	box.add_child(_description_label)
+	box.add_child(_divider())
 	_price_label = Label.new()
 	_price_label.add_theme_font_size_override("font_size", 25)
 	_price_label.add_theme_color_override("font_color", GREEN)
 	box.add_child(_price_label)
-	_stats_label = Label.new()
-	_stats_label.add_theme_font_size_override("font_size", 18)
-	box.add_child(_stats_label)
+	box.add_child(_divider())
+	box.add_child(_vehicle_stat_row(&"speed", "TOP SPEED", ACCENT))
+	box.add_child(_vehicle_stat_row(&"acceleration", "ACCELERATION", ACCENT))
+	box.add_child(_vehicle_stat_row(&"handling", "HANDLING", ACCENT))
+	box.add_child(_vehicle_stat_row(&"braking", "BRAKING", ACCENT))
+	box.add_child(_divider())
 	_owned_label = Label.new()
 	_owned_label.add_theme_color_override("font_color", MUTED)
 	box.add_child(_owned_label)
@@ -309,9 +324,9 @@ func _refresh_buy() -> void:
 		child.queue_free()
 	for definition in VehicleCatalog.get_all():
 		var button := Button.new()
-		button.custom_minimum_size.y = 64
+		button.custom_minimum_size.y = 66
 		button.text = "%s\n$%d   |   OWNED %d" % [
-			definition.display_name,
+			definition.display_name.to_upper(),
 			definition.purchase_price,
 			garage.get_owned_count(definition.vehicle_id),
 		]
@@ -321,21 +336,36 @@ func _refresh_buy() -> void:
 		_vehicle_list.add_child(button)
 	if _selected == null:
 		return
-	_name_label.text = _selected.display_name
+	_name_label.text = _selected.display_name.to_upper()
 	_description_label.text = _selected.description
 	_price_label.text = "$%d CLEAN CASH" % _selected.purchase_price
-	_stats_label.text = (
-		"TOP SPEED       %d MPH\nACCELERATION    %s\nHANDLING        %s\nBRAKING         %s"
-		% [
-			roundi(_selected.max_forward_speed * 2.23694),
-			_rating_text(_selected.acceleration_rating),
-			_rating_text(_selected.handling_rating),
-			_rating_text(_selected.braking_rating),
-		]
+	var top_speed := roundi(_selected.max_forward_speed * 2.23694)
+	_set_vehicle_stat(&"speed", minf(float(top_speed) / 180.0 * 100.0, 100.0), "%d MPH" % top_speed)
+	_set_vehicle_stat(
+		&"acceleration",
+		clampf(float(_selected.acceleration_rating) / 5.0 * 100.0, 0.0, 100.0),
+		"%d / 5" % _selected.acceleration_rating
 	)
-	_owned_label.text = "OWNED: %d" % garage.get_owned_count(_selected.vehicle_id)
+	_set_vehicle_stat(
+		&"handling",
+		clampf(float(_selected.handling_rating) / 5.0 * 100.0, 0.0, 100.0),
+		"%d / 5" % _selected.handling_rating
+	)
+	_set_vehicle_stat(
+		&"braking",
+		clampf(float(_selected.braking_rating) / 5.0 * 100.0, 0.0, 100.0),
+		"%d / 5" % _selected.braking_rating
+	)
+	_owned_label.text = "OWNED VEHICLES        %d" % garage.get_owned_count(_selected.vehicle_id)
 	var bay_available := _dealership != null and _dealership.has_free_delivery_bay()
-	_delivery_label.text = "DELIVERY SPACE AVAILABLE" if bay_available else "PARKING LOT FULL"
+	_delivery_label.text = (
+		"DELIVERY SPACE        AVAILABLE"
+		if bay_available
+		else "DELIVERY SPACE        PARKING LOT FULL"
+	)
+	_delivery_label.add_theme_color_override(
+		"font_color", ACCENT if bay_available else RED
+	)
 	_purchase_button.text = "BUY  $%d" % _selected.purchase_price
 	_purchase_button.disabled = (
 		not bay_available
@@ -478,7 +508,7 @@ func _section(title_text: String) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override(
 		"panel",
-		_panel_style(Color(0.04, 0.055, 0.075), Color(0.12, 0.18, 0.25), 1, 6)
+		_panel_style(SECTION_BG, BORDER, 1, 8)
 	)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 10)
@@ -488,14 +518,79 @@ func _section(title_text: String) -> PanelContainer:
 	title.add_theme_font_size_override("font_size", 18)
 	title.add_theme_color_override("font_color", Color(0.78, 0.84, 0.92))
 	box.add_child(title)
+	box.add_child(_divider())
 	return panel
 
 
-func _rating_text(value: int) -> String:
-	var result := ""
-	for index in 5:
-		result += "[X]" if index < value else "[ ]"
-	return result
+func _add_preview_stage(pivot: Node3D) -> void:
+	var stage := MeshInstance3D.new()
+	var stage_mesh := CylinderMesh.new()
+	stage_mesh.top_radius = 3.7
+	stage_mesh.bottom_radius = 3.8
+	stage_mesh.height = 0.12
+	stage_mesh.radial_segments = 64
+	stage.mesh = stage_mesh
+	stage.position.y = -0.12
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.035, 0.045, 0.055)
+	material.metallic = 0.72
+	material.roughness = 0.3
+	stage.material_override = material
+	pivot.add_child(stage)
+
+
+func _vehicle_stat_row(
+	key: StringName,
+	caption_text: String,
+	accent: Color
+) -> VBoxContainer:
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 4)
+	var header := HBoxContainer.new()
+	stack.add_child(header)
+	var caption := Label.new()
+	caption.text = caption_text
+	caption.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	caption.add_theme_font_size_override("font_size", 13)
+	caption.add_theme_color_override("font_color", Color(0.8, 0.84, 0.88))
+	header.add_child(caption)
+	var value := Label.new()
+	value.text = "--"
+	value.add_theme_font_size_override("font_size", 13)
+	value.add_theme_color_override("font_color", Color(0.72, 0.8, 0.9))
+	header.add_child(value)
+	var bar := ProgressBar.new()
+	bar.custom_minimum_size.y = 9
+	bar.show_percentage = false
+	bar.add_theme_stylebox_override(
+		"background",
+		_panel_style(Color(0.055, 0.07, 0.09), BORDER, 1, 3, 0)
+	)
+	bar.add_theme_stylebox_override(
+		"fill",
+		_panel_style(accent, accent, 0, 3, 0)
+	)
+	stack.add_child(bar)
+	_stat_bars[key] = bar
+	_stat_values[key] = value
+	return stack
+
+
+func _set_vehicle_stat(key: StringName, amount: float, value_text: String) -> void:
+	var bar := _stat_bars.get(key) as ProgressBar
+	var value := _stat_values.get(key) as Label
+	if bar != null:
+		bar.value = clampf(amount, 0.0, 100.0)
+	if value != null:
+		value.text = value_text
+
+
+func _divider() -> ColorRect:
+	var divider := ColorRect.new()
+	divider.custom_minimum_size.y = 1
+	divider.color = BORDER
+	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return divider
 
 
 func _style_button(button: Button, color: Color) -> void:
@@ -504,21 +599,30 @@ func _style_button(button: Button, color: Color) -> void:
 	var hover := normal.duplicate() as StyleBoxFlat
 	hover.bg_color = color.darkened(0.28)
 	button.add_theme_stylebox_override("hover", hover)
+	var pressed := normal.duplicate() as StyleBoxFlat
+	pressed.bg_color = color.darkened(0.18)
+	pressed.border_color = color.lightened(0.12)
+	button.add_theme_stylebox_override("pressed", pressed)
+	var disabled := normal.duplicate() as StyleBoxFlat
+	disabled.bg_color = Color(0.055, 0.065, 0.075, 0.9)
+	disabled.border_color = Color(0.13, 0.15, 0.17, 0.8)
+	button.add_theme_stylebox_override("disabled", disabled)
 
 
 func _panel_style(
 	background: Color,
 	border: Color,
 	width: int,
-	radius: int
+	radius: int,
+	padding: int = 14
 ) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = background
 	style.border_color = border
 	style.set_border_width_all(width)
 	style.set_corner_radius_all(radius)
-	style.content_margin_left = 14
-	style.content_margin_top = 12
-	style.content_margin_right = 14
-	style.content_margin_bottom = 12
+	style.content_margin_left = padding
+	style.content_margin_top = maxi(padding - 2, 0)
+	style.content_margin_right = padding
+	style.content_margin_bottom = maxi(padding - 2, 0)
 	return style

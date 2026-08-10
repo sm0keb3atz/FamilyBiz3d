@@ -87,6 +87,9 @@ class TerritoryRevenueChart extends Control:
 @export var carry_weight_component_path := NodePath(
 	"../Components/CarryWeightComponent"
 )
+@export var consumable_component_path := NodePath(
+	"../Components/ConsumableComponent"
+)
 
 @onready var menu_root := %MenuRoot as Control
 @onready var tab_container := %TabContainer as TabContainer
@@ -124,6 +127,9 @@ class TerritoryRevenueChart extends Control:
 @onready var carry_weight := get_node(
 	carry_weight_component_path
 ) as PlayerCarryWeightComponent
+@onready var consumables := get_node(
+	consumable_component_path
+) as PlayerConsumableComponent
 
 var _is_open := false
 var _territory_dealers: TerritoryDealerService
@@ -144,10 +150,13 @@ var _page_summary: Label
 var _page_summary_panel: PanelContainer
 var _carry_weight_value: Label
 var _carry_weight_bar: ProgressBar
+var _supplies_list: VBoxContainer
 
 
 func _ready() -> void:
 	inventory.quantity_changed.connect(_on_quantity_changed)
+	inventory.consumable_quantity_changed.connect(_on_consumable_quantity_changed)
+	consumables.item_used.connect(_on_consumable_used)
 	if weapon_component != null:
 		weapon_component.weapon_changed.connect(_on_weapon_changed)
 		weapon_component.loadout_changed.connect(_on_weapon_loadout_changed)
@@ -170,6 +179,7 @@ func _ready() -> void:
 	if legal != null:
 		legal.legal_state_changed.connect(_on_legal_state_changed)
 	_create_legal_tab()
+	_create_supplies_tab()
 	call_deferred("_resolve_territory_dealers")
 	_style_tabs()
 	_build_inventory_shell()
@@ -250,6 +260,7 @@ func _build_inventory_shell() -> void:
 		{"label": "TERRITORIES", "index": 4},
 		{"label": "GIRLFRIENDS", "index": 2},
 		{"label": "LEGAL DESK", "index": 5},
+		{"label": "SUPPLIES", "index": 6},
 	]
 	for page in page_order:
 		var button := Button.new()
@@ -603,6 +614,8 @@ func _get_tab_icon(index: int) -> Texture2D:
 			return TERRITORY_ICON
 		5:
 			return LEGAL_ICON
+		6:
+			return INVENTORY_ICON
 		_:
 			return INVENTORY_ICON
 
@@ -621,6 +634,8 @@ func _get_tab_accent(index: int) -> Color:
 			return Color(0.62, 0.43, 0.91)
 		5:
 			return Color(0.31, 0.78, 0.75)
+		6:
+			return Color(0.25, 0.86, 0.55)
 		_:
 			return Color(0.25, 0.78, 0.84)
 
@@ -639,6 +654,8 @@ func _get_tab_title(index: int) -> String:
 			return "TERRITORY CONTROL"
 		5:
 			return "LEGAL DESK"
+		6:
+			return "SUPPLIES"
 		_:
 			return "INVENTORY"
 
@@ -657,6 +674,8 @@ func _get_tab_subtitle(index: int) -> String:
 			return "Control territory reputation, supply, dealers, and income."
 		5:
 			return "Manage active cases, retained counsel, and legal services."
+		6:
+			return "Use legal health, stamina, regeneration, and emergency fuel supplies."
 		_:
 			return "Manage everything your organization owns."
 
@@ -689,6 +708,11 @@ func _get_tab_summary(index: int) -> String:
 			return "%d ACTIVE CASES" % (
 				legal.get_pending_cases().size() if legal != null else 0
 			)
+		6:
+			var total := 0
+			for item in ConsumableCatalog.get_all():
+				total += inventory.get_consumable_quantity(item)
+			return "%d ITEMS" % total
 		_:
 			return "PLAYER ASSETS"
 
@@ -755,6 +779,7 @@ func _refresh() -> void:
 	_refresh_properties()
 	_refresh_territory()
 	_refresh_legal()
+	_refresh_supplies()
 	_update_page_header()
 
 
@@ -771,6 +796,79 @@ func _create_legal_tab() -> void:
 	_legal_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_legal_list.add_theme_constant_override("separation", 14)
 	margin.add_child(_legal_list)
+
+
+func _create_supplies_tab() -> void:
+	var margin := MarginContainer.new()
+	margin.name = "SuppliesPage"
+	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		margin.add_theme_constant_override(side, 8)
+	tab_container.add_child(margin)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(scroll)
+	_supplies_list = VBoxContainer.new()
+	_supplies_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_supplies_list.add_theme_constant_override("separation", 9)
+	scroll.add_child(_supplies_list)
+
+
+func _refresh_supplies() -> void:
+	if _supplies_list == null:
+		return
+	for child in _supplies_list.get_children():
+		child.queue_free()
+	var carried := 0
+	for item in ConsumableCatalog.get_all():
+		var quantity := inventory.get_consumable_quantity(item)
+		if quantity <= 0:
+			continue
+		carried += quantity
+		var row := HBoxContainer.new()
+		row.custom_minimum_size.y = 74
+		var info := Label.new()
+		info.text = "%s  x%d\n%s   |   %dG EACH" % [
+			item.display_name.to_upper(), quantity,
+			item.description, item.weight_grams,
+		]
+		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(info)
+		var use_button := Button.new()
+		use_button.text = "USE"
+		use_button.custom_minimum_size = Vector2(120, 44)
+		use_button.pressed.connect(_use_consumable.bind(item))
+		_style_button(use_button, Color(0.25, 0.78, 0.55))
+		row.add_child(use_button)
+		_supplies_list.add_child(row)
+	if carried == 0:
+		_supplies_list.add_child(_create_empty_dashboard(
+			"NO SUPPLIES CARRIED",
+			"Purchase food, drinks, boosts, and fuel cans at the gas station."
+		))
+
+
+func _use_consumable(item: ConsumableDefinition) -> void:
+	consumables.use(item)
+
+
+func _on_consumable_used(
+	_item: ConsumableDefinition,
+	message: String,
+	_success: bool
+) -> void:
+	feedback_label.text = message
+	_refresh_supplies()
+	_update_page_header()
+
+
+func _on_consumable_quantity_changed(
+	_item: ConsumableDefinition,
+	_quantity: int
+) -> void:
+	if _is_open:
+		_refresh_supplies()
+		_update_page_header()
 
 
 func _refresh_legal() -> void:

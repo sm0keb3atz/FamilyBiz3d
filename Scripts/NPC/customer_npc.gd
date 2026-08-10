@@ -1989,6 +1989,8 @@ func _can_identify_event_source(event: WorldEvent) -> bool:
 
 
 func _schedule_crime_report(event: WorldEvent) -> void:
+	if bool(event.metadata.get("police_exempt", false)):
+		return
 	var report := CrimeReport.new()
 	report.event_id = event.event_id
 	report.reporter = self

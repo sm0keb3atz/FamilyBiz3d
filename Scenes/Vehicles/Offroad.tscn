@@ -1,15 +1,53 @@
-[gd_scene load_steps=3 format=3]
-[ext_resource type="PackedScene" path="res://Scenes/Vehicles/BaseVehicle.tscn" id="1"]
+[gd_scene format=3 uid="uid://ds65vy8oakfrt"]
+
+[ext_resource type="PackedScene" uid="uid://cyreq2x33fsli" path="res://Scenes/Vehicles/BaseVehicle.tscn" id="1"]
 [ext_resource type="Resource" path="res://Scripts/Vehicles/Resources/offroad_definition.tres" id="2"]
-[node name="Offroad" instance=ExtResource("1")]
+[ext_resource type="PackedScene" uid="uid://de34qx3ea584h" path="res://Assets/MapStuff/Meshs/Vehicles/SK_veh_Offroad_01.gltf" id="3_model"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_h2uti"]
+size = Vector3(0.42, 1.17, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_eob4o"]
+size = Vector3(0.42, 1.17, 1)
+
+[node name="Offroad" unique_id=190794675 instance=ExtResource("1")]
 definition = ExtResource("2")
-[node name="DriverMarker" parent="." index="6"]
+
+[node name="VehicleModel" parent="VisualRoot" parent_id_path=PackedInt32Array(200744293) index="0" unique_id=956573912 instance=ExtResource("3_model")]
+transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, 0, 0, 0)
+
+[node name="DriverMarker" parent="." index="6" unique_id=1345177452]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0.92, 0.24)
-[node name="ExitLeft" parent="." index="7"]
+
+[node name="ExitLeft" parent="." index="7" unique_id=370190019]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.45, 0.05, 0.24)
-[node name="ExitRight" parent="." index="8"]
+
+[node name="ExitRight" parent="." index="8" unique_id=1169218335]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.45, 0.05, 0.24)
-[node name="CameraPivot" parent="." index="9"]
+
+[node name="CameraPivot" parent="." index="9" unique_id=1591648802]
 transform = Transform3D(1, 0, 0, 0, 0.9848077, 0.17364825, 0, -0.17364825, 0.9848077, 0, 2.15, 0)
-[node name="TailpipeExhaust" parent="." index="11"]
+
+[node name="TailpipeExhaust" parent="." index="11" unique_id=975660813]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0.52, -1.82)
+
+[node name="HeadlightLeft" parent="VehicleLights/Headlights" index="0"]
+transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, 0.34249994, 1.03105, 1.2699999)
+mesh = SubResource("BoxMesh_h2uti")
+
+[node name="HeadlightRight" parent="VehicleLights/Headlights" index="1"]
+transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, -0.34510005, 1.03105, 1.2699999)
+mesh = SubResource("BoxMesh_eob4o")
+
+[node name="HeadlightBeamLeft" parent="VehicleLights/Headlights" index="2"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.32999998, 1.04, 1.3199999)
+
+[node name="HeadlightBeamRight" parent="VehicleLights/Headlights" index="3"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.33999997, 1.01, 1.3000001)
+visible = true
+
+[node name="TailLightLeft" parent="VehicleLights/TailLights" index="0"]
+transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, 0.6101, 1, -1.92)
+
+[node name="TailLightRight" parent="VehicleLights/TailLights" index="1"]
+transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, -0.61990005, 1, -1.92)

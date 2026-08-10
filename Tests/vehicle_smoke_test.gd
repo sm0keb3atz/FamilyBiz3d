@@ -66,7 +66,31 @@ func _run() -> void:
 		vehicle.get_node("Components/ImpactComponent")
 		is VehicleImpactComponent
 	)
+	var condition := vehicle.get_node(
+		"Components/ConditionComponent"
+	) as VehicleConditionComponent
+	assert(condition != null)
+	assert(is_equal_approx(condition.get_fuel_capacity(), 16.0))
+	assert(is_equal_approx(condition.fuel_gallons, 16.0))
+	assert(is_zero_approx(condition.damage))
+	assert(condition.consume_fuel(1.25) > 1.24)
+	assert(is_equal_approx(condition.fuel_gallons, 14.75))
+	assert(is_equal_approx(condition.apply_damage(50.0), 50.0))
+	assert(condition.get_effective_engine_force() < vehicle.definition.engine_force)
+	assert(condition.set_performance_tier(1))
+	assert(condition.performance_tier == 1)
+	assert(condition.repair_full() == 50.0)
+	var condition_save := vehicle.export_condition_state()
+	condition.consume_fuel(5.0)
+	condition.apply_damage(20.0)
+	vehicle.import_condition_state(condition_save)
+	assert(is_equal_approx(condition.fuel_gallons, 14.75))
+	assert(is_zero_approx(condition.damage))
 	assert(vehicle.has_valid_wheel_bones())
+	var hud := player.get_node("PlayerHUD") as PlayerHUD
+	var weapon_panel := hud.get_node("WeaponPanel") as Control
+	var vehicle_panel := hud.find_child("VehiclePanel", true, false) as Control
+	assert(vehicle_panel != null and not vehicle_panel.visible)
 	assert(vehicle_component.enter_vehicle(vehicle))
 	await process_frame
 	assert(vehicle_component.is_driving())
@@ -74,6 +98,8 @@ func _run() -> void:
 	assert(not sound_component.are_footsteps_enabled())
 	assert(not player_visual.visible)
 	assert(not on_foot_camera.current)
+	assert(vehicle_panel.visible)
+	assert(not weapon_panel.visible)
 
 	vehicle.linear_velocity = Vector3.ZERO
 	assert(vehicle_component.exit_vehicle())
@@ -84,6 +110,8 @@ func _run() -> void:
 	assert(player_visual.visible)
 	assert(not player_collision.disabled)
 	assert(on_foot_camera.current)
+	assert(not vehicle_panel.visible)
+	assert(weapon_panel.visible)
 
 	assert(vehicle_component.enter_vehicle(vehicle))
 	var controller: Variant = world.get_node("WorldController")

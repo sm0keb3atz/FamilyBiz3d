@@ -54,6 +54,8 @@ var _motion := 1
 var _aura := 0
 var _time_since_damage := 0.0
 var _stamina_consumed_this_frame := false
+var health_regen_multiplier := 1.0
+var stamina_regen_multiplier := 1.0
 
 
 func _ready() -> void:
@@ -97,10 +99,10 @@ func _process(delta: float) -> void:
 		_health < get_max_health()
 		and _time_since_damage >= config.health_regen_delay
 	):
-		_set_health(_health + config.health_regen_per_second * delta)
+		_set_health(_health + config.health_regen_per_second * health_regen_multiplier * delta)
 
 	if not _stamina_consumed_this_frame and _stamina < get_max_stamina():
-		_set_stamina(_stamina + config.stamina_regen_per_second * delta)
+		_set_stamina(_stamina + config.stamina_regen_per_second * stamina_regen_multiplier * delta)
 
 	_stamina_consumed_this_frame = false
 

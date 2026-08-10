@@ -6,6 +6,7 @@ const VehicleDefinitionResource := preload(
 )
 signal driver_changed(driver: CharacterBody3D)
 signal exit_denied(message: String)
+signal service_lock_changed(locked: bool)
 
 @export var definition: VehicleDefinitionResource
 @export_category("Scene References")
@@ -66,6 +67,9 @@ signal exit_denied(message: String)
 @onready var impact_component := (
 	$Components/ImpactComponent as VehicleImpactComponent
 )
+@onready var condition_component := (
+	$Components/ConditionComponent as VehicleConditionComponent
+)
 @onready var audio_component := (
 	$Components/AudioComponent as VehicleAudioComponent
 )
@@ -84,8 +88,12 @@ signal exit_denied(message: String)
 @onready var drive_component := (
 	$Components/DriveComponent as VehicleDriveComponent
 )
+@onready var light_component := (
+	$Components/LightComponent as VehicleLightComponent
+)
 
 var _driver: CharacterBody3D
+var _service_locked := false
 var _managed_traffic_enabled := false
 var _wheel_anchor_positions: Dictionary = {}
 var _skid_mark_emitters: Dictionary = {}
@@ -138,6 +146,8 @@ func _ready() -> void:
 	stability_component.setup(self)
 	drive_component.setup(self)
 	_apply_definition()
+	condition_component.setup(self)
+	light_component.setup(self)
 	wheel_visual_component.bind_bones()
 	_cache_wheel_anchors()
 	_create_skid_mark_emitters()
@@ -153,6 +163,7 @@ func _physics_process(delta: float) -> void:
 	if definition == null:
 		return
 	impact_component.capture_velocity()
+	condition_component.update(delta)
 	drive_component.update(delta)
 	stability_component.update()
 	effects_component.update()
@@ -169,7 +180,7 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _driver == null:
+	if _driver == null or _service_locked:
 		return
 	if event.is_action_pressed(interact_action):
 		var component := _get_driver_component()
@@ -249,6 +260,7 @@ func set_driver(player: CharacterBody3D) -> void:
 
 
 func clear_driver() -> void:
+	set_service_locked(false)
 	_driver = null
 	powertrain_component.reset()
 	effects_component.set_exhaust_running(false)
@@ -318,6 +330,27 @@ func get_vehicle_camera() -> Camera3D:
 
 func get_current_gear() -> int:
 	return powertrain_component.current_gear
+
+
+func set_service_locked(locked: bool) -> void:
+	if _service_locked == locked:
+		return
+	_service_locked = locked
+	if locked:
+		drive_component.stop()
+	service_lock_changed.emit(_service_locked)
+
+
+func is_service_locked() -> bool:
+	return _service_locked
+
+
+func export_condition_state() -> Dictionary:
+	return condition_component.export_state()
+
+
+func import_condition_state(state: Dictionary) -> void:
+	condition_component.import_state(state)
 
 
 func get_engine_rpm() -> float:

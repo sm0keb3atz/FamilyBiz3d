@@ -218,7 +218,12 @@ func _acquire_vehicle(variant: Resource) -> BaseVehicle:
 		return pooled
 	if get_live_pool_count() >= pool_capacity:
 		return null
-	var vehicle := vehicle_scene.instantiate() as BaseVehicle
+	var spawn_scene := vehicle_scene
+	if variant != null:
+		var authored_scene := variant.get("vehicle_scene") as PackedScene
+		if authored_scene != null:
+			spawn_scene = authored_scene
+	var vehicle := spawn_scene.instantiate() as BaseVehicle
 	if vehicle == null:
 		return null
 	if variant != null:

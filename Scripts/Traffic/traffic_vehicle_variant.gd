@@ -3,6 +3,7 @@ extends Resource
 
 @export var variant_id: StringName
 @export var definition: VehicleDefinition
+@export var vehicle_scene: PackedScene
 @export_range(0.0, 1000.0, 0.1) var spawn_weight := 1.0
 @export var ambient_enabled := true
 

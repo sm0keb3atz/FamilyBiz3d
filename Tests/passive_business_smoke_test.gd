@@ -21,6 +21,7 @@ func _run() -> void:
 		PropertyCatalog.DOWNTOWN_CAR_DEALERSHIP_ID,
 		8 * 60
 	))
+	assert(properties.purchase(PropertyCatalog.GAS_STATION_ID, 8 * 60))
 
 	var dirty_before := wallet.dirty_cash
 	assert(not properties.restock_business(PropertyCatalog.CLOTHING_STORE_ID, 31))
@@ -35,6 +36,7 @@ func _run() -> void:
 		PropertyCatalog.DOWNTOWN_CAR_DEALERSHIP_ID,
 		6
 	))
+	assert(properties.restock_business(PropertyCatalog.GAS_STATION_ID, 6))
 
 	# Clothing sales begin one full interval after opening and stop before close.
 	properties.process_businesses_to(9 * 60 + 59)
@@ -56,6 +58,11 @@ func _run() -> void:
 	assert(properties.get_business_total_sales(
 		PropertyCatalog.DOWNTOWN_CAR_DEALERSHIP_ID
 	) == 3)
+	assert(properties.get_business_stock(PropertyCatalog.GAS_STATION_ID) == 0)
+	assert(properties.get_business_accumulated_earnings(
+		PropertyCatalog.GAS_STATION_ID
+	) == 1500)
+	assert(properties.get_business_total_sales(PropertyCatalog.GAS_STATION_ID) == 6)
 
 	# A saved ledger produces the same result for the same elapsed game time.
 	var saved := properties.export_save_data()

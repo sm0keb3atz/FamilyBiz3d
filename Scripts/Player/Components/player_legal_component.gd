@@ -21,6 +21,7 @@ const BOND_DAYS := 3
 const COURT_DAYS_AFTER_RELEASE := 3
 
 @export var inventory_path := NodePath("../InventoryComponent")
+@export var consumable_path := NodePath("../ConsumableComponent")
 @export var weapon_path := NodePath("../WeaponComponent")
 @export var wallet_path := NodePath("../WalletComponent")
 @export var wanted_path := NodePath("../WantedComponent")
@@ -32,6 +33,7 @@ const COURT_DAYS_AFTER_RELEASE := 3
 @export var vehicle_garage_path := NodePath("../VehicleGarageComponent")
 
 @onready var inventory := get_node(inventory_path) as PlayerInventoryComponent
+@onready var consumables := get_node(consumable_path) as PlayerConsumableComponent
 @onready var weapon := get_node(weapon_path) as PlayerWeaponComponent
 @onready var wallet := get_node(wallet_path) as PlayerWalletComponent
 @onready var wanted := get_node(wanted_path) as PlayerWantedComponent
@@ -95,7 +97,9 @@ func hire_lawyer(lawyer_id: StringName) -> bool:
 	var definition := get_lawyer_definition(lawyer_id)
 	if definition == null or is_lawyer_retained(lawyer_id):
 		return false
-	if not wallet.spend_clean(definition.retainer_clean):
+	if not wallet.spend_clean(
+		definition.retainer_clean, true, "Lawyer Retainer", definition.display_name
+	):
 		return false
 	var now := _get_absolute_minute()
 	_contracts[lawyer_id] = {
@@ -137,11 +141,15 @@ func launder_money(lawyer_id: StringName, requested_dirty: int) -> Dictionary:
 	var contract := _sync_contract_day(lawyer_id)
 	var remaining := definition.laundering_daily_limit - int(contract.get("laundered_today", 0))
 	var amount := mini(requested_dirty, mini(remaining, wallet.dirty_cash))
-	if amount <= 0 or not wallet.spend_dirty(amount):
+	if amount <= 0 or not wallet.spend_dirty(
+		amount, true, "Money Laundering", "Dirty cash processed by %s" % definition.display_name
+	):
 		return {}
 	var clean_amount := floori(float(amount) * (1.0 - definition.laundering_cut))
 	if clean_amount > 0:
-		wallet.add_clean(clean_amount)
+		wallet.add_clean(
+			clean_amount, true, "Laundered Cash", "Clean cash returned by %s" % definition.display_name
+		)
 	contract["laundered_today"] = int(contract.get("laundered_today", 0)) + amount
 	_contracts[lawyer_id] = contract
 	legal_state_changed.emit()
@@ -166,7 +174,9 @@ func reduce_territory_heat(
 		mini(remaining, ceili(boundary.stats.heat))
 	)
 	var cost := points * definition.heat_cost_per_point
-	if points <= 0 or not wallet.spend_dirty(cost):
+	if points <= 0 or not wallet.spend_dirty(
+		cost, true, "Heat Reduction", "%d heat removed by %s" % [points, definition.display_name]
+	):
 		return {}
 	boundary.stats.set_heat(maxf(boundary.stats.heat - float(points), 0.0))
 	contract["heat_used_today"] = int(contract.get("heat_used_today", 0)) + points
@@ -545,7 +555,9 @@ func _on_day_ending(_report_date: String) -> void:
 			continue
 		if billing_minute < int(contract.get("next_fee_minute", billing_minute)):
 			continue
-		if not wallet.spend_clean(definition.daily_fee_clean):
+		if not wallet.spend_clean(
+			definition.daily_fee_clean, true, "Legal Fees", "%s daily fee" % definition.display_name
+		):
 			terminate_lawyer(lawyer_id)
 			lawyer_resigned.emit(lawyer_id)
 			continue
@@ -616,6 +628,7 @@ func _apply_full_new_game_reset(clear_legal := true) -> void:
 	properties.reset_to_new_game()
 	girlfriends.clear_all_due_to_conviction()
 	inventory.reset_to_new_game()
+	consumables.reset_to_new_game()
 	weapon.reset_to_new_game()
 	stats.reset_to_new_game()
 	wardrobe.reset_to_new_game()

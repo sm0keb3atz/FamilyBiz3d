@@ -53,7 +53,10 @@ func buy_product(
 	if not inventory.add_product(product, amount):
 		wallet.add_dirty(total_price, false)
 		return TradeResult.failed("Purchase failed.")
-	wallet.record_transaction(-total_price, 0)
+	wallet.record_transaction(
+		-total_price, 0, "Drug Restock",
+		"%d %s purchased" % [amount, product.display_name]
+	)
 
 	var result := TradeResult.new()
 	result.success = true
@@ -103,7 +106,10 @@ func sell_product(
 	)
 	var total_reputation := product.reputation_reward * float(amount)
 	var total_heat := product.heat_reward * float(amount)
-	wallet.add_dirty(total_sale_price)
+	wallet.add_dirty(
+		total_sale_price, true, "Street Sales",
+		"%d %s sold" % [amount, product.display_name]
+	)
 	stats.add_experience(total_experience)
 	territory.stats.record_sale(total_reputation, total_heat)
 	wanted.report_sale(world_position)
@@ -159,8 +165,14 @@ func buy_product_to_stash(
 			if not properties.last_transfer_error.is_empty()
 			else "Delivery failed."
 		)
-	wallet.record_transaction(-total_price, 0)
 	var definition := PropertyCatalog.get_by_id(property_id)
+	wallet.record_transaction(
+		-total_price, 0, "Wholesale Delivery",
+		"%d %s delivered to %s" % [
+			amount, product.display_name,
+			definition.display_name if definition != null else "stash",
+		]
+	)
 	var result := TradeResult.new()
 	result.success = true
 	result.message = "Purchased %d %s for delivery to %s." % [

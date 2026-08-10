@@ -148,6 +148,18 @@ func _execute(command: String) -> void:
 			_end_gang_war(parts, 1)
 		"clear_gang_war_cooldown":
 			_clear_gang_war_cooldown()
+		"start_robbery":
+			_start_robbery(parts, 1)
+		"end_robbery":
+			_end_robbery(parts, 1)
+		"clear_event_cooldown":
+			_clear_event_cooldown(parts, 1)
+		"weather", "set_weather":
+			_execute_weather(parts, 1)
+		"weather_status":
+			_print_weather_status()
+		"lightning":
+			_trigger_lightning()
 		"give":
 			_execute_spaced_give(parts)
 		"set_time":
@@ -166,11 +178,15 @@ func _execute(command: String) -> void:
 		"start":
 			if parts.size() >= 3 and parts[1].to_lower() == "gang" and parts[2].to_lower() == "war":
 				_start_gang_war(parts, 3)
+			elif parts.size() >= 2 and parts[1].to_lower() == "robbery":
+				_start_robbery(parts, 2)
 			else:
 				_print_error("Unknown command. Type help.")
 		"end":
 			if parts.size() >= 3 and parts[1].to_lower() == "gang" and parts[2].to_lower() == "war":
 				_end_gang_war(parts, 3)
+			elif parts.size() >= 2 and parts[1].to_lower() == "robbery":
+				_end_robbery(parts, 2)
 			else:
 				_print_error("Unknown command. Type help.")
 		_:
@@ -196,7 +212,11 @@ func _give_money(parts: PackedStringArray, amount_index: int, clean: bool) -> vo
 	if amount <= 0:
 		_print_error("Amount must be greater than zero.")
 		return
-	var success := wallet.add_clean(amount) if clean else wallet.add_dirty(amount)
+	var success := (
+		wallet.add_clean(amount, true, "Debug Adjustment", "Console cash grant")
+		if clean
+		else wallet.add_dirty(amount, true, "Debug Adjustment", "Console cash grant")
+	)
 	if not success:
 		_print_error("Money could not be added.")
 		return
@@ -346,6 +366,69 @@ func _clear_gang_war_cooldown() -> void:
 	_print_success("Hood East gang-war cooldown cleared.")
 
 
+func _start_robbery(parts: PackedStringArray, territory_index: int) -> void:
+	var encounter := _get_territory_encounter()
+	if encounter == null:
+		_print_error("Territory encounter controller was not found.")
+		return
+	var territory_id: StringName = &""
+	if parts.size() > territory_index:
+		var boundary := _get_territory_boundary(parts[territory_index])
+		if boundary == null:
+			_print_error("No territory found. Use hood_east or hood_west.")
+			return
+		territory_id = boundary.territory_id
+	if not encounter.debug_start_robbery(territory_id):
+		_print_error(
+			"Robbery could not start. Be in an unowned territory with stealable loot."
+		)
+		return
+	_print_success("Robbery started in %s." % String(
+		encounter.get_active_territory_id()
+	).replace("_", " ").capitalize())
+	close()
+
+
+func _end_robbery(parts: PackedStringArray, result_index: int) -> void:
+	if parts.size() <= result_index:
+		_print_error("Use: end_robbery win or lose")
+		return
+	var result := parts[result_index].to_lower()
+	if result not in ["win", "won", "lose", "loss", "lost"]:
+		_print_error("Result must be win or lose.")
+		return
+	var encounter := _get_territory_encounter()
+	if encounter == null or not encounter.debug_finish_robbery(
+		result in ["win", "won"]
+	):
+		_print_error("There is no active robbery.")
+		return
+	_print_success(
+		"Robbery ended as a %s."
+		% ("win" if result in ["win", "won"] else "loss")
+	)
+
+
+func _clear_event_cooldown(
+	parts: PackedStringArray,
+	territory_index: int
+) -> void:
+	var encounter := _get_territory_encounter()
+	if encounter == null:
+		_print_error("Territory encounter controller was not found.")
+		return
+	var boundary := _get_territory_boundary(
+		parts[territory_index] if parts.size() > territory_index else ""
+	)
+	if boundary == null:
+		_print_error("No territory found. Use hood_east or hood_west.")
+		return
+	encounter.debug_clear_event_cooldown(boundary.territory_id)
+	_print_success("%s encounter cooldown cleared." % String(
+		boundary.territory_id
+	).replace("_", " ").capitalize())
+
+
 func _print_territory_status(parts: PackedStringArray, territory_index: int) -> void:
 	var boundary := _get_territory_boundary(
 		parts[territory_index] if parts.size() > territory_index else ""
@@ -400,6 +483,59 @@ func _get_world_time() -> WorldTimeComponent:
 	return get_tree().current_scene.get_node_or_null("WorldTimeComponent") as WorldTimeComponent
 
 
+func _get_weather_system() -> WeatherSystem:
+	if get_tree().current_scene == null:
+		return null
+	return get_tree().current_scene.get_node_or_null("WeatherSystem") as WeatherSystem
+
+
+func _execute_weather(parts: PackedStringArray, value_index: int) -> void:
+	var weather := _get_weather_system()
+	if weather == null:
+		_print_error("Weather system was not found.")
+		return
+	if parts.size() <= value_index:
+		_print_weather_status()
+		return
+	var requested := parts[value_index].to_lower()
+	if requested == "auto":
+		var enabled := true
+		if parts.size() > value_index + 1:
+			var toggle := parts[value_index + 1].to_lower()
+			if toggle not in ["on", "off"]:
+				_print_error("Use: weather auto on or weather auto off")
+				return
+			enabled = toggle == "on"
+		weather.set_random_weather_enabled(enabled)
+		_print_success("Random weather %s." % ("enabled" if enabled else "disabled"))
+		return
+	if requested == "random":
+		var selected := weather.force_random_weather()
+		_print_success("Random weather started: %s." % String(selected).replace("_", " ").capitalize())
+		return
+	if not weather.debug_set_weather(StringName(requested)):
+		_print_error("Use: weather clear|rain|heavy_rain|storm|random|auto on|off")
+		return
+	_print_success("Weather changing to %s (manual mode)." % requested.replace("_", " ").capitalize())
+
+
+func _print_weather_status() -> void:
+	var weather := _get_weather_system()
+	if weather == null:
+		_print_error("Weather system was not found.")
+		return
+	_print_info("[b]Weather:[/b] %s" % weather.get_status_text())
+
+
+func _trigger_lightning() -> void:
+	var weather := _get_weather_system()
+	if weather == null:
+		_print_error("Weather system was not found.")
+		return
+	weather.debug_trigger_lightning()
+	_print_success("Lightning flash triggered.")
+
+
 func _move_history(direction: int) -> void:
 	if _history.is_empty():
 		return
@@ -420,6 +556,13 @@ func _print_help() -> void:
 	_print_info("[b]start_gang_war [1-4][/b]  - force a gang war and close console")
 	_print_info("[b]end_gang_war win|lose[/b]  - force the active result")
 	_print_info("[b]clear_gang_war_cooldown[/b]  - allow another war")
+	_print_info("[b]start_robbery [territory][/b]  - force a robbery")
+	_print_info("[b]end_robbery win|lose[/b]  - force the robbery result")
+	_print_info("[b]clear_event_cooldown [territory][/b]  - clear shared cooldown")
+	_print_info("[b]weather clear|rain|heavy_rain|storm[/b]  - set weather manually")
+	_print_info("[b]weather random[/b] or [b]weather auto on|off[/b]  - control random events")
+	_print_info("[b]weather_status[/b]  - show current weather and intensity")
+	_print_info("[b]lightning[/b]  - trigger a lightning flash")
 	_print_info("[b]clear[/b]  - clear console output")
 
 

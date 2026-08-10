@@ -8,7 +8,18 @@
 [ext_resource type="PackedScene" uid="uid://me1l3lm3xpb6" path="res://Assets/MapStuff/Meshs/StreetProps/SM_ice_machine.gltf" id="6_8g2a2"]
 [ext_resource type="PackedScene" uid="uid://dvkfgc8kvmlv8" path="res://Assets/MapStuff/Meshs/StreetProps/SM_rolledBars_02.gltf" id="7_gm38d"]
 [ext_resource type="ArrayMesh" uid="uid://cvm70cq0cblw8" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_parkingSpot_01.glb" id="8_30vxr"]
+[ext_resource type="PackedScene" uid="uid://cnvqm7hg3pvrp" path="res://Assets/MapStuff/Meshs/InteriorProps/Other/SM_shopCounter_03.glb" id="8_xn8cc"]
+[ext_resource type="PackedScene" uid="uid://be0sbg5pf4scr" path="res://Assets/MapStuff/Meshs/InteriorProps/Other/SM_shopShelve_05.glb" id="9_70scp"]
 [ext_resource type="PackedScene" uid="uid://cr2lp6muwvcdw" path="res://Assets/MapStuff/Meshs/StreetProps/SM_fence_104a.gltf" id="9_xn8cc"]
+[ext_resource type="PackedScene" uid="uid://b63kfcyrkpch8" path="res://Assets/MapStuff/Meshs/InteriorProps/Other/SM_shopShelve_04.glb" id="10_cp0we"]
+[ext_resource type="PackedScene" uid="uid://c1c0db6labr7t" path="res://Assets/MapStuff/Meshs/InteriorProps/Other/SM_shopShelve_07.glb" id="11_1nn3l"]
+[ext_resource type="PackedScene" uid="uid://deurkyt10skkf" path="res://Assets/MapStuff/Meshs/InteriorProps/Other/SM_shopShelve_03.glb" id="12_2mnvb"]
+[ext_resource type="PackedScene" uid="uid://br4uc7qmdef6l" path="res://Assets/MapStuff/Meshs/InteriorProps/Other/SM_smallFreezer_01.glb" id="13_6aumo"]
+[ext_resource type="PackedScene" uid="uid://b787iko34rrmk" path="res://Assets/MapStuff/Meshs/InteriorProps/Other/SM_cashRegister.glb" id="14_67d08"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/gas_station_controller.gd" id="15_station"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/gas_station_store_interaction.gd" id="16_store"]
+[ext_resource type="Script" path="res://Scripts/NPC/AI/store_customer_visit_3d.gd" id="17_visit"]
+[ext_resource type="Script" path="res://Scripts/NPC/AI/activity_spot_3d.gd" id="18_activity"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_70scp"]
 size = Vector3(0.7, 1, 1.7)
@@ -25,7 +36,19 @@ size = Vector3(0.7, 1, 1.7)
 [sub_resource type="BoxShape3D" id="BoxShape3D_6aumo"]
 size = Vector3(0.7, 1, 1.7)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_1c86s"]
+size = Vector3(2, 1.5, 3.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bmgk1"]
+size = Vector3(7.4, 1, 7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8ythh"]
+
 [node name="GasStation" type="Node3D" unique_id=418601860]
+script = ExtResource("15_station")
+
+[node name="Garage" parent="." unique_id=22232461 instance=ExtResource("4_2nayr")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 16.650002, 0, -63.9)
 
 [node name="CornerStore2" parent="." unique_id=1778244247 instance=ExtResource("1_ucgck")]
 transform = Transform3D(-1, 0, -1.3909066e-08, 0, 1, 0, 1.3909066e-08, 0, -1, 16.650002, 0, -87.9)
@@ -44,9 +67,6 @@ transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 9.
 [node name="SM_gasPumpsModern2" parent="CornerStore2/Props" unique_id=474057136 instance=ExtResource("3_kr33w")]
 transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 9.200001, 0, -6.8499985)
 
-[node name="Garage" parent="CornerStore2/Props" unique_id=22232461 instance=ExtResource("4_2nayr")]
-transform = Transform3D(1, 0, -1.0133184e-07, 0, 1, 0, 1.0133184e-07, 0, 1, 0, 0, -24)
-
 [node name="SM_billboard_86Gasoline" parent="CornerStore2/Props" unique_id=1836133150 instance=ExtResource("5_l55fi")]
 transform = Transform3D(1, 0, -1.0133184e-07, 0, 1, 0, 1.0133184e-07, 0, 1, 0.3500023, 3.6999998, -3.7999954)
 
@@ -58,6 +78,42 @@ transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 0.
 
 [node name="SM_rolledBars_03" parent="CornerStore2/Props" unique_id=986902092 instance=ExtResource("7_gm38d")]
 transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, 0.45000076, 0, -6)
+
+[node name="SM_shopCounter_03" parent="CornerStore2/Props" unique_id=903769890 instance=ExtResource("8_xn8cc")]
+transform = Transform3D(1, 0, 7.351371e-08, 0, 1, 0, -7.351371e-08, 0, 1, -5.3499985, 0, -7.300003)
+
+[node name="SM_shopCounter_04" parent="CornerStore2/Props" unique_id=878570464 instance=ExtResource("8_xn8cc")]
+transform = Transform3D(1, 0, 7.351371e-08, 0, 1, 0, -7.351371e-08, 0, 1, -5.3499985, 0, -6.300003)
+
+[node name="SM_shopCounter_05" parent="CornerStore2/Props" unique_id=349851268 instance=ExtResource("8_xn8cc")]
+transform = Transform3D(1, 0, 7.351371e-08, 0, 1, 0, -7.351371e-08, 0, 1, -5.3499985, 0, -5.300003)
+
+[node name="SM_shopCounter_06" parent="CornerStore2/Props" unique_id=1762448417 instance=ExtResource("8_xn8cc")]
+transform = Transform3D(1, 0, 7.351371e-08, 0, 1, 0, -7.351371e-08, 0, 1, -5.3499985, 0, -4.300003)
+
+[node name="SM_shopShelve_05" parent="CornerStore2/Props" unique_id=975382699 instance=ExtResource("9_70scp")]
+transform = Transform3D(2.9802322e-08, 0, -1, 0, 1, 0, 1, 0, 2.9802322e-08, -1.3499985, 0, -7.800003)
+
+[node name="SM_shopShelve_04" parent="CornerStore2/Props" unique_id=512210421 instance=ExtResource("10_cp0we")]
+transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -0.8499985, 0, -3.9000015)
+
+[node name="SM_shopShelve_06" parent="CornerStore2/Props" unique_id=465980335 instance=ExtResource("10_cp0we")]
+transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -0.8499985, 0, -4.9000015)
+
+[node name="SM_shopShelve_07" parent="CornerStore2/Props" unique_id=1180561194 instance=ExtResource("11_1nn3l")]
+transform = Transform3D(2.9802322e-08, 0, -1, 0, 1, 0, 1, 0, 2.9802322e-08, -2.3499985, 0, -7.800003)
+
+[node name="SM_shopShelve_08" parent="CornerStore2/Props" unique_id=830315153 instance=ExtResource("10_cp0we")]
+transform = Transform3D(5.7620454e-08, 0, 1, 0, 1, 0, -1, 0, 5.7620454e-08, -3.3499985, 0, -0.20000458)
+
+[node name="SM_shopShelve_03" parent="CornerStore2/Props" unique_id=42426891 instance=ExtResource("12_2mnvb")]
+transform = Transform3D(5.7620454e-08, 0, 1, 0, 1, 0, -1, 0, 5.7620454e-08, -4.3499985, 0, -0.20000458)
+
+[node name="SM_smallFreezer_01" parent="CornerStore2/Props" unique_id=607240060 instance=ExtResource("13_6aumo")]
+transform = Transform3D(5.7620454e-08, 0, 1, 0, 1, 0, -1, 0, 5.7620454e-08, -6.3499985, 0, -0.5)
+
+[node name="SM_cashRegister" parent="CornerStore2/Props" unique_id=7376408 instance=ExtResource("14_67d08")]
+transform = Transform3D(5.7620454e-08, 0, 1, 0, 1, 0, -1, 0, 5.7620454e-08, -5.4187946, 1, -4.9000015)
 
 [node name="PsrkingLot" type="Node3D" parent="CornerStore2" unique_id=2130959749]
 
@@ -77,17 +133,17 @@ mesh = ExtResource("8_30vxr")
 transform = Transform3D(5.7620454e-08, 0, 1, 0, 1, 0, -1, 0, 5.7620454e-08, -8.349998, 0.02, -19.900002)
 mesh = ExtResource("8_30vxr")
 
-[node name="SM_fence_104a" parent="CornerStore2" unique_id=1329528477 instance=ExtResource("9_xn8cc")]
+[node name="SM_fence_104a" parent="CornerStore2/PsrkingLot" unique_id=1329528477 instance=ExtResource("9_xn8cc")]
 transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -8.349998, 0, -11.900002)
 
-[node name="SM_fence_104a2" parent="CornerStore2" unique_id=1631572347 instance=ExtResource("9_xn8cc")]
+[node name="SM_fence_104a2" parent="CornerStore2/PsrkingLot" unique_id=1631572347 instance=ExtResource("9_xn8cc")]
 transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -8.349998, 0, -15.900002)
 
-[node name="SM_fence_104a3" parent="CornerStore2" unique_id=155491112 instance=ExtResource("9_xn8cc")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -8.349998, 0, -19.900002)
+[node name="SM_fence_104a3" parent="CornerStore2/PsrkingLot" unique_id=155491112 instance=ExtResource("9_xn8cc")]
+transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -8.349997, 0, -19.900002)
 
-[node name="SM_fence_104a4" parent="CornerStore2" unique_id=1226227099 instance=ExtResource("9_xn8cc")]
-transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -8.349998, 0, -23.900002)
+[node name="SM_fence_104a4" parent="CornerStore2/PsrkingLot" unique_id=1226227099 instance=ExtResource("9_xn8cc")]
+transform = Transform3D(-1, 0, 1.3909066e-08, 0, 1, 0, -1.3909066e-08, 0, -1, -8.349997, 0, -23.900002)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1904394078]
 
@@ -110,3 +166,84 @@ shape = SubResource("BoxShape3D_2mnvb")
 [node name="CollisionShape3D4" type="CollisionShape3D" parent="StaticBody3D" unique_id=598937094]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.450001, 0.7, -82.35)
 shape = SubResource("BoxShape3D_6aumo")
+
+[node name="GasPumpArea" type="Area3D" parent="." unique_id=641774625]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -75)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GasPumpArea" unique_id=151031431]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.25, -6.5999985)
+shape = SubResource("BoxShape3D_1c86s")
+debug_color = Color(1.0588765e-06, 0.6464395, 0.24439165, 0.41960785)
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="GasPumpArea" unique_id=651932416]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0.25, -6.5999985)
+shape = SubResource("BoxShape3D_1c86s")
+debug_color = Color(1.0588765e-06, 0.6464395, 0.24439165, 0.41960785)
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="GasPumpArea" unique_id=1947417648]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0.25, 5.7000046)
+shape = SubResource("BoxShape3D_1c86s")
+debug_color = Color(1.0588765e-06, 0.6464395, 0.24439165, 0.41960785)
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="GasPumpArea" unique_id=1381250337]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.25, 5.300003)
+shape = SubResource("BoxShape3D_1c86s")
+debug_color = Color(1.0588765e-06, 0.6464395, 0.24439165, 0.41960785)
+
+[node name="CarShopArea" type="Area3D" parent="." unique_id=271483405]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -60)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CarShopArea" unique_id=1259263311]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.79999924, 0, 0)
+shape = SubResource("BoxShape3D_bmgk1")
+debug_color = Color(0.84989357, 0.3739174, 0, 0.41960785)
+
+[node name="StoreInteraction" type="Area3D" parent="." unique_id=580555548]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.9, 0, -83)
+script = ExtResource("16_store")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StoreInteraction" unique_id=1299019710]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+shape = SubResource("BoxShape3D_8ythh")
+debug_color = Color(0.99353176, 0, 0.24303246, 0.41960785)
+
+[node name="CustomerVisit" type="Node3D" parent="."]
+script = ExtResource("17_visit")
+property_id = &"hood_east_gas_station"
+
+[node name="Entrance" type="Marker3D" parent="CustomerVisit"]
+position = Vector3(20.9, 0.1, -82)
+script = ExtResource("18_activity")
+activity_type = &"store_entrance"
+minimum_duration = 0.1
+maximum_duration = 0.1
+allowed_roles = PackedStringArray("civilian")
+allow_random_selection = false
+
+[node name="Browse" type="Marker3D" parent="CustomerVisit"]
+position = Vector3(18, 0.1, -86.5)
+script = ExtResource("18_activity")
+activity_type = &"store_browse"
+minimum_duration = 3.0
+maximum_duration = 6.0
+allowed_roles = PackedStringArray("civilian")
+allow_random_selection = false
+
+[node name="Counter" type="Marker3D" parent="CustomerVisit"]
+position = Vector3(21.9, 0.1, -83.2)
+script = ExtResource("18_activity")
+activity_type = &"store_counter"
+animation_name = &"Talking"
+minimum_duration = 2.0
+maximum_duration = 4.0
+allowed_roles = PackedStringArray("civilian")
+allow_random_selection = false
+
+[node name="Exit" type="Marker3D" parent="CustomerVisit"]
+position = Vector3(20.9, 0.1, -82)
+script = ExtResource("18_activity")
+activity_type = &"store_exit"
+minimum_duration = 0.1
+maximum_duration = 0.1
+allowed_roles = PackedStringArray("civilian")
+allow_random_selection = false

@@ -6,6 +6,7 @@ signal daily_report_closed
 @export var stats_component_path := NodePath("../Components/StatsComponent")
 @export var wallet_component_path := NodePath("../Components/WalletComponent")
 @export var weapon_component_path := NodePath("../Components/WeaponComponent")
+@export var vehicle_component_path := NodePath("../Components/VehicleComponent")
 @export var wanted_component_path := NodePath("../Components/WantedComponent")
 @export var arrest_component_path := NodePath("../Components/ArrestComponent")
 @export var health_component_path := NodePath("../Components/HealthComponent")
@@ -34,12 +35,7 @@ signal daily_report_closed
 @onready var time_label := %TimeLabel as Label
 @onready var court_divider := %CourtDivider as ColorRect
 @onready var court_date_list := %CourtDateList as VBoxContainer
-@onready var daily_report_overlay := %DailyReportOverlay as Control
-@onready var report_date_label := %ReportDateLabel as Label
-@onready var report_earned_label := %ReportEarnedLabel as Label
-@onready var report_spent_label := %ReportSpentLabel as Label
-@onready var report_net_label := %ReportNetLabel as Label
-@onready var report_continue_button := %ReportContinueButton as Button
+@onready var daily_report_overlay := %DailyReportOverlay as DailyFinancialReport
 @onready var interaction_prompt := %InteractionPrompt as Label
 @onready var sale_interaction_panel := %SaleInteractionPanel as PanelContainer
 @onready var sale_product_icon := %SaleProductIcon as TextureRect
@@ -56,6 +52,7 @@ signal daily_report_closed
 @onready var weapon_name_label := %WeaponNameLabel as Label
 @onready var ammo_label := %AmmoLabel as Label
 @onready var reload_label := %ReloadLabel as Label
+@onready var weapon_panel := get_node("WeaponPanel") as PanelContainer
 @onready var reputation_title := %ReputationTitle as Label
 @onready var reputation_bar := %ReputationBar as ProgressBar
 @onready var reputation_value := %ReputationValue as Label
@@ -74,6 +71,9 @@ signal daily_report_closed
 )
 @onready var weapon := (
 	get_node(weapon_component_path) as PlayerWeaponComponent
+)
+@onready var vehicle_component := (
+	get_node(vehicle_component_path) as PlayerVehicleComponent
 )
 @onready var wanted := (
 	get_node(wanted_component_path) as PlayerWantedComponent
@@ -109,9 +109,20 @@ var _current_territory_id: StringName = &""
 var _territory_refresh_remaining := 0.0
 var _territory_control_label: Label
 var _court_date_refresh_remaining := 0.0
+var _vehicle_panel: PanelContainer
+var _vehicle_speed: Label
+var _vehicle_gear: Label
+var _vehicle_fuel: ProgressBar
+var _vehicle_fuel_value: Label
+var _vehicle_damage: ProgressBar
+var _vehicle_damage_value: Label
+var _vehicle_service_prompt: Label
+var _fuel_pump_panel: PanelContainer
+var _fuel_pump_label: Label
 
 
 func _ready() -> void:
+	_build_vehicle_hud()
 	reputation_bar.min_value = -100.0
 	reputation_bar.max_value = 100.0
 	heat_bar.max_value = 100.0
@@ -127,13 +138,15 @@ func _ready() -> void:
 	weapon.hit_confirmed.connect(_on_hit_confirmed)
 	weapon.reload_started.connect(_on_reload_started)
 	weapon.reload_completed.connect(_on_reload_completed)
+	vehicle_component.vehicle_entered.connect(_on_vehicle_entered)
+	vehicle_component.vehicle_exited.connect(_on_vehicle_exited)
 	wanted.wanted_level_changed.connect(_on_wanted_level_changed)
 	wanted.escape_progress_changed.connect(_on_escape_progress_changed)
 	arrest.arrest_progress_changed.connect(_on_arrest_progress_changed)
 	arrest.arrested.connect(_on_arrested)
 	health.respawn_completed.connect(_hide_outcome)
 	feedback_timer.timeout.connect(_on_feedback_timeout)
-	report_continue_button.pressed.connect(_close_daily_report)
+	daily_report_overlay.continue_requested.connect(_close_daily_report)
 	if legal != null:
 		legal.legal_state_changed.connect(_refresh_court_dates)
 	_refresh_court_dates()
@@ -160,9 +173,12 @@ func _process(delta: float) -> void:
 		_territory_refresh_remaining = territory_refresh_interval
 		_refresh_territory()
 	crosshair.visible = (
+		not vehicle_component.is_driving()
+		and
 		weapon.is_aiming()
 		and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	)
+	_refresh_vehicle_hud()
 	if _hit_marker_remaining <= 0.0:
 		return
 	_hit_marker_remaining = maxf(_hit_marker_remaining - delta, 0.0)
@@ -268,7 +284,30 @@ func _refresh_territory_control(boundary: TerritoryBoundary) -> void:
 	var encounter := get_tree().get_first_node_in_group(
 		&"territory_encounter"
 	) as TerritoryEncounterController
-	if (
+	if encounter != null and encounter.is_encounter_active():
+		if encounter.get_active_territory_id() == boundary.territory_id:
+			if (
+				encounter.get_active_encounter_type()
+				== TerritoryEncounterController.EncounterType.GANG_WAR
+			):
+				text += "  |  GANG WAR: %ds" % ceili(
+					encounter.get_encounter_remaining()
+				)
+			elif (
+				encounter.get_active_encounter_type()
+				== TerritoryEncounterController.EncounterType.ROBBERY
+			):
+				var phase_text := (
+					"THIEF APPROACHING"
+					if encounter.get_active_phase()
+					== TerritoryEncounterController.RobberyPhase.APPROACH
+					else "CATCH THE THIEF"
+				)
+				text += "  |  ROBBERY: %s %ds" % [
+					phase_text,
+					ceili(encounter.get_encounter_remaining()),
+				]
+	elif (
 		encounter != null
 		and boundary.territory_id == TerritoryEncounterController.TARGET_TERRITORY
 	):
@@ -412,6 +451,190 @@ func _refresh_all() -> void:
 		wanted.is_escaping
 	)
 	_on_arrest_progress_changed(arrest.progress)
+	_on_vehicle_exited(null)
+
+
+func set_vehicle_service_prompt(prompt: String) -> void:
+	if _vehicle_service_prompt == null:
+		return
+	_vehicle_service_prompt.text = prompt
+	_vehicle_service_prompt.visible = not prompt.is_empty()
+
+
+func update_fuel_pump(
+	visible: bool,
+	current: float = 0.0,
+	capacity: float = 0.0,
+	dispensed: float = 0.0,
+	price_per_gallon: int = 0,
+	total_cost: int = 0,
+	clean_cash: int = 0
+) -> void:
+	if _fuel_pump_panel == null:
+		return
+	_fuel_pump_panel.visible = visible
+	if visible:
+		_fuel_pump_label.text = (
+			"FUEL  %.2f / %.0f GAL\n"
+			+ "DISPENSED  %.2f GAL   @ $%d/GAL\n"
+			+ "TOTAL  $%d   |   CLEAN  $%d\nHOLD F TO REFUEL"
+		) % [current, capacity, dispensed, price_per_gallon, total_cost, clean_cash]
+
+
+func _on_vehicle_entered(vehicle: Node) -> void:
+	weapon_panel.visible = false
+	_vehicle_panel.visible = true
+	crosshair.visible = false
+	hit_marker.visible = false
+	var base_vehicle := vehicle as BaseVehicle
+	if (
+		base_vehicle != null
+		and not base_vehicle.condition_component.fuel_empty.is_connected(
+			_on_vehicle_fuel_empty
+		)
+	):
+		base_vehicle.condition_component.fuel_empty.connect(_on_vehicle_fuel_empty)
+	if base_vehicle != null and not base_vehicle.condition_component.has_fuel():
+		_on_vehicle_fuel_empty()
+	_refresh_vehicle_hud()
+
+
+func _on_vehicle_exited(vehicle: Node) -> void:
+	var base_vehicle := vehicle as BaseVehicle
+	if (
+		base_vehicle != null
+		and base_vehicle.condition_component.fuel_empty.is_connected(
+			_on_vehicle_fuel_empty
+		)
+	):
+		base_vehicle.condition_component.fuel_empty.disconnect(_on_vehicle_fuel_empty)
+	weapon_panel.visible = true
+	_vehicle_panel.visible = false
+	crosshair.visible = (
+		weapon.is_aiming()
+		and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+	)
+	hit_marker.visible = _hit_marker_remaining > 0.0
+	set_vehicle_service_prompt("")
+	update_fuel_pump(false)
+
+
+func _on_vehicle_fuel_empty() -> void:
+	show_feedback("OUT OF FUEL - PROPULSION DISABLED", 3.5)
+
+
+func _refresh_vehicle_hud() -> void:
+	if _vehicle_panel == null or not vehicle_component.is_driving():
+		return
+	var current := vehicle_component.get_current_vehicle() as BaseVehicle
+	if current == null:
+		return
+	_vehicle_speed.text = "%03d MPH" % roundi(current.linear_velocity.length() * 2.236936)
+	var gear := current.get_current_gear()
+	_vehicle_gear.text = "GEAR  %s" % ("R" if gear < 0 else str(gear))
+	var condition := current.condition_component
+	_vehicle_fuel.max_value = condition.get_fuel_capacity()
+	_vehicle_fuel.value = condition.fuel_gallons
+	_vehicle_fuel_value.text = "%.1f / %.0f GAL" % [condition.fuel_gallons, condition.get_fuel_capacity()]
+	_vehicle_damage.value = condition.damage
+	_vehicle_damage_value.text = "%d / 100" % roundi(condition.damage)
+	var damage_color := Color(0.95, 0.28, 0.2) if condition.damage >= 50.0 else Color(0.96, 0.65, 0.18)
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = damage_color
+	fill.set_corner_radius_all(3)
+	_vehicle_damage.add_theme_stylebox_override("fill", fill)
+
+
+func _build_vehicle_hud() -> void:
+	_vehicle_panel = PanelContainer.new()
+	_vehicle_panel.name = "VehiclePanel"
+	_vehicle_panel.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	var right_offset := weapon_panel.offset_right if weapon_panel != null else -20.0
+	var bottom_offset := weapon_panel.offset_bottom if weapon_panel != null else -20.0
+	_vehicle_panel.offset_left = right_offset - 270.0
+	_vehicle_panel.offset_top = bottom_offset - 186.0
+	_vehicle_panel.offset_right = right_offset
+	_vehicle_panel.offset_bottom = bottom_offset
+	if weapon_panel != null:
+		_vehicle_panel.add_theme_stylebox_override(
+			"panel", weapon_panel.get_theme_stylebox("panel")
+		)
+	add_child(_vehicle_panel)
+	var margin := MarginContainer.new()
+	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		margin.add_theme_constant_override(side, 14)
+	_vehicle_panel.add_child(margin)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 5)
+	margin.add_child(content)
+	var header := HBoxContainer.new()
+	content.add_child(header)
+	_vehicle_speed = Label.new()
+	_vehicle_speed.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_vehicle_speed.add_theme_font_size_override("font_size", 25)
+	header.add_child(_vehicle_speed)
+	_vehicle_gear = Label.new()
+	_vehicle_gear.add_theme_font_size_override("font_size", 18)
+	header.add_child(_vehicle_gear)
+	content.add_child(_vehicle_meter_label("FUEL", Color(0.25, 0.82, 0.48)))
+	_vehicle_fuel = ProgressBar.new()
+	_vehicle_fuel.show_percentage = false
+	_vehicle_fuel.custom_minimum_size.y = 18
+	content.add_child(_vehicle_fuel)
+	_vehicle_fuel_value = _overlay_value(_vehicle_fuel)
+	content.add_child(_vehicle_meter_label("DAMAGE", Color(0.96, 0.65, 0.18)))
+	_vehicle_damage = ProgressBar.new()
+	_vehicle_damage.max_value = 100.0
+	_vehicle_damage.show_percentage = false
+	_vehicle_damage.custom_minimum_size.y = 18
+	content.add_child(_vehicle_damage)
+	_vehicle_damage_value = _overlay_value(_vehicle_damage)
+	_vehicle_panel.visible = false
+	_vehicle_service_prompt = Label.new()
+	_vehicle_service_prompt.name = "VehicleServicePrompt"
+	_vehicle_service_prompt.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_vehicle_service_prompt.position = Vector2(-220, -120)
+	_vehicle_service_prompt.size = Vector2(440, 34)
+	_vehicle_service_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_vehicle_service_prompt.add_theme_font_size_override("font_size", 18)
+	_vehicle_service_prompt.add_theme_color_override("font_color", Color(1.0, 0.82, 0.28))
+	add_child(_vehicle_service_prompt)
+	_vehicle_service_prompt.visible = false
+	_fuel_pump_panel = PanelContainer.new()
+	_fuel_pump_panel.name = "FuelPumpPanel"
+	_fuel_pump_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_fuel_pump_panel.position = Vector2(-190, -110)
+	_fuel_pump_panel.size = Vector2(380, 220)
+	add_child(_fuel_pump_panel)
+	var pump_margin := MarginContainer.new()
+	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		pump_margin.add_theme_constant_override(side, 18)
+	_fuel_pump_panel.add_child(pump_margin)
+	_fuel_pump_label = Label.new()
+	_fuel_pump_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_fuel_pump_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_fuel_pump_label.add_theme_font_size_override("font_size", 18)
+	pump_margin.add_child(_fuel_pump_label)
+	_fuel_pump_panel.visible = false
+
+
+func _vehicle_meter_label(text: String, color: Color) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", color)
+	return label
+
+
+func _overlay_value(bar: ProgressBar) -> Label:
+	var label := Label.new()
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 11)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bar.add_child(label)
+	return label
 
 
 func _on_health_changed(current: float, maximum: float) -> void:
@@ -570,23 +793,22 @@ func update_clock(date_text: String, time_text: String) -> void:
 func show_daily_report(report_date: String, earned: int, spent: int) -> void:
 	_was_tree_paused = get_tree().paused
 	_previous_mouse_mode = Input.mouse_mode
-	report_date_label.text = report_date
-	report_earned_label.text = "MONEY EARNED   $%d" % earned
-	report_spent_label.text = "MONEY SPENT    $%d" % spent
-	var net := earned - spent
-	if net > 0:
-		report_net_label.text = "PROFIT   +$%d" % net
-		report_net_label.modulate = Color(0.32, 0.9, 0.48)
-	elif net < 0:
-		report_net_label.text = "LOSS   -$%d" % -net
-		report_net_label.modulate = Color(1.0, 0.32, 0.25)
-	else:
-		report_net_label.text = "BREAK EVEN   $0"
-		report_net_label.modulate = Color(0.9, 0.9, 0.9)
-	daily_report_overlay.visible = true
+	var transactions: Array[Dictionary] = []
+	var daily_history: Array[Dictionary] = []
+	var world_time := get_tree().get_first_node_in_group(&"world_time") as WorldTimeComponent
+	if world_time != null:
+		transactions = world_time.get_last_day_transactions()
+		daily_history = world_time.get_daily_report_history(7)
+	daily_report_overlay.show_report(
+		report_date,
+		earned,
+		spent,
+		transactions,
+		wallet.dirty_cash + wallet.clean_cash,
+		daily_history
+	)
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	report_continue_button.grab_focus()
 
 
 func _close_daily_report() -> void:

@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/Maps/Territorys/HoodWestMobility.tscn" id="2_west_mobility"]
 [ext_resource type="PackedScene" uid="uid://b7lu430qitjcu" path="res://Scenes/Player.tscn" id="3_player"]
 [ext_resource type="PackedScene" uid="uid://b0tcbblin3k4b" path="res://Scenes/NPC/DealerNPC.tscn" id="4_dealer"]
+[ext_resource type="PackedScene" path="res://Scenes/NPC/RobberyEventDealer.tscn" id="4_robber"]
 [ext_resource type="PackedScene" uid="uid://buhugmgbtetc7" path="res://Scenes/Maps/Territorys/downtown_east.tscn" id="4_rooxq"]
 [ext_resource type="PackedScene" uid="uid://cjh86oujvf7bw" path="res://Scenes/Maps/Territorys/down_town_west.tscn" id="5_21lis"]
 [ext_resource type="PackedScene" uid="uid://lbnphh8gm20q" path="res://Scenes/NPC/CustomerNPC.tscn" id="5_customer"]
@@ -33,6 +34,7 @@
 [ext_resource type="Script" uid="uid://d1nqglg8ahtr1" path="res://Scripts/UI/public_safety_debug_overlay.gd" id="23_public_safety_debug"]
 [ext_resource type="PackedScene" path="res://Scenes/NPC/WholesalerNPC.tscn" id="24_wholesaler"]
 [ext_resource type="Script" uid="uid://cpp8dafwgu4nt" path="res://Scripts/NPC/wholesaler_spawn_point_3d.gd" id="24_wholesaler_spawn"]
+[ext_resource type="PackedScene" path="res://Scenes/VFX/WeatherSystem.tscn" id="25_weather"]
 
 [sub_resource type="FastNoiseLite" id="CloudNoiseA"]
 seed = 3191
@@ -309,12 +311,15 @@ script = ExtResource("6_controller")
 [node name="WorldTimeComponent" type="Node" parent="." unique_id=1834229075]
 script = ExtResource("14_world_time")
 
+[node name="WeatherSystem" parent="." instance=ExtResource("25_weather")]
+
 [node name="TerritoryMarketService" type="Node" parent="." unique_id=2063368603]
 script = ExtResource("16_market")
 
 [node name="TerritoryEncounterController" type="Node" parent="." unique_id=1063134156]
 script = ExtResource("19_encounter")
 dealer_scene = ExtResource("4_dealer")
+robbery_dealer_scene = ExtResource("4_robber")
 
 [node name="CivilianPopulationManager" type="Node3D" parent="." unique_id=872426728]
 script = ExtResource("9_population")

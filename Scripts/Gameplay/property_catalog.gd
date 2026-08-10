@@ -16,10 +16,12 @@ const PROPERTY_IDS: Array[StringName] = [
 const CLOTHING_STORE_ID := &"hood_east_clothing_store"
 const GUN_STORE_ID := &"hood_east_gun_store"
 const DOWNTOWN_CAR_DEALERSHIP_ID := &"downtown_east_car_dealership"
+const GAS_STATION_ID := &"hood_east_gas_station"
 const BUSINESS_IDS: Array[StringName] = [
 	CLOTHING_STORE_ID,
 	GUN_STORE_ID,
 	DOWNTOWN_CAR_DEALERSHIP_ID,
+	GAS_STATION_ID,
 ]
 
 static var _definitions: Array[PropertyDefinition] = []
@@ -118,6 +120,25 @@ static func _ensure_catalog() -> void:
 		0,
 		0,
 		"Car Dealership"
+	))
+	_register(PropertyDefinition.new(
+		GAS_STATION_ID,
+		"Hood East Gas Station",
+		"Hood East",
+		50000,
+		0,
+		&"hood_east",
+		PropertyDefinition.PropertyRole.FRONT_BUSINESS,
+		36,
+		125,
+		250,
+		120,
+		0,
+		1440,
+		0,
+		0,
+		0,
+		"Gas Station"
 	))
 
 

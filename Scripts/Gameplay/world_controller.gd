@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 18
+const SAVE_VERSION := 19
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -13,6 +13,9 @@ const SAVE_PATH := "user://family_business_save.json"
 @onready var inventory := player.get_node(
 	"Components/InventoryComponent"
 ) as PlayerInventoryComponent
+@onready var consumables := player.get_node(
+	"Components/ConsumableComponent"
+) as PlayerConsumableComponent
 @onready var wardrobe := player.get_node(
 	"Components/WardrobeComponent"
 ) as PlayerWardrobeComponent
@@ -125,6 +128,7 @@ func save_game() -> bool:
 			"rotation_y": player.rotation.y,
 			"wallet": wallet.export_save_data(),
 			"inventory": inventory.export_save_data(),
+			"consumable_effects": consumables.export_save_data(),
 			"wardrobe": wardrobe.export_save_data(),
 			"weapons": weapon.export_save_data(),
 			"stats": stats.export_save_data(),
@@ -189,6 +193,9 @@ func load_game() -> bool:
 		player_data.get("legal", {}) as Dictionary
 	)
 	world_time.import_save_data(data.get("world_time", {}) as Dictionary)
+	consumables.import_save_data(
+		player_data.get("consumable_effects", {}) as Dictionary
+	)
 	properties.process_properties_to(world_time.get_absolute_minute())
 	var position_data := player_data.get("position", []) as Array
 	if position_data.size() == 3:

@@ -3,6 +3,12 @@ extends Node
 
 signal money_changed(dirty_cash: int, clean_cash: int)
 signal transaction_completed(dirty_cash_delta: int, clean_cash_delta: int)
+signal transaction_recorded(
+	dirty_cash_delta: int,
+	clean_cash_delta: int,
+	category: String,
+	detail: String
+)
 
 const ATM_DAILY_DEPOSIT_LIMIT := 2500
 
@@ -36,7 +42,12 @@ func can_spend_clean(amount: int) -> bool:
 	return amount >= 0 and _clean_cash >= amount
 
 
-func spend_dirty(amount: int, record_transaction := true) -> bool:
+func spend_dirty(
+	amount: int,
+	record_transaction := true,
+	category := "Dirty Cash Expense",
+	detail := "Wallet purchase"
+) -> bool:
 	if amount < 0 or not can_spend_dirty(amount):
 		return false
 	if amount == 0:
@@ -46,10 +57,16 @@ func spend_dirty(amount: int, record_transaction := true) -> bool:
 	money_changed.emit(_dirty_cash, _clean_cash)
 	if record_transaction:
 		transaction_completed.emit(-amount, 0)
+		transaction_recorded.emit(-amount, 0, category, detail)
 	return true
 
 
-func add_dirty(amount: int, record_transaction := true) -> bool:
+func add_dirty(
+	amount: int,
+	record_transaction := true,
+	category := "Dirty Cash Income",
+	detail := "Wallet income"
+) -> bool:
 	if amount <= 0:
 		return false
 
@@ -57,10 +74,16 @@ func add_dirty(amount: int, record_transaction := true) -> bool:
 	money_changed.emit(_dirty_cash, _clean_cash)
 	if record_transaction:
 		transaction_completed.emit(amount, 0)
+		transaction_recorded.emit(amount, 0, category, detail)
 	return true
 
 
-func add_clean(amount: int, record_transaction := true) -> bool:
+func add_clean(
+	amount: int,
+	record_transaction := true,
+	category := "Clean Cash Income",
+	detail := "Wallet income"
+) -> bool:
 	if amount <= 0:
 		return false
 
@@ -68,10 +91,16 @@ func add_clean(amount: int, record_transaction := true) -> bool:
 	money_changed.emit(_dirty_cash, _clean_cash)
 	if record_transaction:
 		transaction_completed.emit(0, amount)
+		transaction_recorded.emit(0, amount, category, detail)
 	return true
 
 
-func spend_clean(amount: int, record_transaction := true) -> bool:
+func spend_clean(
+	amount: int,
+	record_transaction := true,
+	category := "Clean Cash Expense",
+	detail := "Wallet purchase"
+) -> bool:
 	if amount < 0 or not can_spend_clean(amount):
 		return false
 	if amount == 0:
@@ -80,6 +109,7 @@ func spend_clean(amount: int, record_transaction := true) -> bool:
 	money_changed.emit(_dirty_cash, _clean_cash)
 	if record_transaction:
 		transaction_completed.emit(0, -amount)
+		transaction_recorded.emit(0, -amount, category, detail)
 	return true
 
 
@@ -107,6 +137,7 @@ func deposit_dirty_to_clean(requested_amount: int, date_key: String) -> int:
 	_atm_deposited_today += amount
 	money_changed.emit(_dirty_cash, _clean_cash)
 	transaction_completed.emit(-amount, amount)
+	transaction_recorded.emit(-amount, amount, "Cash Transfer", "ATM deposit: Dirty to Clean")
 	return amount
 
 
@@ -120,13 +151,20 @@ func withdraw_clean_to_dirty(requested_amount: int) -> int:
 	_dirty_cash += amount
 	money_changed.emit(_dirty_cash, _clean_cash)
 	transaction_completed.emit(amount, -amount)
+	transaction_recorded.emit(amount, -amount, "Cash Transfer", "ATM withdrawal: Clean to Dirty")
 	return amount
 
 
-func record_transaction(dirty_cash_delta: int, clean_cash_delta: int) -> void:
+func record_transaction(
+	dirty_cash_delta: int,
+	clean_cash_delta: int,
+	category := "Wallet Activity",
+	detail := "Recorded transaction"
+) -> void:
 	if dirty_cash_delta == 0 and clean_cash_delta == 0:
 		return
 	transaction_completed.emit(dirty_cash_delta, clean_cash_delta)
+	transaction_recorded.emit(dirty_cash_delta, clean_cash_delta, category, detail)
 
 
 func export_save_data() -> Dictionary:

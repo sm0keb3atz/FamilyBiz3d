@@ -118,7 +118,9 @@ func hire_dealer(
 	if bool(previous.get("employed", false)):
 		return false
 	var level := 1
-	if not wallet.spend_dirty(get_hire_fee(level)):
+	if not wallet.spend_dirty(
+		get_hire_fee(level), true, "Dealer Payroll", "New dealer hire"
+	):
 		return false
 	var state := previous if not previous.is_empty() else _new_slot_state(zone, member_id)
 	state.level = level
@@ -196,7 +198,7 @@ func upgrade_dealer(territory_id: StringName, zone_id: StringName, member_id: St
 	if current_level >= 4:
 		return false
 	var cost := get_upgrade_cost(current_level)
-	if not wallet.spend_dirty(cost):
+	if not wallet.spend_dirty(cost, true, "Dealer Upgrade", "Dealer level %d" % (current_level + 1)):
 		return false
 	var next_level := current_level + 1
 	state.level = next_level
@@ -583,7 +585,9 @@ func _try_process_sale(territory_id: StringName, key: String, state: Dictionary,
 		):
 			continue
 		_record_earnings(state, minute, gross, commission, net)
-		world_time.record_external_transaction(net, 0)
+		world_time.record_external_transaction(
+			net, 0, "Dealer Revenue", "%s territory sale" % String(territory_id)
+		)
 		var ids := _split_slot_key(key)
 		dealer_sale_processed.emit(territory_id, ids[0], ids[1], product,
 			property_id, gross, commission, net, minute)

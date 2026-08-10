@@ -28,6 +28,11 @@ func reset() -> void:
 
 
 func update(delta: float) -> void:
+	if vehicle.is_service_locked():
+		_set_drive_force(0.0)
+		_set_brakes(vehicle.definition.service_brake_force, 0.0)
+		throttle_amount = 0.0
+		return
 	if _ai_control_enabled and not vehicle.has_driver():
 		_update_ai(delta)
 		return
@@ -77,9 +82,9 @@ func update(delta: float) -> void:
 		if forward_speed < -0.8:
 			brake_force = vehicle.definition.service_brake_force * throttle
 			service_braking = true
-		elif forward_speed < vehicle.definition.max_forward_speed:
+		elif forward_speed < vehicle.condition_component.get_effective_max_forward_speed():
 			drive_force = (
-				vehicle.definition.engine_force
+				vehicle.condition_component.get_effective_engine_force()
 				* vehicle.powertrain_component.force_multiplier()
 				* lerpf(
 					1.0,
@@ -94,7 +99,7 @@ func update(delta: float) -> void:
 			brake_force = vehicle.definition.service_brake_force * reverse
 			service_braking = true
 		elif forward_speed > -vehicle.definition.max_reverse_speed:
-			drive_force = -vehicle.definition.reverse_engine_force * reverse
+			drive_force = -vehicle.condition_component.get_effective_reverse_engine_force() * reverse
 			throttle_amount = reverse
 	else:
 		brake_force = 1.5
@@ -102,6 +107,9 @@ func update(delta: float) -> void:
 		drive_force = 0.0
 		throttle_amount = 0.0
 	if not vehicle.audio_component.engine_ready:
+		drive_force = 0.0
+		throttle_amount = 0.0
+	if not vehicle.condition_component.has_fuel():
 		drive_force = 0.0
 		throttle_amount = 0.0
 	if not tires.burnout_holding and tires.burnout_amount <= 0.01:
@@ -196,10 +204,10 @@ func _update_ai(delta: float) -> void:
 	if (
 		_ai_throttle > 0.0
 		and _ai_brake <= 0.01
-		and forward_speed < vehicle.definition.max_forward_speed
+		and forward_speed < vehicle.condition_component.get_effective_max_forward_speed()
 	):
 		drive_force = (
-			vehicle.definition.engine_force
+			vehicle.condition_component.get_effective_engine_force()
 			* vehicle.powertrain_component.force_multiplier()
 			* _ai_throttle
 		)

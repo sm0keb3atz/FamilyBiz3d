@@ -11,6 +11,19 @@ const STABLE_AMBIENT_IDS := [
 	&"sport_classic_02",
 ]
 
+const AUTHORED_VEHICLE_SCENE_PATHS := {
+	&"sedan": "res://Scenes/Vehicles/Sedan.tscn",
+	&"suv": "res://Scenes/Vehicles/SUV.tscn",
+	&"pickup": "res://Scenes/Vehicles/Pickup.tscn",
+	&"van": "res://Scenes/Vehicles/Van.tscn",
+	&"muscle": "res://Scenes/Vehicles/MuscleCar.tscn",
+	&"pickup_old": "res://Scenes/Vehicles/OldPickup.tscn",
+	&"offroad": "res://Scenes/Vehicles/Offroad.tscn",
+	&"sport_classic_01": "res://Scenes/Vehicles/SportClassic01.tscn",
+	&"sport_classic_01a": "res://Scenes/Vehicles/SportClassic01A.tscn",
+	&"sport_classic_02": "res://Scenes/Vehicles/SportClassic02.tscn",
+}
+
 static var BODY_COLORS := PackedColorArray([
 	Color("23262b"), Color("a9adb2"), Color("d8d7d2"), Color("101114"),
 	Color("24354d"), Color("5b2630"), Color("2f4938"), Color("8a795f"),
@@ -115,6 +128,11 @@ func _add_entry(entry: Array) -> void:
 	var variant := VariantResource.new()
 	variant.variant_id = definition.vehicle_id
 	variant.definition = definition
+	var authored_scene_path := str(
+		AUTHORED_VEHICLE_SCENE_PATHS.get(definition.vehicle_id, "")
+	)
+	if not authored_scene_path.is_empty():
+		variant.vehicle_scene = load(authored_scene_path) as PackedScene
 	variant.spawn_weight = float(entry[3])
 	variant.ambient_enabled = definition.vehicle_id in STABLE_AMBIENT_IDS
 	_variants.append(variant)

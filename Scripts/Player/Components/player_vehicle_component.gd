@@ -132,6 +132,9 @@ func get_effective_velocity() -> Vector3:
 
 
 func prepare_for_load() -> void:
+	var service_menu := body.get_node_or_null("GasStationMenu")
+	if service_menu != null and service_menu.has_method("close"):
+		service_menu.call("close")
 	if _current_vehicle == null:
 		return
 	var vehicle: Variant = _current_vehicle

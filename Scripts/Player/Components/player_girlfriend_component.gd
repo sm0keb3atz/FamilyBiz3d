@@ -165,7 +165,9 @@ func purchase_gift(npc: CustomerNPC, cost: int, relationship_gain: int) -> bool:
 	if index < 0 or _entries[index]["status"] != STATUS_FOLLOWING:
 		return false
 	var wallet := get_node_or_null(wallet_component_path) as PlayerWalletComponent
-	if wallet == null or not wallet.spend_dirty(cost):
+	if wallet == null or not wallet.spend_dirty(
+		cost, true, "Relationship Support", "Gift for %s" % String(_entries[index]["name"])
+	):
 		_show_feedback("You do not have enough dirty cash.")
 		return false
 	adjust_relationship(npc, relationship_gain)

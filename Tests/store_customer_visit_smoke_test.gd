@@ -31,10 +31,13 @@ func _run() -> void:
 	) as WorldTimeComponent
 	var clothing_visit := _get_visit(PropertyCatalog.CLOTHING_STORE_ID)
 	var gun_visit := _get_visit(PropertyCatalog.GUN_STORE_ID)
+	var gas_visit := _get_visit(PropertyCatalog.GAS_STATION_ID)
 	assert(clothing_visit != null)
 	assert(gun_visit != null)
+	assert(gas_visit != null)
 	assert(clothing_visit.get_destinations().size() == 4)
 	assert(gun_visit.get_destinations().size() == 4)
+	assert(gas_visit.get_destinations().size() == 4)
 
 	player.global_position = clothing_visit.global_position
 	properties.business_sale_processed.emit(

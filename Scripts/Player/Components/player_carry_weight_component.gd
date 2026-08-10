@@ -18,6 +18,7 @@ signal weight_changed(current_grams: int, maximum_grams: int)
 
 func _ready() -> void:
 	inventory.quantity_changed.connect(_on_inventory_quantity_changed)
+	inventory.consumable_quantity_changed.connect(_on_consumable_quantity_changed)
 	weapons.loadout_changed.connect(_on_weapon_loadout_changed)
 	weapons.attachments_changed.connect(_on_weapon_attachments_changed)
 	stats.strength_changed.connect(_on_strength_changed)
@@ -29,6 +30,8 @@ func get_current_weight_grams() -> int:
 	for product in inventory.get_known_products():
 		if product != null:
 			total += inventory.get_quantity(product) * product.package_size_grams
+	for item in ConsumableCatalog.get_all():
+		total += inventory.get_consumable_quantity(item) * item.weight_grams
 	for definition in weapons.get_weapon_slots():
 		total += definition.get_carry_weight_grams(
 			weapons.get_attachment_state(definition.weapon_id)
@@ -117,6 +120,13 @@ func notify_weight_changed() -> void:
 
 func _on_inventory_quantity_changed(
 	_product: ProductDefinition,
+	_quantity: int
+) -> void:
+	notify_weight_changed()
+
+
+func _on_consumable_quantity_changed(
+	_item: ConsumableDefinition,
 	_quantity: int
 ) -> void:
 	notify_weight_changed()

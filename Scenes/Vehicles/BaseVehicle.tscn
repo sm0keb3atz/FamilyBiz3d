@@ -1,22 +1,32 @@
 [gd_scene format=3 uid="uid://cyreq2x33fsli"]
 
 [ext_resource type="Script" uid="uid://bio5id5mf31fe" path="res://Scripts/Vehicles/base_vehicle.gd" id="1_script"]
-[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_tire_component.gd" id="2_tires"]
-[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_camera_component.gd" id="3_camera"]
-[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_wheel_visual_component.gd" id="4_wheels"]
-[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_impact_component.gd" id="5_impact"]
-[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_audio_component.gd" id="6_audio"]
-[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_interaction_component.gd" id="7_interaction"]
-[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_effects_component.gd" id="8_effects"]
-[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_powertrain_component.gd" id="9_powertrain"]
-[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_stability_component.gd" id="10_stability"]
-[ext_resource type="Script" path="res://Scripts/Vehicles/Components/vehicle_drive_component.gd" id="11_drive"]
+[ext_resource type="Script" uid="uid://4ovhfimj4f8e" path="res://Scripts/Vehicles/Components/vehicle_tire_component.gd" id="2_tires"]
+[ext_resource type="Script" uid="uid://dfov36v2feaem" path="res://Scripts/Vehicles/Components/vehicle_camera_component.gd" id="3_camera"]
+[ext_resource type="Script" uid="uid://dicclateqqpis" path="res://Scripts/Vehicles/Components/vehicle_wheel_visual_component.gd" id="4_wheels"]
+[ext_resource type="Script" uid="uid://cktua4ygdwrap" path="res://Scripts/Vehicles/Components/vehicle_impact_component.gd" id="5_impact"]
+[ext_resource type="Script" uid="uid://neyb0ywrcux4" path="res://Scripts/Vehicles/Components/vehicle_audio_component.gd" id="6_audio"]
+[ext_resource type="Script" uid="uid://d37kxc0m5i101" path="res://Scripts/Vehicles/Components/vehicle_interaction_component.gd" id="7_interaction"]
+[ext_resource type="Script" uid="uid://doo2xm6qi3iux" path="res://Scripts/Vehicles/Components/vehicle_effects_component.gd" id="8_effects"]
+[ext_resource type="Script" uid="uid://d30xnuaf2ascj" path="res://Scripts/Vehicles/Components/vehicle_powertrain_component.gd" id="9_powertrain"]
+[ext_resource type="Script" uid="uid://cgxda82t47qo0" path="res://Scripts/Vehicles/Components/vehicle_stability_component.gd" id="10_stability"]
+[ext_resource type="Script" uid="uid://d0ro3gseyp8tw" path="res://Scripts/Vehicles/Components/vehicle_drive_component.gd" id="11_drive"]
+[ext_resource type="Script" uid="uid://y6ag6s2pdxuh" path="res://Scripts/Vehicles/Components/vehicle_condition_component.gd" id="12_condition"]
+[ext_resource type="Script" uid="uid://cmlmfw8a0n0kl" path="res://Scripts/Vehicles/Components/vehicle_light_component.gd" id="13_lights"]
+[ext_resource type="Material" path="res://Assets/MapStuff/Materials/Vehicles/vehicle_headlight_off.tres" id="14_headlight_off"]
+[ext_resource type="Material" path="res://Assets/MapStuff/Materials/Vehicles/vehicle_headlight_on.tres" id="15_headlight_on"]
+[ext_resource type="Material" path="res://Assets/MapStuff/Materials/Vehicles/vehicle_tail_light_off.tres" id="16_tail_light_off"]
+[ext_resource type="Material" path="res://Assets/MapStuff/Materials/Vehicles/vehicle_tail_light_on.tres" id="17_tail_light_on"]
+[ext_resource type="Material" path="res://Assets/MapStuff/Materials/Vehicles/vehicle_tail_light_brake.tres" id="18_tail_light_brake"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_body"]
 size = Vector3(1.9, 0.8, 4.7)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_spring_arm"]
 size = Vector3(0.25, 0.25, 0.25)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vehicle_lamp"]
+size = Vector3(0.5777417, 1.3940796, 1)
 
 [node name="BaseVehicle" type="VehicleBody3D" unique_id=2020674021]
 collision_mask = 3
@@ -100,7 +110,7 @@ volume_db = -12.0
 unit_size = 5.0
 max_distance = 45.0
 
-[node name="TireScreechPlayer" type="AudioStreamPlayer3D" parent="Audio"]
+[node name="TireScreechPlayer" type="AudioStreamPlayer3D" parent="Audio" unique_id=748171473]
 volume_db = -40.0
 unit_size = 8.0
 max_distance = 55.0
@@ -108,34 +118,91 @@ max_distance = 55.0
 [node name="TailpipeExhaust" type="Marker3D" parent="." unique_id=975660813]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.48, -2.3)
 
-[node name="Components" type="Node" parent="."]
+[node name="Components" type="Node" parent="." unique_id=2147086377]
 
-[node name="TireComponent" type="Node" parent="Components"]
+[node name="TireComponent" type="Node" parent="Components" unique_id=1617106504]
 script = ExtResource("2_tires")
 
-[node name="CameraComponent" type="Node" parent="Components"]
+[node name="CameraComponent" type="Node" parent="Components" unique_id=1277715263]
 script = ExtResource("3_camera")
 
-[node name="WheelVisualComponent" type="Node" parent="Components"]
+[node name="WheelVisualComponent" type="Node" parent="Components" unique_id=1040529380]
 script = ExtResource("4_wheels")
 
-[node name="ImpactComponent" type="Node" parent="Components"]
+[node name="ImpactComponent" type="Node" parent="Components" unique_id=965073922]
 script = ExtResource("5_impact")
 
-[node name="AudioComponent" type="Node" parent="Components"]
+[node name="AudioComponent" type="Node" parent="Components" unique_id=337214159]
 script = ExtResource("6_audio")
 
-[node name="InteractionComponent" type="Node" parent="Components"]
+[node name="InteractionComponent" type="Node" parent="Components" unique_id=1055210508]
 script = ExtResource("7_interaction")
 
-[node name="EffectsComponent" type="Node" parent="Components"]
+[node name="EffectsComponent" type="Node" parent="Components" unique_id=523169371]
 script = ExtResource("8_effects")
 
-[node name="PowertrainComponent" type="Node" parent="Components"]
+[node name="PowertrainComponent" type="Node" parent="Components" unique_id=357613391]
 script = ExtResource("9_powertrain")
 
-[node name="StabilityComponent" type="Node" parent="Components"]
+[node name="StabilityComponent" type="Node" parent="Components" unique_id=741393221]
 script = ExtResource("10_stability")
 
-[node name="DriveComponent" type="Node" parent="Components"]
+[node name="DriveComponent" type="Node" parent="Components" unique_id=967514035]
 script = ExtResource("11_drive")
+
+[node name="ConditionComponent" type="Node" parent="Components" unique_id=1130074375]
+script = ExtResource("12_condition")
+
+[node name="LightComponent" type="Node" parent="Components" unique_id=807614139]
+script = ExtResource("13_lights")
+headlight_off_material = ExtResource("14_headlight_off")
+headlight_on_material = ExtResource("15_headlight_on")
+tail_light_off_material = ExtResource("16_tail_light_off")
+tail_light_on_material = ExtResource("17_tail_light_on")
+tail_light_brake_material = ExtResource("18_tail_light_brake")
+
+[node name="VehicleLights" type="Node3D" parent="." unique_id=1705730605]
+
+[node name="Headlights" type="Node3D" parent="VehicleLights" unique_id=1451383261]
+
+[node name="HeadlightLeft" type="MeshInstance3D" parent="VehicleLights/Headlights" unique_id=898045121]
+transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, 0.65, 0.82, 2.36)
+material_override = ExtResource("14_headlight_off")
+mesh = SubResource("BoxMesh_vehicle_lamp")
+
+[node name="HeadlightRight" type="MeshInstance3D" parent="VehicleLights/Headlights" unique_id=1758978838]
+transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, -0.65, 0.82, 2.36)
+material_override = ExtResource("14_headlight_off")
+mesh = SubResource("BoxMesh_vehicle_lamp")
+
+[node name="HeadlightBeamLeft" type="SpotLight3D" parent="VehicleLights/Headlights" unique_id=319899745]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.65, 0.8, 2.28)
+visible = false
+light_color = Color(1, 0.88, 0.65, 1)
+light_energy = 2.4
+light_indirect_energy = 0.15
+spot_range = 26.0
+spot_attenuation = 0.7
+spot_angle = 28.0
+
+[node name="HeadlightBeamRight" type="SpotLight3D" parent="VehicleLights/Headlights" unique_id=1403740695]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.65, 0.8, 2.28)
+visible = false
+light_color = Color(1, 0.88, 0.65, 1)
+light_energy = 2.4
+light_indirect_energy = 0.15
+spot_range = 26.0
+spot_attenuation = 0.7
+spot_angle = 28.0
+
+[node name="TailLights" type="Node3D" parent="VehicleLights" unique_id=803915306]
+
+[node name="TailLightLeft" type="MeshInstance3D" parent="VehicleLights/TailLights" unique_id=268998607]
+transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, 0.65, 0.8, -2.36)
+material_override = ExtResource("16_tail_light_off")
+mesh = SubResource("BoxMesh_vehicle_lamp")
+
+[node name="TailLightRight" type="MeshInstance3D" parent="VehicleLights/TailLights" unique_id=625271209]
+transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, -0.65, 0.8, -2.36)
+material_override = ExtResource("16_tail_light_off")
+mesh = SubResource("BoxMesh_vehicle_lamp")

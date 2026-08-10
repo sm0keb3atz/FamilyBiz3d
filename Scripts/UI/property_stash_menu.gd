@@ -697,7 +697,10 @@ func _stored_vehicle_card(record: Dictionary, block_reason: String) -> Control:
 	panel.custom_minimum_size = Vector2(360, 330)
 	var box := panel.get_meta("content") as VBoxContainer
 	if definition != null:
-		box.add_child(_vehicle_preview(definition))
+		box.add_child(_vehicle_preview(
+			definition,
+			record.get("condition", {}) as Dictionary
+		))
 		var ratings := _label(
 			"ACCEL %d/5   HANDLING %d/5   BRAKING %d/5" % [
 				definition.acceleration_rating,
@@ -737,7 +740,10 @@ func _parked_vehicle_card(vehicle: BaseVehicle, has_space: bool) -> Control:
 	)
 	panel.custom_minimum_size = Vector2(360, 330)
 	var box := panel.get_meta("content") as VBoxContainer
-	box.add_child(_vehicle_preview(definition))
+	box.add_child(_vehicle_preview(
+		definition,
+		vehicle.export_condition_state()
+	))
 	var note := _label(
 		"Eligible owned vehicle detected in Garage Area.", 12, CYAN
 	)
@@ -769,7 +775,10 @@ func _empty_garage_slot(slot_number: int) -> Control:
 	return panel
 
 
-func _vehicle_preview(definition: VehicleDefinition) -> Control:
+func _vehicle_preview(
+	definition: VehicleDefinition,
+	condition: Dictionary = {}
+) -> Control:
 	var container := SubViewportContainer.new()
 	container.custom_minimum_size = Vector2(320, 205)
 	container.stretch = true
@@ -788,6 +797,11 @@ func _vehicle_preview(definition: VehicleDefinition) -> Control:
 			model.rotation_degrees = definition.visual_rotation_degrees
 			model.position = definition.visual_offset
 			pivot.add_child(model)
+			VehicleConditionComponent.apply_appearance_to_visual(
+				model,
+				definition,
+				condition
+			)
 	var camera := Camera3D.new()
 	viewport.add_child(camera)
 	var distance := maxf(definition.collision_size.z * 1.35, 5.5)

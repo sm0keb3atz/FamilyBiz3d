@@ -34,6 +34,8 @@ func publish_event(event: WorldEvent) -> WorldEvent:
 		var boundary := TerritoryBoundary.find_at_position(get_tree(), event.world_position)
 		if boundary != null:
 			event.territory_id = boundary.territory_id
+	if _is_player_event_police_exempt(event):
+		event.metadata["police_exempt"] = true
 	_record_trace(&"world_event", {
 		"event_id": event.event_id,
 		"event_type": event.event_type,
@@ -44,6 +46,25 @@ func publish_event(event: WorldEvent) -> WorldEvent:
 	event_published.emit(event)
 	get_tree().call_group(&"world_event_listener", &"handle_world_event", event)
 	return event
+
+
+func _is_player_event_police_exempt(event: WorldEvent) -> bool:
+	if event == null:
+		return false
+	var player := get_tree().get_first_node_in_group(&"player")
+	if player == null:
+		return false
+	var source := event.get_source_actor()
+	var source_is_player := event.source_faction == &"player"
+	while not source_is_player and source != null:
+		source_is_player = source == player or source.is_in_group(&"player")
+		source = source.get_parent()
+	if not source_is_player:
+		return false
+	var wanted := player.get_node_or_null(
+		"Components/WantedComponent"
+	) as PlayerWantedComponent
+	return wanted != null and wanted.is_territory_event_suppressed()
 
 
 func publish_gunshot(source_actor: Node, world_position: Vector3, audible_radius: float, source_faction: StringName = &"unknown") -> WorldEvent:

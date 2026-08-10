@@ -45,7 +45,9 @@ func buy_weapon(definition: WeaponDefinition) -> bool:
 		return _finish("Not enough clean money.", false)
 	if not weapon.grant_weapon(definition):
 		return _finish("Purchase could not be completed.", false)
-	if not wallet.spend_clean(definition.purchase_price):
+	if not wallet.spend_clean(
+		definition.purchase_price, true, "Weapon Purchase", definition.display_name
+	):
 		return _finish("Purchase could not be completed.", false)
 	return _finish("Purchased %s." % definition.display_name, true)
 
@@ -57,7 +59,10 @@ func buy_ammo(definition: WeaponDefinition) -> bool:
 		return _finish("Not enough clean money.", false)
 	if not weapon.add_reserve_ammo_for(definition.weapon_id, definition.ammo_bundle_amount):
 		return _finish("Ammo purchase could not be completed.", false)
-	if not wallet.spend_clean(definition.ammo_bundle_price):
+	if not wallet.spend_clean(
+		definition.ammo_bundle_price, true, "Ammunition",
+		"%d rounds for %s" % [definition.ammo_bundle_amount, definition.display_name]
+	):
 		return _finish("Ammo purchase could not be completed.", false)
 	return _finish("Added %d rounds for %s." % [definition.ammo_bundle_amount, definition.display_name], true)
 
@@ -74,7 +79,10 @@ func buy_attachment(definition: WeaponDefinition, attachment_id: StringName) -> 
 		return _finish("Not enough clean money.", false)
 	if not weapon.unlock_attachment(definition.weapon_id, attachment_id):
 		return _finish("Attachment purchase could not be completed.", false)
-	if not wallet.spend_clean(price):
+	if not wallet.spend_clean(
+		price, true, "Weapon Attachment",
+		"%s for %s" % [get_attachment_name(attachment_id), definition.display_name]
+	):
 		return _finish("Attachment purchase could not be completed.", false)
 	return _finish("Unlocked %s for %s." % [get_attachment_name(attachment_id), definition.display_name], true)
 

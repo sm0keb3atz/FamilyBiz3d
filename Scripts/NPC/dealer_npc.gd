@@ -976,7 +976,7 @@ func collect_corpse_loot(player: CharacterBody3D) -> void:
 			inventory.add_product(stock_product, quantity)
 			product_units += quantity
 	if _corpse_cash > 0:
-		wallet.add_dirty(_corpse_cash)
+		wallet.add_dirty(_corpse_cash, true, "Cash Pickup", "Recovered dealer cash")
 	var hud := player.get_node_or_null("PlayerHUD") as PlayerHUD
 	if hud != null:
 		hud.show_feedback("Searched dealer: $%d Dirty Cash, %d product units." % [_corpse_cash, product_units], 3.0)

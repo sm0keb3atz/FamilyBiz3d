@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://dpbl1cp2i78xv"]
+
+[resource]
+resource_name = "Vehicle Headlight Off"
+albedo_color = Color(0.99046737, 0.9912278, 0.99261576, 1)
+metallic = 0.15
+roughness = 0.22

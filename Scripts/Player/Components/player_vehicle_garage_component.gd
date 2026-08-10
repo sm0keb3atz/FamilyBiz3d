@@ -50,6 +50,7 @@ func spawn_new_vehicle(
 		"position": spawn_transform.origin,
 		"yaw": spawn_transform.basis.get_euler().y,
 		"stored_at_property_id": &"",
+		"condition": vehicle.export_condition_state(),
 	}
 	_next_instance_number += 1
 	vehicle_spawned.emit(vehicle, instance_id)
@@ -173,6 +174,7 @@ func store_vehicle(
 	var record := _records[instance_id] as Dictionary
 	record["position"] = vehicle.global_position
 	record["yaw"] = vehicle.global_rotation.y
+	record["condition"] = vehicle.export_condition_state()
 	record["stored_at_property_id"] = property_id
 	record["node"] = null
 	_destroy_live_node(vehicle)
@@ -216,6 +218,7 @@ func retrieve_vehicle(
 	)
 	if vehicle == null:
 		return _result(false, "Vehicle retrieval failed.")
+	vehicle.import_condition_state(record.get("condition", {}) as Dictionary)
 	record["node"] = vehicle
 	record["position"] = spawn_transform.origin
 	record["yaw"] = spawn_transform.basis.get_euler().y
@@ -256,6 +259,8 @@ func export_save_data() -> Dictionary:
 		if is_instance_valid(vehicle):
 			position = vehicle.global_position
 			yaw = vehicle.global_rotation.y
+			record["condition"] = vehicle.export_condition_state()
+		var condition := record.get("condition", {}) as Dictionary
 		vehicles.append({
 			"instance_id": String(instance_id),
 			"vehicle_id": String(record.get("vehicle_id", "")),
@@ -264,6 +269,12 @@ func export_save_data() -> Dictionary:
 			"stored_at_property_id": String(
 				record.get("stored_at_property_id", "")
 			),
+			"fuel_gallons": float(condition.get("fuel_gallons", 0.0)),
+			"damage": float(condition.get("damage", 0.0)),
+			"primary_color": String(condition.get("primary_color", "")),
+			"secondary_color": String(condition.get("secondary_color", "")),
+			"window_tint": float(condition.get("window_tint", 0.0)),
+			"performance_tier": int(condition.get("performance_tier", 0)),
 		})
 	return {
 		"next_instance_number": _next_instance_number,
@@ -299,6 +310,7 @@ func import_save_data(data: Dictionary, container: Node3D) -> void:
 		var stored_at := StringName(
 			str(saved.get("stored_at_property_id", ""))
 		)
+		var condition := _condition_from_saved_record(saved, vehicle_id)
 		var definition := PropertyCatalog.get_by_id(stored_at)
 		var stored_count := int(stored_counts.get(stored_at, 0))
 		var storage_is_valid := (
@@ -315,6 +327,7 @@ func import_save_data(data: Dictionary, container: Node3D) -> void:
 				"position": position,
 				"yaw": yaw,
 				"stored_at_property_id": stored_at,
+				"condition": condition,
 			}
 			stored_counts[stored_at] = stored_count + 1
 		else:
@@ -330,12 +343,14 @@ func import_save_data(data: Dictionary, container: Node3D) -> void:
 			)
 			if vehicle == null:
 				continue
+			vehicle.import_condition_state(condition)
 			_records[instance_id] = {
 				"vehicle_id": vehicle_id,
 				"node": vehicle,
 				"position": position,
 				"yaw": yaw,
 				"stored_at_property_id": &"",
+				"condition": condition,
 			}
 			vehicle_spawned.emit(vehicle, instance_id)
 		var suffix := String(instance_id).trim_prefix("vehicle_").to_int()
@@ -413,7 +428,33 @@ func _public_record(
 			record.get("stored_at_property_id", "")
 		).is_empty(),
 		"node": record.get("node"),
+		"condition": (record.get("condition", {}) as Dictionary).duplicate(true),
 	}
+
+
+func _condition_from_saved_record(
+	saved: Dictionary,
+	vehicle_id: StringName
+) -> Dictionary:
+	var definition := VehicleCatalog.get_by_id(vehicle_id)
+	var capacity := (
+		definition.fuel_tank_capacity_gallons
+		if definition != null
+		else 16.0
+	)
+	var state := {
+		"fuel_gallons": float(saved.get("fuel_gallons", capacity)),
+		"damage": float(saved.get("damage", 0.0)),
+		"window_tint": float(saved.get("window_tint", 0.0)),
+		"performance_tier": int(saved.get("performance_tier", 0)),
+	}
+	var primary := String(saved.get("primary_color", ""))
+	var secondary := String(saved.get("secondary_color", ""))
+	if not primary.is_empty():
+		state["primary_color"] = primary
+	if not secondary.is_empty():
+		state["secondary_color"] = secondary
+	return state
 
 
 func _result(

@@ -1,7 +1,8 @@
 [gd_scene format=3 uid="uid://7scsrfqwimno"]
 
-[ext_resource type="Script" uid="uid://dmp2oeeimhg8y" path="res://Scripts/UI/player_hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://Scripts/UI/vehicle_hud_overhaul.gd" id="1_hud"]
 [ext_resource type="AudioStream" uid="uid://diub4n3mqh6n0" path="res://Assets/Audio/UI/transaction.ogg" id="2_transaction"]
+[ext_resource type="Script" path="res://Scripts/UI/daily_financial_report.gd" id="3_daily_report"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.035, 0.043, 0.055, 0.9)
@@ -622,6 +623,7 @@ unique_name_in_owner = true
 stream = ExtResource("2_transaction")
 
 [node name="WeaponPanel" type="PanelContainer" parent="." unique_id=306325194]
+unique_name_in_owner = true
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -949,90 +951,4 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="Dim" type="ColorRect" parent="DailyReportOverlay"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.01, 0.015, 0.025, 0.82)
-
-[node name="Center" type="CenterContainer" parent="DailyReportOverlay"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Panel" type="PanelContainer" parent="DailyReportOverlay/Center"]
-custom_minimum_size = Vector2(520, 420)
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
-
-[node name="Margin" type="MarginContainer" parent="DailyReportOverlay/Center/Panel"]
-layout_mode = 2
-theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 38
-theme_override_constants/margin_right = 48
-theme_override_constants/margin_bottom = 38
-
-[node name="Content" type="VBoxContainer" parent="DailyReportOverlay/Center/Panel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 24
-
-[node name="Title" type="Label" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.82, 0.25, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 32
-text = "DAILY REPORT"
-horizontal_alignment = 1
-
-[node name="ReportDateLabel" type="Label" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.78, 0.9, 1)
-theme_override_font_sizes/font_size = 17
-text = "MON JAN 1"
-horizontal_alignment = 1
-
-[node name="Separator" type="HSeparator" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
-layout_mode = 2
-
-[node name="ReportEarnedLabel" type="Label" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.32, 0.9, 0.48, 1)
-theme_override_font_sizes/font_size = 21
-text = "MONEY EARNED   $0"
-
-[node name="ReportSpentLabel" type="Label" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.42, 0.25, 1)
-theme_override_font_sizes/font_size = 21
-text = "MONEY SPENT    $0"
-
-[node name="ReportNetLabel" type="Label" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 28
-text = "BREAK EVEN   $0"
-horizontal_alignment = 1
-
-[node name="Spacer" type="Control" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="ReportContinueButton" type="Button" parent="DailyReportOverlay/Center/Panel/Margin/Content"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "CONTINUE"
+script = ExtResource("3_daily_report")

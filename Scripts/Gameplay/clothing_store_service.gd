@@ -20,7 +20,7 @@ func buy(clothing_id: StringName) -> bool:
 		return _finish("%s is already owned." % definition.display_name, false)
 	if not wallet.can_spend_clean(definition.price):
 		return _finish("Not enough clean money.", false)
-	if not wallet.spend_clean(definition.price):
+	if not wallet.spend_clean(definition.price, true, "Clothing", definition.display_name):
 		return _finish("Purchase could not be completed.", false)
 	if not wardrobe.unlock(clothing_id):
 		wallet.add_clean(definition.price, false)
@@ -48,7 +48,9 @@ func buy_color_change(clothing_id: StringName, color: Color) -> bool:
 		return _finish("Choose a different color first.", false)
 	if not wallet.can_spend_clean(COLOR_CHANGE_PRICE):
 		return _finish("Not enough clean money for the color change.", false)
-	if not wallet.spend_clean(COLOR_CHANGE_PRICE):
+	if not wallet.spend_clean(
+		COLOR_CHANGE_PRICE, true, "Clothing", "%s color change" % definition.display_name
+	):
 		return _finish("Color change could not be completed.", false)
 	if not wardrobe.set_item_color(clothing_id, color):
 		wallet.add_clean(COLOR_CHANGE_PRICE, false)

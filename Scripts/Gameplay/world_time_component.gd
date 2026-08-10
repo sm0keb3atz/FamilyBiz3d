@@ -9,6 +9,7 @@ signal day_ended(report_date: String, earned: int, spent: int)
 signal calendar_skipped(from_absolute_minute: int, to_absolute_minute: int, reason: StringName)
 
 const MINUTES_PER_DAY := 1440
+const REPORT_HISTORY_LIMIT := 30
 const SUNRISE_HOUR := 6.0
 const SUNSET_HOUR := 19.5
 const MONTH_NAMES := [
@@ -30,6 +31,8 @@ var weekday := 0
 var minute_of_day := 8 * 60
 var daily_earned := 0
 var daily_spent := 0
+var daily_transactions: Array[Dictionary] = []
+var daily_report_history: Array[Dictionary] = []
 var active_skip_reason: StringName = &""
 
 var _minute_accumulator := 0.0
@@ -37,6 +40,7 @@ var _last_emitted_minute := -1
 var _last_night_state := false
 var _has_emitted_night_state := false
 var _wallet: PlayerWalletComponent
+var _last_day_transactions: Array[Dictionary] = []
 @onready var _sun := get_node_or_null(sun_path) as DirectionalLight3D
 @onready var _moon := get_node_or_null(moon_path) as DirectionalLight3D
 @onready var _world_environment := get_node_or_null(world_environment_path) as WorldEnvironment
@@ -56,11 +60,11 @@ func _process(delta: float) -> void:
 
 
 func connect_wallet(wallet: PlayerWalletComponent) -> void:
-	if _wallet != null and _wallet.transaction_completed.is_connected(_on_transaction_completed):
-		_wallet.transaction_completed.disconnect(_on_transaction_completed)
+	if _wallet != null and _wallet.transaction_recorded.is_connected(_on_transaction_recorded):
+		_wallet.transaction_recorded.disconnect(_on_transaction_recorded)
 	_wallet = wallet
-	if _wallet != null and not _wallet.transaction_completed.is_connected(_on_transaction_completed):
-		_wallet.transaction_completed.connect(_on_transaction_completed)
+	if _wallet != null and not _wallet.transaction_recorded.is_connected(_on_transaction_recorded):
+		_wallet.transaction_recorded.connect(_on_transaction_recorded)
 
 
 func advance_real_seconds(seconds: float, update_visuals := true) -> void:
@@ -87,8 +91,11 @@ func advance_minutes(minutes: int, update_visuals := true) -> void:
 			_advance_date()
 			var earned := daily_earned
 			var spent := daily_spent
+			_last_day_transactions = daily_transactions.duplicate(true)
+			_append_daily_report(report_date, earned, spent)
 			daily_earned = 0
 			daily_spent = 0
+			daily_transactions.clear()
 			day_ended.emit(report_date, earned, spent)
 		minute_advanced.emit(get_absolute_minute())
 	if update_visuals:
@@ -135,6 +142,8 @@ func fast_forward_years(years_to_advance: int, reason: StringName) -> void:
 	weekday = posmod(weekday + elapsed_days, 7)
 	daily_earned = 0
 	daily_spent = 0
+	daily_transactions.clear()
+	_last_day_transactions.clear()
 	_update_visuals()
 	_emit_night_state_changed()
 	_last_emitted_minute = -1
@@ -262,6 +271,8 @@ func export_save_data() -> Dictionary:
 		"minute_accumulator": _minute_accumulator,
 		"daily_earned": daily_earned,
 		"daily_spent": daily_spent,
+		"daily_transactions": daily_transactions.duplicate(true),
+		"daily_report_history": daily_report_history.duplicate(true),
 	}
 
 
@@ -274,21 +285,83 @@ func import_save_data(data: Dictionary) -> void:
 	_minute_accumulator = maxf(float(data.get("minute_accumulator", 0.0)), 0.0)
 	daily_earned = maxi(int(data.get("daily_earned", 0)), 0)
 	daily_spent = maxi(int(data.get("daily_spent", 0)), 0)
+	daily_transactions.clear()
+	_last_day_transactions.clear()
+	var saved_transactions := data.get("daily_transactions", []) as Array
+	for entry in saved_transactions:
+		if entry is Dictionary:
+			daily_transactions.append((entry as Dictionary).duplicate(true))
+	daily_report_history.clear()
+	var saved_history := data.get("daily_report_history", []) as Array
+	for entry in saved_history:
+		if entry is not Dictionary:
+			continue
+		var report := entry as Dictionary
+		daily_report_history.append({
+			"date": String(report.get("date", "DAY")),
+			"earned": maxi(int(report.get("earned", 0)), 0),
+			"spent": maxi(int(report.get("spent", 0)), 0),
+		})
+	while daily_report_history.size() > REPORT_HISTORY_LIMIT:
+		daily_report_history.pop_front()
 	_update_visuals()
 	_emit_night_state_changed()
 	_emit_time_changed()
 
 
-func _on_transaction_completed(dirty_delta: int, clean_delta: int) -> void:
+func _on_transaction_recorded(
+	dirty_delta: int,
+	clean_delta: int,
+	category: String,
+	detail: String
+) -> void:
 	var total_delta := dirty_delta + clean_delta
 	if total_delta > 0:
 		daily_earned += total_delta
 	elif total_delta < 0:
 		daily_spent += -total_delta
+	if total_delta == 0:
+		return
+	daily_transactions.append({
+		"minute": minute_of_day,
+		"amount": absi(total_delta),
+		"direction": "income" if total_delta > 0 else "expense",
+		"category": category if not category.is_empty() else "Wallet Activity",
+		"detail": detail if not detail.is_empty() else "Transaction",
+		"cash_type": "Dirty" if dirty_delta != 0 else "Clean",
+	})
 
 
-func record_external_transaction(dirty_delta: int, clean_delta: int) -> void:
-	_on_transaction_completed(dirty_delta, clean_delta)
+func record_external_transaction(
+	dirty_delta: int,
+	clean_delta: int,
+	category := "Business Income",
+	detail := "Off-site earnings"
+) -> void:
+	_on_transaction_recorded(dirty_delta, clean_delta, category, detail)
+
+
+func get_last_day_transactions() -> Array[Dictionary]:
+	return _last_day_transactions.duplicate(true)
+
+
+func get_daily_report_history(limit := 7) -> Array[Dictionary]:
+	var safe_limit := clampi(limit, 1, REPORT_HISTORY_LIMIT)
+	var start := maxi(daily_report_history.size() - safe_limit, 0)
+	var result: Array[Dictionary] = []
+	for index in range(start, daily_report_history.size()):
+		result.append(daily_report_history[index].duplicate(true))
+	return result
+
+
+func _append_daily_report(report_date: String, earned: int, spent: int) -> void:
+	daily_report_history.append({
+		"date": report_date,
+		"earned": maxi(earned, 0),
+		"spent": maxi(spent, 0),
+	})
+	while daily_report_history.size() > REPORT_HISTORY_LIMIT:
+		daily_report_history.pop_front()
 
 
 func _advance_date() -> void:

@@ -17,6 +17,7 @@ handling_rating = 3
 braking_rating = 3
 catalog_order = 5
 visual_scene = ExtResource("2")
+fuel_tank_capacity_gallons = 18.0
 preserve_authored_wheel_positions = true
 collision_size = Vector3(2.15, 1.55, 4.55)
 collision_offset = Vector3(0, 0.95, -0.05)

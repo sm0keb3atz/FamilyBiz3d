@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/NPC/DealerNPC.tscn" id="1_dealer"]
+[ext_resource type="Script" path="res://Scripts/NPC/robbery_event_dealer.gd" id="2_robber"]
+
+[node name="RobberyEventDealer" instance=ExtResource("1_dealer")]
+script = ExtResource("2_robber")
+
+[node name="HealthComponent" parent="Components" index="2"]
+body_cleanup_delay = 7.0
+
+[editable path="Components"]
