@@ -7,6 +7,132 @@
 [ext_resource type="ArrayMesh" uid="uid://t8oac28wc7b4" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01_corner.glb" id="2_irejd"]
 [ext_resource type="ArrayMesh" uid="uid://dt4uhxypni1" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_grass_00.glb" id="3_edloe"]
 [ext_resource type="PackedScene" uid="uid://cl06v2ykl4ng0" path="res://Scenes/Maps/RoadPieces/intersection.tscn" id="3_x6wca"]
+[ext_resource type="PackedScene" uid="uid://cxprf08nr6nv2" path="res://Scenes/Maps/Buildings/Generated/buildingG1.tscn" id="8_edloe"]
+[ext_resource type="Script" uid="uid://dptfybw60qiqk" path="res://Tools/Godot/BuildingGenerator/building_generation_profile.gd" id="9_atd1t"]
+[ext_resource type="PackedScene" uid="uid://cbyarbtqcejm2" path="res://Scenes/Maps/Buildings/Generated/buildingG2.tscn" id="10_mx2wp"]
+[ext_resource type="PackedScene" uid="uid://dc6m74vb0nm8e" path="res://Scenes/Maps/Buildings/building_1.tscn" id="11_l6i86"]
+[ext_resource type="PackedScene" uid="uid://cban7tcyvqm6b" path="res://Scenes/Maps/Buildings/ClothingStore.tscn" id="12_pvnr5"]
+[ext_resource type="PackedScene" uid="uid://dlx2n61a113ri" path="res://Scenes/Maps/Buildings/building_2.tscn" id="13_yjw1s"]
+[ext_resource type="PackedScene" uid="uid://6mxy0jff8eru" path="res://Scenes/Maps/Buildings/GunStore.tscn" id="14_pvnr5"]
+[ext_resource type="PackedScene" uid="uid://lubg00lk83jc" path="res://Scenes/Maps/Buildings/Generated/buildingG3.tscn" id="15_lmtoq"]
+[ext_resource type="ArrayMesh" uid="uid://ci4i6klxu7bk6" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_00.glb" id="15_yjw1s"]
+[ext_resource type="ArrayMesh" uid="uid://cvm70cq0cblw8" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_parkingSpot_01.glb" id="17_lmtoq"]
+
+[sub_resource type="Resource" id="Resource_hb6mx"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+width_modules = 6
+depth_modules = 6
+story_count = 2
+preset = 2
+material_palette = 4
+prop_density = 2
+seed = 878174941
+
+[sub_resource type="Resource" id="Resource_lmtoq"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+preset = 1
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_qckq3"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+preset = 1
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_pvnr5"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+preset = 1
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_kyeu8"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_few0g"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_quljv"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_ms7eb"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_6npfn"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_75v0r"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_22j38"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_o5rfh"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_y7bne"]
+resource_local_to_scene = true
+script = ExtResource("9_atd1t")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
 
 [node name="HoodWestBlock1" type="Node3D" unique_id=1105998331]
 
@@ -593,3 +719,182 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 132,
 
 [node name="Intersection" parent="Roads" unique_id=59729932 instance=ExtResource("3_x6wca")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
+
+[node name="Buildings" type="Node3D" parent="." unique_id=224480256]
+
+[node name="Building3" parent="Buildings" unique_id=1313747676 instance=ExtResource("11_l6i86")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 35, 0, -62)
+
+[node name="Building4" parent="Buildings" unique_id=40134480 instance=ExtResource("11_l6i86")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 49, 0, -62)
+
+[node name="BuildingGenerator" parent="Buildings" unique_id=1064662846 instance=ExtResource("8_edloe")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 32.1, 0, -36.1)
+profile = SubResource("Resource_hb6mx")
+
+[node name="BuildingGenerator2" parent="Buildings" unique_id=1830734443 instance=ExtResource("10_mx2wp")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 51.056686, 0, -32.168343)
+profile = SubResource("Resource_lmtoq")
+
+[node name="BuildingGenerator3" parent="Buildings" unique_id=1439902395 instance=ExtResource("10_mx2wp")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 65.05669, 0, -32.168343)
+profile = SubResource("Resource_qckq3")
+
+[node name="BuildingGenerator4" parent="Buildings" unique_id=631972161 instance=ExtResource("10_mx2wp")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 101.85669, 0, -68.86834)
+profile = SubResource("Resource_pvnr5")
+
+[node name="Building1" parent="Buildings" unique_id=522539472 instance=ExtResource("11_l6i86")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 79, 0, -25.3)
+
+[node name="ClothingStore" parent="Buildings" unique_id=1778244247 instance=ExtResource("12_pvnr5")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 86.299995, 0, -24)
+
+[node name="Building2" parent="Buildings" unique_id=683923814 instance=ExtResource("13_yjw1s")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 102, 0, -24.9)
+
+[node name="Building5" parent="Buildings" unique_id=1782245508 instance=ExtResource("13_yjw1s")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 62, 0, -61.9)
+
+[node name="Building6" parent="Buildings" unique_id=379568308 instance=ExtResource("13_yjw1s")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 75, 0, -61.9)
+
+[node name="Building7" parent="Buildings" unique_id=1884737942 instance=ExtResource("13_yjw1s")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 88.5, 0, -61.9)
+
+[node name="GunStore" parent="Buildings" unique_id=1070084260 instance=ExtResource("14_pvnr5")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 20, 0, -61)
+
+[node name="BuildingGenerator5" parent="Buildings" unique_id=787964694 instance=ExtResource("15_lmtoq")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 24.1, 0, -107.9)
+profile = SubResource("Resource_kyeu8")
+
+[node name="BuildingGenerator6" parent="Buildings" unique_id=2144444836 instance=ExtResource("15_lmtoq")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 34.1, 0, -107.9)
+profile = SubResource("Resource_few0g")
+
+[node name="BuildingGenerator7" parent="Buildings" unique_id=1721518772 instance=ExtResource("15_lmtoq")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 44.1, 0, -107.9)
+profile = SubResource("Resource_quljv")
+
+[node name="BuildingGenerator8" parent="Buildings" unique_id=303162877 instance=ExtResource("15_lmtoq")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 54.1, 0, -107.9)
+profile = SubResource("Resource_ms7eb")
+
+[node name="BuildingGenerator9" parent="Buildings" unique_id=1974118454 instance=ExtResource("15_lmtoq")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 64.1, 0, -107.9)
+profile = SubResource("Resource_6npfn")
+
+[node name="BuildingGenerator10" parent="Buildings" unique_id=1108509109 instance=ExtResource("15_lmtoq")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 74.1, 0, -107.9)
+profile = SubResource("Resource_75v0r")
+
+[node name="BuildingGenerator11" parent="Buildings" unique_id=546400538 instance=ExtResource("15_lmtoq")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 83.1, 0, -107.9)
+profile = SubResource("Resource_22j38")
+
+[node name="BuildingGenerator12" parent="Buildings" unique_id=1411930869 instance=ExtResource("15_lmtoq")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 92.1, 0, -107.9)
+profile = SubResource("Resource_o5rfh")
+
+[node name="BuildingGenerator13" parent="Buildings" unique_id=1674310940 instance=ExtResource("15_lmtoq")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 103.799995, 0, -107.9)
+profile = SubResource("Resource_y7bne")
+
+[node name="AlleyWays" type="Node3D" parent="." unique_id=717476421]
+
+[node name="SmRoad00" type="MeshInstance3D" parent="AlleyWays" unique_id=2009297334]
+transform = Transform3D(5.5, 0, 0, 0, 1, 0, 0, 0, 1.875, 20, 0.001, -31)
+mesh = ExtResource("15_yjw1s")
+
+[node name="SmRoad01" type="MeshInstance3D" parent="AlleyWays" unique_id=870800576]
+transform = Transform3D(5.5, 0, 0, 0, 1, 0, 0, 0, 0.9375, 20, 0.001, -77)
+mesh = ExtResource("15_yjw1s")
+
+[node name="SmParkingSpot01" type="MeshInstance3D" parent="AlleyWays" unique_id=1827361070]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot02" type="MeshInstance3D" parent="AlleyWays" unique_id=1998083791]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot03" type="MeshInstance3D" parent="AlleyWays" unique_id=321246479]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot04" type="MeshInstance3D" parent="AlleyWays" unique_id=1393096539]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot05" type="MeshInstance3D" parent="AlleyWays" unique_id=402642635]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot06" type="MeshInstance3D" parent="AlleyWays" unique_id=28683326]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot07" type="MeshInstance3D" parent="AlleyWays" unique_id=1449389684]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot08" type="MeshInstance3D" parent="AlleyWays" unique_id=573546507]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot09" type="MeshInstance3D" parent="AlleyWays" unique_id=844198307]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot10" type="MeshInstance3D" parent="AlleyWays" unique_id=1897186369]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot11" type="MeshInstance3D" parent="AlleyWays" unique_id=1894549178]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot12" type="MeshInstance3D" parent="AlleyWays" unique_id=1747489511]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot13" type="MeshInstance3D" parent="AlleyWays" unique_id=848663505]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot14" type="MeshInstance3D" parent="AlleyWays" unique_id=473282612]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot15" type="MeshInstance3D" parent="AlleyWays" unique_id=43645892]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot16" type="MeshInstance3D" parent="AlleyWays" unique_id=945878396]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot17" type="MeshInstance3D" parent="AlleyWays" unique_id=1032749560]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot18" type="MeshInstance3D" parent="AlleyWays" unique_id=1331357670]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot19" type="MeshInstance3D" parent="AlleyWays" unique_id=1369085475]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot20" type="MeshInstance3D" parent="AlleyWays" unique_id=782888070]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot21" type="MeshInstance3D" parent="AlleyWays" unique_id=1264702172]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 0.001, -100)
+mesh = ExtResource("17_lmtoq")
+
+[node name="SmParkingSpot22" type="MeshInstance3D" parent="AlleyWays" unique_id=900662974]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104, 0.001, -100)
+mesh = ExtResource("17_lmtoq")

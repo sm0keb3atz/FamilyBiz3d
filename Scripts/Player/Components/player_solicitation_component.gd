@@ -1,6 +1,12 @@
 class_name PlayerSolicitationComponent
 extends Node
 
+const SOLICITATION_VOICES := [
+	preload("res://Assets/Audio/solicitation1.ogg"),
+	preload("res://Assets/Audio/solicitation2.ogg"),
+	preload("res://Assets/Audio/solicitation3.ogg"),
+]
+
 @export var player_path := NodePath("../..")
 @export var hud_path := NodePath("../../PlayerHUD")
 @export var pulse_mesh_path := NodePath(
@@ -8,12 +14,17 @@ extends Node
 )
 @export var wanted_component_path := NodePath("../WantedComponent")
 @export_range(1.0, 30.0, 0.5) var solicitation_radius := 8.0
-@export_range(0.1, 10.0, 0.1) var pulse_duration := 0.65
-@export_range(0.05, 8.0, 0.05) var pulse_width := 0.65
-@export_range(0.0, 4.0, 0.05) var pulse_energy := 1.25
-@export var pulse_color := Color(0.16, 0.95, 1.0, 0.82)
+@export_range(0.1, 10.0, 0.1) var pulse_duration := 0.72
+@export_range(0.05, 8.0, 0.05) var pulse_width := 0.72
+@export_range(0.0, 4.0, 0.05) var pulse_energy := 0.62
+@export var pulse_color := Color(0.04, 0.48, 0.62, 0.40)
+@export var pulse_secondary_color := Color(0.03, 0.12, 0.45, 0.30)
+@export_range(0.0, 4.0, 0.05) var pulse_core_intensity := 0.55
+@export_range(0.0, 1.5, 0.05) var pulse_echo_strength := 0.38
+@export_range(0.0, 1.0, 0.05) var pulse_texture_strength := 0.22
 @export_range(0.0, 1.0, 0.05) var pulse_fade_start := 0.62
 @export var solicit_action: StringName = &"solicit"
+@export_range(-30.0, 6.0, 0.5) var solicitation_voice_volume_db := -6.0
 
 @onready var player := get_node(player_path) as CharacterBody3D
 @onready var hud := get_node(hud_path) as PlayerHUD
@@ -31,14 +42,31 @@ extends Node
 var _gameplay_enabled := true
 var _pulse_tween: Tween
 var _pulse_material: ShaderMaterial
+var _solicitation_voice_player: AudioStreamPlayer3D
+var _last_solicitation_voice_index := -1
+var _last_solicitation_voice_time_ms := -1000
 
 
 func _ready() -> void:
+	_solicitation_voice_player = AudioStreamPlayer3D.new()
+	_solicitation_voice_player.name = "SolicitationVoicePlayer"
+	_solicitation_voice_player.max_distance = solicitation_radius * 2.5
+	_solicitation_voice_player.max_polyphony = 1
+	call_deferred("_attach_solicitation_voice_player")
 	if pulse_mesh == null:
 		push_warning("Solicitation pulse mesh was not found.")
 		return
 	_pulse_material = pulse_mesh.get_active_material(0) as ShaderMaterial
 	pulse_mesh.visible = false
+
+
+func _attach_solicitation_voice_player() -> void:
+	if (
+		is_instance_valid(player)
+		and is_instance_valid(_solicitation_voice_player)
+		and _solicitation_voice_player.get_parent() == null
+	):
+		player.add_child(_solicitation_voice_player)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -53,6 +81,7 @@ func set_gameplay_enabled(enabled: bool) -> void:
 
 
 func solicit() -> void:
+	_play_solicitation_voice()
 	_play_pulse()
 	wanted.report_solicitation(
 		player.global_position,
@@ -188,10 +217,27 @@ func _update_pulse_shader_parameters() -> void:
 
 	_pulse_material.set_shader_parameter("start_point", player.global_transform)
 	_pulse_material.set_shader_parameter("radius", 0.0)
+	_pulse_material.set_shader_parameter("max_radius", solicitation_radius)
 	_pulse_material.set_shader_parameter("pulse_width", pulse_width)
 	_pulse_material.set_shader_parameter("pulse_energy", pulse_energy)
 	_pulse_material.set_shader_parameter("pulse_opacity", 1.0)
 	_pulse_material.set_shader_parameter("pulse_color", pulse_color)
+	_pulse_material.set_shader_parameter(
+		"secondary_color",
+		pulse_secondary_color
+	)
+	_pulse_material.set_shader_parameter(
+		"core_intensity",
+		pulse_core_intensity
+	)
+	_pulse_material.set_shader_parameter(
+		"echo_strength",
+		pulse_echo_strength
+	)
+	_pulse_material.set_shader_parameter(
+		"texture_strength",
+		pulse_texture_strength
+	)
 
 
 func _set_pulse_radius(radius: float) -> void:
@@ -209,3 +255,27 @@ func _hide_pulse() -> void:
 	_set_pulse_opacity(0.0)
 	if pulse_mesh != null:
 		pulse_mesh.visible = false
+
+
+func _play_solicitation_voice() -> void:
+	if (
+		_solicitation_voice_player == null
+		or not _solicitation_voice_player.is_inside_tree()
+		or SOLICITATION_VOICES.is_empty()
+	):
+		return
+	var now_ms := Time.get_ticks_msec()
+	if now_ms - _last_solicitation_voice_time_ms < 750:
+		return
+	_last_solicitation_voice_time_ms = now_ms
+	var index := randi_range(0, SOLICITATION_VOICES.size() - 1)
+	if (
+		SOLICITATION_VOICES.size() > 1
+		and index == _last_solicitation_voice_index
+	):
+		index = (index + 1) % SOLICITATION_VOICES.size()
+	_last_solicitation_voice_index = index
+	_solicitation_voice_player.stream = SOLICITATION_VOICES[index]
+	_solicitation_voice_player.volume_db = solicitation_voice_volume_db
+	_solicitation_voice_player.pitch_scale = randf_range(0.985, 1.015)
+	_solicitation_voice_player.play()

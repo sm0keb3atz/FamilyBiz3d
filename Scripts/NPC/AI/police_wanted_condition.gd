@@ -2,8 +2,8 @@
 class_name PoliceWantedCondition
 extends BTCondition
 
-@export_range(0, 3, 1) var minimum_level := 0
-@export_range(0, 3, 1) var maximum_level := 3
+@export_range(0, 6, 1) var minimum_level := 0
+@export_range(0, 6, 1) var maximum_level := 6
 @export var require_force_authorized := false
 @export var require_force_not_authorized := false
 

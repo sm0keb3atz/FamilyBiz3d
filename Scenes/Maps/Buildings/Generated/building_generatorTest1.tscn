@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://c0856l1oyylsx"]
+
+[ext_resource type="Script" uid="uid://bl2frdiiebpok" path="res://Tools/Godot/BuildingGenerator/building_generator_3d.gd" id="1_kjgc5"]
+[ext_resource type="Script" uid="uid://dptfybw60qiqk" path="res://Tools/Godot/BuildingGenerator/building_generation_profile.gd" id="2_bwx5c"]
+
+[sub_resource type="Resource" id="BuildingGenerationProfile_default"]
+resource_local_to_scene = true
+script = ExtResource("2_bwx5c")
+
+[node name="BuildingGenerator" type="Node3D" unique_id=471733967]
+script = ExtResource("1_kjgc5")
+profile = SubResource("BuildingGenerationProfile_default")
+
+[node name="ManualDetails" type="Node3D" parent="." unique_id=1430877929]

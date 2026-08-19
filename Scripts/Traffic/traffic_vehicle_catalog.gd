@@ -2,6 +2,9 @@ class_name TrafficVehicleCatalog
 extends Resource
 
 const VariantResource := preload("res://Scripts/Traffic/traffic_vehicle_variant.gd")
+const DEFAULT_TRAFFIC_ENGINE_STREAM := preload(
+	"res://Assets/Audio/Vehicles/CorvetteIdle.wav"
+)
 
 const STABLE_AMBIENT_IDS := [
 	&"sedan",
@@ -125,6 +128,9 @@ func _add_entry(entry: Array) -> void:
 	# for player handling and gives these AI cars an excessively wide arc.
 	definition.max_steering_degrees = 45.0
 	definition.max_forward_speed = 35.0
+	# Runtime traffic definitions replace the definitions authored on the car
+	# scenes, so their engine stream must be carried over explicitly.
+	definition.engine_stream = DEFAULT_TRAFFIC_ENGINE_STREAM
 	var variant := VariantResource.new()
 	variant.variant_id = definition.vehicle_id
 	variant.definition = definition

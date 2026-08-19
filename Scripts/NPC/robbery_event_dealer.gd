@@ -35,6 +35,7 @@ func configure_robbery_actor(
 	remove_from_group(&"interactable_npc")
 	remove_from_group(&"interactable")
 	add_to_group(&"territory_robber")
+	add_to_group(&"lawful_defense_target")
 	set_navigation_avoidance_enabled(true)
 	set_local_obstacle_steering_enabled(true)
 	set_robbery_phase(phase)

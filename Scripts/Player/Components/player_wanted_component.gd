@@ -12,7 +12,8 @@ signal incident_updated(incident)
 signal incident_resolved(incident_id: int)
 signal force_authorization_changed(authorized: bool)
 
-const MAX_WANTED_LEVEL := 3
+const MAX_WANTED_LEVEL := 6
+const EVASION_DURATIONS := [0.0, 8.0, 9.0, 10.0, 11.0, 12.0, 14.0]
 
 @export var player_path := NodePath("../..")
 @export var weapon_component_path := NodePath("../WeaponComponent")
@@ -26,7 +27,7 @@ const MAX_WANTED_LEVEL := 3
 @export_range(0.05, 1.0, 0.05) var visual_contact_grace := 0.3
 @export_range(0.5, 10.0, 0.5) var dispatch_update_distance := 2.5
 @export_range(5.0, 100.0, 1.0) var search_area_radius := 35.0
-@export_range(0.0, 10.0, 0.25) var escape_exit_grace := 2.0
+@export_range(0.0, 10.0, 0.25) var escape_exit_grace := 1.5
 @export_range(0.001, 0.25, 0.005) var intelligence_confidence_decay := 0.035
 @export_range(0.0, 10.0, 0.25) var intelligence_uncertainty_growth := 1.5
 @export_category("Performance")
@@ -71,9 +72,11 @@ var active_incident:
 
 var is_force_authorized: bool:
 	get:
+		var coordinator: Node = _get_police_coordinator()
 		return (
-			_wanted_level >= 3
-			or (_active_incident != null and _active_incident.force_authorized)
+			coordinator.is_force_authorized()
+			if coordinator != null
+			else _active_incident != null and _active_incident.force_authorized
 		)
 
 var _wanted_level := 0
@@ -216,7 +219,7 @@ func report_police_incident(
 		_active_incident.incident_id = _next_incident_id
 		_next_incident_id += 1
 		_active_incident.crime_type = crime_type
-		_active_incident.severity = clampi(severity, 1, 3)
+		_active_incident.severity = clampi(severity, 1, MAX_WANTED_LEVEL)
 		_active_incident.position = world_position
 		_active_incident.territory_id = territory_id
 		_active_incident.reported_at_minute = absolute_minute
@@ -234,7 +237,7 @@ func report_police_incident(
 		incident_reported.emit(_active_incident)
 		_record_low_level_charge(crime_type)
 		return
-	var next_severity := clampi(severity, 1, 3)
+	var next_severity := clampi(severity, 1, MAX_WANTED_LEVEL)
 	if next_severity >= _active_incident.severity:
 		_active_incident.crime_type = crime_type
 	_active_incident.severity = maxi(_active_incident.severity, next_severity)
@@ -295,10 +298,20 @@ func add_suspicion_heat(world_position: Vector3, amount: float) -> void:
 
 
 func report_violence(target: Node, fatal: bool) -> void:
-	if _territory_event_suppressed or target == null:
+	if (
+		_territory_event_suppressed
+		or target == null
+		or target.is_in_group(&"lawful_defense_target")
+	):
 		return
-	var was_wanted := _wanted_level > 0
-	var next_level := 3 if fatal else 2
+	var target_node := target as Node3D
+	var observation_position := (
+		target_node.global_position if target_node != null else player.global_position
+	)
+	# Violence is not omniscient. The attacked officer identifies the player;
+	# other victims rely on a police witness or the delayed civilian report.
+	if target is not PoliceNPC and not _has_police_witness(observation_position):
+		return
 	var boundary := TerritoryBoundary.find_at_position(
 		get_tree(),
 		player.global_position
@@ -312,7 +325,15 @@ func report_violence(target: Node, fatal: bool) -> void:
 		if fatal
 		else PoliceIncidentData.CrimeType.ASSAULT
 	)
-	report_police_incident(player.global_position, crime_type, next_level)
+	var crime_floor := (
+		5 if crime_type == PoliceIncidentData.CrimeType.OFFICER_DOWN
+		else 4 if crime_type == PoliceIncidentData.CrimeType.HOMICIDE
+		else 2
+	)
+	var next_level := crime_floor
+	if _wanted_level >= crime_floor:
+		next_level = mini(_wanted_level + 1, MAX_WANTED_LEVEL)
+	report_police_incident(observation_position, crime_type, next_level)
 	var victim_key := str(target.get_instance_id())
 	match crime_type:
 		PoliceIncidentData.CrimeType.ASSAULT:
@@ -328,7 +349,7 @@ func report_violence(target: Node, fatal: bool) -> void:
 				&"officer_down", "Officer Down", 750, "officer:%s" % victim_key
 			)
 	set_wanted_level(maxi(_wanted_level, next_level))
-	if fatal or target is PoliceNPC or was_wanted:
+	if target is PoliceNPC or fatal:
 		set_force_authorized(true)
 
 
@@ -349,8 +370,6 @@ func set_wanted_level(level: int) -> void:
 			)
 		_visual_contact_remaining = 0.0
 		_set_escape_state(1.0, false)
-		if _wanted_level >= 3:
-			set_force_authorized(true)
 	elif _wanted_level == 0:
 		_set_escape_state(1.0, false)
 	wanted_level_changed.emit(previous, _wanted_level)
@@ -377,14 +396,25 @@ func clear_wanted(cool_territory := true) -> void:
 
 
 func can_attempt_arrest() -> bool:
-	return _wanted_level in [1, 2] and not is_force_authorized
+	if _wanted_level <= 0:
+		return false
+	var coordinator: Node = _get_police_coordinator()
+	return (
+		not is_force_authorized
+		or (coordinator != null and coordinator.is_player_compliant())
+	)
 
 
 func set_force_authorized(authorized: bool) -> void:
 	if _active_incident == null:
 		return
+	var coordinator: Node = _get_police_coordinator()
+	if authorized and coordinator != null:
+		coordinator.note_active_lethal_threat()
+	elif not authorized and coordinator != null:
+		coordinator.clear_active_lethal_threat()
 	var previous: bool = bool(_active_incident.force_authorized)
-	_active_incident.force_authorized = authorized or _wanted_level >= 3
+	_active_incident.force_authorized = authorized
 	if previous == _active_incident.force_authorized:
 		return
 	_active_incident.revision += 1
@@ -392,41 +422,14 @@ func set_force_authorized(authorized: bool) -> void:
 	incident_updated.emit(_active_incident)
 
 
-func set_territory_event_suppressed(active: bool) -> void:
-	if active == _territory_event_suppressed:
-		return
-	if active:
-		_suspended_wanted_level = _wanted_level
-		_suspended_trigger_territory_id = _trigger_territory_id
-		_suspended_incident_data = (
-			_active_incident.to_dictionary()
-			if _active_incident != null else {}
-		)
-		_territory_event_suppressed = true
-		clear_wanted(false)
-		return
-	_territory_event_suppressed = false
-	_trigger_territory_id = _suspended_trigger_territory_id
-	var restore_level := _suspended_wanted_level
-	_suspended_wanted_level = 0
-	_suspended_trigger_territory_id = &""
-	if restore_level > 0:
-		_active_incident = PoliceIncidentData.from_dictionary(_suspended_incident_data)
-		_suspended_incident_data = {}
-		if _active_incident != null:
-			_update_police_search_position(
-				_active_incident.last_known_player_position,
-				true
-			)
-		set_wanted_level(restore_level)
-		if _active_incident != null:
-			incident_reported.emit(_active_incident)
-	else:
-		_suspended_incident_data = {}
+func set_territory_event_suppressed(_active: bool) -> void:
+	# Compatibility entry point for old callers. Lawful defense is registered on
+	# individual targets now; an event may never suspend an unrelated case.
+	pass
 
 
 func is_territory_event_suppressed() -> bool:
-	return _territory_event_suppressed
+	return false
 
 
 func set_gang_war_suppressed(active: bool) -> void:
@@ -441,9 +444,9 @@ func export_save_data() -> Dictionary:
 	return {
 		"wanted_level": _wanted_level,
 		"trigger_territory_id": String(_trigger_territory_id),
-		"territory_event_suppressed": _territory_event_suppressed,
-		"gang_war_suppressed": _territory_event_suppressed,
-		"suspended_wanted_level": _suspended_wanted_level,
+		"territory_event_suppressed": false,
+		"gang_war_suppressed": false,
+		"suspended_wanted_level": 0,
 		"suspended_trigger_territory_id": String(
 			_suspended_trigger_territory_id
 		),
@@ -458,16 +461,19 @@ func export_save_data() -> Dictionary:
 
 func import_save_data(data: Dictionary) -> void:
 	_importing_save_data = true
-	_territory_event_suppressed = bool(data.get(
+	var legacy_suppressed := bool(data.get(
 		"territory_event_suppressed",
 		data.get("gang_war_suppressed", false)
 	))
-	_suspended_wanted_level = clampi(
+	var legacy_suspended_level := clampi(
 		int(data.get("suspended_wanted_level", 0)), 0, MAX_WANTED_LEVEL
 	)
-	_suspended_trigger_territory_id = StringName(str(
+	var legacy_suspended_territory := StringName(str(
 		data.get("suspended_trigger_territory_id", "")
 	))
+	_territory_event_suppressed = false
+	_suspended_wanted_level = 0
+	_suspended_trigger_territory_id = &""
 	_trigger_territory_id = StringName(
 		str(data.get("trigger_territory_id", ""))
 	)
@@ -478,15 +484,25 @@ func import_save_data(data: Dictionary) -> void:
 	_suspended_incident_data = (
 		data.get("suspended_incident", {}) as Dictionary
 	).duplicate(true)
+	if legacy_suppressed and legacy_suspended_level > 0:
+		_trigger_territory_id = legacy_suspended_territory
+		var restored := PoliceIncidentData.from_dictionary(_suspended_incident_data)
+		if restored != null:
+			_active_incident = restored
+	var loaded_level := maxi(
+		clampi(int(data.get("wanted_level", 0)), 0, MAX_WANTED_LEVEL),
+		legacy_suspended_level
+	)
+	_suspended_incident_data = {}
 	_loaded_without_incident = (
-		int(data.get("wanted_level", 0)) > 0 and _active_incident == null
+		loaded_level > 0 and _active_incident == null
 	)
 	if _active_incident != null:
 		_update_police_search_position(
 			_active_incident.last_known_player_position,
 			true
 		)
-	set_wanted_level(int(data.get("wanted_level", 0)))
+	set_wanted_level(loaded_level)
 	_importing_save_data = false
 
 
@@ -528,11 +544,10 @@ func _on_player_shot_resolved(
 ) -> void:
 	if _territory_event_suppressed:
 		return
-	var was_wanted := _wanted_level > 0
 	if target != null:
+		if target.is_in_group(&"lawful_defense_target"):
+			return
 		report_violence(target, fatal)
-		if was_wanted:
-			set_force_authorized(true)
 		return
 	# A sound establishes an event location, not the shooter's identity. Police
 	# and civilian witnesses submit evidence separately through WorldEventBus.
@@ -593,23 +608,16 @@ func _update_escape(delta: float) -> void:
 		_outside_search_elapsed = 0.0
 		_set_escape_state(1.0, false)
 		return
-	if _active_incident != null:
-		var search_center: Vector3 = _active_incident.last_known_player_position
-		var inside_search_area := (
-			player.global_position.distance_squared_to(search_center)
-			<= search_area_radius * search_area_radius
-		)
-		if inside_search_area:
-			_outside_search_elapsed = 0.0
-			_set_escape_state(1.0, false)
-			return
-		_outside_search_elapsed += delta
-		if _outside_search_elapsed < escape_exit_grace:
-			_set_escape_state(1.0, false)
-			return
+	_outside_search_elapsed += delta
+	if _outside_search_elapsed < escape_exit_grace:
+		_set_escape_state(1.0, false)
+		return
+	var segment_duration: float = float(EVASION_DURATIONS[
+		clampi(_wanted_level, 1, EVASION_DURATIONS.size() - 1)
+	])
 	var next_progress := maxf(
 		_escape_progress
-		- delta / maxf(escape_seconds_per_star, 0.01),
+		- delta / maxf(segment_duration, 0.01),
 		0.0
 	)
 	_set_escape_state(next_progress, true)
@@ -621,6 +629,19 @@ func _update_escape(delta: float) -> void:
 		return
 	set_wanted_level(next_level)
 	_set_escape_state(1.0, true)
+
+
+func get_evasion_segment_seconds(level := -1) -> float:
+	var selected_level := _wanted_level if level < 0 else level
+	return float(EVASION_DURATIONS[
+		clampi(selected_level, 1, EVASION_DURATIONS.size() - 1)
+	])
+
+
+func _get_police_coordinator() -> Node:
+	if not is_inside_tree():
+		return null
+	return get_tree().get_first_node_in_group(&"police_coordinator")
 
 
 func _set_escape_state(progress: float, escaping: bool) -> void:

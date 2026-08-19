@@ -31,10 +31,13 @@
 [ext_resource type="Script" uid="uid://nupsjy0e8wyx" path="res://Scripts/Gameplay/territory_dealer_service.gd" id="20_territory_dealers"]
 [ext_resource type="Script" uid="uid://dr5gmqlx3kmbg" path="res://Scripts/Gameplay/world_event_bus.gd" id="21_world_events"]
 [ext_resource type="Script" uid="uid://k2q7ly0d5j16" path="res://Scripts/Gameplay/evidence_service.gd" id="22_evidence"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/police_coordinator.gd" id="22_police_coordinator"]
 [ext_resource type="Script" uid="uid://d1nqglg8ahtr1" path="res://Scripts/UI/public_safety_debug_overlay.gd" id="23_public_safety_debug"]
 [ext_resource type="PackedScene" path="res://Scenes/NPC/WholesalerNPC.tscn" id="24_wholesaler"]
 [ext_resource type="Script" uid="uid://cpp8dafwgu4nt" path="res://Scripts/NPC/wholesaler_spawn_point_3d.gd" id="24_wholesaler_spawn"]
 [ext_resource type="PackedScene" path="res://Scenes/VFX/WeatherSystem.tscn" id="25_weather"]
+[ext_resource type="Script" path="res://Scripts/World/world_surface_styler.gd" id="26_surface_styler"]
+[ext_resource type="Resource" path="res://Assets/VFX/GrittyCinematicWorldVisualProfile.tres" id="26_visual_profile"]
 
 [sub_resource type="FastNoiseLite" id="CloudNoiseA"]
 seed = 3191
@@ -71,22 +74,25 @@ seamless = true
 
 [sub_resource type="ShaderMaterial" id="SkyMaterial"]
 shader = ExtResource("15_sky_shader")
-shader_parameter/sky_day = Color(0, 0.3, 0.7, 1)
-shader_parameter/horizon_day = Color(0.75, 0.85, 0.85, 1)
-shader_parameter/horizon_sunset = Color(0.9, 0.4, 0.1, 1)
-shader_parameter/sky_sunset = Color(0.15, 0.2, 0.4, 1)
-shader_parameter/horizon_night = Color(0.1, 0.15, 0.2, 1)
-shader_parameter/sky_night = Color(0.015, 0.03, 0.08, 1)
+shader_parameter/sky_day = Color(0.045, 0.22, 0.52, 1)
+shader_parameter/horizon_day = Color(0.55, 0.69, 0.78, 1)
+shader_parameter/horizon_sunset = Color(0.95, 0.38, 0.12, 1)
+shader_parameter/sky_sunset = Color(0.18, 0.12, 0.28, 1)
+shader_parameter/horizon_night = Color(0.075, 0.11, 0.18, 1)
+shader_parameter/sky_night = Color(0.01, 0.02, 0.055, 1)
 shader_parameter/cloud_tex_01 = SubResource("CloudTextureA")
 shader_parameter/cloud_tex_02 = SubResource("CloudTextureB")
 shader_parameter/night_noise_01 = SubResource("StarTextureA")
 shader_parameter/night_noise_02 = SubResource("StarTextureB")
-shader_parameter/cloud_color = Color(0.8, 0.8, 0.8, 1)
+shader_parameter/cloud_color = Color(0.72, 0.76, 0.79, 1)
 shader_parameter/wind_speed = Vector2(0.025, 0.012)
-shader_parameter/cloud_density = 0.7
-shader_parameter/sun_scale = 0.05
-shader_parameter/sun_strength = 15.0
-shader_parameter/sun_color = Color(1, 0.9, 0, 1)
+shader_parameter/cloud_density = 0.62
+shader_parameter/sun_scale = 0.018
+shader_parameter/sun_strength = 8.5
+shader_parameter/sun_color = Color(1, 0.76, 0.46, 1)
+shader_parameter/moon_scale = 0.012
+shader_parameter/moon_strength = 1.8
+shader_parameter/moon_color = Color(0.62, 0.74, 1, 1)
 
 [sub_resource type="Sky" id="Sky"]
 sky_material = SubResource("SkyMaterial")
@@ -94,7 +100,53 @@ sky_material = SubResource("SkyMaterial")
 [sub_resource type="Environment" id="Environment"]
 background_mode = 2
 sky = SubResource("Sky")
+ambient_light_source = 2
+ambient_light_color = Color(0.42, 0.5, 0.65, 1)
+ambient_light_energy = 0.52
+reflected_light_source = 2
+tonemap_mode = 4
+tonemap_exposure = 1.02
+tonemap_agx_contrast = 1.26
+tonemap_agx_white = 8.0
+ssao_enabled = true
+ssao_radius = 1.25
+ssao_intensity = 1.15
+ssao_power = 1.35
+ssao_detail = 0.55
+ssao_horizon = 0.08
+ssao_sharpness = 0.92
+ssao_light_affect = 0.12
+ssil_enabled = true
+ssil_radius = 3.5
+ssil_intensity = 0.58
+ssil_sharpness = 0.92
+ssil_normal_rejection = 0.82
+adjustment_enabled = true
+adjustment_saturation = 1.0
 glow_enabled = true
+glow_normalized = true
+glow_intensity = 0.16
+glow_bloom = 0.025
+glow_blend_mode = 2
+glow_hdr_threshold = 1.2
+fog_enabled = true
+fog_light_color = Color(0.56, 0.65, 0.73, 1)
+fog_light_energy = 0.72
+fog_density = 0.0015
+fog_sun_scatter = 0.08
+fog_aerial_perspective = 0.35
+fog_sky_affect = 0.32
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0018
+volumetric_fog_albedo = Color(0.86, 0.9, 0.96, 1)
+volumetric_fog_emission = Color(0.018, 0.025, 0.04, 1)
+volumetric_fog_emission_energy = 0.22
+volumetric_fog_length = 58.0
+volumetric_fog_detail_spread = 2.2
+volumetric_fog_ambient_inject = 0.22
+volumetric_fog_sky_affect = 0.32
+volumetric_fog_anisotropy = 0.36
+volumetric_fog_temporal_reprojection_amount = 0.82
 
 [sub_resource type="NavigationMesh" id="EastNavigation"]
 vertices = PackedVector3Array(14, 0.05, -119, 118, 0.05, -119, 118, 0.05, -15, 14, 0.05, -15, 14, 0.05, 1, 118, 0.05, 1, 118, 0.05, 104, 14, 0.05, 104)
@@ -110,12 +162,12 @@ agent_radius = 0.45
 
 [sub_resource type="Resource" id="PoliceResponseProfile_default"]
 script = ExtResource("12_response_profile")
-officer_targets = null
-cruiser_limits = null
-initial_dispatch_delays = null
-target_arrival_minimums = null
-target_arrival_maximums = null
-awareness_radii = null
+officer_targets = PackedInt32Array(0, 2, 3, 4, 6, 8, 10)
+cruiser_limits = PackedInt32Array(0, 1, 1, 2, 3, 4, 5)
+initial_dispatch_delays = PackedFloat32Array(0, 4, 3, 2, 1, 0.5, 0.25)
+target_arrival_minimums = PackedFloat32Array(0, 8, 7, 6, 5, 4, 3)
+target_arrival_maximums = PackedFloat32Array(0, 12, 10, 9, 8, 7, 6)
+awareness_radii = PackedFloat32Array(0, 55, 80, 110, 150, 190, 240)
 
 [sub_resource type="Resource" id="PoliceDispatchZone_east"]
 script = ExtResource("12_dispatch_zone")
@@ -138,14 +190,26 @@ environment = SubResource("Environment")
 
 [node name="Sun" type="DirectionalLight3D" parent="Environment" unique_id=2092839663]
 transform = Transform3D(0.8660254, 0.43301272, -0.24999999, 0, 0.49999997, 0.86602545, 0.5, -0.75, 0.43301266, 0, 0, 0)
+light_angular_distance = 0.55
 shadow_enabled = true
+directional_shadow_mode = 2
+directional_shadow_blend_splits = true
+directional_shadow_max_distance = 85.0
+directional_shadow_fade_start = 0.72
+directional_shadow_split_1 = 0.12
+directional_shadow_split_2 = 0.3
+directional_shadow_split_3 = 0.58
 
 [node name="Moon" type="DirectionalLight3D" parent="Environment" unique_id=129562607]
 transform = Transform3D(0.88294756, -0.3845686, 0.26927784, 0, 0.57357645, 0.81915206, -0.46947157, -0.72326833, 0.50643796, 0, 0, 0)
 light_color = Color(0.48, 0.62, 1, 1)
 light_energy = 0.0
 light_indirect_energy = 0.65
+light_angular_distance = 0.18
 shadow_enabled = true
+directional_shadow_blend_splits = true
+directional_shadow_max_distance = 65.0
+directional_shadow_fade_start = 0.7
 
 [node name="Territories" type="Node3D" parent="." unique_id=271447831]
 
@@ -159,6 +223,11 @@ transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 113.
 
 [node name="DownTownWest" parent="Territories" unique_id=1624031075 instance=ExtResource("5_21lis")]
 transform = Transform3D(-0.99999994, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -0.99999994, 249.993, 0, -254.999)
+
+[node name="WorldSurfaceStyler" type="Node" parent="."]
+script = ExtResource("26_surface_styler")
+source_roots = Array[NodePath]([NodePath("../Territories")])
+visual_profile = ExtResource("26_visual_profile")
 
 [node name="Navigation" type="Node3D" parent="." unique_id=417562799]
 
@@ -302,6 +371,9 @@ script = ExtResource("21_world_events")
 [node name="EvidenceService" type="Node" parent="." unique_id=1772262490]
 script = ExtResource("22_evidence")
 
+[node name="PoliceCoordinator" type="Node" parent="."]
+script = ExtResource("22_police_coordinator")
+
 [node name="PublicSafetyDebugOverlay" type="CanvasLayer" parent="." unique_id=1730872849]
 script = ExtResource("23_public_safety_debug")
 
@@ -310,8 +382,10 @@ script = ExtResource("6_controller")
 
 [node name="WorldTimeComponent" type="Node" parent="." unique_id=1834229075]
 script = ExtResource("14_world_time")
+visual_profile = ExtResource("26_visual_profile")
 
 [node name="WeatherSystem" parent="." instance=ExtResource("25_weather")]
+visual_profile = ExtResource("26_visual_profile")
 
 [node name="TerritoryMarketService" type="Node" parent="." unique_id=2063368603]
 script = ExtResource("16_market")

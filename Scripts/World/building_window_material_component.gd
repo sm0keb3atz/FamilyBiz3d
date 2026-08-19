@@ -52,7 +52,15 @@ func _cache_window_surfaces() -> void:
 func _collect_window_surfaces(node: Node) -> void:
 	if node is MeshInstance3D and node.name.to_lower().begins_with(window_name_prefix.to_lower()):
 		var window_mesh := node as MeshInstance3D
-		var surface_index := long_window_surface if "long" in window_mesh.name.to_lower() else regular_window_surface
+		var surface_index := (
+			int(window_mesh.get_meta(META_WINDOW_SURFACE))
+			if window_mesh.has_meta(META_WINDOW_SURFACE)
+			else (
+				long_window_surface
+				if "long" in window_mesh.name.to_lower()
+				else regular_window_surface
+			)
+		)
 		if window_mesh.mesh != null and surface_index < window_mesh.mesh.get_surface_count():
 			_window_surfaces.append({
 				"mesh": window_mesh,

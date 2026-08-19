@@ -9,14 +9,16 @@ const MODE_SEARCH_COMBAT := 4
 const MODE_CHALLENGE := 5
 const MODE_SEARCH_CHALLENGE := 6
 const MODE_INVESTIGATE := 7
+const MODE_SURRENDER := 8
 
 @export_range(1.0, 12.0, 0.1) var patrol_speed := 2.5
 @export_range(1.0, 12.0, 0.1) var pursuit_speed := 5.5
 @export_range(5.0, 80.0, 1.0) var direct_pursuit_range := 45.0
 @export_range(0.5, 5.0, 0.1) var combat_aim_move_speed := 2.25
 @export_range(0.5, 5.0, 0.1) var arrest_distance := 1.8
-@export_range(2.0, 30.0, 0.5) var preferred_combat_distance := 11.0
-@export_range(1.0, 20.0, 0.5) var minimum_combat_distance := 3.0
+@export_range(2.0, 40.0, 0.5) var preferred_combat_distance := 19.0
+@export_range(1.0, 20.0, 0.5) var minimum_combat_distance := 8.0
+@export_range(10.0, 60.0, 0.5) var maximum_combat_distance := 32.0
 @export_range(1.0, 20.0, 0.5) var retreat_target_distance := 5.0
 @export_range(1.0, 20.0, 0.5) var reposition_min_distance := 3.0
 @export_range(1.0, 20.0, 0.5) var reposition_max_distance := 6.0
@@ -32,8 +34,8 @@ const MODE_INVESTIGATE := 7
 @export_category("Investigation and Search")
 @export_range(5.0, 60.0, 1.0) var investigation_lifetime := 30.0
 @export_range(0.1, 2.0, 0.05) var search_replan_interval := 0.4
-@export_range(0.0, 5.0, 0.1) var search_pause_minimum := 0.45
-@export_range(0.0, 5.0, 0.1) var search_pause_maximum := 1.2
+@export_range(0.0, 5.0, 0.1) var search_pause_minimum := 1.0
+@export_range(0.0, 5.0, 0.1) var search_pause_maximum := 2.0
 @export_range(0.0, 10.0, 0.1) var minimum_burst_pause := 0.8
 @export_range(0.0, 10.0, 0.1) var maximum_burst_pause := 1.6
 @export_range(0.05, 1.0, 0.01) var minimum_shot_interval := 0.18
@@ -42,7 +44,7 @@ const MODE_INVESTIGATE := 7
 @export_category("Dispatched Response")
 @export_range(1.0, 12.0, 0.5) var response_commit_seconds := 6.0
 
-var npc
+var npc: BaseNPC
 var player: CharacterBody3D
 var wanted: PlayerWantedComponent
 var arrest: PlayerArrestComponent
@@ -50,6 +52,7 @@ var player_health: PlayerHealthComponent
 var patrol: PedestrianPatrolComponent
 var perception: PolicePerceptionComponent
 var combat: NPCCombatComponent
+var coordinator: Node
 var _random := RandomNumberGenerator.new()
 var _last_known_position := Vector3.ZERO
 var _burst_remaining := 0
@@ -105,6 +108,7 @@ func initialize(owner_npc: BaseNPC, target_player: CharacterBody3D) -> void:
 	combat = npc.get_node(
 		"Components/CombatComponent"
 	) as NPCCombatComponent
+	coordinator = player.get_tree().get_first_node_in_group(&"police_coordinator")
 	_random.randomize()
 
 
@@ -116,6 +120,8 @@ func tick_mode(mode: int, delta: float) -> void:
 	# reacquire a respawned player after the wanted level has been cleared.
 	if wanted == null or wanted.wanted_level <= 0:
 		mode = MODE_PATROL
+	elif coordinator != null and coordinator.is_player_compliant():
+		mode = MODE_SURRENDER
 	_response_commit_remaining = maxf(
 		_response_commit_remaining - delta,
 		0.0
@@ -124,8 +130,15 @@ func tick_mode(mode: int, delta: float) -> void:
 	_search_replan_remaining = maxf(_search_replan_remaining - delta, 0.0)
 	if (
 		has_active_investigation()
-		and _investigation_source_actor == player
 		and perception.can_see_player()
+		and (
+			_investigation_source_actor == player
+			or (
+				_investigation_source_actor == null
+				and wanted.weapon_component != null
+				and wanted.weapon_component.get_equipped_weapon() != null
+			)
+		)
 	):
 		_confirm_player_weapon_discharge()
 		return
@@ -152,6 +165,21 @@ func tick_mode(mode: int, delta: float) -> void:
 			_tick_search(delta, true, false)
 		MODE_INVESTIGATE:
 			_tick_investigation(delta)
+		MODE_SURRENDER:
+			_tick_surrender(delta)
+
+
+func abort_mode(mode: int) -> void:
+	if _last_mode != mode:
+		return
+	_last_mode = -1
+	_has_reposition_target = false
+	_burst_remaining = 0
+	_pause_remaining = 0.0
+	_movement_decision_remaining = 0.0
+	combat.clear_aim()
+	npc.clear_facing_override()
+	npc.clear_navigation_target()
 
 
 func _trace_mode_transition(previous_mode: int, next_mode: int) -> void:
@@ -459,6 +487,8 @@ func cancel_wanted_engagement() -> void:
 func _enter_mode(mode: int) -> void:
 	npc.clear_navigation_target()
 	npc.clear_facing_override()
+	if mode in [MODE_ARREST, MODE_COMBAT, MODE_CHALLENGE, MODE_SURRENDER]:
+		npc.audio_component.play_police_aggro()
 	_has_reposition_target = false
 	_burst_remaining = 0
 	_pause_remaining = 0.0
@@ -531,15 +561,18 @@ func _tick_combat(delta: float) -> void:
 	var sees_player: bool = perception.can_see_player()
 	if sees_player:
 		_last_known_position = player.global_position
-		wanted.report_police_visual_contact(player.global_position)
+		if coordinator != null:
+			coordinator.report_visual_contact(npc, player.global_position)
+		else:
+			wanted.report_police_visual_contact(player.global_position)
 	else:
-		_tick_search(delta, true, true)
+		combat.clear_aim()
+		npc.stop_moving(delta)
 		return
 	var combat_distance: float = npc.global_position.distance_to(
 		player.global_position
 	)
-	var advance_threshold := preferred_combat_distance * 1.25
-	if combat_distance > advance_threshold:
+	if combat_distance > maximum_combat_distance:
 		npc.move_speed = pursuit_speed
 		combat.clear_aim()
 		_has_reposition_target = false
@@ -599,8 +632,6 @@ func _update_combat_movement(
 	target_position: Vector3,
 	delta: float
 ) -> void:
-	# Close-range officers hold their ground or take short lateral steps. They
-	# no longer run several metres away from the attacker through navigation.
 	npc.clear_navigation_target()
 	_has_reposition_target = false
 	if _movement_decision_remaining <= 0.0:
@@ -628,10 +659,13 @@ func _update_combat_movement(
 		Vector3.UP,
 		_combat_strafe_sign * PI * 0.5
 	)
-	# Outside the preferred range, arc slightly inward without ever retreating.
-	if combat_distance > preferred_combat_distance:
+	if combat_distance < minimum_combat_distance:
 		strafe_direction = (
-			strafe_direction + toward_player.normalized() * 0.3
+			strafe_direction - toward_player.normalized() * 0.9
+		).normalized()
+	elif combat_distance > preferred_combat_distance:
+		strafe_direction = (
+			strafe_direction + toward_player.normalized() * 0.55
 		).normalized()
 	npc.set_facing_override(target_position)
 	npc.move_in_world_direction(
@@ -690,18 +724,17 @@ func _tick_challenge(delta: float) -> void:
 func _tick_search(delta: float, armed: bool, engage_combat: bool) -> void:
 	npc.move_speed = pursuit_speed
 	combat.set_equipped(armed)
+	_search_elapsed += delta
 	if not player_health.is_alive():
 		combat.clear_aim()
 		npc.stop_moving(delta)
 		return
 	if perception.can_see_player():
-		wanted.report_police_visual_contact(player.global_position)
-		if armed and engage_combat:
-			_tick_combat(delta)
-		elif armed:
-			_tick_challenge(delta)
+		if coordinator != null:
+			coordinator.report_visual_contact(npc, player.global_position)
 		else:
-			_tick_arrest(delta)
+			wanted.report_police_visual_contact(player.global_position)
+		npc.stop_moving(delta)
 		return
 	if _response_commit_remaining > 0.0 and _has_response_target:
 		_chase_dispatched_response_target(delta)
@@ -725,6 +758,7 @@ func _tick_investigation(delta: float) -> void:
 		npc.set_navigation_target(_last_known_position)
 		npc.advance_navigation(delta)
 		return
+	npc.clear_navigation_target()
 	npc.stop_moving(delta)
 	if _search_pause_pending:
 		_search_pause_remaining = _random.randf_range(
@@ -733,6 +767,7 @@ func _tick_investigation(delta: float) -> void:
 		)
 		_search_pause_pending = false
 	if _search_pause_remaining > 0.0:
+		_update_search_scan()
 		_search_pause_remaining = maxf(
 			_search_pause_remaining - delta,
 			0.0
@@ -747,6 +782,9 @@ func _chase_dispatched_response_target(delta: float) -> void:
 	combat.clear_aim()
 	_last_known_position = _response_target
 	if npc.global_position.distance_squared_to(_response_target) <= 1.5 * 1.5:
+		# Release the priority-100 pursuit intent. Leaving the completed intent
+		# active rejects the lower-priority search path that follows on scene.
+		npc.clear_navigation_target()
 		npc.stop_moving(delta)
 		npc.set_facing_override(_response_target)
 		_response_commit_remaining = 0.0
@@ -765,13 +803,34 @@ func _confirm_player_weapon_discharge() -> void:
 	_has_search_destination = true
 	_investigation_remaining = 0.0
 	_investigation_source_actor = null
-	var next_wanted_level := 1 if wanted.wanted_level <= 0 else 2
+	var incident := wanted.active_incident as PoliceIncident
+	var duplicate_recent_violence := (
+		incident != null
+		and incident.crime_type in [
+			PoliceIncident.CrimeType.ASSAULT,
+			PoliceIncident.CrimeType.HOMICIDE,
+			PoliceIncident.CrimeType.OFFICER_DOWN,
+		]
+		and Time.get_ticks_msec() * 0.001 - incident.observed_at_seconds <= 0.5
+	)
+	if duplicate_recent_violence:
+		wanted.set_force_authorized(true)
+		wanted.report_police_visual_contact(player.global_position)
+		npc.clear_navigation_target()
+		npc.set_facing_override(player.global_position)
+		return
+	var next_wanted_level := (
+		2
+		if wanted.wanted_level < 2
+		else mini(wanted.wanted_level + 1, PlayerWantedComponent.MAX_WANTED_LEVEL)
+	)
 	wanted.report_police_incident(
 		player.global_position,
 		PoliceIncident.CrimeType.WEAPON_DISCHARGE,
 		next_wanted_level
 	)
 	wanted.set_wanted_level(maxi(wanted.wanted_level, next_wanted_level))
+	wanted.set_force_authorized(true)
 	wanted.report_police_visual_contact(player.global_position)
 	npc.clear_navigation_target()
 	npc.set_facing_override(player.global_position)
@@ -797,6 +856,10 @@ func _chase_last_known(delta: float) -> void:
 			)
 			npc.advance_navigation(delta)
 	else:
+		# A completed response/pursuit path can still own navigation at priority
+		# 100. Clear it before selecting the next priority-80 search waypoint or
+		# the movement component will reject every subsequent search target.
+		npc.clear_navigation_target()
 		npc.stop_moving(delta)
 		_search_center_pending = false
 		if _has_search_center:
@@ -808,12 +871,29 @@ func _chase_last_known(delta: float) -> void:
 			)
 			_search_pause_pending = false
 		if _search_pause_remaining > 0.0:
+			_update_search_scan()
 			_search_pause_remaining = maxf(
 				_search_pause_remaining - delta,
 				0.0
 			)
 			return
 		_choose_search_position()
+
+
+func _update_search_scan() -> void:
+	var base_direction := _search_center - npc.global_position
+	base_direction.y = 0.0
+	if base_direction.is_zero_approx():
+		base_direction = npc.visual.global_basis.z
+	base_direction = base_direction.normalized()
+	var scan_phase := (
+		Time.get_ticks_msec() * 0.004
+		+ float(npc.get_instance_id() % 17) * 0.37
+	)
+	var scan_angle := sin(scan_phase) * deg_to_rad(55.0)
+	npc.set_facing_override(
+		npc.global_position + base_direction.rotated(Vector3.UP, scan_angle)
+	)
 
 
 func _pursue_position(
@@ -902,6 +982,23 @@ func _choose_search_position() -> void:
 
 
 func _sync_search_dispatch(force := false) -> void:
+	if coordinator != null and coordinator.has_actionable_intelligence():
+		var assignment: Dictionary = coordinator.get_search_assignment(
+			npc.get_instance_id()
+		)
+		var revision := int(assignment.get("revision", -1))
+		if not force and _last_search_revision == revision:
+			return
+		_last_search_revision = revision
+		_search_center = assignment.get("center", coordinator.last_known_position)
+		_search_role = StringName(assignment.get("role", &"tracker"))
+		_has_search_center = true
+		_search_center_pending = true
+		_set_search_destination(
+			assignment.get("destination", _search_center) as Vector3
+		)
+		_search_elapsed = 0.0
+		return
 	if wanted == null or not wanted.has_police_search_position:
 		return
 	if (
@@ -937,27 +1034,59 @@ func _get_stable_search_role() -> StringName:
 	return [&"tracker", &"cutoff", &"sweeper"][index]
 
 
+func _tick_surrender(delta: float) -> void:
+	combat.set_equipped(true)
+	combat.set_aim_target(player.global_position + Vector3.UP)
+	npc.set_facing_override(player.global_position)
+	var assignment: Dictionary = (
+		coordinator.get_search_assignment(npc.get_instance_id())
+		if coordinator != null else {"role": &"tracker"}
+	)
+	var contact_officer: bool = StringName(assignment.get("role", &"tracker")) == &"tracker"
+	var distance: float = npc.global_position.distance_to(player.global_position)
+	if not contact_officer and distance <= 12.0:
+		npc.stop_moving(delta)
+		return
+	if distance <= arrest_distance:
+		npc.stop_moving(delta)
+		arrest.report_police_contact()
+		return
+	npc.move_speed = combat_aim_move_speed if distance <= 12.0 else pursuit_speed
+	_pursue_position(player.global_position, delta, distance <= 12.0)
+
+
 func _get_search_role_angle() -> float:
 	match _search_role:
 		&"tracker":
 			return 0.0
+		&"left_sweeper":
+			return PI * 0.55
+		&"right_sweeper":
+			return -PI * 0.55
 		&"cutoff":
-			return PI * 0.66
+			return PI
 		_:
-			return -PI * 0.66
+			return 0.0
 
 
 func _set_search_destination(candidate: Vector3) -> void:
-	var navigation_map: RID = npc.navigation_agent.get_navigation_map()
-	if (
-		not navigation_map.is_valid()
-		or NavigationServer3D.map_get_iteration_id(navigation_map) == 0
-	):
+	if not candidate.is_finite():
 		return
-	var reachable := NavigationServer3D.map_get_closest_point(
-		navigation_map,
-		candidate
-	)
+	var navigation_map: RID = npc.navigation_agent.get_navigation_map()
+	var reachable := candidate
+	if (
+		navigation_map.is_valid()
+		and NavigationServer3D.map_get_iteration_id(navigation_map) > 0
+	):
+		var projected := NavigationServer3D.map_get_closest_point(
+			navigation_map,
+			candidate
+		)
+		if projected.is_finite():
+			reachable = projected
+	# Keep the reported world position as a direct-pursuit fallback while a
+	# freshly spawned officer waits for the navigation map's first iteration.
+	# Previously this silently left Search active with no destination at all.
 	_last_known_position = reachable
 	_has_search_destination = true
 	_search_pause_remaining = 0.0

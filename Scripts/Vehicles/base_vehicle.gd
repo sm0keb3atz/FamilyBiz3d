@@ -4,6 +4,10 @@ extends VehicleBody3D
 const VehicleDefinitionResource := preload(
 	"res://Scripts/Vehicles/vehicle_definition.gd"
 )
+const DEFAULT_VISUAL_PROFILE := preload(
+	"res://Assets/VFX/GrittyCinematicWorldVisualProfile.tres"
+)
+const VEHICLE_PAINT_META := &"family_business_vehicle_paint"
 signal driver_changed(driver: CharacterBody3D)
 signal exit_denied(message: String)
 signal service_lock_changed(locked: bool)
@@ -40,6 +44,8 @@ signal service_lock_changed(locked: bool)
 @export_range(0.0, 1.0, 0.01) var skid_mark_opacity := 0.62
 @export_range(0.0, 1.0, 0.01) var tire_smoke_opacity := 0.22
 @export_range(0.1, 3.0, 0.1) var tire_smoke_lifetime := 1.25
+@export_category("World Visuals")
+@export var visual_profile: WorldVisualProfile = DEFAULT_VISUAL_PROFILE
 
 @onready var visual_root := get_node(visual_root_path) as Node3D
 @onready var front_left_wheel := (
@@ -146,6 +152,7 @@ func _ready() -> void:
 	stability_component.setup(self)
 	drive_component.setup(self)
 	_apply_definition()
+	_prepare_local_paint_materials(visual_root)
 	condition_component.setup(self)
 	light_component.setup(self)
 	wheel_visual_component.bind_bones()
@@ -410,7 +417,7 @@ func get_grounded_spawn_height() -> float:
 
 func apply_traffic_body_color(color: Color) -> int:
 	if _traffic_color_materials.is_empty():
-		_collect_traffic_color_materials(visual_root)
+		_prepare_local_paint_materials(visual_root)
 	for material in _traffic_color_materials:
 		material.albedo_color = color
 	return _traffic_color_materials.size()
@@ -431,21 +438,46 @@ func _apply_definition_geometry() -> void:
 	rear_right_wheel.position = definition.rear_right_wheel_anchor
 
 
-func _collect_traffic_color_materials(node: Node) -> void:
+func _prepare_local_paint_materials(node: Node) -> void:
 	if node is MeshInstance3D:
 		var mesh_instance := node as MeshInstance3D
 		if mesh_instance.mesh != null:
 			for surface_index in mesh_instance.mesh.get_surface_count():
-				var source := mesh_instance.mesh.surface_get_material(surface_index)
+				var source := mesh_instance.get_surface_override_material(surface_index)
+				if source == null:
+					source = mesh_instance.mesh.surface_get_material(surface_index)
 				if source == null or not source.resource_name.begins_with("MI_glossy"):
+					continue
+				if source.has_meta(VEHICLE_PAINT_META):
+					var prepared := source as BaseMaterial3D
+					if prepared != null and not _traffic_color_materials.has(prepared):
+						_traffic_color_materials.append(prepared)
 					continue
 				var local := source.duplicate() as BaseMaterial3D
 				if local == null:
 					continue
+				local.resource_local_to_scene = true
+				local.roughness = (
+					visual_profile.vehicle_paint_roughness
+					if visual_profile != null
+					else 0.28
+				)
+				local.clearcoat_enabled = true
+				local.clearcoat = (
+					visual_profile.vehicle_clearcoat
+					if visual_profile != null
+					else 0.80
+				)
+				local.clearcoat_roughness = (
+					visual_profile.vehicle_clearcoat_roughness
+					if visual_profile != null
+					else 0.12
+				)
+				local.set_meta(VEHICLE_PAINT_META, true)
 				mesh_instance.set_surface_override_material(surface_index, local)
 				_traffic_color_materials.append(local)
 	for child in node.get_children():
-		_collect_traffic_color_materials(child)
+		_prepare_local_paint_materials(child)
 
 
 func _create_skid_mark_emitters() -> void:

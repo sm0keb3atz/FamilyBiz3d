@@ -1,7 +1,10 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://Scripts/World/weather_system.gd" id="1_weather"]
 [ext_resource type="Shader" path="res://Assets/VFX/Shaders/weather_screen.gdshader" id="2_overlay"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/freesound_community-city-street-downtown-52115.mp3" id="3_city"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Rain OGG/1.ogg" id="4_rain"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Dark_Rainy_Night(ambience).ogg" id="5_storm"]
 
 [sub_resource type="Gradient" id="RainDropGradient"]
 offsets = PackedFloat32Array(0, 0.18, 0.58, 1)
@@ -56,8 +59,8 @@ scale_max = 1.1
 color = Color(0.7, 0.82, 0.96, 0.4)
 
 [sub_resource type="Gradient" id="MistGradient"]
-offsets = PackedFloat32Array(0, 0.38, 0.72, 1)
-colors = PackedColorArray(0.72, 0.79, 0.88, 0, 0.72, 0.79, 0.88, 0.16, 0.54, 0.62, 0.72, 0.08, 0.54, 0.62, 0.72, 0)
+offsets = PackedFloat32Array(0, 0.3, 0.72, 1)
+colors = PackedColorArray(0.72, 0.79, 0.88, 0, 0.72, 0.79, 0.88, 0.12, 0.54, 0.62, 0.72, 0.06, 0.54, 0.62, 0.72, 0)
 
 [sub_resource type="GradientTexture2D" id="MistTexture"]
 gradient = SubResource("MistGradient")
@@ -76,19 +79,19 @@ billboard_mode = 1
 
 [sub_resource type="QuadMesh" id="MistQuad"]
 material = SubResource("MistMaterial")
-size = Vector2(1.6, 0.55)
+size = Vector2(3.4, 0.2)
 
 [sub_resource type="ParticleProcessMaterial" id="MistProcess"]
 emission_shape = 3
-emission_box_extents = Vector3(17, 0.35, 17)
-direction = Vector3(0, 1, 0)
-spread = 65.0
-initial_velocity_min = 0.15
-initial_velocity_max = 0.55
-gravity = Vector3(0, 0.08, 0)
-scale_min = 2.0
-scale_max = 5.0
-color = Color(0.66, 0.72, 0.8, 0.18)
+emission_box_extents = Vector3(17, 0.04, 17)
+direction = Vector3(1, 0, 0)
+spread = 180.0
+initial_velocity_min = 0.08
+initial_velocity_max = 0.22
+gravity = Vector3(0, 0, 0)
+scale_min = 0.75
+scale_max = 1.6
+color = Color(0.66, 0.72, 0.8, 0.16)
 
 [sub_resource type="StandardMaterial3D" id="SplashMaterial"]
 transparency = 1
@@ -98,10 +101,10 @@ vertex_color_use_as_albedo = true
 
 [sub_resource type="TorusMesh" id="SplashRing"]
 material = SubResource("SplashMaterial")
-inner_radius = 0.052
-outer_radius = 0.072
-rings = 6
-ring_segments = 10
+inner_radius = 0.018
+outer_radius = 0.028
+rings = 5
+ring_segments = 8
 
 [sub_resource type="Curve" id="SplashScaleCurve"]
 max_value = 1.6
@@ -123,13 +126,13 @@ emission_shape = 3
 emission_box_extents = Vector3(16, 0.015, 16)
 direction = Vector3(0, 1, 0)
 spread = 18.0
-initial_velocity_min = 0.08
-initial_velocity_max = 0.22
-gravity = Vector3(0, -0.6, 0)
-scale_min = 0.7
-scale_max = 1.25
+initial_velocity_min = 0.03
+initial_velocity_max = 0.08
+gravity = Vector3(0, -0.3, 0)
+scale_min = 0.45
+scale_max = 0.8
 scale_curve = SubResource("SplashScaleTexture")
-color = Color(0.58, 0.7, 0.86, 0.46)
+color = Color(0.58, 0.7, 0.86, 0.22)
 alpha_curve = SubResource("SplashAlphaTexture")
 
 [sub_resource type="ShaderMaterial" id="OverlayMaterial"]
@@ -139,6 +142,18 @@ shader_parameter/lightning = 0.0
 
 [node name="WeatherSystem" type="Node3D"]
 script = ExtResource("1_weather")
+
+[node name="CityAmbience" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_city")
+volume_db = -34.0
+
+[node name="RainAmbience" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_rain")
+volume_db = -80.0
+
+[node name="StormAmbience" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_storm")
+volume_db = -80.0
 
 [node name="RainStreaks" type="GPUParticles3D" parent="."]
 position = Vector3(0, 12, 0)
@@ -165,12 +180,12 @@ process_material = SubResource("NearRainProcess")
 draw_pass_1 = SubResource("NearRainQuad")
 
 [node name="GroundMist" type="GPUParticles3D" parent="."]
-position = Vector3(0, 0.2, 0)
+position = Vector3(0, 0.12, 0)
 emitting = false
-amount = 84
+amount = 34
 amount_ratio = 0.0
-lifetime = 4.5
-preprocess = 2.0
+lifetime = 3.2
+preprocess = 1.0
 randomness = 0.75
 visibility_aabb = AABB(-20, -2, -20, 40, 7, 40)
 process_material = SubResource("MistProcess")
@@ -179,10 +194,10 @@ draw_pass_1 = SubResource("MistQuad")
 [node name="RainSplashes" type="GPUParticles3D" parent="."]
 position = Vector3(0, 0.045, 0)
 emitting = false
-amount = 320
+amount = 110
 amount_ratio = 0.0
-lifetime = 0.34
-preprocess = 0.34
+lifetime = 0.18
+preprocess = 0.18
 randomness = 0.92
 visibility_aabb = AABB(-18, -0.2, -18, 36, 1.2, 36)
 process_material = SubResource("SplashProcess")

@@ -5,25 +5,25 @@ ERROR: Failed to read the root certificate store.
 WARNING: 'res://Assets/Animations/MainAnimationLibary.res': In external resource #3, invalid UID: 'uid://d3b8btpg7xv28' - using text path instead: 'res://Assets/Animations/FemaleWalk.anim'.
    at: open (core/io/resource_format_binary.cpp:1025)
    GDScript backtrace (most recent call first):
-       [0] _run (res://Tests/time_cycle_smoke_test.gd:74)
+       [0] _run (res://Tests/cinematic_visual_fx_smoke_test.gd:99)
 WARNING: 'res://Assets/Animations/MainAnimationLibary.res': In external resource #4, invalid UID: 'uid://dkspfcoyitqq8' - using text path instead: 'res://Assets/Animations/Activities/LeaningOnWall1.anim'.
    at: open (core/io/resource_format_binary.cpp:1025)
    GDScript backtrace (most recent call first):
-       [0] _run (res://Tests/time_cycle_smoke_test.gd:74)
+       [0] _run (res://Tests/cinematic_visual_fx_smoke_test.gd:99)
 WARNING: 'res://Assets/Animations/MainAnimationLibary.res': In external resource #5, invalid UID: 'uid://cv750wc575tih' - using text path instead: 'res://Assets/Animations/Activities/LeaningOnWall2.anim'.
    at: open (core/io/resource_format_binary.cpp:1025)
    GDScript backtrace (most recent call first):
-       [0] _run (res://Tests/time_cycle_smoke_test.gd:74)
+       [0] _run (res://Tests/cinematic_visual_fx_smoke_test.gd:99)
 WARNING: 'res://Assets/Animations/MainAnimationLibary.res': In external resource #7, invalid UID: 'uid://dq72yrmth05k7' - using text path instead: 'res://Assets/Animations/Activities/Talking.anim'.
    at: open (core/io/resource_format_binary.cpp:1025)
    GDScript backtrace (most recent call first):
-       [0] _run (res://Tests/time_cycle_smoke_test.gd:74)
+       [0] _run (res://Tests/cinematic_visual_fx_smoke_test.gd:99)
 WARNING: 'res://Assets/Animations/MainAnimationLibary.res': In external resource #8, invalid UID: 'uid://11lpikjgxaj2' - using text path instead: 'res://Assets/Animations/Activities/TextingWalking1.anim'.
    at: open (core/io/resource_format_binary.cpp:1025)
    GDScript backtrace (most recent call first):
-       [0] _run (res://Tests/time_cycle_smoke_test.gd:74)
+       [0] _run (res://Tests/cinematic_visual_fx_smoke_test.gd:99)
 WARNING: 'res://Assets/Animations/MainAnimationLibary.res': In external resource #9, invalid UID: 'uid://ddu8pic7we0aj' - using text path instead: 'res://Assets/Animations/Activities/TextingWalking2.anim'.
    at: open (core/io/resource_format_binary.cpp:1025)
    GDScript backtrace (most recent call first):
-       [0] _run (res://Tests/time_cycle_smoke_test.gd:74)
-TIME_CYCLE_SMOKE_TEST_PASS
+       [0] _run (res://Tests/cinematic_visual_fx_smoke_test.gd:99)
+CINEMATIC_VISUAL_FX_SMOKE_TEST_PASS

@@ -67,7 +67,13 @@ func _is_player_event_police_exempt(event: WorldEvent) -> bool:
 	return wanted != null and wanted.is_territory_event_suppressed()
 
 
-func publish_gunshot(source_actor: Node, world_position: Vector3, audible_radius: float, source_faction: StringName = &"unknown") -> WorldEvent:
+func publish_gunshot(
+	source_actor: Node,
+	world_position: Vector3,
+	audible_radius: float,
+	source_faction: StringName = &"unknown",
+	metadata := {}
+) -> WorldEvent:
 	var event := WorldEvent.new()
 	event.event_type = WorldEvent.Type.GUNSHOT
 	event.source_actor = source_actor
@@ -75,6 +81,7 @@ func publish_gunshot(source_actor: Node, world_position: Vector3, audible_radius
 	event.audible_radius = maxf(audible_radius, 0.0)
 	event.source_faction = source_faction
 	event.severity = 2
+	event.metadata = metadata.duplicate(true)
 	return publish_event(event)
 
 

@@ -4,6 +4,11 @@ extends Node
 const DEFAULT_TIRE_SCREECH := preload(
 	"res://Assets/Audio/Vehicles/tires_squal_loop.wav"
 )
+const DEFAULT_ENGINE_IDLE := preload(
+	"res://Assets/Audio/Vehicles/CorvetteIdle.wav"
+)
+
+@export_range(-30.0, 0.0, 0.5) var traffic_engine_volume_offset_db := -10.0
 
 var vehicle: BaseVehicle
 var door: AudioStreamPlayer3D
@@ -31,7 +36,11 @@ func setup(owner_vehicle: BaseVehicle) -> void:
 	)
 	door.stream = vehicle.definition.door_stream
 	start.stream = vehicle.definition.start_stream
-	engine.stream = _loop_engine(vehicle.definition.engine_stream)
+	engine.stream = _loop_engine(
+		vehicle.definition.engine_stream
+		if vehicle.definition.engine_stream != null
+		else DEFAULT_ENGINE_IDLE
+	)
 	stop.stream = vehicle.definition.stop_stream
 	tires.stream = _loop_full(
 		vehicle.definition.tire_screech_stream
@@ -289,6 +298,12 @@ func update_tires(delta: float) -> void:
 
 func set_traffic_detail_enabled(enabled: bool) -> void:
 	traffic_detail_enabled = enabled
+	if engine != null:
+		engine.volume_db = (
+			engine_target_volume_db + traffic_engine_volume_offset_db
+			if vehicle != null and vehicle.is_managed_traffic()
+			else engine_target_volume_db
+		)
 	if enabled:
 		if vehicle != null and vehicle.is_managed_traffic():
 			engine_ready = true

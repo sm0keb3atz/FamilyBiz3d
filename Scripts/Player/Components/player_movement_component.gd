@@ -1,6 +1,8 @@
 class_name PlayerMovementComponent
 extends Node
 
+signal landed(impact_speed: float)
+
 @export_category("Scene References")
 @export var body_path := NodePath("../..")
 @export var visual_path := NodePath("../../Visual")
@@ -75,6 +77,8 @@ var _current_camera_height := 1.5
 
 
 func _physics_process(delta: float) -> void:
+	var was_on_floor := body.is_on_floor()
+	var previous_vertical_speed := body.velocity.y
 	_apply_gravity(delta)
 
 	_move_input = Input.get_vector(
@@ -160,6 +164,8 @@ func _physics_process(delta: float) -> void:
 	body.velocity.x = horizontal_velocity.x
 	body.velocity.z = horizontal_velocity.z
 	body.move_and_slide()
+	if not was_on_floor and body.is_on_floor():
+		landed.emit(absf(previous_vertical_speed))
 
 	animation_component.update_animation(
 		Vector2(body.velocity.x, body.velocity.z).length(),
@@ -174,6 +180,10 @@ func _physics_process(delta: float) -> void:
 
 func is_sprinting() -> bool:
 	return _is_sprinting
+
+
+func is_crouching() -> bool:
+	return _is_crouching
 
 
 func stop_immediately() -> void:

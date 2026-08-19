@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://7scsrfqwimno"]
 
-[ext_resource type="Script" path="res://Scripts/UI/vehicle_hud_overhaul.gd" id="1_hud"]
+[ext_resource type="Script" path="res://Scripts/UI/gameplay_hud_overhaul.gd" id="1_hud"]
 [ext_resource type="AudioStream" uid="uid://diub4n3mqh6n0" path="res://Assets/Audio/UI/transaction.ogg" id="2_transaction"]
 [ext_resource type="Script" path="res://Scripts/UI/daily_financial_report.gd" id="3_daily_report"]
 
@@ -250,7 +250,7 @@ anchor_right = 1.0
 offset_left = -380.0
 offset_top = 20.0
 offset_right = -20.0
-offset_bottom = 92.0
+offset_bottom = 220.0
 grow_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
@@ -298,17 +298,19 @@ text = "0 / 100"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="WantedStars" type="Label" parent="."]
+[node name="PoliceStatus" type="Label" parent="HeatPanel/Margin/Content"]
 unique_name_in_owner = true
 visible = false
-anchors_preset = 10
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -120.0
-offset_top = 145.0
-offset_right = 120.0
-offset_bottom = 187.0
-grow_horizontal = 2
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.78, 0.3, 1)
+theme_override_font_sizes/font_size = 13
+text = "POLICE SEARCHING"
+horizontal_alignment = 1
+
+[node name="WantedStars" type="Label" parent="HeatPanel/Margin/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.75, 0.12, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -320,38 +322,31 @@ text = "★☆☆"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="EscapePanel" type="PanelContainer" parent="."]
+[node name="EscapePanel" type="PanelContainer" parent="HeatPanel/Margin/Content"]
 unique_name_in_owner = true
 visible = false
-anchors_preset = 10
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -170.0
-offset_top = 187.0
-offset_right = 170.0
-offset_bottom = 247.0
-grow_horizontal = 2
+layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
-[node name="Margin" type="MarginContainer" parent="EscapePanel"]
+[node name="Margin" type="MarginContainer" parent="HeatPanel/Margin/Content/EscapePanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 7
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 9
 
-[node name="Content" type="VBoxContainer" parent="EscapePanel/Margin"]
+[node name="Content" type="VBoxContainer" parent="HeatPanel/Margin/Content/EscapePanel/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Label" type="Label" parent="EscapePanel/Margin/Content"]
+[node name="Label" type="Label" parent="HeatPanel/Margin/Content/EscapePanel/Margin/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.78, 0.3, 1)
 theme_override_font_sizes/font_size = 14
 text = "ESCAPING POLICE"
 horizontal_alignment = 1
 
-[node name="EscapeBar" type="ProgressBar" parent="EscapePanel/Margin/Content"]
+[node name="EscapeBar" type="ProgressBar" parent="HeatPanel/Margin/Content/EscapePanel/Margin/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(316, 18)
 layout_mode = 2
@@ -360,6 +355,19 @@ value = 1.0
 theme_override_styles/background = SubResource("StyleBoxFlat_bar_background")
 theme_override_styles/fill = SubResource("StyleBoxFlat_escape_fill")
 show_percentage = false
+
+[node name="EscapeTime" type="Label" parent="HeatPanel/Margin/Content/EscapePanel/Margin/Content/EscapeBar"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 12
+text = "8.0s"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="ArrestPanel" type="PanelContainer" parent="."]
 unique_name_in_owner = true

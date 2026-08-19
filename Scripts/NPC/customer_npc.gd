@@ -34,6 +34,9 @@ const EVENT_STORE_VISIT_INTERRUPTED := &"store_visit_interrupted"
 const CUSTOMER_OUTLINE_SHADER := preload(
 	"res://Assets/VFX/Shaders/target_lock_outline.gdshader"
 )
+const CUSTOMER_OUTLINE_HALO_SHADER := preload(
+	"res://Assets/VFX/Shaders/target_lock_outline_halo.gdshader"
+)
 
 @export_range(0.5, 5.0, 0.1) var player_stop_distance := 1.6
 @export_range(0.5, 10.0, 0.1) var route_stop_distance := 0.75
@@ -88,9 +91,9 @@ const CUSTOMER_OUTLINE_SHADER := preload(
 
 @export_category("Solicitation Outline")
 @export var solicitation_outline_color := Color(1.0, 0.78, 0.18, 1.0)
-@export_range(0.0, 0.3, 0.005) var solicitation_outline_thickness := 0.028
-@export_range(0.0, 4.0, 0.05) var solicitation_outline_energy := 1.35
-@export_range(0.0, 1.0, 0.05) var solicitation_outline_transparency := 0.9
+@export_range(0.5, 8.0, 0.1) var solicitation_outline_thickness := 6.8
+@export_range(0.0, 6.0, 0.05) var solicitation_outline_energy := 1.1
+@export_range(0.0, 1.0, 0.01) var solicitation_outline_transparency := 0.95
 
 @onready var hsm := $LimboHSM as LimboHSM
 @onready var roaming_state := $LimboHSM/Roaming as LimboState
@@ -160,6 +163,8 @@ var _store_visit_stage := -1
 var _store_stage_remaining := 0.0
 var _roaming_walk_animation := &"Walk"
 var _solicitation_outline_material: ShaderMaterial
+var _solicitation_outline_glow_material: ShaderMaterial
+var _solicitation_outline_core_material: ShaderMaterial
 var _solicitation_outline_overlays: Dictionary[int, Array] = {}
 var _girlfriend_roster: PlayerGirlfriendComponent
 var _girlfriend_player: CharacterBody3D
@@ -263,6 +268,7 @@ func begin_solicitation(player: CharacterBody3D) -> void:
 			_random
 		)
 	hsm.dispatch(EVENT_SOLICITED)
+	audio_component.play_customer_solicitation(is_female_civilian())
 
 
 func is_waiting_for_customer_trade(player: CharacterBody3D) -> bool:
@@ -580,21 +586,32 @@ func _physics_process(delta: float) -> void:
 func apply_customer_level_style(level: int) -> void:
 	match clampi(level, 1, 4):
 		1:
-			solicitation_outline_color = Color(0.18, 1.0, 0.38, 1.0)
+			solicitation_outline_color = Color(0.02, 1.0, 0.12, 1.0)
 		2:
-			solicitation_outline_color = Color(0.18, 0.55, 1.0, 1.0)
+			solicitation_outline_color = Color(0.02, 0.32, 1.0, 1.0)
 		3:
-			solicitation_outline_color = Color(0.72, 0.28, 1.0, 1.0)
+			solicitation_outline_color = Color(0.55, 0.05, 1.0, 1.0)
 		4:
-			solicitation_outline_color = Color(1.0, 0.78, 0.18, 1.0)
+			solicitation_outline_color = Color(1.0, 0.42, 0.02, 1.0)
+	var color_value := Vector3(
+		solicitation_outline_color.r,
+		solicitation_outline_color.g,
+		solicitation_outline_color.b
+	)
 	if _solicitation_outline_material != null:
 		_solicitation_outline_material.set_shader_parameter(
 			&"outline_color",
-			Vector3(
-				solicitation_outline_color.r,
-				solicitation_outline_color.g,
-				solicitation_outline_color.b
-			)
+			color_value
+		)
+	if _solicitation_outline_glow_material != null:
+		_solicitation_outline_glow_material.set_shader_parameter(
+			&"outline_color",
+			color_value
+		)
+	if _solicitation_outline_core_material != null:
+		_solicitation_outline_core_material.set_shader_parameter(
+			&"outline_color",
+			color_value
 		)
 
 
@@ -665,6 +682,7 @@ func prepare_for_pool_recycle() -> void:
 	set_visual_animation_active(false)
 	clear_navigation_target()
 	velocity = Vector3.ZERO
+	audio_component.stop_all()
 	_target_player = null
 	_panic_source_position = Vector3.ZERO
 	_release_active_route_crossing()
@@ -930,6 +948,7 @@ func _limbo_state_enter(state_id: int) -> void:
 			set_local_obstacle_steering_enabled(false)
 		State.PANICKING:
 			animation_component.use_sex_appropriate_walk()
+			audio_component.play_panic(is_female_civilian())
 			_clear_solicitation_outline()
 			_solicitation_cooldown = cooldown_duration
 			navigation_agent.target_desired_distance = route_stop_distance
@@ -1852,39 +1871,82 @@ func _finish_returning() -> void:
 
 func _initialize_solicitation_outline() -> void:
 	_solicitation_outline_material = ShaderMaterial.new()
-	_solicitation_outline_material.shader = CUSTOMER_OUTLINE_SHADER
+	_solicitation_outline_material.shader = CUSTOMER_OUTLINE_HALO_SHADER
+	_solicitation_outline_glow_material = ShaderMaterial.new()
+	_solicitation_outline_glow_material.shader = CUSTOMER_OUTLINE_HALO_SHADER
+	_solicitation_outline_core_material = ShaderMaterial.new()
+	_solicitation_outline_core_material.shader = CUSTOMER_OUTLINE_SHADER
 	apply_customer_level_style(role_component.customer_level)
-	_solicitation_outline_material.set_shader_parameter(
-		&"thickness",
-		solicitation_outline_thickness
+	_configure_solicitation_outline_layer(
+		_solicitation_outline_material,
+		solicitation_outline_thickness + 0.4,
+		solicitation_outline_energy * 0.32,
+		solicitation_outline_transparency * 0.30,
+		0.0,
+		0.55,
+		0.85
 	)
-	_solicitation_outline_material.set_shader_parameter(
-		&"outline_energy",
-		solicitation_outline_energy
+	_configure_solicitation_outline_layer(
+		_solicitation_outline_glow_material,
+		solicitation_outline_thickness * 0.71,
+		solicitation_outline_energy * 0.72,
+		solicitation_outline_transparency * 0.58,
+		0.02,
+		0.72,
+		0.90
 	)
-	_solicitation_outline_material.set_shader_parameter(
+	_configure_solicitation_outline_layer(
+		_solicitation_outline_core_material,
+		solicitation_outline_thickness * 0.52,
+		solicitation_outline_energy,
+		solicitation_outline_transparency,
+		0.12,
+		0.62,
+		0.85
+	)
+	_solicitation_outline_material.next_pass = (
+		_solicitation_outline_glow_material
+	)
+	_solicitation_outline_glow_material.next_pass = (
+		_solicitation_outline_core_material
+	)
+
+
+func _configure_solicitation_outline_layer(
+	material: ShaderMaterial,
+	layer_thickness: float,
+	layer_energy: float,
+	layer_transparency: float,
+	layer_rim_start: float,
+	layer_rim_end: float,
+	layer_rim_power: float
+) -> void:
+	material.set_shader_parameter(&"thickness", layer_thickness)
+	material.set_shader_parameter(&"outline_energy", layer_energy)
+	material.set_shader_parameter(
 		&"outline_transparency",
-		solicitation_outline_transparency
+		layer_transparency
 	)
-	_solicitation_outline_material.set_shader_parameter(
-		&"silhouette_start",
-		0.18
-	)
-	_solicitation_outline_material.set_shader_parameter(
-		&"silhouette_end",
-		0.42
-	)
-	_solicitation_outline_material.set_shader_parameter(&"merge_group", true)
-	_solicitation_outline_material.set_shader_parameter(
-		&"merge_depth_range",
-		10.0
-	)
+	material.set_shader_parameter(&"depth_bias", 0.035)
+	material.set_shader_parameter(&"merge_depth_range", 0.28)
+	material.set_shader_parameter(&"rim_start", layer_rim_start)
+	material.set_shader_parameter(&"rim_end", layer_rim_end)
+	material.set_shader_parameter(&"rim_power", layer_rim_power)
+	material.set_shader_parameter(&"pulse_strength", 0.015)
 
 
 func _apply_solicitation_outline() -> void:
 	if _solicitation_outline_material == null:
 		return
 	_solicitation_outline_material.set_shader_parameter(
+		&"outline_transparency",
+		solicitation_outline_transparency * 0.30
+	)
+	_solicitation_outline_glow_material.set_shader_parameter(
+		&"outline_transparency",
+		solicitation_outline_transparency * 0.58
+	)
+	_solicitation_outline_core_material.set_shader_parameter(
 		&"outline_transparency",
 		solicitation_outline_transparency
 	)
@@ -1906,13 +1968,23 @@ func _apply_solicitation_outline() -> void:
 		mesh.material_overlay = _solicitation_outline_material
 		mesh.extra_cull_margin = maxf(
 			mesh.extra_cull_margin,
-			solicitation_outline_thickness * 4.0
+			0.2
 		)
 
 
 func _clear_solicitation_outline() -> void:
 	if _solicitation_outline_material != null:
 		_solicitation_outline_material.set_shader_parameter(
+			&"outline_transparency",
+			0.0
+		)
+	if _solicitation_outline_core_material != null:
+		_solicitation_outline_core_material.set_shader_parameter(
+			&"outline_transparency",
+			0.0
+		)
+	if _solicitation_outline_glow_material != null:
+		_solicitation_outline_glow_material.set_shader_parameter(
 			&"outline_transparency",
 			0.0
 		)

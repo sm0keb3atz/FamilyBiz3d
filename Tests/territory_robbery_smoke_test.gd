@@ -54,14 +54,15 @@ func _run() -> void:
 	wanted.set_wanted_level(2)
 	assert(encounter.debug_start_robbery(boundary.territory_id))
 	assert(encounter.is_encounter_active(TerritoryEncounterController.EncounterType.ROBBERY))
-	assert(wanted.is_territory_event_suppressed())
-	assert(wanted.wanted_level == 0)
+	assert(not wanted.is_territory_event_suppressed())
+	assert(wanted.wanted_level == 2)
 	var event_bus := world.get_node("WorldEventBus") as WorldEventBus
 	var exempt_shot := event_bus.publish_gunshot(
 		player,
 		player.global_position,
 		30.0,
-		&"player"
+		&"player",
+		{"police_exempt": true}
 	)
 	assert(bool(exempt_shot.metadata.get("police_exempt", false)))
 	var approach_save := encounter.export_save_data()
@@ -73,7 +74,7 @@ func _run() -> void:
 	assert(inventory.get_quantity(weed) == 3)
 	assert(inventory.get_quantity(coke) == 2)
 	wanted.report_violence(encounter.get("_robber") as RobberyEventDealer, true)
-	assert(wanted.wanted_level == 0)
+	assert(wanted.wanted_level == 2)
 
 	var flee_save := encounter.export_save_data()
 	encounter.import_save_data(flee_save)

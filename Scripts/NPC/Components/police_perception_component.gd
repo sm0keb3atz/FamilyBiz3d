@@ -8,25 +8,26 @@ const WANTED_VISION_CONE_SHADER := preload(
 static var debug_draw_enabled := false
 
 @export_range(1.0, 100.0, 1.0) var witness_range := 14.0
-@export_range(1.0, 150.0, 1.0) var combat_sight_range := 23.0
+@export_range(1.0, 150.0, 1.0) var combat_sight_range := 35.0
 @export_range(1.0, 250.0, 1.0) var hearing_range := 150.0
-@export_range(20.0, 180.0, 1.0) var field_of_view_degrees := 88.0
-@export_range(1.0, 10.0, 0.5) var near_awareness_range := 4.0
+@export_range(20.0, 180.0, 1.0) var field_of_view_degrees := 100.0
+@export_range(1.0, 10.0, 0.5) var near_awareness_range := 3.5
 @export_range(1.0, 40.0, 0.5) var peripheral_range := 12.0
-@export_range(90.0, 180.0, 1.0) var peripheral_fov_degrees := 140.0
+@export_range(90.0, 180.0, 1.0) var peripheral_fov_degrees := 150.0
 @export_flags_3d_physics var sight_collision_mask := 3
 @export_range(0.05, 0.5, 0.01) var perception_update_interval := 0.1
 @export_category("Wanted Vision Cone")
-@export var show_wanted_vision_cone := true
+@export var show_wanted_vision_cone := false
 @export_range(8, 64, 1) var vision_cone_ray_count := 16
 @export_range(0.1, 1.0, 0.01) var vision_cone_update_interval := 0.25
 @export_range(0.01, 0.25, 0.01) var vision_cone_ground_offset := 0.06
 @export_range(10.0, 100.0, 1.0) var vision_cone_render_distance := 45.0
 
-var npc
+var npc: BaseNPC
 var player: CharacterBody3D
 var wanted: PlayerWantedComponent
 var player_weapon: PlayerWeaponComponent
+var coordinator: Node
 var _debug_mesh_instance: MeshInstance3D
 var _wanted_cone_mesh_instance: MeshInstance3D
 var _wanted_cone_material: ShaderMaterial
@@ -46,11 +47,12 @@ func initialize(owner_npc: BaseNPC, target_player: CharacterBody3D) -> void:
 	player_weapon = player.get_node(
 		"Components/WeaponComponent"
 	) as PlayerWeaponComponent
+	coordinator = player.get_tree().get_first_node_in_group(&"police_coordinator")
 	_ensure_debug_mesh()
 	_debug_mesh_instance.visible = debug_draw_enabled
 	_ensure_wanted_vision_cone()
 	_cached_can_see_player = _sample_can_see_player()
-	var stagger := float(owner_npc.get_instance_id() % 10) / 10.0
+	var stagger: float = float(owner_npc.get_instance_id() % 10) / 10.0
 	_perception_update_remaining = perception_update_interval * stagger
 	_vision_cone_update_remaining = vision_cone_update_interval * stagger
 	_refresh_wanted_vision_cone(true)
@@ -73,9 +75,9 @@ func _process(delta: float) -> void:
 		_perception_update_remaining - delta,
 		0.0
 	)
-	var sampled := false
+	var sampled: bool = false
 	if is_zero_approx(_perception_update_remaining):
-		var needs_player_sight := (
+		var needs_player_sight: bool = (
 			wanted != null
 			and wanted.wanted_level > 0
 		) or (
@@ -89,19 +91,22 @@ func _process(delta: float) -> void:
 		)
 		_perception_update_remaining = perception_update_interval
 		sampled = true
-	var has_visual_contact := (
+	var has_visual_contact: bool = (
 		wanted != null
 		and wanted.wanted_level > 0
 		and _cached_can_see_player
 	)
-	var should_render_cone := _should_render_wanted_cone()
+	var should_render_cone: bool = _should_render_wanted_cone()
 	if not should_render_cone and _wanted_cone_mesh_instance != null:
 		_wanted_cone_mesh_instance.visible = false
 	elif is_zero_approx(_vision_cone_update_remaining):
 		_refresh_wanted_vision_cone(false, has_visual_contact)
 		_vision_cone_update_remaining = vision_cone_update_interval
 	if has_visual_contact:
-		wanted.report_police_visual_contact(player.global_position)
+		if coordinator != null:
+			coordinator.report_visual_contact(npc, player.global_position)
+		else:
+			wanted.report_police_visual_contact(player.global_position)
 	if (
 		not sampled
 		or player_weapon == null
@@ -119,13 +124,23 @@ func can_see_player() -> bool:
 func _sample_can_see_player() -> bool:
 	if player == null:
 		return false
-	# Police awareness is radial, not dependent on which way their animation or
-	# navigation path happens to face. Walls still block the sight ray.
-	return _has_sight(
-		player.global_position + Vector3.UP,
-		combat_sight_range,
-		false
-	)
+	var distance: float = npc.global_position.distance_to(player.global_position)
+	var targets: Array[Vector3] = [
+		player.global_position + Vector3.UP * 0.9,
+		player.global_position + Vector3.UP * 1.55,
+	]
+	for target: Vector3 in targets:
+		if distance <= near_awareness_range and _has_sight(
+			target, near_awareness_range, false
+		):
+			return true
+		if distance <= peripheral_range and _has_sight(
+			target, peripheral_range, true, peripheral_fov_degrees
+		):
+			return true
+		if _has_sight(target, combat_sight_range, true, field_of_view_degrees):
+			return true
+	return false
 
 
 func get_raycast_count() -> int:
@@ -133,16 +148,30 @@ func get_raycast_count() -> int:
 
 
 func can_witness_position(world_position: Vector3) -> bool:
-	return _has_sight(world_position, witness_range, true)
+	return _has_sight(world_position, witness_range, true, field_of_view_degrees)
 
 
 func can_hear_position(world_position: Vector3) -> bool:
-	return (
-		npc != null
-		and not npc.is_defeated()
-		and npc.global_position.distance_squared_to(world_position)
-		<= hearing_range * hearing_range
-	)
+	return get_hearing_confidence(world_position) >= 0.12
+
+
+func get_hearing_confidence(world_position: Vector3) -> float:
+	if npc == null or npc.is_defeated():
+		return 0.0
+	var origin: Vector3 = npc.global_position + Vector3.UP * 1.35
+	var distance: float = origin.distance_to(world_position)
+	if distance > hearing_range:
+		return 0.0
+	var confidence: float = clampf(1.0 - distance / maxf(hearing_range, 0.01), 0.1, 1.0)
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, world_position)
+	query.collision_mask = sight_collision_mask
+	query.exclude = [npc.get_rid()]
+	var hit: Dictionary = npc.get_world_3d().direct_space_state.intersect_ray(query)
+	if not hit.is_empty():
+		# Walls and large obstacles reduce useful range and certainty, but do not
+		# turn a nearby firearm into a completely silent event.
+		confidence *= 0.55
+	return confidence
 
 
 func has_unobstructed_line_to(
@@ -159,28 +188,30 @@ func set_debug_draw_visible(enabled: bool) -> void:
 	debug_draw_enabled = enabled
 	_ensure_debug_mesh()
 	_debug_mesh_instance.visible = enabled
+	show_wanted_vision_cone = enabled
+	_refresh_wanted_vision_cone(true)
 
 
 func _has_sight(
 	world_position: Vector3,
 	maximum_range: float,
 	require_fov: bool,
-	fov_degrees := -1.0
+	fov_degrees: float = -1.0
 ) -> bool:
 	if npc == null or npc.is_defeated():
 		return false
 	var origin: Vector3 = npc.global_position + Vector3.UP * 1.35
-	var offset := world_position - origin
+	var offset: Vector3 = world_position - origin
 	if offset.length_squared() > maximum_range * maximum_range:
 		return false
 	if require_fov:
 		var forward: Vector3 = npc.visual.global_basis.z.normalized()
-		var flat_offset := Vector3(offset.x, 0.0, offset.z).normalized()
-		var effective_fov := field_of_view_degrees if fov_degrees < 0.0 else fov_degrees
-		var minimum_dot := cos(deg_to_rad(effective_fov * 0.5))
+		var flat_offset: Vector3 = Vector3(offset.x, 0.0, offset.z).normalized()
+		var effective_fov: float = field_of_view_degrees if fov_degrees < 0.0 else fov_degrees
+		var minimum_dot: float = cos(deg_to_rad(effective_fov * 0.5))
 		if forward.dot(flat_offset) < minimum_dot:
 			return false
-	var query := PhysicsRayQueryParameters3D.create(origin, world_position)
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, world_position)
 	query.collision_mask = sight_collision_mask
 	query.exclude = [npc.get_rid()]
 	_raycast_count += 1
@@ -194,7 +225,7 @@ func _has_sight(
 
 
 func _is_player_node(node: Node) -> bool:
-	var current := node
+	var current: Node = node
 	while current != null:
 		if current == player:
 			return true
@@ -282,7 +313,8 @@ func _ensure_wanted_vision_cone() -> void:
 
 func _should_render_wanted_cone() -> bool:
 	if (
-		not show_wanted_vision_cone
+		not debug_draw_enabled
+		or not show_wanted_vision_cone
 		or wanted == null
 		or wanted.wanted_level <= 0
 		or player == null
@@ -305,7 +337,8 @@ func _refresh_wanted_vision_cone(
 ) -> void:
 	_ensure_wanted_vision_cone()
 	var should_show: bool = (
-		show_wanted_vision_cone
+		debug_draw_enabled
+		and show_wanted_vision_cone
 		and wanted != null
 		and wanted.wanted_level > 0
 		and not npc.is_defeated()
@@ -317,7 +350,7 @@ func _refresh_wanted_vision_cone(
 		return
 	_wanted_cone_material.set_shader_parameter(
 		&"alert_level",
-		clampf(float(wanted.wanted_level) / 3.0, 0.18, 1.0)
+		clampf(float(wanted.wanted_level) / 6.0, 0.18, 1.0)
 	)
 	_wanted_cone_material.set_shader_parameter(
 		&"focus_strength",
@@ -325,9 +358,12 @@ func _refresh_wanted_vision_cone(
 	)
 	var origin: Vector3 = npc.global_position + Vector3.UP * 1.35
 	var endpoints: Array[Vector3] = []
+	var forward: Vector3 = npc.visual.global_basis.z.normalized()
+	var start_angle: float = -deg_to_rad(field_of_view_degrees * 0.5)
+	var angle_step: float = deg_to_rad(field_of_view_degrees) / float(vision_cone_ray_count)
 	for ray_index in vision_cone_ray_count + 1:
-		var angle := TAU * float(ray_index) / float(vision_cone_ray_count)
-		var direction := Vector3(sin(angle), 0.0, cos(angle))
+		var angle: float = start_angle + angle_step * float(ray_index)
+		var direction: Vector3 = forward.rotated(Vector3.UP, angle)
 		endpoints.append(
 			_get_clipped_cone_endpoint(origin, direction)
 		)
@@ -361,8 +397,8 @@ func _get_clipped_cone_endpoint(
 	origin: Vector3,
 	direction: Vector3
 ) -> Vector3:
-	var destination := origin + direction * combat_sight_range
-	var query := PhysicsRayQueryParameters3D.create(origin, destination)
+	var destination: Vector3 = origin + direction * combat_sight_range
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, destination)
 	query.collision_mask = sight_collision_mask
 	query.exclude = [npc.get_rid(), player.get_rid()]
 	query.collide_with_areas = false

@@ -10,14 +10,19 @@ extends Node3D
 
 var _light_time_remaining := 0.0
 var _peak_light_energy := 0.0
+var _particle_base_scale := Vector3.ONE
 
 
 func _ready() -> void:
+	_particle_base_scale = _particles.scale
 	_light.visible = false
 	set_process(false)
 
 
 func play_flash(energy_multiplier := 1.0) -> void:
+	rotation.z = randf_range(0.0, TAU)
+	var scale_variation := randf_range(0.88, 1.12)
+	_particles.scale = _particle_base_scale * scale_variation
 	_particles.restart()
 	_peak_light_energy = (
 		randf_range(light_energy_min, light_energy_max)

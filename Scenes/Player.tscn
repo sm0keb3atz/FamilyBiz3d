@@ -85,6 +85,10 @@
 [ext_resource type="Script" uid="uid://dgs5nhvd24v1f" path="res://Scripts/Player/Components/player_wanted_component.gd" id="37_wanted"]
 [ext_resource type="Script" uid="uid://2ku5iqfqe5ep" path="res://Scripts/Player/Components/player_arrest_component.gd" id="38_arrest"]
 [ext_resource type="Script" uid="uid://s2px2hr50ohp" path="res://Scripts/Player/Components/player_damage_feedback_component.gd" id="39_damage_feedback"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/game_feel_settings_component.gd" id="77_game_feel_settings"]
+[ext_resource type="Script" path="res://Scripts/Player/Components/player_screen_feedback_component.gd" id="78_screen_feedback"]
+[ext_resource type="Script" path="res://Scripts/UI/game_feel_pause_menu.gd" id="79_game_feel_pause"]
+[ext_resource type="Script" path="res://Scripts/Gameplay/Combat/combat_vfx_manager.gd" id="80_combat_vfx"]
 [ext_resource type="Script" uid="uid://cxcja442vhhtl" path="res://Scripts/Player/Components/player_target_lock_component.gd" id="40_target_lock"]
 [ext_resource type="AudioStream" uid="uid://dbb2xxrhvmp42" path="res://Assets/Audio/Weapon/BulletImpacts/body1.ogg" id="41_body_1"]
 [ext_resource type="AudioStream" uid="uid://bbf03bxsntcpx" path="res://Assets/Audio/Weapon/BulletImpacts/body2.ogg" id="42_body_2"]
@@ -227,12 +231,20 @@ render_priority = 0
 shader = ExtResource("20_pulse_shader")
 shader_parameter/start_point = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 shader_parameter/radius = 0.0
-shader_parameter/pulse_width = 0.65
-shader_parameter/pulse_color = Color(0.16, 0.95, 1, 0.82)
-shader_parameter/pulse_energy = 1.25
+shader_parameter/max_radius = 8.0
+shader_parameter/pulse_width = 0.72
+shader_parameter/pulse_color = Color(0.04, 0.48, 0.62, 0.4)
+shader_parameter/secondary_color = Color(0.03, 0.12, 0.45, 0.3)
+shader_parameter/core_color = Color(0.08, 0.62, 0.74, 0.48)
+shader_parameter/pulse_energy = 0.62
 shader_parameter/pulse_opacity = 1.0
-shader_parameter/edge_sharpness = 2.25
-shader_parameter/scanline_strength = 0.18
+shader_parameter/edge_sharpness = 2.4
+shader_parameter/core_intensity = 0.55
+shader_parameter/wake_length = 1.15
+shader_parameter/echo_offset = 0.78
+shader_parameter/echo_strength = 0.38
+shader_parameter/scanline_strength = 0.16
+shader_parameter/texture_strength = 0.22
 
 [sub_resource type="QuadMesh" id="QuadMesh_pulse"]
 material = SubResource("ShaderMaterial_pulse")
@@ -484,11 +496,18 @@ current = true
 
 [node name="SolicitationPulse" type="MeshInstance3D" parent="CameraPivot/SpringArm3D/Camera3D" unique_id=1864319929]
 visible = false
+position = Vector3(0, 0, -1)
 cast_shadow = 0
 extra_cull_margin = 16384.0
 mesh = SubResource("QuadMesh_pulse")
 
+[node name="CombatVFXManager" type="Node3D" parent="."]
+script = ExtResource("80_combat_vfx")
+
 [node name="Components" type="Node" parent="." unique_id=993241314]
+
+[node name="GameFeelSettingsComponent" type="Node" parent="Components"]
+script = ExtResource("77_game_feel_settings")
 
 [node name="CameraComponent" type="Node" parent="Components" unique_id=748876688]
 script = ExtResource("4_camera")
@@ -603,6 +622,12 @@ script = ExtResource("38_arrest")
 script = ExtResource("39_damage_feedback")
 bullet_impact_sounds = Array[AudioStream]([ExtResource("33_impact_1"), ExtResource("34_impact_2"), ExtResource("35_impact_3")])
 bullet_whiz_sounds = Array[AudioStream]([ExtResource("41_body_1"), ExtResource("42_body_2"), ExtResource("43_body_4"), ExtResource("44_body_5"), ExtResource("45_body_6"), ExtResource("46_body_7"), ExtResource("47_body_8")])
+
+[node name="ScreenFeedback" type="CanvasLayer" parent="."]
+script = ExtResource("78_screen_feedback")
+
+[node name="GameFeelPauseMenu" type="CanvasLayer" parent="."]
+script = ExtResource("79_game_feel_pause")
 
 [node name="AppearanceComponent" type="Node" parent="Components" unique_id=224595059]
 script = ExtResource("27_appearance")

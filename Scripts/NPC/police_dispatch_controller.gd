@@ -41,6 +41,8 @@ class ResponseUnit extends RefCounted:
 	var exit_coasting := false
 	var finished := false
 	var last_traced_state := -1
+	var role: StringName = &"lead"
+	var containment_segment_id := 0
 
 	func state_name() -> StringName:
 		return [&"queued", &"en_route", &"pursuing", &"pull_over", &"deploying", &"on_scene", &"returning", &"exiting"][state]
@@ -83,17 +85,21 @@ class ResponseUnit extends RefCounted:
 @onready var player := get_node(player_path) as CharacterBody3D
 @onready var wanted := player.get_node("Components/WantedComponent") as PlayerWantedComponent
 @onready var vehicle_component := player.get_node("Components/VehicleComponent") as PlayerVehicleComponent
+@onready var police_coordinator: Node = get_tree().get_first_node_in_group(
+	&"police_coordinator"
+)
 @onready var traffic_container := get_node(traffic_container_path) as Node3D
 @onready var traffic_coordinator: Node = get_node_or_null(
 	traffic_coordinator_path
 )
 
 var _random := RandomNumberGenerator.new()
-var _incident
+var _incident: PoliceIncident
 var _responses: Array[ResponseUnit] = []
 var _zone_runtime := {}
 var _inactive_cruisers := {}
 var _reserved_starts := {}
+var _reserved_containment_segments := {}
 var _dispatch_remaining := 0.0
 var _launch_remaining := 0.0
 var _audit_remaining := 0.0
@@ -199,6 +205,7 @@ func get_response_debug_snapshot() -> Dictionary:
 	for response in _responses:
 		response_details.append({
 			"state": response.state_name(),
+			"role": response.role,
 			"destination": response.destination_position,
 			"target_snapshot": response.target_snapshot,
 			"player_distance": (
@@ -246,6 +253,10 @@ func get_reserved_spawn_count() -> int:
 	return _reserved_starts.size()
 
 
+func get_reserved_containment_count() -> int:
+	return _reserved_containment_segments.size()
+
+
 func get_last_dispatch_route_search_count() -> int:
 	return _last_dispatch_route_search_count
 
@@ -260,6 +271,7 @@ func reset_for_load() -> void:
 		_recycle_cruiser(response.cruiser)
 	_responses.clear()
 	_reserved_starts.clear()
+	_reserved_containment_segments.clear()
 	_incident = null
 	_resolved = false
 	_dispatch_remaining = 0.0
@@ -471,21 +483,34 @@ func _dispatch_cruiser(seat_count: int) -> bool:
 		on_foot_stand_off_minimum,
 		on_foot_stand_off_maximum
 	)
-	var response_target := _get_dynamic_response_target()
+	var response_role := _choose_response_role()
+	var response_target := _get_role_target(response_role, false)
 	var choice := _choose_dispatch_route(zone, response_target, stand_off)
 	if choice.is_empty():
 		return false
+	var network := zone.get("network") as TrafficNetwork3D
+	if (
+		String(response_role).begins_with("containment")
+		and not _is_safe_containment_choice(network, choice)
+	):
+		# If this segment has no safe traffic bypass, keep the same cruiser moving
+		# as a rolling cutoff rather than building an unsafe roadblock.
+		response_role = &"cutoff"
+		response_target = _get_role_target(response_role, false)
+		choice = _choose_dispatch_route(zone, response_target, stand_off)
+		if choice.is_empty():
+			return false
 	var definition := _choose_police_definition()
 	var cruiser := _acquire_cruiser(definition)
 	if cruiser == null:
 		return false
 	var ai := _ensure_ai(cruiser)
 	var start := choice.get("start") as TrafficWaypoint3D
-	var network := zone.get("network") as TrafficNetwork3D
 	var stop_at_destination := (
 		not vehicle_component.is_driving()
 		or vehicle_component.get_effective_velocity().length()
 		<= response_profile.stationary_speed
+		or String(response_role).begins_with("containment")
 	)
 	var selected_road_target := choice.get("road_target", {}) as Dictionary
 	if not ai.assign_route_to_road_target(
@@ -523,6 +548,17 @@ func _dispatch_cruiser(seat_count: int) -> bool:
 	response.zone = zone
 	response.start = start
 	response.seat_count = seat_count
+	response.role = response_role
+	if String(response_role).begins_with("containment"):
+		var containment_target := choice.get("road_target", {}) as Dictionary
+		var containment_end := containment_target.get(
+			"segment_end"
+		) as TrafficWaypoint3D
+		if containment_end != null:
+			response.containment_segment_id = containment_end.get_instance_id()
+			_reserved_containment_segments[
+				response.containment_segment_id
+			] = response
 	response.state = (
 		ResponseUnit.State.PURSUING
 		if vehicle_component.is_driving()
@@ -688,8 +724,14 @@ func _tick_mobile_response(response: ResponseUnit, delta: float) -> void:
 	var target := _get_effective_target_node()
 	var sees_target := target != null and bool(response.cruiser.call("can_see_target", target))
 	if sees_target:
-		wanted.report_police_visual_contact(vehicle_component.get_effective_position())
-	var response_target := _get_dynamic_response_target(sees_target)
+		if police_coordinator != null:
+			police_coordinator.report_visual_contact(
+				response.cruiser,
+				vehicle_component.get_effective_position()
+			)
+		else:
+			wanted.report_police_visual_contact(vehicle_component.get_effective_position())
+	var response_target := _get_role_target(response.role, sees_target)
 	response.route_refresh_remaining = maxf(response.route_refresh_remaining - delta, 0.0)
 	var target_speed := vehicle_component.get_effective_velocity().length()
 	var player_is_moving_vehicle := (
@@ -700,10 +742,18 @@ func _tick_mobile_response(response: ResponseUnit, delta: float) -> void:
 		response.state = ResponseUnit.State.PURSUING
 		response.stationary_elapsed = 0.0
 		if (
-			is_zero_approx(response.route_refresh_remaining)
-			or response.ai.has_reached_destination()
+			not String(response.role).begins_with("containment")
+			and (
+				is_zero_approx(response.route_refresh_remaining)
+				or response.ai.has_reached_destination()
+			)
 		):
-			_retarget_dynamic_response(response, response_target, false, &"pursuit_refresh")
+			_retarget_dynamic_response(
+				response,
+				response_target,
+				String(response.role).begins_with("containment"),
+				&"pursuit_refresh"
+			)
 			response.route_refresh_remaining = pursuit_route_refresh
 	else:
 		response.stationary_elapsed = (
@@ -733,6 +783,9 @@ func _tick_mobile_response(response: ResponseUnit, delta: float) -> void:
 		_request_response_replacement(response, &"route_blocked")
 		return
 	if response.ai.has_reached_destination():
+		if String(response.role).begins_with("containment") and player_is_moving_vehicle:
+			response.cruiser.drive_component.set_ai_control(0.0, 1.0, 0.0)
+			return
 		if player_is_moving_vehicle:
 			_retarget_dynamic_response(response, response_target, false, &"intercept_reached")
 			return
@@ -865,8 +918,8 @@ func _recover_stalled_response(response: ResponseUnit) -> void:
 	)
 	if _retarget_dynamic_response(
 		response,
-		_get_dynamic_response_target(),
-		not moving_vehicle,
+		_get_role_target(response.role, false),
+		not moving_vehicle or String(response.role).begins_with("containment"),
 		&"stalled_reroute_failed",
 		true
 	):
@@ -890,8 +943,8 @@ func _resume_mounted_response(response: ResponseUnit) -> void:
 	)
 	if not _retarget_dynamic_response(
 		response,
-		_get_dynamic_response_target(),
-		not moving_vehicle,
+		_get_role_target(response.role, false),
+		not moving_vehicle or String(response.role).begins_with("containment"),
 		&"resume_route_failed",
 		true
 	):
@@ -912,20 +965,62 @@ func _request_response_replacement(
 	_begin_cruiser_exit(response)
 
 
-func _get_dynamic_response_target(use_live_position := false) -> Vector3:
-	var position := (
+func _get_dynamic_response_target(use_live_position: bool = false) -> Vector3:
+	var position: Vector3 = (
 		vehicle_component.get_effective_position()
 		if use_live_position or _last_known_position.is_zero_approx()
 		else _last_known_position
 	)
 	if not vehicle_component.is_driving():
 		return position
-	var velocity := Vector3.ZERO
+	var velocity: Vector3 = Vector3.ZERO
 	if use_live_position:
 		velocity = vehicle_component.get_effective_velocity()
 	elif _incident != null:
 		velocity = _incident.last_known_velocity
 	return position + velocity * pursuit_prediction_seconds
+
+
+func _choose_response_role() -> StringName:
+	var index := _get_engaged_cruiser_count()
+	var roles := [&"lead"]
+	match wanted.wanted_level:
+		3:
+			roles = [&"lead", &"trailing"]
+		4:
+			roles = [&"lead", &"cutoff", &"containment_a"]
+		5:
+			roles = [&"lead", &"trailing", &"cutoff", &"containment_a"]
+		6:
+			roles = [
+				&"lead", &"trailing", &"cutoff",
+				&"containment_a", &"containment_b",
+			]
+	return roles[index % roles.size()]
+
+
+func _get_role_target(role: StringName, use_live_position: bool) -> Vector3:
+	var base: Vector3 = _get_dynamic_response_target(use_live_position)
+	var velocity: Vector3 = (
+		vehicle_component.get_effective_velocity()
+		if use_live_position else (
+			_incident.last_known_velocity if _incident != null else Vector3.ZERO
+		)
+	)
+	velocity.y = 0.0
+	var forward: Vector3 = velocity.normalized() if velocity.length() > 0.5 else Vector3.FORWARD
+	var side: Vector3 = forward.rotated(Vector3.UP, PI * 0.5)
+	match role:
+		&"trailing":
+			return base - forward * 12.0
+		&"cutoff":
+			return base + forward * 24.0
+		&"containment_a":
+			return base + forward * 42.0 + side * 6.0
+		&"containment_b":
+			return base + forward * 58.0 - side * 6.0
+		_:
+			return base
 
 
 func _get_response_destination_exclusions(
@@ -1243,6 +1338,41 @@ func _tick_cruiser_exit(response: ResponseUnit, delta: float) -> void:
 func _release_reservations(response: ResponseUnit) -> void:
 	if response.start != null:
 		_reserved_starts.erase(response.start.get_instance_id())
+	if response.containment_segment_id != 0:
+		_reserved_containment_segments.erase(response.containment_segment_id)
+		response.containment_segment_id = 0
+
+
+func _is_safe_containment_choice(
+	network: TrafficNetwork3D,
+	choice: Dictionary
+) -> bool:
+	if network == null:
+		return false
+	var road_target := choice.get("road_target", {}) as Dictionary
+	var segment_start := road_target.get("segment_start") as TrafficWaypoint3D
+	var segment_end := road_target.get("segment_end") as TrafficWaypoint3D
+	var stop_position := road_target.get("position", Vector3.INF) as Vector3
+	if (
+		segment_start == null
+		or segment_end == null
+		or not stop_position.is_finite()
+		or _reserved_containment_segments.has(segment_end.get_instance_id())
+		or not _has_road_surface(stop_position)
+		or not _is_spawn_clear(stop_position)
+	):
+		return false
+	var blocked: Array[TrafficWaypoint3D] = [segment_end]
+	for exit_waypoint in network.get_exit_waypoints():
+		if exit_waypoint in [segment_start, segment_end]:
+			continue
+		if not network.find_route_avoiding(
+			segment_start,
+			exit_waypoint,
+			blocked
+		).is_empty():
+			return true
+	return false
 
 
 func _is_spawn_clear(position: Vector3) -> bool:
@@ -1482,8 +1612,8 @@ func _ensure_ai(cruiser: BaseVehicle) -> TrafficVehicleAIComponent:
 
 
 func _choose_police_definition() -> VehicleDefinition:
-	var level := clampi(wanted.wanted_level, 1, 3)
-	return _police_suv_definition if _random.randf() < [0.0, 0.2, 0.4, 0.6][level] else _police_sedan_definition
+	var level := clampi(wanted.wanted_level, 1, 6)
+	return _police_suv_definition if _random.randf() < [0.0, 0.15, 0.25, 0.4, 0.55, 0.7, 0.8][level] else _police_sedan_definition
 
 
 func _prewarm_cruiser_pool() -> void:

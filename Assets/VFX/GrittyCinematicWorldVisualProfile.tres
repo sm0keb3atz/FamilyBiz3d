@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="WorldVisualProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/World/world_visual_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+tonemap_exposure = 1.02
+agx_contrast = 1.26
+agx_white = 8.0
+saturation = 1.0
+glow_intensity = 0.16
+glow_bloom = 0.025
+glow_hdr_threshold = 1.2
+grade_black = Color(0.004, 0.007, 0.014, 1)
+grade_shadow = Color(0.135, 0.155, 0.19, 1)
+grade_mid = Color(0.5, 0.495, 0.48, 1)
+grade_highlight = Color(0.855, 0.815, 0.755, 1)
+grade_white = Color(1, 0.965, 0.91, 1)
+ssil_enabled = true
+ssil_radius = 3.5
+ssil_intensity = 0.58
+ssil_sharpness = 0.92
+ssil_normal_rejection = 0.82
+night_ambient_color = Color(0.1, 0.15, 0.26, 1)
+day_ambient_color = Color(0.42, 0.5, 0.65, 1)
+night_ambient_energy = 0.22
+day_ambient_energy = 0.52
+sunrise_sun_color = Color(1, 0.42, 0.24, 1)
+day_sun_color = Color(1, 0.92, 0.8, 1)
+night_sun_energy = 0.02
+day_sun_energy = 1.35
+moon_energy = 0.16
+night_fog_color = Color(0.11, 0.16, 0.25, 1)
+day_fog_color = Color(0.56, 0.65, 0.73, 1)
+night_fog_light_energy = 0.34
+day_fog_light_energy = 0.72
+clear_fog_density = 0.0015
+clear_fog_aerial_perspective = 0.35
+clear_fog_sun_scatter = 0.08
+night_volumetric_fog_density = 0.0065
+day_volumetric_fog_density = 0.0018
+weather_volumetric_fog_density = 0.014
+volumetric_fog_length = 58.0
+volumetric_fog_anisotropy = 0.36
+volumetric_fog_ambient_inject = 0.22
+volumetric_fog_sky_affect = 0.32
+storm_fog_color = Color(0.3, 0.35, 0.44, 1)
+lightning_fog_color = Color(0.62, 0.7, 0.88, 1)
+overcast_ambient_color = Color(0.25, 0.3, 0.4, 1)
+overcast_sun_color = Color(0.62, 0.69, 0.8, 1)
+weather_fog_density = 0.018
+weather_fog_aerial_perspective = 0.55
+overcast_ambient_multiplier = 0.68
+overcast_sun_multiplier = 0.32
+ground_macro_variation = 0.065
+ground_macro_scale = 18.0
+ground_roughness_variation = 0.06
+vehicle_paint_roughness = 0.28
+vehicle_clearcoat = 0.8
+vehicle_clearcoat_roughness = 0.12

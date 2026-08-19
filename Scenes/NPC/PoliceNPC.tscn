@@ -11,8 +11,49 @@
 [ext_resource type="Resource" path="res://Scripts/Gameplay/Weapons/pistol_definition.tres" id="9_pistol"]
 [ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/Full Sounds/9mm/MP3/9mm Single.mp3" id="10_gunshot"]
 [ext_resource type="AudioStream" path="res://Assets/Audio/Weapon/Snake's SECOND Authentic Gun Sounds/& More/Pistol/WAV/9mm Pistol Reload 1.wav" id="11_reload"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/police_brain_component.gd" id="12_brain"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_police"]
+var/target_visible/name = &"target_visible"
+var/target_visible/type = 1
+var/target_visible/value = false
+var/target_visible/hint = 0
+var/target_visible/hint_string = ""
+var/last_known_position/name = &"last_known_position"
+var/last_known_position/type = 9
+var/last_known_position/value = Vector3(0, 0, 0)
+var/last_known_position/hint = 0
+var/last_known_position/hint_string = ""
+var/threat_state/name = &"threat_state"
+var/threat_state/type = 2
+var/threat_state/value = 0
+var/threat_state/hint = 0
+var/threat_state/hint_string = ""
+var/combat_range/name = &"combat_range"
+var/combat_range/type = 3
+var/combat_range/value = 0.0
+var/combat_range/hint = 0
+var/combat_range/hint_string = ""
+var/compliant/name = &"compliant"
+var/compliant/type = 1
+var/compliant/value = false
+var/compliant/hint = 0
+var/compliant/hint_string = ""
+var/assignment_role/name = &"assignment_role"
+var/assignment_role/type = 21
+var/assignment_role/value = &""
+var/assignment_role/hint = 0
+var/assignment_role/hint_string = ""
+var/perception_confidence/name = &"perception_confidence"
+var/perception_confidence/type = 3
+var/perception_confidence/value = 0.0
+var/perception_confidence/hint = 0
+var/perception_confidence/hint_string = ""
+var/police_phase/name = &"police_phase"
+var/police_phase/type = 2
+var/police_phase/value = 0
+var/police_phase/hint = 0
+var/police_phase/hint_string = ""
 
 [node name="PoliceNPC" instance=ExtResource("1_base")]
 script = ExtResource("2_police")
@@ -35,6 +76,9 @@ reload_sound = ExtResource("11_reload")
 [node name="AIComponent" type="Node" parent="Components" index="7"]
 script = ExtResource("7_ai")
 
+[node name="BrainComponent" type="Node" parent="Components" index="8"]
+script = ExtResource("12_brain")
+
 [node name="BTPlayer" type="BTPlayer" parent="."]
 behavior_tree = ExtResource("8_tree")
 blackboard_plan = SubResource("BlackboardPlan_police")
@@ -42,6 +86,17 @@ blackboard_plan = SubResource("BlackboardPlan_police")
 [node name="RoleLabel" parent="." index="2"]
 modulate = Color(0.2, 0.45, 1, 1)
 text = "POLICE"
+
+[node name="AwarenessBadge" type="Label3D" parent="."]
+visible = false
+position = Vector3(0, 2.35, 0)
+billboard = 1
+no_depth_test = true
+font_size = 40
+outline_size = 10
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="NavigationAgent3D" parent="." index="3"]
 neighbor_distance = 6.0

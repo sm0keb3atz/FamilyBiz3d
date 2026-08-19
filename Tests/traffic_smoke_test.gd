@@ -615,6 +615,7 @@ func _run() -> void:
 		assert(definition.collision_size.x > 0.0)
 		assert(definition.collision_size.y > 0.0)
 		assert(definition.collision_size.z > 0.0)
+		assert(definition.engine_stream != null)
 		assert(definition.front_left_wheel_anchor != definition.rear_left_wheel_anchor)
 		assert(definition.front_right_wheel_anchor != definition.rear_right_wheel_anchor)
 	assert(east_manager.populate_immediately(10) == 10)
@@ -629,6 +630,9 @@ func _run() -> void:
 		assert(traffic_vehicle.is_managed_traffic())
 		assert(traffic_vehicle.is_in_group("traffic_vehicle"))
 		assert(not traffic_vehicle.can_interact(player))
+		assert(traffic_vehicle.audio_component.engine.stream != null)
+		assert(traffic_vehicle.audio_component.engine.playing)
+		assert(traffic_vehicle.audio_component.engine.volume_db <= -8.0)
 		var ai := traffic_vehicle.get_node_or_null(
 			"TrafficAIComponent"
 		) as TrafficVehicleAIComponent

@@ -28,7 +28,9 @@ func _run() -> void:
 	east_manager.populate_immediately(12)
 	var officers := east_manager.get_active_police()
 	assert(not officers.is_empty())
-	var officer := officers[0]
+	var officer := officers[0] as PoliceNPC
+	assert(officer.use_clean_slate_brain)
+	assert(not officer.bt_player.active)
 
 	var unknown_shot := bus.publish_gunshot(
 		null,
@@ -40,13 +42,16 @@ func _run() -> void:
 	assert(unknown_shot.event_id > 0)
 	assert(wanted.wanted_level == 0)
 	assert(wanted.active_incident == null)
-	assert(officer.ai_component.has_active_investigation())
+	assert(officer.brain_component.has_active_investigation())
 	# Officers pause at the sound origin before choosing a new search point.
-	officer.ai_component.search_pause_minimum = 1.0
-	officer.ai_component.search_pause_maximum = 1.0
-	officer.ai_component.note_investigation(officer.global_position)
-	officer.tick_ai_mode(PoliceModeAction.Mode.PATROL, 0.016)
-	assert(float(officer.ai_component.get("_search_pause_remaining")) > 0.9)
+	officer.brain_component.search_scan_minimum = 1.0
+	officer.brain_component.search_scan_maximum = 1.0
+	officer.brain_component.note_investigation(officer.global_position)
+	officer.brain_component.tick(0.016)
+	assert(officer.brain_component.get_state_name() == &"investigate")
+	assert(
+		float(officer.brain_component.get_debug_state().scan_remaining) > 0.9
+	)
 
 	var report := CrimeReport.new()
 	report.event_id = unknown_shot.event_id
@@ -62,16 +67,10 @@ func _run() -> void:
 	assert(wanted.wanted_level == 2)
 	assert(wanted.active_incident != null)
 	assert(wanted.active_incident.suspect_known)
-	# A street officer with no local target primes the shared dispatch while the
-	# patrol branch is active, breaking the old wanted/search circular dependency.
-	officer.ai_component.set("_investigation_remaining", 0.0)
-	officer.ai_component.set("_has_search_center", false)
-	officer.ai_component.set("_has_search_destination", false)
-	officer.ai_component.set("_has_response_target", false)
-	officer.ai_component.set("_response_commit_remaining", 0.0)
-	officer.ai_component.set("_last_search_revision", -1)
-	officer.tick_ai_mode(PoliceModeAction.Mode.PATROL, 0.016)
-	assert(officer.ai_component.has_actionable_wanted_location())
+	# The clean brain consumes shared intelligence directly; there is no patrol
+	# action/search-condition circular dependency to prime.
+	officer.brain_component.tick(0.016)
+	assert(officer.brain_component.has_actionable_wanted_location())
 	var player_lkp: Vector3 = wanted.active_incident.last_known_player_position
 
 	var east_dealer_zone := world.get_node(

@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Tools/Godot/BuildingGenerator/building_generator_3d.gd" id="1_generator"]
+[ext_resource type="Script" path="res://Tools/Godot/BuildingGenerator/building_generation_profile.gd" id="2_profile"]
+
+[sub_resource type="Resource" id="BuildingGenerationProfile_default"]
+resource_local_to_scene = true
+script = ExtResource("2_profile")
+width_modules = 4
+depth_modules = 3
+story_count = 3
+preset = 0
+material_palette = 1
+prop_density = 1
+entrance_module = -1
+seed = 1337
+
+[node name="BuildingGenerator" type="Node3D"]
+script = ExtResource("1_generator")
+profile = SubResource("BuildingGenerationProfile_default")
+
+[node name="ManualDetails" type="Node3D" parent="."]
+

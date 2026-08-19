@@ -1,12 +1,12 @@
 class_name PoliceResponseProfile
 extends Resource
 
-@export var officer_targets := PackedInt32Array([0, 2, 4, 6])
-@export var cruiser_limits := PackedInt32Array([0, 1, 2, 3])
-@export var initial_dispatch_delays := PackedFloat32Array([0.0, 2.0, 1.0, 0.25])
-@export var target_arrival_minimums := PackedFloat32Array([0.0, 8.0, 6.0, 5.0])
-@export var target_arrival_maximums := PackedFloat32Array([0.0, 12.0, 9.0, 7.0])
-@export var awareness_radii := PackedFloat32Array([0.0, 55.0, 110.0, 220.0])
+@export var officer_targets := PackedInt32Array([0, 2, 3, 4, 6, 8, 10])
+@export var cruiser_limits := PackedInt32Array([0, 1, 1, 2, 3, 4, 5])
+@export var initial_dispatch_delays := PackedFloat32Array([0.0, 4.0, 3.0, 2.0, 1.0, 0.5, 0.25])
+@export var target_arrival_minimums := PackedFloat32Array([0.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0])
+@export var target_arrival_maximums := PackedFloat32Array([0.0, 12.0, 10.0, 9.0, 8.0, 7.0, 6.0])
+@export var awareness_radii := PackedFloat32Array([0.0, 55.0, 80.0, 110.0, 150.0, 190.0, 240.0])
 @export_range(0.25, 10.0, 0.25) var cruiser_launch_spacing := 1.5
 @export_range(4.0, 40.0, 0.5) var deployment_distance := 15.0
 @export_range(0.25, 5.0, 0.25) var stationary_deploy_seconds := 1.5

@@ -4,7 +4,6 @@ extends Node
 static var _shared_ragdoll_simulator_template: PhysicalBoneSimulator3D
 
 const RAGDOLL_TEMPLATE := preload("res://Scenes/PlayerVisual.scn")
-const BLOOD_IMPACT_VFX := preload("res://Scenes/VFX/BloodImpactVFX.tscn")
 const RAGDOLL_IMPULSE_BONES := [&"Hips", &"Spine", &"Chest", &"UpperChest"]
 const VFX_ATTACHMENT_BONES := [
 	&"Hips", &"Spine", &"Chest", &"UpperChest", &"Neck", &"Head",
@@ -123,17 +122,11 @@ func apply_vehicle_impact(source: Node, impact_velocity: Vector3) -> void:
 		hit_position,
 		hit_direction
 	)
-	var effect := BLOOD_IMPACT_VFX.instantiate() as BloodImpactVFX
-	var effect_parent: Node = npc.get_tree().current_scene
-	if effect_parent == null:
-		effect_parent = npc.get_parent()
-	if effect_parent == null:
-		effect.queue_free()
-		return
-	effect_parent.add_child(effect)
-	effect.setup_blood_hit(
-		hit_position, -hit_direction, hit_direction, npc, true
-	)
+	var manager := CombatVFXManager.find(npc.get_tree())
+	if manager != null:
+		manager.spawn_blood_hit(
+			hit_position, -hit_direction, hit_direction, npc, true
+		)
 
 
 func reset_for_reuse() -> void:

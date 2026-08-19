@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="shield" x1="12" y1="8" x2="51" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffdd58"/>
+      <stop offset=".48" stop-color="#ffb000"/>
+      <stop offset="1" stop-color="#ff6b18"/>
+    </linearGradient>
+    <linearGradient id="face" x1="18" y1="14" x2="46" y2="49" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#201707"/>
+      <stop offset="1" stop-color="#07090c"/>
+    </linearGradient>
+  </defs>
+  <path d="M32 4.5 54 13v15.4c0 13.7-8.2 23.3-22 31.1-13.8-7.8-22-17.4-22-31.1V13L32 4.5Z" fill="url(#face)" stroke="url(#shield)" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M32 11.2 47.5 17v11c0 9.6-5.5 16.6-15.5 22.8C22 44.6 16.5 37.6 16.5 28V17L32 11.2Z" fill="none" stroke="#ffbf13" stroke-opacity=".34" stroke-width="1.2"/>
+  <path d="m32 16.4 4.3 8.7 9.6 1.4-7 6.8 1.7 9.6-8.6-4.5-8.6 4.5 1.7-9.6-7-6.8 9.6-1.4 4.3-8.7Z" fill="url(#shield)" stroke="#fff0a2" stroke-width="1" stroke-linejoin="round"/>
+  <path d="M8.5 20.5H4M9.4 27H2.5M55.5 20.5H60M54.6 27h6.9" stroke="#ffb800" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+</svg>

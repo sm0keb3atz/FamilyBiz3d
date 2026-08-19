@@ -12,6 +12,9 @@ const MINUTES_PER_DAY := 1440
 const REPORT_HISTORY_LIMIT := 30
 const SUNRISE_HOUR := 6.0
 const SUNSET_HOUR := 19.5
+const DEFAULT_VISUAL_PROFILE := preload(
+	"res://Assets/VFX/GrittyCinematicWorldVisualProfile.tres"
+)
 const MONTH_NAMES := [
 	"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
 	"JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
@@ -23,6 +26,7 @@ const MONTH_LENGTHS := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 @export var sun_path := NodePath("../Environment/Sun")
 @export var moon_path := NodePath("../Environment/Moon")
 @export var world_environment_path := NodePath("../Environment/WorldEnvironment")
+@export var visual_profile: WorldVisualProfile = DEFAULT_VISUAL_PROFILE
 
 var year := 1
 var month := 1
@@ -454,9 +458,68 @@ func _configure_environment() -> void:
 	var environment := _world_environment.environment
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
+	if visual_profile == null:
+		return
+	environment.tonemap_mode = Environment.TONE_MAPPER_AGX
+	environment.tonemap_exposure = visual_profile.tonemap_exposure
+	environment.tonemap_agx_contrast = visual_profile.agx_contrast
+	environment.tonemap_agx_white = visual_profile.agx_white
+	environment.adjustment_enabled = true
+	environment.adjustment_brightness = 1.0
+	environment.adjustment_contrast = 1.0
+	environment.adjustment_saturation = visual_profile.saturation
+	environment.adjustment_color_correction = (
+		visual_profile.create_color_correction_texture()
+	)
+	environment.ssao_enabled = true
+	environment.ssao_radius = 1.25
+	environment.ssao_intensity = 1.15
+	environment.ssao_power = 1.35
+	environment.ssao_detail = 0.55
+	environment.ssao_horizon = 0.08
+	environment.ssao_sharpness = 0.92
+	environment.ssao_light_affect = 0.12
+	environment.ssil_enabled = visual_profile.ssil_enabled
+	environment.ssil_radius = visual_profile.ssil_radius
+	environment.ssil_intensity = visual_profile.ssil_intensity
+	environment.ssil_sharpness = visual_profile.ssil_sharpness
+	environment.ssil_normal_rejection = visual_profile.ssil_normal_rejection
+	environment.ssr_enabled = false
+	environment.sdfgi_enabled = false
+	environment.volumetric_fog_enabled = true
+	environment.volumetric_fog_density = (
+		visual_profile.day_volumetric_fog_density
+	)
+	environment.volumetric_fog_length = visual_profile.volumetric_fog_length
+	environment.volumetric_fog_anisotropy = (
+		visual_profile.volumetric_fog_anisotropy
+	)
+	environment.volumetric_fog_ambient_inject = (
+		visual_profile.volumetric_fog_ambient_inject
+	)
+	environment.volumetric_fog_sky_affect = (
+		visual_profile.volumetric_fog_sky_affect
+	)
+	environment.volumetric_fog_temporal_reprojection_enabled = true
+	environment.volumetric_fog_temporal_reprojection_amount = 0.82
+	environment.glow_enabled = true
+	environment.glow_normalized = true
+	environment.glow_intensity = visual_profile.glow_intensity
+	environment.glow_bloom = visual_profile.glow_bloom
+	environment.glow_hdr_threshold = visual_profile.glow_hdr_threshold
+	environment.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
+	environment.fog_enabled = true
+	environment.fog_density = visual_profile.clear_fog_density
+	environment.fog_aerial_perspective = (
+		visual_profile.clear_fog_aerial_perspective
+	)
+	environment.fog_sun_scatter = visual_profile.clear_fog_sun_scatter
+	environment.fog_sky_affect = 0.32
 
 
 func _update_visuals(visual_minute := -1.0) -> void:
+	if visual_profile == null:
+		return
 	var effective_minute := (
 		float(minute_of_day)
 		if visual_minute < 0.0
@@ -466,7 +529,8 @@ func _update_visuals(visual_minute := -1.0) -> void:
 	var daylight_duration := SUNSET_HOUR - SUNRISE_HOUR
 	var daylight_progress := clampf((hour - SUNRISE_HOUR) / daylight_duration, 0.0, 1.0)
 	var daylight := sin(daylight_progress * PI) if hour >= SUNRISE_HOUR and hour <= SUNSET_HOUR else 0.0
-	var night_strength := 1.0 - smoothstep(0.0, 0.22, daylight)
+	var daylight_strength := smoothstep(0.0, 0.28, daylight)
+	var night_strength := 1.0 - daylight_strength
 	var sun_arc_progress := daylight_progress
 	if hour < SUNRISE_HOUR:
 		sun_arc_progress = 1.0 + (hour + 24.0 - SUNSET_HOUR) / (24.0 - SUNSET_HOUR + SUNRISE_HOUR)
@@ -477,13 +541,86 @@ func _update_visuals(visual_minute := -1.0) -> void:
 		# way made LIGHT0_DIRECTION negative during the day, so the sky shader
 		# rendered stars and night colors while the clock showed morning.
 		_sun.rotation_degrees = Vector3(-180.0 * sun_arc_progress, -30.0, 0.0)
-		_sun.light_energy = lerpf(0.03, 1.15, pow(daylight, 0.65))
-		_sun.light_color = Color(1.0, 0.48, 0.3).lerp(Color(1.0, 0.96, 0.86), daylight)
+		var sun_energy := lerpf(
+			visual_profile.night_sun_energy,
+			visual_profile.day_sun_energy,
+			pow(daylight, 0.65)
+		)
+		var sun_color := visual_profile.sunrise_sun_color.lerp(
+			visual_profile.day_sun_color,
+			pow(daylight, 0.55)
+		)
+		_sun.light_energy = sun_energy
+		_sun.light_color = sun_color
+		_sun.set_meta(WorldVisualProfile.META_BASE_SUN_ENERGY, sun_energy)
+		_sun.set_meta(WorldVisualProfile.META_BASE_SUN_COLOR, sun_color)
 	if _moon != null:
 		var moon_arc_progress := fposmod(sun_arc_progress - 1.0, 2.0)
 		_moon.rotation_degrees = Vector3(-180.0 * moon_arc_progress, 28.0, 0.0)
-		_moon.light_energy = 0.13 * pow(night_strength, 0.7)
+		var moon_energy := visual_profile.moon_energy * pow(night_strength, 0.7)
+		_moon.light_energy = moon_energy
+		_moon.set_meta(WorldVisualProfile.META_BASE_MOON_ENERGY, moon_energy)
 	if _world_environment != null and _world_environment.environment != null:
 		var environment := _world_environment.environment
-		environment.ambient_light_color = Color(0.18, 0.24, 0.38).lerp(Color(0.72, 0.78, 0.9), daylight)
-		environment.ambient_light_energy = lerpf(0.25, 0.75, daylight)
+		var ambient_color := visual_profile.night_ambient_color.lerp(
+			visual_profile.day_ambient_color,
+			daylight_strength
+		)
+		var ambient_energy := lerpf(
+			visual_profile.night_ambient_energy,
+			visual_profile.day_ambient_energy,
+			daylight_strength
+		)
+		var fog_color := visual_profile.night_fog_color.lerp(
+			visual_profile.day_fog_color,
+			daylight_strength
+		)
+		var fog_energy := lerpf(
+			visual_profile.night_fog_light_energy,
+			visual_profile.day_fog_light_energy,
+			daylight_strength
+		)
+		var volumetric_fog_density := lerpf(
+			visual_profile.night_volumetric_fog_density,
+			visual_profile.day_volumetric_fog_density,
+			daylight_strength
+		)
+		environment.ambient_light_color = ambient_color
+		environment.ambient_light_energy = ambient_energy
+		environment.fog_enabled = true
+		environment.fog_light_color = fog_color
+		environment.fog_light_energy = fog_energy
+		environment.fog_density = visual_profile.clear_fog_density
+		environment.fog_aerial_perspective = (
+			visual_profile.clear_fog_aerial_perspective
+		)
+		environment.fog_sun_scatter = (
+			visual_profile.clear_fog_sun_scatter * daylight_strength
+		)
+		environment.volumetric_fog_density = volumetric_fog_density
+		environment.set_meta(
+			WorldVisualProfile.META_BASE_AMBIENT_COLOR,
+			ambient_color
+		)
+		environment.set_meta(
+			WorldVisualProfile.META_BASE_AMBIENT_ENERGY,
+			ambient_energy
+		)
+		environment.set_meta(WorldVisualProfile.META_BASE_FOG_COLOR, fog_color)
+		environment.set_meta(WorldVisualProfile.META_BASE_FOG_ENERGY, fog_energy)
+		environment.set_meta(
+			WorldVisualProfile.META_BASE_FOG_DENSITY,
+			visual_profile.clear_fog_density
+		)
+		environment.set_meta(
+			WorldVisualProfile.META_BASE_VOLUMETRIC_FOG_DENSITY,
+			volumetric_fog_density
+		)
+		environment.set_meta(
+			WorldVisualProfile.META_BASE_FOG_AERIAL,
+			visual_profile.clear_fog_aerial_perspective
+		)
+		environment.set_meta(
+			WorldVisualProfile.META_BASE_FOG_SUN_SCATTER,
+			visual_profile.clear_fog_sun_scatter * daylight_strength
+		)

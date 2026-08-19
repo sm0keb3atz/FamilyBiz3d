@@ -862,12 +862,10 @@ func _import_active_robbery(data: Dictionary) -> void:
 	set_process(true)
 
 
-func _set_wanted_suppression(active: bool) -> void:
-	var wanted := player.get_node_or_null(
-		"Components/WantedComponent"
-	) as PlayerWantedComponent
-	if wanted != null:
-		wanted.set_territory_event_suppressed(active)
+func _set_wanted_suppression(_active: bool) -> void:
+	# Active attackers are tagged as lawful-defense targets. Keep unrelated
+	# wanted incidents alive instead of suspending the entire police system.
+	pass
 
 
 func _spawn_saved_attacker(data: Dictionary) -> void:

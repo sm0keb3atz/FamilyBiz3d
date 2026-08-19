@@ -1,0 +1,208 @@
+[gd_resource type="Resource" script_class="BuildingStyleProfile" format=3 uid="uid://6ds1540aesnc"]
+
+[ext_resource type="Script" uid="uid://b8yb5kpgqc33p" path="res://Tools/Godot/BuildingGenerator/building_style_profile.gd" id="1_style"]
+[ext_resource type="Script" uid="uid://b034buby3duf7" path="res://Tools/Godot/BuildingGenerator/building_tile_definition.gd" id="2_tile"]
+[ext_resource type="ArrayMesh" uid="uid://336f5i0ry7f8" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb" id="3_window1"]
+[ext_resource type="ArrayMesh" uid="uid://cb0ilet10i80u" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb" id="4_window3"]
+[ext_resource type="ArrayMesh" uid="uid://8vb4pim7v4ul" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_02_long.glb" id="5_window_long"]
+[ext_resource type="ArrayMesh" uid="uid://d33dulp8o8j2i" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_wall_01.glb" id="6_wall"]
+[ext_resource type="ArrayMesh" uid="uid://bfibv4w0echlo" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_shopFront_Entrance.glb" id="7_entrance"]
+[ext_resource type="ArrayMesh" uid="uid://p1wnk0jrmabh" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb" id="8_corner"]
+[ext_resource type="ArrayMesh" uid="uid://birrbbd3d8811" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02.glb" id="9_attic"]
+[ext_resource type="ArrayMesh" uid="uid://bpudhnt8bpy6m" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02_corner.glb" id="10_attic_corner"]
+[ext_resource type="ArrayMesh" uid="uid://d3fxf1vpnjdhd" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb" id="11_cornice"]
+[ext_resource type="ArrayMesh" uid="uid://b0i8uu5d1aj7q" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01_corner.glb" id="12_cornice_corner"]
+[ext_resource type="ArrayMesh" uid="uid://1wgnud7jgt0r" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb" id="13_floor"]
+[ext_resource type="ArrayMesh" uid="uid://dth6yjbgpojw2" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb" id="14_roof"]
+[ext_resource type="PackedScene" uid="uid://bx50bub5cglpj" path="res://Assets/MapStuff/Meshs/StreetProps/SM_airCondition_01.gltf" id="15_ac1"]
+[ext_resource type="PackedScene" uid="uid://dfaldmfn4dpuk" path="res://Assets/MapStuff/Meshs/StreetProps/SM_airCondition_02.gltf" id="16_ac2"]
+[ext_resource type="PackedScene" uid="uid://e7egmbnldb1c" path="res://Assets/MapStuff/Meshs/StreetProps/SM_camera.gltf" id="17_camera"]
+[ext_resource type="PackedScene" uid="uid://dqrbcvivapabq" path="res://Assets/MapStuff/Meshs/StreetProps/SM_mailbox_2.gltf" id="18_mailbox"]
+
+[sub_resource type="Resource" id="Tile_attic_corner"]
+script = ExtResource("2_tile")
+display_name = "Attic Wall 02 Corner"
+node_name_prefix = "SmWallAttic02Corner"
+role = 6
+mesh = ExtResource("10_attic_corner")
+facade_surfaces = PackedInt32Array(0)
+trim_surfaces = PackedInt32Array()
+
+[sub_resource type="Resource" id="Tile_attic"]
+script = ExtResource("2_tile")
+display_name = "Attic Wall 02"
+node_name_prefix = "SmWallAttic02"
+role = 6
+mesh = ExtResource("9_attic")
+facade_surfaces = PackedInt32Array(0)
+trim_surfaces = PackedInt32Array()
+
+[sub_resource type="Resource" id="Tile_corner"]
+script = ExtResource("2_tile")
+display_name = "Classic Corner Pillar"
+node_name_prefix = "SmPillar01Corner"
+role = 0
+mesh = ExtResource("8_corner")
+facade_surfaces = PackedInt32Array(0)
+trim_surfaces = PackedInt32Array()
+
+[sub_resource type="Resource" id="Tile_cornice"]
+script = ExtResource("2_tile")
+display_name = "Cornice 01"
+node_name_prefix = "SmCornice01"
+role = 7
+mesh = ExtResource("11_cornice")
+facade_surfaces = PackedInt32Array()
+trim_surfaces = PackedInt32Array()
+
+[sub_resource type="Resource" id="Tile_cornice_corner"]
+script = ExtResource("2_tile")
+display_name = "Cornice 01 Corner"
+node_name_prefix = "SmCornice01Corner"
+role = 7
+mesh = ExtResource("12_cornice_corner")
+facade_surfaces = PackedInt32Array()
+trim_surfaces = PackedInt32Array()
+
+[sub_resource type="Resource" id="Tile_entrance"]
+script = ExtResource("2_tile")
+display_name = "Classic Shop Front Entrance"
+node_name_prefix = "SmShopFrontEntrance"
+role = 3
+mesh = ExtResource("7_entrance")
+facade_surfaces = PackedInt32Array(0)
+trim_surfaces = PackedInt32Array()
+window_surface = 3
+
+[sub_resource type="Resource" id="Tile_floor"]
+script = ExtResource("2_tile")
+display_name = "Floor 01"
+node_name_prefix = "SmFloor01"
+role = 4
+mesh = ExtResource("13_floor")
+facade_surfaces = PackedInt32Array()
+trim_surfaces = PackedInt32Array()
+
+[sub_resource type="Resource" id="Prop_ac1"]
+script = ExtResource("2_tile")
+display_name = "Air Conditioner 01"
+node_name_prefix = "SM_airCondition_01_"
+role = 8
+scene = ExtResource("15_ac1")
+weight = 1.3
+facade_surfaces = PackedInt32Array()
+trim_surfaces = PackedInt32Array()
+prop_min_height = 3.5
+prop_max_height = 8.0
+
+[sub_resource type="Resource" id="Prop_ac2"]
+script = ExtResource("2_tile")
+display_name = "Air Conditioner 02"
+node_name_prefix = "SM_airCondition_02_"
+role = 8
+scene = ExtResource("16_ac2")
+facade_surfaces = PackedInt32Array()
+trim_surfaces = PackedInt32Array()
+prop_min_height = 3.5
+prop_max_height = 9.0
+
+[sub_resource type="Resource" id="Prop_camera"]
+script = ExtResource("2_tile")
+display_name = "Security Camera"
+node_name_prefix = "SM_camera_"
+role = 8
+scene = ExtResource("17_camera")
+weight = 0.7
+facade_surfaces = PackedInt32Array()
+trim_surfaces = PackedInt32Array()
+prop_placement = 1
+prop_min_height = 2.5
+
+[sub_resource type="Resource" id="Prop_mailbox"]
+script = ExtResource("2_tile")
+display_name = "Mailbox"
+node_name_prefix = "SM_mailbox_"
+role = 8
+scene = ExtResource("18_mailbox")
+weight = 0.5
+facade_surfaces = PackedInt32Array()
+trim_surfaces = PackedInt32Array()
+prop_placement = 2
+prop_max_height = 0.0
+prop_outward_offset = 0.35
+
+[sub_resource type="Resource" id="Tile_window1"]
+script = ExtResource("2_tile")
+display_name = "Classic Window 01"
+node_name_prefix = "SmWindow01"
+role = 2
+mesh = ExtResource("3_window1")
+allowed_sides = 5
+facade_surfaces = PackedInt32Array(0)
+trim_surfaces = PackedInt32Array()
+window_surface = 3
+
+[sub_resource type="Resource" id="Tile_window3"]
+script = ExtResource("2_tile")
+display_name = "Classic Window 03"
+node_name_prefix = "SmWindow03"
+role = 2
+mesh = ExtResource("4_window3")
+weight = 0.8
+allowed_sides = 10
+facade_surfaces = PackedInt32Array(0)
+trim_surfaces = PackedInt32Array()
+window_surface = 3
+
+[sub_resource type="Resource" id="Tile_window_long"]
+script = ExtResource("2_tile")
+display_name = "Classic Long Window 02"
+node_name_prefix = "SmWindow02Long"
+role = 2
+mesh = ExtResource("5_window_long")
+facade_cells = 3
+weight = 0.35
+allowed_sides = 1
+facade_surfaces = PackedInt32Array(0)
+trim_surfaces = PackedInt32Array()
+window_surface = 1
+
+[sub_resource type="Resource" id="Tile_wall"]
+script = ExtResource("2_tile")
+display_name = "Classic Wall 01"
+node_name_prefix = "SmWall01"
+mesh = ExtResource("6_wall")
+weight = 0.45
+allowed_sides = 14
+facade_surfaces = PackedInt32Array(0)
+trim_surfaces = PackedInt32Array()
+
+[sub_resource type="Resource" id="Tile_roof"]
+script = ExtResource("2_tile")
+display_name = "Roof 01"
+node_name_prefix = "SmRoof01"
+role = 5
+mesh = ExtResource("14_roof")
+facade_surfaces = PackedInt32Array()
+trim_surfaces = PackedInt32Array()
+
+[resource]
+script = ExtResource("1_style")
+display_name = "Classic Mixed-Use"
+description = "Four-meter classic walls and mixed window modules based on building_2."
+regular_facade_a = SubResource("Tile_window1")
+regular_facade_b = SubResource("Tile_window3")
+regular_facade_c = SubResource("Tile_window_long")
+regular_facade_d = SubResource("Tile_wall")
+entrance_a = SubResource("Tile_entrance")
+corner = SubResource("Tile_corner")
+attic_wall = SubResource("Tile_attic")
+attic_corner = SubResource("Tile_attic_corner")
+cornice = SubResource("Tile_cornice")
+cornice_corner = SubResource("Tile_cornice_corner")
+floor_tile = SubResource("Tile_floor")
+roof_tile = SubResource("Tile_roof")
+prop_a = SubResource("Prop_ac1")
+prop_b = SubResource("Prop_ac2")
+prop_c = SubResource("Prop_camera")
+prop_d = SubResource("Prop_mailbox")

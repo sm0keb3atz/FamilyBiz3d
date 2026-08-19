@@ -23,6 +23,7 @@ extends CharacterBody3D
 @onready var health_component := (
 	$Components/HealthComponent as NPCHealthComponent
 )
+@onready var audio_component := $AudioComponent as NPCAudioComponent
 
 # Compatibility properties keep role scripts and game systems decoupled from
 # the component tree. Tuning values themselves live on their owning component.
@@ -92,6 +93,7 @@ func _ready() -> void:
 	movement_component.initialize(self)
 	animation_component.initialize(self)
 	health_component.initialize(self)
+	audio_component.initialize(self)
 	damageable.damaged.connect(animation_component.handle_damaged)
 	damageable.depleted.connect(_on_defeated)
 
@@ -215,6 +217,7 @@ func reset_for_reuse() -> void:
 	health_component.reset_for_reuse()
 	movement_component.reset_for_reuse()
 	animation_component.reset_for_reuse()
+	audio_component.reset_for_reuse()
 	set_physics_process(true)
 
 
@@ -263,7 +266,25 @@ func _on_defeated(
 			24.0,
 			3,
 			source_faction,
-			{"victim_actor_id": get_instance_id(), "victim_faction": String(own_faction)}
+			{
+				"victim_actor_id": get_instance_id(),
+				"victim_faction": String(own_faction),
+				"police_exempt": is_in_group(&"lawful_defense_target"),
+			}
 		)
+		if own_faction != &"police":
+			bus.publish_spatial_event(
+				WorldEvent.Type.BODY_DISCOVERED,
+				null,
+				hit_position if hit_position.is_finite() else global_position,
+				18.0,
+				2,
+				&"unknown",
+				{
+					"victim_actor_id": get_instance_id(),
+					"victim_faction": String(own_faction),
+					"police_exempt": is_in_group(&"lawful_defense_target"),
+				}
+			)
 	remove_from_group(&"lock_target")
 	health_component.handle_defeated(source, hit_position, hit_direction)

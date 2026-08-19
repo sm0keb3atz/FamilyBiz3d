@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="paper" x1="7" y1="12" x2="42" y2="38" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ecfff2"/>
+      <stop offset="0.5" stop-color="#9af0b5"/>
+      <stop offset="1" stop-color="#36cf6c"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="17" y1="17" x2="31" y2="33" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#173b2a"/>
+      <stop offset="1" stop-color="#071b12"/>
+    </linearGradient>
+  </defs>
+  <rect x="5" y="12" width="38" height="27" rx="3" fill="url(#paper)" stroke="#3be278" stroke-width="1.8"/>
+  <rect x="8.5" y="15.5" width="31" height="20" rx="1.8" fill="#b8f5c9" stroke="#268c4d" stroke-width="1.1"/>
+  <path d="M8.5 21c3.4 0 6.1-2.3 6.1-5.5M39.5 21c-3.4 0-6.1-2.3-6.1-5.5M8.5 30c3.4 0 6.1 2.3 6.1 5.5M39.5 30c-3.4 0-6.1 2.3-6.1 5.5" fill="none" stroke="#32965a" stroke-width="1"/>
+  <circle cx="24" cy="25.5" r="8.2" fill="#72dc94" stroke="#217c45" stroke-width="1.2"/>
+  <circle cx="24" cy="25.5" r="6.1" fill="none" stroke="#d7fbe1" stroke-width=".7" stroke-dasharray="1.5 1.2" opacity=".8"/>
+  <path d="M27.9 21.9c-.9-2.2-7.6-2.4-7.6 1 0 3.5 7.4 1.9 7.4 5 0 3.3-6.5 3.1-7.8.8M24.2 18.7v13.5" fill="none" stroke="url(#ink)" stroke-width="2.3" stroke-linecap="round"/>
+  <path d="M11.5 25.5h2.2M34.3 25.5h2.2" stroke="#287d49" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M10.5 18.5h2M35.5 32.5h2" stroke="#effff3" stroke-width="1.2" stroke-linecap="round" opacity=".9"/>
+</svg>

@@ -185,7 +185,10 @@ func play_npc_impact(position: Vector3) -> void:
 		return
 
 	var player := AudioStreamPlayer3D.new()
-	get_tree().current_scene.add_child(player)
+	var sound_parent: Node = get_tree().current_scene
+	if sound_parent == null:
+		sound_parent = get_tree().root
+	sound_parent.add_child(player)
 	player.global_position = position
 	player.stream = sound
 	player.pitch_scale = randf_range(
@@ -208,7 +211,10 @@ func play_surface_impact(position: Vector3, is_metal: bool) -> void:
 		return
 
 	var player := AudioStreamPlayer3D.new()
-	get_tree().current_scene.add_child(player)
+	var sound_parent: Node = get_tree().current_scene
+	if sound_parent == null:
+		sound_parent = get_tree().root
+	sound_parent.add_child(player)
 	player.global_position = position
 	player.stream = sound
 	player.pitch_scale = randf_range(

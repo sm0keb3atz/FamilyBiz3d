@@ -1,0 +1,880 @@
+[gd_scene format=3 uid="uid://lubg00lk83jc"]
+
+[ext_resource type="Script" uid="uid://bl2frdiiebpok" path="res://Tools/Godot/BuildingGenerator/building_generator_3d.gd" id="1_xwpw3"]
+[ext_resource type="Script" uid="uid://dptfybw60qiqk" path="res://Tools/Godot/BuildingGenerator/building_generation_profile.gd" id="2_ocgpn"]
+[ext_resource type="ArrayMesh" uid="uid://p1wnk0jrmabh" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb" id="3_tybda"]
+[ext_resource type="Texture2D" uid="uid://bd1vv3kffa28v" path="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/T_brickSmall_01_red.PNG" id="4_1p82y"]
+[ext_resource type="ArrayMesh" uid="uid://336f5i0ry7f8" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb" id="5_rk2eh"]
+[ext_resource type="Material" uid="uid://bajggff4xm8p7" path="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/WindowOff.tres" id="6_sw82m"]
+[ext_resource type="ArrayMesh" uid="uid://bfibv4w0echlo" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_shopFront_Entrance.glb" id="7_uobd1"]
+[ext_resource type="ArrayMesh" uid="uid://cb0ilet10i80u" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb" id="8_5h4lr"]
+[ext_resource type="ArrayMesh" uid="uid://bpudhnt8bpy6m" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02_corner.glb" id="9_3c8cb"]
+[ext_resource type="ArrayMesh" uid="uid://birrbbd3d8811" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02.glb" id="10_u3hal"]
+[ext_resource type="ArrayMesh" uid="uid://1wgnud7jgt0r" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb" id="11_c8ej8"]
+[ext_resource type="ArrayMesh" uid="uid://dth6yjbgpojw2" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb" id="12_2gekq"]
+[ext_resource type="ArrayMesh" uid="uid://d3fxf1vpnjdhd" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb" id="13_rwe3j"]
+[ext_resource type="ArrayMesh" uid="uid://b0i8uu5d1aj7q" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01_corner.glb" id="14_hfxin"]
+[ext_resource type="Script" uid="uid://chcf4hqi8e3mu" path="res://Scripts/World/building_window_material_component.gd" id="15_t2t8b"]
+[ext_resource type="Material" uid="uid://bs2oyovfckfm" path="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/WindowOn.tres" id="16_ddlve"]
+
+[sub_resource type="Resource" id="BuildingGenerationProfile_default"]
+resource_local_to_scene = true
+script = ExtResource("2_ocgpn")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1n02p"]
+resource_local_to_scene = true
+resource_name = "GeneratedFacade_819481002"
+albedo_texture = ExtResource("4_1p82y")
+roughness = 0.82
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_eoa2i"]
+size = Vector3(8.5, 9, 8.4)
+
+[node name="BuildingGenerator" type="Node3D" unique_id=1830734443]
+script = ExtResource("1_xwpw3")
+profile = SubResource("BuildingGenerationProfile_default")
+
+[node name="ManualDetails" type="Node3D" parent="." unique_id=1269680676]
+
+[node name="Generated" type="Node3D" parent="." unique_id=2034447441]
+metadata/building_generator_seed = 819481002
+metadata/building_generator_preset = 0
+metadata/building_generator_palette = 2
+metadata/building_generator_width_modules = 2
+metadata/building_generator_depth_modules = 2
+metadata/building_generator_story_count = 3
+metadata/building_generator_complete = true
+
+[node name="Walls" type="Node3D" parent="Generated" unique_id=422128228]
+
+[node name="Story01" type="Node3D" parent="Generated/Walls" unique_id=1997248116]
+
+[node name="SmPillar01Corner001" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1122170263]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, 4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "front_left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmPillar01Corner002" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=891536872]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 4, 0, -4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "front_right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmPillar01Corner003" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1348544804]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, -4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "back_right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmPillar01Corner004" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=287306253]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "back_left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmWindow01001" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=492377868]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 4)
+mesh = ExtResource("5_rk2eh")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "front"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmShopFrontEntrance001" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1852685197]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
+mesh = ExtResource("7_uobd1")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_shopFront_Entrance.glb"
+metadata/building_generator_role = 3
+metadata/building_generator_kind = "entrance"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "front"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+
+[node name="SmWindow03001" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=74541319]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, -4)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow03002" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1687515294]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, -4)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "right"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow01002" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=969898011]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 0, -4)
+mesh = ExtResource("5_rk2eh")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "back"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow01003" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1914225449]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 0, 0)
+mesh = ExtResource("5_rk2eh")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "back"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow03003" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=956817097]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, 4)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow03004" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=118023139]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 4)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "left"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="Story02" type="Node3D" parent="Generated/Walls" unique_id=1662029087]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+
+[node name="SmPillar01Corner005" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=156465461]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, 4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "front_left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmPillar01Corner006" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=323638627]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 4, 0, -4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "front_right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmPillar01Corner007" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1966504983]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, -4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "back_right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmPillar01Corner008" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1891984176]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "back_left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmWindow01004" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=637147949]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 4)
+mesh = ExtResource("5_rk2eh")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "front"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow01005" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=680670505]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
+mesh = ExtResource("5_rk2eh")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "front"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow03005" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1674755080]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, -4)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow03006" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=136187825]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, -4)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "right"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow01006" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1572423201]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 0, 0)
+mesh = ExtResource("5_rk2eh")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "back"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow01007" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=568208947]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 0, -4)
+mesh = ExtResource("5_rk2eh")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "back"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow03007" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=515916769]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, 4)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow03008" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1438486094]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 4)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 1
+metadata/building_generator_side = "left"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="Story03" type="Node3D" parent="Generated/Walls" unique_id=534968258]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 0)
+
+[node name="SmPillar01Corner009" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=1155916127]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, 4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "front_left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmPillar01Corner010" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=609986802]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 4, 0, -4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "front_right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmPillar01Corner011" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=239688091]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, -4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "back_right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmPillar01Corner012" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=908235182]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 4)
+mesh = ExtResource("3_tybda")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_pillar_01_corner.glb"
+metadata/building_generator_role = 0
+metadata/building_generator_kind = "corner"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "back_left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmWindow01007" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=76614512]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 4)
+mesh = ExtResource("5_rk2eh")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "front"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow01008" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=745895741]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
+mesh = ExtResource("5_rk2eh")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "front"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow03009" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=752098295]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, -4)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "right"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow03010" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=1401054508]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 3.9, 0, -4)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "right"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow03011" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=215933615]
+transform = Transform3D(-2.9802322e-08, 0, -1, 0, 1, 0, 1, 0, -2.9802322e-08, 0.10000007, 0, 4.0000005)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "right"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow03012" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=2116866709]
+transform = Transform3D(-2.9802322e-08, 0, -1, 0, 1, 0, 1, 0, -2.9802322e-08, -3.8000004, 0, 4)
+mesh = ExtResource("8_5h4lr")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_03.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "right"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow01009" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=830718603]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 0, -4)
+mesh = ExtResource("5_rk2eh")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "back"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="SmWindow01010" type="MeshInstance3D" parent="Generated/Walls/Story03" unique_id=1194324953]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 0, 0)
+mesh = ExtResource("5_rk2eh")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+surface_material_override/3 = ExtResource("6_sw82m")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_window_01.glb"
+metadata/building_generator_role = 2
+metadata/building_generator_kind = "facade"
+metadata/building_generator_story = 2
+metadata/building_generator_side = "back"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+metadata/fb_window_surface = 3
+
+[node name="AtticCap" type="Node3D" parent="Generated/Walls" unique_id=861431332]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9, 0)
+
+[node name="SmWallAttic02Corner001" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=2036203470]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, 4)
+mesh = ExtResource("9_3c8cb")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02_corner.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic_corner"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "front_left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmWallAttic02Corner002" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=2047286368]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 4, 0, -4)
+mesh = ExtResource("9_3c8cb")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02_corner.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic_corner"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "front_right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmWallAttic02Corner003" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=1609874783]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, -4)
+mesh = ExtResource("9_3c8cb")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02_corner.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic_corner"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "back_right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmWallAttic02Corner004" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=699571221]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 4)
+mesh = ExtResource("9_3c8cb")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02_corner.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic_corner"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "back_left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmWallAttic02001" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=619854000]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 4)
+mesh = ExtResource("10_u3hal")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "front"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+
+[node name="SmWallAttic02002" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=1662941909]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
+mesh = ExtResource("10_u3hal")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "front"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+
+[node name="SmWallAttic02003" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=392422855]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, -4)
+mesh = ExtResource("10_u3hal")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+
+[node name="SmWallAttic02004" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=1173181822]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, -4)
+mesh = ExtResource("10_u3hal")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "right"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+
+[node name="SmWallAttic02005" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=766737834]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 0, -4)
+mesh = ExtResource("10_u3hal")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "back"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+
+[node name="SmWallAttic02006" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=1812781287]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 0, 0)
+mesh = ExtResource("10_u3hal")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "back"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+
+[node name="SmWallAttic02007" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=924029843]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, 4)
+mesh = ExtResource("10_u3hal")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 2
+
+[node name="SmWallAttic02008" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=489135207]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 4)
+mesh = ExtResource("10_u3hal")
+surface_material_override/0 = SubResource("StandardMaterial3D_1n02p")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02.glb"
+metadata/building_generator_role = 6
+metadata/building_generator_kind = "attic"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "left"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 2
+
+[node name="Floor" type="Node3D" parent="Generated" unique_id=1634364219]
+
+[node name="SmFloor01001" type="MeshInstance3D" parent="Generated/Floor" unique_id=884395308]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, -2)
+mesh = ExtResource("11_c8ej8")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
+metadata/building_generator_role = 4
+metadata/building_generator_kind = "floor"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "interior"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 1
+
+[node name="SmFloor01002" type="MeshInstance3D" parent="Generated/Floor" unique_id=1416932686]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, 2)
+mesh = ExtResource("11_c8ej8")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
+metadata/building_generator_role = 4
+metadata/building_generator_kind = "floor"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "interior"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 1
+
+[node name="SmFloor01003" type="MeshInstance3D" parent="Generated/Floor" unique_id=537652994]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, -2)
+mesh = ExtResource("11_c8ej8")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
+metadata/building_generator_role = 4
+metadata/building_generator_kind = "floor"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "interior"
+metadata/building_generator_cell_start = 1
+metadata/building_generator_cell_span = 1
+
+[node name="SmFloor01004" type="MeshInstance3D" parent="Generated/Floor" unique_id=1757423963]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, 2)
+mesh = ExtResource("11_c8ej8")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
+metadata/building_generator_role = 4
+metadata/building_generator_kind = "floor"
+metadata/building_generator_story = 0
+metadata/building_generator_side = "interior"
+metadata/building_generator_cell_start = 3
+metadata/building_generator_cell_span = 1
+
+[node name="Roof" type="Node3D" parent="Generated" unique_id=373595038]
+
+[node name="SmRoof01001" type="MeshInstance3D" parent="Generated/Roof" unique_id=108049463]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 9, -2)
+mesh = ExtResource("12_2gekq")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
+metadata/building_generator_role = 5
+metadata/building_generator_kind = "roof"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "interior"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 1
+
+[node name="SmRoof01002" type="MeshInstance3D" parent="Generated/Roof" unique_id=1147575310]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 9, 2)
+mesh = ExtResource("12_2gekq")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
+metadata/building_generator_role = 5
+metadata/building_generator_kind = "roof"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "interior"
+metadata/building_generator_cell_start = 2
+metadata/building_generator_cell_span = 1
+
+[node name="SmRoof01003" type="MeshInstance3D" parent="Generated/Roof" unique_id=279480911]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 9, -2)
+mesh = ExtResource("12_2gekq")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
+metadata/building_generator_role = 5
+metadata/building_generator_kind = "roof"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "interior"
+metadata/building_generator_cell_start = 1
+metadata/building_generator_cell_span = 1
+
+[node name="SmRoof01004" type="MeshInstance3D" parent="Generated/Roof" unique_id=31908147]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 9, 2)
+mesh = ExtResource("12_2gekq")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
+metadata/building_generator_role = 5
+metadata/building_generator_kind = "roof"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "interior"
+metadata/building_generator_cell_start = 3
+metadata/building_generator_cell_span = 1
+
+[node name="SmCornice01001" type="MeshInstance3D" parent="Generated/Roof" unique_id=475059448]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 9, 4)
+mesh = ExtResource("13_rwe3j")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
+metadata/building_generator_role = 7
+metadata/building_generator_kind = "cornice"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "front"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 4
+
+[node name="SmCornice01002" type="MeshInstance3D" parent="Generated/Roof" unique_id=949875691]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 9, -4)
+mesh = ExtResource("13_rwe3j")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
+metadata/building_generator_role = 7
+metadata/building_generator_kind = "cornice"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 4
+
+[node name="SmCornice01003" type="MeshInstance3D" parent="Generated/Roof" unique_id=401736802]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 9, -4)
+mesh = ExtResource("13_rwe3j")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
+metadata/building_generator_role = 7
+metadata/building_generator_kind = "cornice"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "back"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 4
+
+[node name="SmCornice01004" type="MeshInstance3D" parent="Generated/Roof" unique_id=1118280363]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 9, 4)
+mesh = ExtResource("13_rwe3j")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
+metadata/building_generator_role = 7
+metadata/building_generator_kind = "cornice"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 4
+
+[node name="SmCornice01Corner001" type="MeshInstance3D" parent="Generated/Roof" unique_id=915484319]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 4, 9, 4)
+mesh = ExtResource("14_hfxin")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01_corner.glb"
+metadata/building_generator_role = 7
+metadata/building_generator_kind = "cornice_corner"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "front_left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmCornice01Corner002" type="MeshInstance3D" parent="Generated/Roof" unique_id=1046395767]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 9, -4)
+mesh = ExtResource("14_hfxin")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01_corner.glb"
+metadata/building_generator_role = 7
+metadata/building_generator_kind = "cornice_corner"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "front_right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmCornice01Corner003" type="MeshInstance3D" parent="Generated/Roof" unique_id=465699210]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 9, -4)
+mesh = ExtResource("14_hfxin")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01_corner.glb"
+metadata/building_generator_role = 7
+metadata/building_generator_kind = "cornice_corner"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "back_right"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="SmCornice01Corner004" type="MeshInstance3D" parent="Generated/Roof" unique_id=974244683]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 9, 4)
+mesh = ExtResource("14_hfxin")
+metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01_corner.glb"
+metadata/building_generator_role = 7
+metadata/building_generator_kind = "cornice_corner"
+metadata/building_generator_story = 3
+metadata/building_generator_side = "back_left"
+metadata/building_generator_cell_start = 0
+metadata/building_generator_cell_span = 0
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Generated" unique_id=1007819]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Generated/StaticBody3D" unique_id=685203087]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 0)
+shape = SubResource("BoxShape3D_eoa2i")
+
+[node name="Props" type="Node3D" parent="Generated" unique_id=757278431]
+
+[node name="BuildingWindowMaterials" type="Node" parent="Generated" unique_id=1561304854]
+script = ExtResource("15_t2t8b")
+window_off_material = ExtResource("6_sw82m")
+window_on_material = ExtResource("16_ddlve")

@@ -7,6 +7,9 @@ const LOCK_QUERY_MASK := WORLD_COLLISION_LAYER | HITBOX_COLLISION_LAYER
 const OUTLINE_SHADER := preload(
 	"res://Assets/VFX/Shaders/target_lock_outline.gdshader"
 )
+const OUTLINE_HALO_SHADER := preload(
+	"res://Assets/VFX/Shaders/target_lock_outline_halo.gdshader"
+)
 
 signal lock_changed(previous: Node, current: Node)
 
@@ -29,13 +32,13 @@ signal lock_changed(previous: Node, current: Node)
 @export_range(0.0, 2.0, 0.01) var manual_break_cooldown_time := 0.75
 
 @export_category("Outline")
-@export var outline_color := Color(1.0, 0.08, 0.03, 1.0)
-@export_range(0.0, 0.3, 0.005) var outline_thickness := 0.028
-@export_range(0.0, 4.0, 0.05) var outline_energy := 1.4
-@export_range(0.0, 1.0, 0.05) var outline_transparency := 0.9
-@export_range(0.0, 1.0, 0.01) var outline_silhouette_start := 0.18
-@export_range(0.0, 1.0, 0.01) var outline_silhouette_end := 0.42
-@export_range(0.1, 100.0, 0.1) var outline_merge_depth_range := 10.0
+@export var outline_color := Color(0.85, 0.0, 0.0, 1.0)
+@export_range(0.5, 8.0, 0.1) var outline_thickness := 7.0
+@export_range(0.0, 6.0, 0.05) var outline_energy := 1.15
+@export_range(0.0, 1.0, 0.01) var outline_transparency := 0.93
+@export_range(0.0, 0.25, 0.001) var outline_depth_bias := 0.035
+@export_range(0.0, 2.0, 0.01) var outline_merge_depth_range := 0.28
+@export_range(0.0, 0.25, 0.005) var outline_pulse_strength := 0.02
 
 @onready var body := get_node(body_path) as CharacterBody3D
 @onready var camera := get_node(camera_path) as Camera3D
@@ -49,34 +52,83 @@ var _manual_break_pressure := 0.0
 var _aim_elapsed := 0.0
 var _acquire_cooldown := 0.0
 var _outline_material: ShaderMaterial
+var _outline_glow_material: ShaderMaterial
+var _outline_core_material: ShaderMaterial
 var _outlined_mesh_overlays: Dictionary[int, Array] = {}
 
 
 func _ready() -> void:
 	_outline_material = ShaderMaterial.new()
-	_outline_material.shader = OUTLINE_SHADER
-	_outline_material.set_shader_parameter(
+	_outline_material.shader = OUTLINE_HALO_SHADER
+	_outline_glow_material = ShaderMaterial.new()
+	_outline_glow_material.shader = OUTLINE_HALO_SHADER
+	_outline_core_material = ShaderMaterial.new()
+	_outline_core_material.shader = OUTLINE_SHADER
+	_configure_outline_layer(
+		_outline_material,
+		outline_thickness + 0.4,
+		outline_energy * 0.32,
+		outline_transparency * 0.30,
+		0.0,
+		0.55,
+		0.85
+	)
+	_configure_outline_layer(
+		_outline_glow_material,
+		outline_thickness * 0.71,
+		outline_energy * 0.72,
+		outline_transparency * 0.58,
+		0.02,
+		0.72,
+		0.90
+	)
+	_configure_outline_layer(
+		_outline_core_material,
+		outline_thickness * 0.52,
+		outline_energy,
+		outline_transparency,
+		0.12,
+		0.62,
+		0.85
+	)
+	_outline_core_material.set_shader_parameter(
 		&"outline_color",
 		Vector3(outline_color.r, outline_color.g, outline_color.b)
 	)
-	_outline_material.set_shader_parameter(&"thickness", outline_thickness)
-	_outline_material.set_shader_parameter(&"outline_energy", outline_energy)
-	_outline_material.set_shader_parameter(
+	_outline_material.next_pass = _outline_glow_material
+	_outline_glow_material.next_pass = _outline_core_material
+
+
+func _configure_outline_layer(
+	material: ShaderMaterial,
+	layer_thickness: float,
+	layer_energy: float,
+	layer_transparency: float,
+	layer_rim_start: float,
+	layer_rim_end: float,
+	layer_rim_power: float
+) -> void:
+	material.set_shader_parameter(
+		&"outline_color",
+		Vector3(outline_color.r, outline_color.g, outline_color.b)
+	)
+	material.set_shader_parameter(&"thickness", layer_thickness)
+	material.set_shader_parameter(&"outline_energy", layer_energy)
+	material.set_shader_parameter(
 		&"outline_transparency",
-		outline_transparency
+		layer_transparency
 	)
-	_outline_material.set_shader_parameter(
-		&"silhouette_start",
-		outline_silhouette_start
-	)
-	_outline_material.set_shader_parameter(
-		&"silhouette_end",
-		outline_silhouette_end
-	)
-	_outline_material.set_shader_parameter(&"merge_group", true)
-	_outline_material.set_shader_parameter(
+	material.set_shader_parameter(&"depth_bias", outline_depth_bias)
+	material.set_shader_parameter(
 		&"merge_depth_range",
 		outline_merge_depth_range
+	)
+	material.set_shader_parameter(&"rim_start", layer_rim_start)
+	material.set_shader_parameter(&"rim_end", layer_rim_end)
+	material.set_shader_parameter(&"rim_power", layer_rim_power)
+	material.set_shader_parameter(
+		&"pulse_strength",
+		outline_pulse_strength
 	)
 
 
@@ -347,7 +399,7 @@ func _apply_outline(target: Node3D) -> void:
 		mesh.material_overlay = _outline_material
 		mesh.extra_cull_margin = maxf(
 			mesh.extra_cull_margin,
-			outline_thickness * 4.0
+			0.2
 		)
 
 

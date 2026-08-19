@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://53jgq0t2q8d" path="res://Scripts/NPC/Components/npc_animation_component.gd" id="9_animation"]
 [ext_resource type="Script" uid="uid://dptdis444151k" path="res://Scripts/NPC/Components/npc_health_component.gd" id="10_health"]
 [ext_resource type="Script" uid="uid://cgw58hoolv5p4" path="res://Scripts/Gameplay/Combat/combat_hitbox.gd" id="11_hitbox"]
+[ext_resource type="Script" path="res://Scripts/NPC/Components/npc_audio_component.gd" id="12_audio"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_npc"]
 radius = 0.4
@@ -336,6 +337,9 @@ parameters/ReloadSpeed/scale = 1.0
 parameters/ReloadOneShot/active = false
 parameters/ReloadOneShot/internal_active = false
 parameters/ReloadOneShot/request = 0
+
+[node name="AudioComponent" type="Node3D" parent="."]
+script = ExtResource("12_audio")
 
 [node name="DamageableComponent" type="Node" parent="." unique_id=1610147912]
 script = ExtResource("4_damageable")

@@ -79,7 +79,7 @@ static func from_dictionary(data: Dictionary) -> PoliceIncident:
 		CrimeType.UNKNOWN,
 		CrimeType.OFFICER_DOWN
 	)
-	incident.severity = clampi(int(data.get("severity", 1)), 1, 3)
+	incident.severity = clampi(int(data.get("severity", 1)), 1, 6)
 	incident.position = _array_to_vector(data.get("position", []) as Array)
 	incident.territory_id = StringName(str(data.get("territory_id", "")))
 	incident.reported_at_minute = maxi(int(data.get("reported_at_minute", 0)), 0)
@@ -94,9 +94,7 @@ static func from_dictionary(data: Dictionary) -> PoliceIncident:
 	incident.uncertainty_radius = maxf(float(data.get("uncertainty_radius", 2.0)), 0.0)
 	incident.suspect_known = bool(data.get("suspect_known", true))
 	incident.revision = maxi(int(data.get("revision", 1)), 1)
-	incident.force_authorized = bool(
-		data.get("force_authorized", incident.severity >= 3)
-	)
+	incident.force_authorized = bool(data.get("force_authorized", false))
 	var raw_ledger: Variant = data.get("charge_ledger", [])
 	if raw_ledger is Array:
 		for entry in raw_ledger:

@@ -11,6 +11,7 @@ var _emergency_active := false
 var _flash_elapsed := 0.0
 
 @export_range(10.0, 200.0, 1.0) var pursuit_sight_range := 85.0
+@export_range(30.0, 180.0, 1.0) var pursuit_fov_degrees := 110.0
 @export_flags_3d_physics var pursuit_sight_mask := 3
 
 
@@ -64,6 +65,12 @@ func can_see_target(target: Node3D) -> bool:
 	var destination := target.global_position + Vector3.UP
 	if origin.distance_squared_to(destination) > pursuit_sight_range * pursuit_sight_range:
 		return false
+	var offset := destination - origin
+	var flat_offset := Vector3(offset.x, 0.0, offset.z)
+	if flat_offset.length() > 8.0:
+		var forward := global_basis.z.normalized()
+		if forward.dot(flat_offset.normalized()) < cos(deg_to_rad(pursuit_fov_degrees * 0.5)):
+			return false
 	var query := PhysicsRayQueryParameters3D.create(origin, destination)
 	query.collision_mask = pursuit_sight_mask
 	query.exclude = [get_rid()]

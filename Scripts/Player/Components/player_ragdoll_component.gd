@@ -127,7 +127,10 @@ func _prepare_respawn() -> void:
 func _finish_respawn() -> void:
 	body_collision.set_deferred("disabled", false)
 	animation_tree.active = true
-	movement_component.set_physics_process(true)
+	# The collision change above is deferred by the physics server. Resume
+	# movement afterward so the player cannot take a gravity step while their
+	# capsule is still disabled.
+	movement_component.call_deferred("set_physics_process", true)
 
 
 func is_ragdoll_active() -> bool:

@@ -26,7 +26,6 @@ var _muzzle_flash_effect: Node3D
 var _muzzle_particles: GPUParticles3D
 var _gunshot_player: AudioStreamPlayer3D
 var _reload_player: AudioStreamPlayer3D
-var _tracer_material: StandardMaterial3D
 var _magazine := 0
 var _reserve := 0
 var _cooldown_remaining := 0.0
@@ -36,6 +35,8 @@ var _fully_automatic := false
 var _fire_interval_override := -1.0
 var _weapon_socket: Node3D
 var _weapon_visual_transform := Transform3D.IDENTITY
+var _rapid_shot_count := 0
+var _last_shot_msec := -100000
 
 
 func initialize(owner_npc: BaseNPC) -> void:
@@ -190,11 +191,24 @@ func try_fire_at(target_position: Vector3, spread_degrees: float) -> bool:
 	var hit_position := destination
 	if not hit.is_empty():
 		hit_position = hit.get("position", destination) as Vector3
-		_apply_hit(
+		var hit_damageable := _apply_hit(
 			hit.get("collider") as Node,
 			hit_position,
 			direction
 		)
+		if not hit_damageable:
+			var manager := CombatVFXManager.find(npc.get_tree())
+			var is_metal := _is_metal_surface(hit.get("collider") as Node)
+			if manager != null:
+				manager.spawn_surface_hit(
+					hit_position,
+					hit.get("normal", Vector3.UP) as Vector3,
+					hit.get("collider") as Node3D,
+					CombatVFXManager.SurfaceImpactKind.METAL
+					if is_metal
+					else CombatVFXManager.SurfaceImpactKind.STONE
+				)
+			_play_surface_impact_sound(hit_position, is_metal)
 	_spawn_tracer(origin, hit_position)
 	_play_near_miss_whiz(origin, hit_position, hit.get("collider") as Node)
 	_magazine -= 1
@@ -202,6 +216,7 @@ func try_fire_at(target_position: Vector3, spread_degrees: float) -> bool:
 	npc.animation_component.trigger_combat_recoil()
 	_play_gunshot()
 	_play_muzzle_flash()
+	_play_muzzle_smoke(origin, direction)
 	var event_bus := WorldEventBus.find(npc.get_tree())
 	if event_bus != null:
 		var faction := (
@@ -314,7 +329,10 @@ func _play_muzzle_flash() -> void:
 		and is_instance_valid(_muzzle_flash_effect)
 		and _muzzle_flash_effect.has_method(&"play_flash")
 	):
-		_muzzle_flash_effect.call(&"play_flash", 1.75)
+		_muzzle_flash_effect.scale = (
+			Vector3.ONE * weapon_definition.muzzle_flash_scale
+		)
+		_muzzle_flash_effect.call(&"play_flash")
 	elif _muzzle_particles != null and is_instance_valid(_muzzle_particles):
 		_muzzle_particles.restart()
 
@@ -331,7 +349,7 @@ func _apply_hit(
 	collider: Node,
 	hit_position: Vector3,
 	hit_direction: Vector3
-) -> void:
+) -> bool:
 	var current := collider
 	while current != null:
 		var damageable := current.get_node_or_null(
@@ -344,7 +362,16 @@ func _apply_hit(
 				hit_position,
 				hit_direction
 			)
-			return
+			var manager := CombatVFXManager.find(npc.get_tree())
+			if manager != null:
+				manager.spawn_blood_hit(
+					hit_position,
+					-hit_direction,
+					hit_direction,
+					collider as Node3D,
+					damageable.is_depleted()
+				)
+			return true
 		var stats := current.get_node_or_null(
 			"Components/StatsComponent"
 		) as PlayerStatsComponent
@@ -361,8 +388,9 @@ func _apply_hit(
 				)
 			else:
 				stats.take_damage(weapon_definition.damage)
-			return
+			return true
 		current = current.get_parent()
+	return false
 
 
 func _play_gunshot() -> void:
@@ -377,35 +405,9 @@ func _play_gunshot() -> void:
 
 
 func _spawn_tracer(from: Vector3, to: Vector3) -> void:
-	var segment := to - from
-	var length := segment.length()
-	if length <= 0.05:
-		return
-	var tracer := MeshInstance3D.new()
-	tracer.name = "IncomingBulletTracer"
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(0.012, 0.012, length)
-	if _tracer_material == null:
-		_tracer_material = StandardMaterial3D.new()
-		_tracer_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		_tracer_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_tracer_material.albedo_color = Color(1.0, 0.82, 0.28, 0.62)
-		_tracer_material.emission_enabled = true
-		_tracer_material.emission = Color(1.0, 0.62, 0.1)
-		_tracer_material.emission_energy_multiplier = 1.9
-	mesh.material = _tracer_material
-	tracer.mesh = mesh
-	var host: Node = npc.get_tree().current_scene
-	if host == null:
-		host = npc.get_tree().root
-	host.add_child(tracer)
-	tracer.global_position = from + segment * 0.5
-	tracer.look_at(to, Vector3.UP)
-	npc.get_tree().create_timer(tracer_lifetime).timeout.connect(
-		func() -> void:
-			if is_instance_valid(tracer):
-				tracer.queue_free()
-	)
+	var manager := CombatVFXManager.find(npc.get_tree())
+	if manager != null:
+		manager.spawn_tracer(from, to, 2.1, 850.0, tracer_lifetime)
 
 
 func _play_near_miss_whiz(
@@ -430,11 +432,39 @@ func _play_near_miss_whiz(
 			from,
 			to
 		)
-		if (
-			closest.distance_to(player.global_position + Vector3.UP)
-			<= bullet_whiz_radius
-		):
-			feedback.play_bullet_whiz()
+		var miss_distance := closest.distance_to(
+			player.global_position + Vector3.UP
+		)
+		if miss_distance <= bullet_whiz_radius:
+			feedback.play_bullet_whiz(
+				closest,
+				(to - from).normalized(),
+				miss_distance
+			)
+
+
+func _play_muzzle_smoke(origin: Vector3, direction: Vector3) -> void:
+	var now := Time.get_ticks_msec()
+	if now - _last_shot_msec <= 170:
+		_rapid_shot_count += 1
+	else:
+		_rapid_shot_count = 1
+	_last_shot_msec = now
+	if _rapid_shot_count < 3:
+		return
+	var manager := CombatVFXManager.find(npc.get_tree())
+	if manager != null:
+		manager.spawn_muzzle_smoke(origin, direction)
+
+
+func _play_surface_impact_sound(position: Vector3, is_metal: bool) -> void:
+	for player_node in npc.get_tree().get_nodes_in_group(&"player"):
+		var sound := player_node.get_node_or_null(
+			"Components/SoundComponent"
+		) as PlayerSoundComponent
+		if sound != null:
+			sound.play_surface_impact(position, is_metal)
+			return
 
 
 func _closest_point_on_segment(
@@ -464,6 +494,18 @@ func _is_node_or_descendant(node: Node, target: Node) -> bool:
 	var current := node
 	while current != null:
 		if current == target:
+			return true
+		current = current.get_parent()
+	return false
+
+
+func _is_metal_surface(collider: Node) -> bool:
+	var current := collider
+	while current != null:
+		if current.is_in_group(&"metal_surface"):
+			return true
+		var lower_name := String(current.name).to_lower()
+		if "metal" in lower_name or "vehicle" in lower_name or "car" in lower_name:
 			return true
 		current = current.get_parent()
 	return false

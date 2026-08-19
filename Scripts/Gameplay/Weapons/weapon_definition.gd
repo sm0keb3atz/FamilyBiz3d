@@ -39,6 +39,11 @@ extends Resource
 @export var fire_animation := &"PistolShoot"
 @export var reload_animation := &"Pistol_Reload"
 @export_range(0.1, 5.0, 0.05) var muzzle_flash_scale := 1.0
+@export_range(0.0, 5.0, 0.05) var visual_recoil_pitch_degrees := 0.9
+@export_range(0.0, 3.0, 0.05) var visual_recoil_yaw_degrees := 0.18
+@export_range(0.0, 0.1, 0.001) var visual_recoil_position_kick := 0.018
+@export_range(0.0, 2.0, 0.05) var visual_shake_strength := 0.72
+@export_range(0.1, 30.0, 0.1) var visual_recoil_recovery := 8.0
 
 
 func get_capacity_for_magazine_type(magazine_type: int) -> int:

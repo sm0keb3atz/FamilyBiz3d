@@ -1,12 +1,13 @@
 extends "res://Scripts/UI/player_hud.gd"
 
+const HUDTokens := preload("res://Scripts/UI/hud_visual_tokens.gd")
 const VEHICLE_ICON := preload("res://Assets/UI/VehicleHUD/vehicle.svg")
 const FUEL_ICON := preload("res://Assets/UI/VehicleHUD/fuel.svg")
 const DAMAGE_ICON := preload("res://Assets/UI/VehicleHUD/damage.svg")
-const HUD_BLUE := Color(0.22, 0.62, 0.98)
-const HUD_TEAL := Color(0.33, 0.85, 0.76)
-const HUD_AMBER := Color(0.95, 0.72, 0.36)
-const HUD_RED := Color(0.95, 0.3, 0.24)
+const HUD_BLUE := HUDTokens.BLUE
+const HUD_TEAL := HUDTokens.CYAN
+const HUD_AMBER := HUDTokens.AMBER
+const HUD_RED := HUDTokens.RED
 
 var _vehicle_identity: Label
 var _fuel_fill_style: StyleBoxFlat
@@ -97,10 +98,10 @@ func _build_vehicle_hud() -> void:
 	_vehicle_panel = PanelContainer.new()
 	_vehicle_panel.name = "VehiclePanel"
 	_vehicle_panel.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	_vehicle_panel.offset_left = -356.0
-	_vehicle_panel.offset_top = -248.0
-	_vehicle_panel.offset_right = -24.0
-	_vehicle_panel.offset_bottom = -24.0
+	_vehicle_panel.offset_left = -346.0
+	_vehicle_panel.offset_top = -244.0
+	_vehicle_panel.offset_right = -14.0
+	_vehicle_panel.offset_bottom = -14.0
 	_vehicle_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_vehicle_panel.add_theme_stylebox_override(
 		"panel",
@@ -211,7 +212,7 @@ func _build_vehicle_hud() -> void:
 	_vehicle_fuel = ProgressBar.new()
 	_vehicle_fuel.name = "FuelMeter"
 	_vehicle_fuel.show_percentage = false
-	_vehicle_fuel.custom_minimum_size.y = 10
+	_vehicle_fuel.custom_minimum_size.y = 15
 	_vehicle_fuel.add_theme_stylebox_override(
 		"background", _meter_background()
 	)
@@ -226,7 +227,7 @@ func _build_vehicle_hud() -> void:
 	_vehicle_damage.name = "DamageMeter"
 	_vehicle_damage.max_value = 100.0
 	_vehicle_damage.show_percentage = false
-	_vehicle_damage.custom_minimum_size.y = 10
+	_vehicle_damage.custom_minimum_size.y = 15
 	_vehicle_damage.add_theme_stylebox_override(
 		"background", _meter_background()
 	)
@@ -293,7 +294,7 @@ func _build_fuel_pump_card() -> void:
 	fuel_header.add_child(_pump_fuel_value)
 	_pump_fuel_bar = ProgressBar.new()
 	_pump_fuel_bar.name = "PumpFuelMeter"
-	_pump_fuel_bar.custom_minimum_size.y = 12
+	_pump_fuel_bar.custom_minimum_size.y = 17
 	_pump_fuel_bar.show_percentage = false
 	_pump_fuel_bar.add_theme_stylebox_override("background", _meter_background())
 	_pump_fuel_bar.add_theme_stylebox_override("fill", _meter_fill(HUD_BLUE))
@@ -456,19 +457,11 @@ func _divider() -> ColorRect:
 
 
 func _meter_background() -> StyleBoxFlat:
-	return _stylebox(
-		Color(0.075, 0.09, 0.1, 1.0),
-		Color(0.2, 0.24, 0.26, 0.9),
-		1,
-		3
-	)
+	return HUDTokens.meter_background(3)
 
 
 func _meter_fill(color: Color) -> StyleBoxFlat:
-	var fill := _stylebox(color, color, 0, 3)
-	fill.expand_margin_top = 1.0
-	fill.expand_margin_bottom = 1.0
-	return fill
+	return HUDTokens.meter_fill(color, 3)
 
 
 func _format_money(amount: int) -> String:
@@ -489,17 +482,11 @@ func _stylebox(
 	shadow_color: Color = Color.TRANSPARENT,
 	shadow_size: int = 0
 ) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = background
-	style.border_color = border
-	style.border_width_left = border_width
-	style.border_width_top = border_width
-	style.border_width_right = border_width
-	style.border_width_bottom = border_width
-	style.corner_radius_top_left = corner_radius
-	style.corner_radius_top_right = corner_radius
-	style.corner_radius_bottom_right = corner_radius
-	style.corner_radius_bottom_left = corner_radius
-	style.shadow_color = shadow_color
-	style.shadow_size = shadow_size
-	return style
+	return HUDTokens.stylebox(
+		background,
+		border,
+		border_width,
+		corner_radius,
+		shadow_color,
+		shadow_size
+	)

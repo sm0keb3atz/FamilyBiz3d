@@ -260,6 +260,18 @@ func _run() -> void:
 	assert(stash_menu.find_child("StashGrid", true, false) != null)
 	stash_menu.call("_set_tab", &"operations")
 	assert(stash_menu.find_child("BrickStationProduct", true, false) != null)
+	var upgrades := stash_menu.find_child(
+		"PropertyUpgrades", true, false
+	) as PanelContainer
+	var runner_upgrade := stash_menu.find_child(
+		"RunnerUpgrade", true, false
+	) as PanelContainer
+	var station_upgrade := stash_menu.find_child(
+		"BrickStationUpgrade", true, false
+	) as PanelContainer
+	assert(upgrades != null and runner_upgrade != null and station_upgrade != null)
+	assert(runner_upgrade.get_parent() == station_upgrade.get_parent())
+	assert(stash_menu.find_child("DealerStaffingProgress", true, false) != null)
 	stash_menu.close()
 
 	var wardrobe_menu := player.get_node("ClothingStoreMenu") as ClothingStoreMenu

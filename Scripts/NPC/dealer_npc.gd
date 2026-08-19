@@ -280,6 +280,7 @@ func set_zone_presentation(
 
 func configure_war_attacker(level: int, territory_id: StringName) -> void:
 	is_temporary_war_attacker = true
+	add_to_group(&"lawful_defense_target")
 	var role := get_role_component()
 	if role != null:
 		role.territory_id = territory_id

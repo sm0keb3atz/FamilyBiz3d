@@ -35,11 +35,48 @@ func _run() -> void:
 		"Components/TargetLockComponent"
 	) as PlayerTargetLockComponent
 	assert(target_lock != null)
+	var camera_component := player.get_node(
+		"Components/CameraComponent"
+	) as PlayerCameraComponent
+	var camera := player.get_node(
+		"CameraPivot/SpringArm3D/Camera3D"
+	) as Camera3D
+	assert(camera_component != null)
+	assert(camera.attributes is CameraAttributesPractical)
+	var camera_attributes := camera.attributes as CameraAttributesPractical
+	assert(not camera_attributes.dof_blur_far_enabled)
 	target_lock.set_process(false)
 	assert(not target_lock.cycle_locked_target(1))
 	target_lock.call("_set_locked_target", npc)
 	assert(target_lock.get_locked_target() == npc)
 	assert(target_lock.get_outline_mesh_count() > 0)
+	assert(is_equal_approx(
+		float(target_lock._outline_material.get_shader_parameter("thickness")),
+		7.4
+	))
+	assert(is_equal_approx(
+		float(target_lock._outline_material.get_shader_parameter("depth_bias")),
+		0.035
+	))
+	assert(target_lock._outline_material.next_pass == (
+		target_lock._outline_glow_material
+	))
+	assert(target_lock._outline_glow_material.next_pass == (
+		target_lock._outline_core_material
+	))
+	assert(is_equal_approx(
+		float(target_lock._outline_material.get_shader_parameter(
+			"merge_depth_range"
+		)),
+		0.28
+	))
+	camera_component._update_aim_depth_of_field(0.25, true)
+	assert(camera_attributes.dof_blur_far_enabled)
+	assert(camera_attributes.dof_blur_amount > 0.0)
+	assert(camera_attributes.dof_blur_far_distance > 1.0)
+	camera_component._update_aim_depth_of_field(2.0, false)
+	assert(camera_attributes.dof_blur_amount < 0.001)
+	assert(not camera_attributes.dof_blur_far_enabled)
 	target_lock.clear_lock()
 	assert(target_lock.get_outline_mesh_count() == 0)
 

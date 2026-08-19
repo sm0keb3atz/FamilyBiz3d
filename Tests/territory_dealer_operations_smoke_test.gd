@@ -372,7 +372,7 @@ func _run() -> void:
 	assert(_has_button_text(menu, "MANAGE  >"))
 	menu._select_owned_territory(&"hood_east")
 	await process_frame
-	assert(territory_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED)
+	assert(territory_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO)
 	assert(menu.find_child("TerritoryRevenueChart", true, false) != null)
 	menu.set_menu_open(false)
 	print("TERRITORY_DEALER_OPERATIONS_SMOKE_TEST_PASS")

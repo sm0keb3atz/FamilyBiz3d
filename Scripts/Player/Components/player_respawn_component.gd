@@ -109,14 +109,29 @@ func _finish_arrest_sequence(current_sequence: int) -> void:
 func _complete_arrest_sequence(current_sequence: int) -> void:
 	if current_sequence != _sequence_id:
 		return
+	# A police takedown reaches this path while health is still DOWNED. Normal
+	# arrests enter RESPawning earlier through respawn_after_arrest(), but fatal
+	# police damage does not. Start the respawn here so the ragdoll component
+	# restores the player's collision before control is returned.
+	if health_component.is_downed():
+		if not health_component.begin_respawn():
+			return
+	elif not health_component.is_respawning():
+		return
 	_complete_respawn_at(_get_spawn_transform(police_station_spawn_path))
 
 
 func _complete_respawn_at(target: Transform3D) -> void:
+	if not health_component.is_respawning():
+		push_warning("Ignored respawn completion without an active respawn.")
+		return
 	body.global_transform = target
 	body.velocity = Vector3.ZERO
-	health_component.complete_respawn()
-	movement_component.set_physics_process(true)
+	if not health_component.complete_respawn():
+		return
+	# Ragdoll collision is restored with set_deferred(). Keep movement paused
+	# until that deferred property change has been applied.
+	movement_component.call_deferred("set_physics_process", true)
 
 
 func _get_spawn_transform(path: NodePath) -> Transform3D:

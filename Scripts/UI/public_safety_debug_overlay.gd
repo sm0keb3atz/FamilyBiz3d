@@ -1,6 +1,8 @@
 class_name PublicSafetyDebugOverlay
 extends CanvasLayer
 
+const PoliceCoordinatorData := preload("res://Scripts/Gameplay/police_coordinator.gd")
+
 @export var toggle_key := KEY_F7
 
 var _label: Label
@@ -77,6 +79,14 @@ func _process(delta: float) -> void:
 				incident.revision,
 				incident.last_known_player_position,
 			])
+	var coordinator: Node = get_tree().get_first_node_in_group(&"police_coordinator")
+	if coordinator != null:
+		lines.append("Coordinator phase=%s threat=%s visual=%s uncertainty=%.1fm" % [
+			PoliceCoordinatorData.WantedPhase.keys()[int(coordinator.phase)],
+			PoliceCoordinatorData.ThreatState.keys()[int(coordinator.threat_state)],
+			coordinator.has_confirmed_visual_contact(),
+			float(coordinator.uncertainty_radius),
+		])
 	var dispatch := get_tree().get_first_node_in_group(&"police_dispatch")
 	if dispatch != null and dispatch.has_method("get_response_debug_snapshot"):
 		var response := dispatch.call("get_response_debug_snapshot") as Dictionary
@@ -93,7 +103,8 @@ func _process(delta: float) -> void:
 			float(response.get("deficit_elapsed", 0.0)),
 		])
 		for detail in response.get("response_details", []):
-			lines.append("Cruiser %s player=%.1fm progress=%.1fs recovery=%d" % [
+			lines.append("Cruiser %s/%s player=%.1fm progress=%.1fs recovery=%d" % [
+				detail.get("role", &"lead"),
 				detail.get("state", &"unknown"),
 				float(detail.get("player_distance", INF)),
 				float(detail.get("progress_age", 0.0)),
@@ -133,12 +144,19 @@ func _process(delta: float) -> void:
 		lines.append("Trace records=%d" % bus.get_trace_snapshot().size())
 	var nearest := _get_nearest_police(player as Node3D)
 	if nearest != null:
-		var ai_state := nearest.ai_component.get_ai_debug_state()
+		var ai_state := nearest.get_police_ai_debug_state()
 		var nav_state := nearest.movement_component.get_navigation_debug_state()
-		lines.append("Nearest officer #%d mode=%s search=%s" % [
+		lines.append("Nearest officer #%d state=%s reason=%s role=%s" % [
 			nearest.get_instance_id(),
-			ai_state.get("mode", "none"),
+			ai_state.get("state", ai_state.get("mode", "none")),
+			ai_state.get("reason", "none"),
 			ai_state.get("search_role", "none"),
+		])
+		lines.append("AI destination=%s scan=%.2f stall=%.2f repaths=%d" % [
+			ai_state.get("destination", Vector3.ZERO),
+			float(ai_state.get("scan_remaining", 0.0)),
+			float(ai_state.get("stall_elapsed", 0.0)),
+			int(ai_state.get("stall_repaths", 0)),
 		])
 		lines.append("Nav owner=%s reachable=%s stuck=%s attempts=%d target=%s" % [
 			nav_state.get("owner", "none"),

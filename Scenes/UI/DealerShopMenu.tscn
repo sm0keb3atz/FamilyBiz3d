@@ -1,18 +1,113 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/dealer_shop_menu.gd" id="1_shop"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.035, 0.043, 0.055, 0.99)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_main"]
+bg_color = Color(0.018, 0.022, 0.028, 0.985)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(1, 0.72, 0.18, 0.95)
+border_color = Color(0.93, 0.64, 0.08, 0.95)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.72)
+shadow_size = 28
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_section"]
+bg_color = Color(0.028, 0.033, 0.04, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.33, 0.34, 0.34, 0.75)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_subsection"]
+bg_color = Color(0.019, 0.024, 0.03, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.24, 0.25, 0.72)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_feedback"]
+bg_color = Color(0.055, 0.047, 0.025, 0.86)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.72, 0.48, 0.06, 0.7)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progress_bg"]
+bg_color = Color(0.007, 0.009, 0.012, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.2, 0.22, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progress_fill"]
+bg_color = Color(0.94, 0.66, 0.11, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close_normal"]
+bg_color = Color(0.035, 0.04, 0.048, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.64, 0.45, 0.1, 0.9)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close_hover"]
+bg_color = Color(0.16, 0.12, 0.045, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.72, 0.18, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close_pressed"]
+bg_color = Color(0.08, 0.065, 0.03, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.76, 0.22, 1)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_scroll"]
 
 [node name="DealerShopMenu" type="CanvasLayer"]
 layer = 11
@@ -29,6 +124,7 @@ grow_vertical = 2
 mouse_filter = 1
 
 [node name="Dimmer" type="ColorRect" parent="MenuRoot"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -36,85 +132,471 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 0
-color = Color(0, 0, 0, 0.58)
+color = Color(0.002, 0.004, 0.008, 0.78)
 
 [node name="Panel" type="PanelContainer" parent="MenuRoot"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -360.0
-offset_top = -270.0
-offset_right = 360.0
-offset_bottom = 270.0
+offset_left = -540.0
+offset_top = -380.0
+offset_right = 540.0
+offset_bottom = 380.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+theme_override_styles/panel = SubResource("StyleBoxFlat_main")
 
 [node name="Margin" type="MarginContainer" parent="MenuRoot/Panel"]
-theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 24
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
 
 [node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
-[node name="TitleLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+[node name="Header" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="TitleLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/Header"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.77, 0.2, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(1, 0.72, 0.14, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 34
 text = "DEALER"
 horizontal_alignment = 1
 
-[node name="LevelLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+[node name="HeaderRule" type="ColorRect" parent="MenuRoot/Panel/Margin/Content/Header"]
+custom_minimum_size = Vector2(150, 2)
+layout_mode = 2
+size_flags_horizontal = 4
+color = Color(0.96, 0.66, 0.09, 0.9)
+
+[node name="LevelLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/Header"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.78, 0.84, 0.9, 1)
-text = "Level 1"
+theme_override_colors/font_color = Color(0.92, 0.94, 0.96, 1)
+theme_override_font_sizes/font_size = 18
+text = "LEVEL 1"
 horizontal_alignment = 1
 
-[node name="CashLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+[node name="CashLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/Header"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.55, 0.3, 1)
-text = "Dirty Cash: $100"
+theme_override_colors/font_color = Color(0.3, 0.86, 0.36, 1)
+theme_override_font_sizes/font_size = 16
+text = "DIRTY CASH  $100"
 horizontal_alignment = 1
 
-[node name="CooldownLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.42, 0.32, 1)
-text = "Restocking in 30s"
-horizontal_alignment = 1
-
-[node name="Separator" type="HSeparator" parent="MenuRoot/Panel/Margin/Content"]
-layout_mode = 2
-
-[node name="Scroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content"]
+[node name="Body" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 12
 
-[node name="StockList" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/Scroll"]
+[node name="InventoryPanel" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content/Body"]
+custom_minimum_size = Vector2(620, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
+
+[node name="Margin" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SectionHeader" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="SectionTitle" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/SectionHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.71, 0.12, 1)
+theme_override_font_sizes/font_size = 20
+text = "INVENTORY"
+
+[node name="ItemCountLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/SectionHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.66, 0.7, 1)
+theme_override_font_sizes/font_size = 14
+text = "0 PRODUCTS"
+horizontal_alignment = 2
+
+[node name="ContextSlot" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Scroll" type="ScrollContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content"]
+custom_minimum_size = Vector2(0, 235)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_scroll")
+
+[node name="StockList" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/Scroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="OrderPanel" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 162)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_subsection")
+
+[node name="Margin" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Summary" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="SelectedProductLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content/Summary"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.94, 0.96, 1)
+theme_override_font_sizes/font_size = 17
+text = "SELECT AN ITEM"
+
+[node name="UnitPriceLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content/Summary"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.34, 0.88, 0.38, 1)
+theme_override_font_sizes/font_size = 20
+text = "$0 / UNIT"
+horizontal_alignment = 2
+
+[node name="PresetRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Amount1Button" type="Button" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content/PresetRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "1"
+
+[node name="Amount5Button" type="Button" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content/PresetRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "5"
+
+[node name="Amount10Button" type="Button" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content/PresetRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "10"
+
+[node name="Amount20Button" type="Button" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content/PresetRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "20"
+
+[node name="PurchaseRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content"]
+layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="FeedbackLabel" type="Label" parent="MenuRoot/Panel/Margin/Content"]
+[node name="QuantityLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content/PurchaseRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.84, 0.9, 1)
+theme_override_colors/font_color = Color(0.66, 0.7, 0.74, 1)
+text = "QUANTITY  1"
+vertical_alignment = 1
+
+[node name="TotalLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content/PurchaseRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.34, 0.88, 0.38, 1)
+theme_override_font_sizes/font_size = 19
+text = "TOTAL  $0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="PurchaseButton" type="Button" parent="MenuRoot/Panel/Margin/Content/Body/InventoryPanel/Margin/Content/OrderPanel/Margin/Content/PurchaseRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(175, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "PURCHASE"
+
+[node name="InfoColumn" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body"]
+custom_minimum_size = Vector2(382, 0)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="DealerInfoPanel" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
+
+[node name="Margin" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="Title" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.71, 0.12, 1)
+theme_override_font_sizes/font_size = 19
+text = "DEALER INFO"
+
+[node name="TerritoryRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content/TerritoryRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.61, 0.64, 0.68, 1)
+text = "TERRITORY"
+
+[node name="TerritoryValue" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content/TerritoryRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.96, 0.98, 1)
+text = "UNKNOWN"
+horizontal_alignment = 2
+
+[node name="TierRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content/TierRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.61, 0.64, 0.68, 1)
+text = "DEALER TIER"
+
+[node name="DealerTierValue" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content/TierRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.72, 0.14, 1)
+text = "LEVEL 1"
+horizontal_alignment = 2
+
+[node name="AccessRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content/AccessRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.61, 0.64, 0.68, 1)
+text = "ACCESS REP"
+
+[node name="AccessValue" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content/AccessRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.96, 0.98, 1)
+text = "0 REQUIRED"
+horizontal_alignment = 2
+
+[node name="ControlRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content/ControlRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.61, 0.64, 0.68, 1)
+text = "CONTROL"
+
+[node name="ControlValue" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content/ControlRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.96, 0.98, 1)
+text = "NEUTRAL"
+horizontal_alignment = 2
+
+[node name="RepSummary" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content/RepSummary"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.61, 0.64, 0.68, 1)
+text = "TERRITORY REP"
+
+[node name="RepValue" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content/RepSummary"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.96, 0.98, 1)
+text = "0 / 100"
+horizontal_alignment = 2
+
+[node name="RepBar" type="ProgressBar" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/DealerInfoPanel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+max_value = 100.0
+show_percentage = false
+theme_override_styles/background = SubResource("StyleBoxFlat_progress_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_progress_fill")
+
+[node name="StockInfoPanel" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_section")
+
+[node name="Margin" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="Title" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.71, 0.12, 1)
+theme_override_font_sizes/font_size = 19
+text = "STOCK INFO"
+
+[node name="ProductsRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content/ProductsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.61, 0.64, 0.68, 1)
+text = "PRODUCT TYPES"
+
+[node name="ProductsValue" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content/ProductsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.96, 0.98, 1)
+text = "0"
+horizontal_alignment = 2
+
+[node name="UnitsRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content/UnitsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.61, 0.64, 0.68, 1)
+text = "TOTAL UNITS"
+
+[node name="UnitsValue" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content/UnitsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.96, 0.98, 1)
+text = "0"
+horizontal_alignment = 2
+
+[node name="RestockRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content/RestockRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.61, 0.64, 0.68, 1)
+text = "RESTOCK"
+
+[node name="RestockValue" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content/RestockRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.96, 0.98, 1)
+text = "READY NOW"
+horizontal_alignment = 2
+
+[node name="StatusRow" type="HBoxContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content/StatusRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.61, 0.64, 0.68, 1)
+text = "STATUS"
+
+[node name="StockStatusValue" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/StockInfoPanel/Margin/Content/StatusRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.32, 0.88, 0.4, 1)
+text = "AVAILABLE"
+horizontal_alignment = 2
+
+[node name="TipPanel" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_feedback")
+
+[node name="Margin" type="MarginContainer" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/TipPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="TipLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/Body/InfoColumn/TipPanel/Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.72, 0.16, 1)
+theme_override_font_sizes/font_size = 14
+text = "Build territory reputation to unlock higher-tier dealers and better stock."
+autowrap_mode = 2
+vertical_alignment = 1
+
+[node name="FeedbackPanel" type="PanelContainer" parent="MenuRoot/Panel/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_subsection")
+
+[node name="FeedbackLabel" type="Label" parent="MenuRoot/Panel/Margin/Content/FeedbackPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.73, 0.78, 0.82, 1)
+text = "SELECT A PRODUCT AND QUANTITY"
 horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
 
 [node name="CloseButton" type="Button" parent="MenuRoot/Panel/Margin/Content"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "CLOSE"
+theme_override_colors/font_color = Color(0.94, 0.95, 0.97, 1)
+theme_override_colors/font_hover_color = Color(1, 0.78, 0.25, 1)
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("StyleBoxFlat_close_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_close_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_close_pressed")
+theme_override_styles/focus = SubResource("StyleBoxFlat_close_hover")
+text = "CLOSE  [ESC]"

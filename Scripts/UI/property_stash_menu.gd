@@ -854,9 +854,18 @@ func _retrieve_vehicle(instance_id: StringName) -> void:
 
 
 func _build_operations_tab(definition: PropertyDefinition) -> void:
+	var scroll := ScrollContainer.new()
+	scroll.name = "OperationsScroll"
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	_content.add_child(scroll)
 	var page := VBoxContainer.new()
+	page.name = "OperationsPage"
+	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	page.add_theme_constant_override("separation", 12)
-	_content.add_child(page)
+	scroll.add_child(page)
 	var supply := properties.get_property_supply_summary(
 		_property_id,
 		EconomyCatalog.get_gram_products()
@@ -887,80 +896,109 @@ func _build_operations_tab(definition: PropertyDefinition) -> void:
 		"STASH CASH", "$%s" % _money(int(supply.get("dirty_cash", 0))),
 		"Dirty cash", ACCENT
 	))
-	var columns := HBoxContainer.new()
-	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	columns.add_theme_constant_override("separation", 12)
-	page.add_child(columns)
-	columns.add_child(_build_runner_panel())
-	columns.add_child(_build_brick_station_panel(definition))
-	columns.add_child(_build_dealer_panel(definition))
+	var workspace := HBoxContainer.new()
+	workspace.name = "OperationsWorkspace"
+	workspace.add_theme_constant_override("separation", 12)
+	page.add_child(workspace)
+	var upgrades := _build_property_upgrades_panel(definition)
+	upgrades.size_flags_stretch_ratio = 1.08
+	workspace.add_child(upgrades)
+	var staffing := _build_dealer_panel(definition)
+	staffing.size_flags_stretch_ratio = 0.92
+	workspace.add_child(staffing)
 
 
-func _build_runner_panel() -> Control:
-	var panel := _section_panel("WHOLESALE RUNNER")
+func _build_property_upgrades_panel(
+	definition: PropertyDefinition
+) -> PanelContainer:
+	var panel := _section_panel("PROPERTY UPGRADES")
+	panel.name = "PropertyUpgrades"
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := panel.get_meta("content") as VBoxContainer
-	var installed := properties.has_runner(_property_id)
-	box.add_child(_label(
-		"Receives complete wholesaler brick orders directly into this stash.",
-		13,
-		MUTED
-	))
-	var status := _label(
-		"RUNNER ACTIVE" if installed else "NOT INSTALLED",
-		18,
-		GREEN if installed else ACCENT
+	var station_state := properties.get_brick_station_state(_property_id)
+	var active_count := (
+		int(properties.has_runner(_property_id))
+		+ int(bool(station_state.get("installed", false)))
 	)
+	var intro := _label(
+		"%d / 2 ACTIVE  •  Build out this stash's production and delivery network."
+		% active_count,
+		12,
+		MUTED
+	)
+	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(intro)
+	box.add_child(_build_runner_upgrade_row())
+	box.add_child(_build_brick_station_upgrade_row(definition))
+	return panel
+
+
+func _build_runner_upgrade_row() -> Control:
+	var installed := properties.has_runner(_property_id)
+	var row_data := _upgrade_row(
+		"WHOLESALE RUNNER",
+		"Receives complete wholesaler brick orders directly into this stash.",
+		"RUNNER ACTIVE" if installed else "NOT INSTALLED",
+		GREEN if installed else ACCENT,
+		CYAN
+	)
+	var panel := row_data.get("panel") as PanelContainer
+	panel.name = "RunnerUpgrade"
+	var status := row_data.get("status") as Label
+	var actions := row_data.get("actions") as VBoxContainer
 	status.name = "RunnerStatus"
-	box.add_child(status)
 	if installed:
-		box.add_child(_label(
-			"Select this property from any wholesaler delivery menu.",
-			13,
-			MUTED
-		))
+		var ready := _label("DELIVERY READY", 12, GREEN)
+		ready.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		actions.add_child(ready)
 		return panel
 	var purchase := Button.new()
 	purchase.name = "RunnerPurchase"
-	purchase.text = "HIRE RUNNER  $%s CLEAN" % _money(
+	purchase.text = "HIRE  •  $%s CLEAN" % _money(
 		PropertyCatalog.RUNNER_UPGRADE_COST
 	)
-	purchase.custom_minimum_size.y = 46
+	purchase.custom_minimum_size = Vector2(210, 46)
 	purchase.disabled = not properties.wallet.can_spend_clean(
 		PropertyCatalog.RUNNER_UPGRADE_COST
 	)
 	purchase.pressed.connect(_purchase_runner)
 	_style_button(purchase, CYAN)
-	box.add_child(purchase)
+	actions.add_child(purchase)
 	return panel
 
 
-func _build_brick_station_panel(definition: PropertyDefinition) -> Control:
-	var panel := _section_panel("BRICK BREAKDOWN STATION")
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var box := panel.get_meta("content") as VBoxContainer
+func _build_brick_station_upgrade_row(
+	definition: PropertyDefinition
+) -> Control:
 	var state := properties.get_brick_station_state(_property_id)
 	var installed := bool(state.get("installed", false))
-	box.add_child(_label(
+	var row_data := _upgrade_row(
+		"BRICK BREAKDOWN STATION",
 		"Converts one selected brick every three in-game hours. Output remains in this stash.",
-		13,
-		MUTED
-	))
-	var status := _label(_station_status_text(state), 18, GREEN if installed else ACCENT)
+		_station_status_text(state),
+		GREEN if installed else ACCENT,
+		ACCENT
+	)
+	var panel := row_data.get("panel") as PanelContainer
+	panel.name = "BrickStationUpgrade"
+	var status := row_data.get("status") as Label
+	var actions := row_data.get("actions") as VBoxContainer
 	status.name = "BrickStationStatus"
-	box.add_child(status)
 	if not installed:
 		var purchase := Button.new()
 		purchase.name = "BrickStationPurchase"
-		purchase.text = "INSTALL  $%s CLEAN" % _money(definition.brick_station_cost)
-		purchase.custom_minimum_size.y = 46
+		purchase.text = "INSTALL  •  $%s CLEAN" % _money(
+			definition.brick_station_cost
+		)
+		purchase.custom_minimum_size = Vector2(210, 46)
 		purchase.disabled = not properties.wallet.can_spend_clean(definition.brick_station_cost)
 		purchase.pressed.connect(_purchase_brick_station)
 		_style_button(purchase, ACCENT)
-		box.add_child(purchase)
+		actions.add_child(purchase)
 		return panel
 	var selector := OptionButton.new()
 	selector.name = "BrickStationProduct"
+	selector.custom_minimum_size = Vector2(210, 44)
 	selector.add_item("OFF")
 	selector.set_item_metadata(0, "")
 	var selected_id := StringName(state.get("selected_product_id", ""))
@@ -973,14 +1011,66 @@ func _build_brick_station_panel(definition: PropertyDefinition) -> Control:
 			selected_index = index
 	selector.select(selected_index)
 	selector.item_selected.connect(_select_brick_product.bind(selector))
-	box.add_child(selector)
+	actions.add_child(selector)
 	return panel
+
+
+func _upgrade_row(
+	title_text: String,
+	description_text: String,
+	status_text: String,
+	status_color: Color,
+	accent: Color
+) -> Dictionary:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size.y = 132
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override(
+		"panel",
+		_panel_style(Color("111923"), accent.darkened(0.52), 1, 8)
+	)
+	var margin := MarginContainer.new()
+	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		margin.add_theme_constant_override(side, 13)
+	panel.add_child(margin)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	margin.add_child(row)
+	var marker := ColorRect.new()
+	marker.color = accent
+	marker.custom_minimum_size.x = 4
+	marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(marker)
+	var details := VBoxContainer.new()
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.add_theme_constant_override("separation", 5)
+	row.add_child(details)
+	details.add_child(_label(title_text, 17, TEXT))
+	var description := _label(description_text, 12, MUTED)
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	description.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.add_child(description)
+	var status := _label(status_text, 14, status_color)
+	details.add_child(status)
+	var actions := VBoxContainer.new()
+	actions.custom_minimum_size.x = 210
+	actions.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(actions)
+	return {"panel": panel, "status": status, "actions": actions}
 
 
 func _build_dealer_panel(definition: PropertyDefinition) -> Control:
 	var panel := _section_panel("DEALER STAFFING")
+	panel.name = "DealerStaffing"
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var box := panel.get_meta("content") as VBoxContainer
+	var intro := _label(
+		"Assign a local crew, track today's take, and invest in faster sellers.",
+		12,
+		MUTED
+	)
+	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(intro)
 	if _territory_dealers == null:
 		box.add_child(_label("Dealer service unavailable.", 14, MUTED))
 		return panel
@@ -990,71 +1080,216 @@ func _build_dealer_panel(definition: PropertyDefinition) -> Control:
 		))
 		return panel
 	var roster := _territory_dealers.get_property_roster(_property_id)
-	for entry in roster:
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
-		var name := String(entry.get("member_id", "dealer")).replace("_", " ").capitalize()
-		var info := _label(
-			"%s  /  LEVEL %d  /  TODAY $%s" % [
-				name,
-				int(entry.get("level", 1)),
-				_money(int(entry.get("today_net", 0))),
-			],
+	box.add_child(_build_staffing_overview(definition, roster))
+	var roster_heading := HBoxContainer.new()
+	var roster_title := _label("ACTIVE ROSTER", 12, MUTED)
+	roster_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	roster_heading.add_child(roster_title)
+	roster_heading.add_child(_label(
+		"%d ASSIGNED" % roster.size(),
+		12,
+		CYAN
+	))
+	box.add_child(roster_heading)
+	if roster.is_empty():
+		var empty := _label(
+			"No dealers are assigned yet. Fill an open position below to start earning.",
 			13,
-			TEXT
+			MUTED
 		)
-		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(info)
-		var level := int(entry.get("level", 1))
-		var upgrade := Button.new()
-		upgrade.text = "UPGRADE"
-		upgrade.disabled = level >= 4 or not properties.wallet.can_spend_dirty(
-			_territory_dealers.get_upgrade_cost(level)
-		)
-		upgrade.pressed.connect(_upgrade_dealer.bind(
-			definition.territory_id,
-			StringName(entry.get("zone_id", "")),
-			StringName(entry.get("member_id", ""))
-		))
-		_style_button(upgrade, CYAN)
-		row.add_child(upgrade)
-		var fire := Button.new()
-		fire.text = "FIRE"
-		fire.pressed.connect(_fire_dealer.bind(
-			definition.territory_id,
-			StringName(entry.get("zone_id", "")),
-			StringName(entry.get("member_id", ""))
-		))
-		_style_button(fire, RED)
-		row.add_child(fire)
-		box.add_child(row)
+		empty.custom_minimum_size.y = 56
+		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		box.add_child(empty)
+	for entry in roster:
+		box.add_child(_build_dealer_staff_card(definition, entry))
 	var open_slots := maxi(definition.dealer_capacity - roster.size(), 0)
 	if open_slots <= 0:
-		box.add_child(_label("All dealer slots are staffed.", 13, MUTED))
+		var full := _label("CREW FULL  •  All dealer slots are staffed.", 13, GREEN)
+		full.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		box.add_child(full)
 		return panel
+	box.add_child(_build_recruitment_panel(definition, open_slots))
+	return panel
+
+
+func _build_staffing_overview(
+	definition: PropertyDefinition,
+	roster: Array[Dictionary]
+) -> Control:
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override(
+		"panel", _panel_style(Color("111923"), CYAN.darkened(0.55), 1, 8)
+	)
+	var margin := MarginContainer.new()
+	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		margin.add_theme_constant_override(side, 12)
+	card.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	margin.add_child(box)
+	var heading := HBoxContainer.new()
+	box.add_child(heading)
+	var label := _label("TEAM COVERAGE", 12, MUTED)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading.add_child(label)
+	heading.add_child(_label(
+		"%d / %d STAFFED" % [roster.size(), definition.dealer_capacity],
+		14,
+		GREEN if roster.size() >= definition.dealer_capacity else CYAN
+	))
+	var progress := ProgressBar.new()
+	progress.name = "DealerStaffingProgress"
+	progress.custom_minimum_size.y = 9
+	progress.max_value = maxf(float(definition.dealer_capacity), 1.0)
+	progress.value = roster.size()
+	progress.show_percentage = false
+	progress.add_theme_stylebox_override(
+		"background", _panel_style(Color("090e14"), Color("202a35"), 1, 4)
+	)
+	progress.add_theme_stylebox_override(
+		"fill", _panel_style(CYAN.darkened(0.32), CYAN, 1, 4)
+	)
+	box.add_child(progress)
+	return card
+
+
+func _build_dealer_staff_card(
+	definition: PropertyDefinition,
+	entry: Dictionary
+) -> Control:
+	var card := PanelContainer.new()
+	card.custom_minimum_size.y = 88
+	card.add_theme_stylebox_override(
+		"panel", _panel_style(Color("101720"), Color("2a3542"), 1, 7)
+	)
+	var margin := MarginContainer.new()
+	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		margin.add_theme_constant_override(side, 11)
+	card.add_child(margin)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	margin.add_child(row)
+	var details := VBoxContainer.new()
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.add_theme_constant_override("separation", 4)
+	row.add_child(details)
+	var dealer_name := String(entry.get("member_id", "dealer"))
+	dealer_name = dealer_name.replace("_", " ").capitalize()
+	details.add_child(_label(dealer_name.to_upper(), 16, TEXT))
+	var level := int(entry.get("level", 1))
+	var following := bool(entry.get("following", false))
+	var status := "ON CALL" if following else "WORKING"
+	details.add_child(_label(
+		"LEVEL %d  •  %s" % [level, status],
+		12,
+		CYAN if following else GREEN
+	))
+	details.add_child(_label(
+		"TODAY  $%s   •   LIFETIME  $%s" % [
+			_money(int(entry.get("today_net", 0))),
+			_money(int(entry.get("lifetime_net", 0))),
+		],
+		11,
+		MUTED
+	))
+	var actions := HBoxContainer.new()
+	actions.alignment = BoxContainer.ALIGNMENT_CENTER
+	actions.add_theme_constant_override("separation", 6)
+	row.add_child(actions)
+	var upgrade_cost := _territory_dealers.get_upgrade_cost(level)
+	var upgrade := Button.new()
+	upgrade.text = (
+		"MAX LEVEL" if level >= 4
+		else "UPGRADE  $%s" % _money(upgrade_cost)
+	)
+	upgrade.custom_minimum_size = Vector2(148, 40)
+	upgrade.disabled = (
+		level >= 4 or not properties.wallet.can_spend_dirty(upgrade_cost)
+	)
+	upgrade.pressed.connect(_upgrade_dealer.bind(
+		definition.territory_id,
+		StringName(entry.get("zone_id", "")),
+		StringName(entry.get("member_id", ""))
+	))
+	_style_button(upgrade, CYAN)
+	actions.add_child(upgrade)
+	var fire := Button.new()
+	fire.text = "FIRE"
+	fire.custom_minimum_size = Vector2(68, 40)
+	fire.pressed.connect(_fire_dealer.bind(
+		definition.territory_id,
+		StringName(entry.get("zone_id", "")),
+		StringName(entry.get("member_id", ""))
+	))
+	_style_button(fire, RED)
+	actions.add_child(fire)
+	return card
+
+
+func _build_recruitment_panel(
+	definition: PropertyDefinition,
+	open_slots: int
+) -> Control:
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override(
+		"panel", _panel_style(Color("101a18"), GREEN.darkened(0.5), 1, 8)
+	)
+	var margin := MarginContainer.new()
+	for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
+		margin.add_theme_constant_override(side, 12)
+	card.add_child(margin)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	margin.add_child(box)
+	var heading := HBoxContainer.new()
+	box.add_child(heading)
+	var title := _label("RECRUIT A DEALER", 14, TEXT)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading.add_child(title)
+	heading.add_child(_label(
+		"%d OPEN %s" % [open_slots, "SLOT" if open_slots == 1 else "SLOTS"],
+		12,
+		GREEN
+	))
 	var candidates := _territory_dealers.get_available_candidates(definition.territory_id)
+	if candidates.is_empty():
+		var unavailable := _label(
+			"No unassigned candidates are available in this territory.",
+			12,
+			MUTED
+		)
+		unavailable.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		box.add_child(unavailable)
+		return card
 	var hire_row := HBoxContainer.new()
 	hire_row.add_theme_constant_override("separation", 8)
 	var picker := OptionButton.new()
 	picker.name = "DealerCandidatePicker"
 	picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	picker.custom_minimum_size.y = 42
 	for entry in candidates:
 		picker.add_item(String(entry.get("member_id", "dealer")).replace("_", " ").capitalize())
 		picker.set_item_metadata(picker.item_count - 1, {
 			"zone_id": String(entry.get("zone_id", "")),
 			"member_id": String(entry.get("member_id", "")),
 		})
-	picker.disabled = candidates.is_empty()
 	hire_row.add_child(picker)
 	var hire := Button.new()
 	hire.name = "DealerHire"
-	hire.text = "HIRE  $%s DIRTY" % _money(TerritoryDealerService.HIRE_FEE)
-	hire.disabled = candidates.is_empty() or not properties.wallet.can_spend_dirty(TerritoryDealerService.HIRE_FEE)
+	hire.text = "HIRE  •  $%s" % _money(TerritoryDealerService.HIRE_FEE)
+	hire.custom_minimum_size = Vector2(150, 42)
+	hire.disabled = not properties.wallet.can_spend_dirty(
+		TerritoryDealerService.HIRE_FEE
+	)
 	hire.pressed.connect(_hire_dealer.bind(definition, picker))
 	_style_button(hire, GREEN)
 	hire_row.add_child(hire)
 	box.add_child(hire_row)
-	return panel
+	var fee_note := _label("Hiring fee is paid from carried dirty cash.", 11, MUTED)
+	box.add_child(fee_note)
+	return card
 
 
 func _purchase_brick_station() -> void:

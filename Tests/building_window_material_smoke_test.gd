@@ -5,6 +5,8 @@ const BUILDING_SCENES := [
 	"res://Scenes/Maps/Buildings/building_2.tscn",
 	"res://Scenes/Maps/Buildings/building_3.tscn",
 	"res://Scenes/Maps/Buildings/building_4.tscn",
+	"res://Scenes/Maps/Buildings/building_5.tscn",
+	"res://Scenes/Maps/Buildings/building_6.tscn",
 ]
 const WINDOW_OFF := preload(
 	"res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/WindowOff.tres"

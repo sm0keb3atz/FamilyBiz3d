@@ -1,6 +1,8 @@
 class_name PlayerHUD
 extends CanvasLayer
 
+const PoliceCoordinatorData := preload("res://Scripts/Gameplay/police_coordinator.gd")
+
 signal daily_report_closed
 
 @export var stats_component_path := NodePath("../Components/StatsComponent")
@@ -61,8 +63,10 @@ signal daily_report_closed
 @onready var heat_bar := %HeatBar as ProgressBar
 @onready var heat_value := %HeatValue as Label
 @onready var wanted_stars := %WantedStars as Label
+@onready var police_status := %PoliceStatus as Label
 @onready var escape_panel := %EscapePanel as PanelContainer
 @onready var escape_bar := %EscapeBar as ProgressBar
+@onready var escape_time := %EscapeTime as Label
 @onready var arrest_panel := %ArrestPanel as PanelContainer
 @onready var arrest_bar := %ArrestBar as ProgressBar
 @onready var stats := get_node(stats_component_path) as PlayerStatsComponent
@@ -88,6 +92,7 @@ signal daily_report_closed
 
 var _hit_marker_remaining := 0.0
 var _detection_debug_visible := false
+var _police_coordinator: Node
 var _was_tree_paused := false
 var _previous_mouse_mode := Input.MOUSE_MODE_CAPTURED
 var _displayed_dirty_cash := 0.0
@@ -142,6 +147,7 @@ func _ready() -> void:
 	vehicle_component.vehicle_exited.connect(_on_vehicle_exited)
 	wanted.wanted_level_changed.connect(_on_wanted_level_changed)
 	wanted.escape_progress_changed.connect(_on_escape_progress_changed)
+	call_deferred(&"_connect_police_coordinator")
 	arrest.arrest_progress_changed.connect(_on_arrest_progress_changed)
 	arrest.arrested.connect(_on_arrested)
 	health.respawn_completed.connect(_hide_outcome)
@@ -1011,7 +1017,11 @@ func _on_wanted_level_changed(_previous: int, current: int) -> void:
 		display += "★" if index < current else "☆"
 	wanted_stars.text = display
 	wanted_stars.visible = current > 0
-	if current != 1:
+	police_status.visible = current > 0 or (
+		_police_coordinator != null
+		and _police_coordinator.phase == PoliceCoordinatorData.WantedPhase.INVESTIGATING
+	)
+	if current == 0 or not wanted.can_attempt_arrest():
 		arrest_panel.visible = false
 	if current == 0:
 		escape_panel.visible = false
@@ -1023,11 +1033,46 @@ func _on_escape_progress_changed(
 ) -> void:
 	escape_bar.value = clampf(progress, 0.0, 1.0)
 	escape_panel.visible = escaping and wanted.wanted_level > 0
+	escape_time.text = "%.1fs" % (
+		wanted.get_evasion_segment_seconds() * clampf(progress, 0.0, 1.0)
+	)
+
+
+func _connect_police_coordinator() -> void:
+	_police_coordinator = get_tree().get_first_node_in_group(
+		&"police_coordinator"
+	)
+	if _police_coordinator == null:
+		return
+	if not _police_coordinator.phase_changed.is_connected(_on_police_phase_changed):
+		_police_coordinator.phase_changed.connect(_on_police_phase_changed)
+	_on_police_phase_changed(_police_coordinator.phase, _police_coordinator.phase)
+
+
+func _on_police_phase_changed(_previous: int, current: int) -> void:
+	match current:
+		PoliceCoordinatorData.WantedPhase.INVESTIGATING:
+			police_status.text = "POLICE INVESTIGATING"
+		PoliceCoordinatorData.WantedPhase.OBSERVED:
+			police_status.text = "OBSERVED"
+		PoliceCoordinatorData.WantedPhase.SEARCHING:
+			police_status.text = "POLICE SEARCHING"
+		PoliceCoordinatorData.WantedPhase.EVADING:
+			police_status.text = "SEARCHING — EVADE"
+		PoliceCoordinatorData.WantedPhase.SURRENDERING:
+			police_status.text = "SURRENDERING"
+		_:
+			police_status.text = ""
+	police_status.visible = current != PoliceCoordinatorData.WantedPhase.CLEAR
 
 
 func _on_arrest_progress_changed(progress: float) -> void:
 	arrest_bar.value = clampf(progress, 0.0, 1.0)
-	arrest_panel.visible = progress > 0.0 and wanted.wanted_level == 1
+	arrest_panel.visible = (
+		progress > 0.0
+		and wanted.wanted_level > 0
+		and wanted.can_attempt_arrest()
+	)
 
 
 func _on_arrested() -> void:

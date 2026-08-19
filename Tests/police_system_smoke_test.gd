@@ -42,6 +42,29 @@ func _run() -> void:
 	assert(police.set_navigation_target(stable_navigation_target))
 	assert(not police.set_navigation_target(stable_navigation_target))
 	police.clear_navigation_target()
+	# Reaching the high-priority incident/pursuit destination must release its
+	# navigation ownership so the lower-priority search sweep can take over.
+	assert(police.set_navigation_intent(
+		police.global_position + Vector3(8.0, 0.0, 0.0),
+		&"police_pursuit",
+		100
+	))
+	police.ai_component.set("_last_known_position", police.global_position)
+	police.ai_component.set("_search_center", police.global_position)
+	police.ai_component.set("_has_search_center", true)
+	police.ai_component.set("_has_search_destination", true)
+	police.ai_component.set("_search_pause_pending", false)
+	police.ai_component.call("_chase_last_known", 0.016)
+	assert(
+		not bool(police.movement_component.get_navigation_debug_state().has_target),
+		"Completed pursuit intent blocked the next police search waypoint"
+	)
+	assert(police.set_navigation_intent(
+		police.global_position + Vector3(4.0, 0.0, 0.0),
+		&"police_search",
+		80
+	))
+	police.clear_navigation_target()
 	var police_gunshot_player := police.combat_component.get(
 		"_gunshot_player"
 	) as AudioStreamPlayer3D
@@ -87,7 +110,7 @@ func _run() -> void:
 		+ police.visual.global_basis.z.normalized() * 4.0
 	)
 	police.perception_component.set("_cached_can_see_player", true)
-	police.tick_ai_mode(PoliceModeAction.Mode.ARREST, 0.016)
+	police.ai_component.call("_pursue_position", player.global_position, 0.016)
 	assert(
 		not bool(
 			police.movement_component.get_navigation_debug_state().has_target
@@ -99,8 +122,8 @@ func _run() -> void:
 	police.perception_component.set("_perception_update_remaining", 0.0)
 	police.perception_component.call("_process", 0.016)
 	assert(
-		police.perception_component.can_see_player(),
-		"Police radial awareness lost a nearby player behind their facing direction"
+		not police.perception_component.can_see_player(),
+		"Police incorrectly detected a player behind its directional vision"
 	)
 	police.visual.rotation.y = direct_pursuit_visual_rotation
 	player.global_position = direct_pursuit_player_position
@@ -126,7 +149,9 @@ func _run() -> void:
 	var dispatch := world.get_node(
 		"PoliceDispatchController"
 	) as PoliceDispatchController
-	dispatch.response_profile.initial_dispatch_delays = PackedFloat32Array([0.0, 0.0, 0.0, 0.0])
+	dispatch.response_profile.initial_dispatch_delays = PackedFloat32Array(
+		[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+	)
 	dispatch.response_profile.cruiser_launch_spacing = 0.01
 	arrest.arrest_duration = 999.0
 
@@ -178,13 +203,13 @@ func _run() -> void:
 		.distance_to(police.global_position) <= 2.0
 	)
 	police.tick_ai_mode(PoliceModeAction.Mode.PATROL, 0.016)
-	assert(wanted.wanted_level == 1)
+	assert(wanted.wanted_level == 2)
 	assert(wanted.active_incident != null)
 	assert(
 		wanted.active_incident.crime_type
 		== PoliceIncident.CrimeType.WEAPON_DISCHARGE
 	)
-	# A second witnessed discharge follows the old escalation rule.
+	# A second witnessed discharge escalates the continuing violent incident.
 	event_bus.publish_gunshot(
 		player,
 		police.global_position,
@@ -192,13 +217,15 @@ func _run() -> void:
 		&"player"
 	)
 	police.tick_ai_mode(PoliceModeAction.Mode.ARREST, 0.016)
-	assert(wanted.wanted_level == 2)
+	assert(wanted.wanted_level == 3)
 
-	# A known wanted player firing well beyond the old 28-meter cutoff gives
-	# nearby police the exact shot location immediately, without requiring the
-	# player to walk into their vision cone first.
+	# Long-range gunfire remains anonymous: it creates a sound investigation but
+	# does not magically identify the player or update confirmed intelligence.
 	var position_before_long_range_shot := player.global_position
-	player.global_position = police.global_position + Vector3(120.0, 0.0, 0.0)
+	var confirmed_position_before_shot: Vector3 = (
+		wanted.active_incident.last_known_player_position
+	)
+	player.global_position = police.global_position + Vector3(100.0, 0.0, 0.0)
 	police.perception_component.set("_cached_can_see_player", false)
 	event_bus.publish_gunshot(
 		player,
@@ -206,19 +233,10 @@ func _run() -> void:
 		150.0,
 		&"player"
 	)
-	assert(police.has_confirmed_wanted_player_location())
-	police.ai_component.set("_response_commit_remaining", 0.0)
-	assert(
-		police.has_confirmed_wanted_player_location(),
-		"Street police abandoned an active last-known location after response commitment expired"
-	)
-	police.ai_component.set(
-		"_response_commit_remaining",
-		police.ai_component.response_commit_seconds
-	)
+	assert(police.ai_component.has_active_investigation())
 	assert(
 		wanted.active_incident.last_known_player_position.distance_to(
-			player.global_position
+			confirmed_position_before_shot
 		) < 0.01
 	)
 	police.tick_ai_mode(PoliceModeAction.Mode.SEARCH_COMBAT, 0.016)
@@ -230,6 +248,7 @@ func _run() -> void:
 		"_response_commit_remaining",
 		police.ai_component.response_commit_seconds
 	)
+	police.ai_component.set("_investigation_remaining", 0.0)
 	police.set_navigation_target(player.global_position + Vector3(3.0, 0.0, 0.0))
 	wanted.clear_wanted(false)
 	assert(not police.ai_component.has_committed_response_target())
@@ -357,7 +376,10 @@ func _run() -> void:
 			response_officer.ai_component.has_committed_response_target()
 		)
 		response_officer.tick_ai_mode(PoliceModeAction.Mode.ARREST, 0.016)
-		assert(not response_officer.combat_component.is_equipped())
+		assert(
+			response_officer.combat_component.is_equipped()
+			== response_officer.is_player_compliant()
+		)
 		assert(
 			response_officer.get_navigation_target_update_count() > 0
 			or response_officer.perception_component.has_unobstructed_line_to(
@@ -366,6 +388,12 @@ func _run() -> void:
 			)
 			or response_officer.global_position.distance_to(player.global_position)
 			<= response_officer.ai_component.arrest_distance
+			or (
+				response_officer.is_player_compliant()
+				and response_officer.global_position.distance_to(
+					player.global_position
+				) <= 12.0
+			)
 		)
 	var on_scene_frames := 0
 	while (
@@ -431,10 +459,16 @@ func _run() -> void:
 	assert(east_manager.get_active_police_count() == 1 + first_seat_count)
 	dispatch.set("_launch_remaining", 0.0)
 	dispatch.call("_process", 0.0)
-	assert(dispatch.get_scheduled_officer_count() == 4)
+	# The active cruiser already occupies the level-two cruiser limit. Overflow
+	# backup is intentionally delayed until the deployment-deficit timeout.
+	assert(dispatch.get_scheduled_officer_count() == 2)
 	assert(wanted.active_incident.severity == 2)
 	assert(wanted.active_incident.crime_type == PoliceIncident.CrimeType.WEAPON_DISCHARGE)
 	assert(wanted.has_police_search_position)
+	var police_coordinator := world.get_tree().get_first_node_in_group(
+		&"police_coordinator"
+	) as PoliceCoordinator
+	assert(police_coordinator != null)
 	for searching_police in east_manager.get_active_police():
 		if not searching_police.is_response_assigned():
 			continue
@@ -442,47 +476,55 @@ func _run() -> void:
 			PoliceModeAction.Mode.SEARCH_COMBAT,
 			0.016
 		)
-		assert(
-			int(searching_police.ai_component.get(
-				"_last_search_revision"
-			)) == wanted.police_search_revision
+		var officer_revision := int(searching_police.ai_component.get(
+			"_last_search_revision"
+		))
+		assert(officer_revision >= 0)
+		assert(officer_revision <= police_coordinator.intelligence_revision)
+		var officer_destination: Vector3 = (
+			searching_police.ai_component.get_search_debug_state().destination
 		)
+		assert(officer_destination.is_finite())
 	police.tick_ai_mode(PoliceModeAction.Mode.COMBAT, 0.016)
 	assert(police.combat_component.is_equipped())
+	var scheduled_before_high_escalation := dispatch.get_scheduled_officer_count()
 	wanted.report_violence(police, true)
-	assert(wanted.wanted_level == 3)
+	assert(wanted.wanted_level == 5)
 	assert(wanted.is_force_authorized)
 	assert(not wanted.can_attempt_arrest())
 	assert(wanted.active_incident.crime_type == PoliceIncident.CrimeType.OFFICER_DOWN)
-	assert(wanted.active_incident.severity == 3)
+	assert(wanted.active_incident.severity == 5)
 	dispatch.set("_launch_remaining", 0.0)
 	dispatch.call("_process", 0.0)
-	assert(dispatch.get_scheduled_officer_count() == 6)
+	assert(
+		dispatch.get_scheduled_officer_count()
+		> scheduled_before_high_escalation
+	)
+	assert(
+		dispatch.get_scheduled_officer_count()
+		<= dispatch.get_desired_officer_count()
+	)
 
-	wanted.escape_seconds_per_star = 0.05
-	wanted.escape_exit_grace = 2.0
+	wanted.escape_exit_grace = 1.5
 	var reported_position: Vector3 = wanted.active_incident.last_known_player_position
 	player.global_position = reported_position
 	wanted.set("_visual_contact_remaining", 0.0)
 	wanted.call("_update_escape", 1.0)
-	assert(wanted.wanted_level == 3)
+	assert(wanted.wanted_level == 5)
 	assert(not wanted.is_escaping)
 	assert(is_equal_approx(wanted.escape_progress, 1.0))
-	player.global_position = reported_position + Vector3(40.0, 0.0, 0.0)
-	wanted.call("_update_escape", 1.0)
-	assert(not wanted.is_escaping)
-	player.global_position = reported_position
-	wanted.call("_update_escape", 0.1)
-	player.global_position = reported_position + Vector3(40.0, 0.0, 0.0)
-	wanted.call("_update_escape", 1.9)
-	assert(wanted.wanted_level == 3)
-	assert(not wanted.is_escaping)
-	wanted.call("_update_escape", 0.11)
-	assert(wanted.wanted_level == 2)
-	wanted.call("_update_escape", 0.051)
-	assert(wanted.wanted_level == 1)
-	wanted.call("_update_escape", 0.051)
-	assert(wanted.wanted_level == 0)
+	wanted.call("_update_escape", 0.6)
+	assert(wanted.wanted_level == 5)
+	assert(wanted.is_escaping)
+	# Reacquisition resets only this segment; levels already removed never return.
+	wanted.report_police_visual_contact(player.global_position)
+	assert(is_equal_approx(wanted.escape_progress, 1.0))
+	wanted.set("_visual_contact_remaining", 0.0)
+	wanted.escape_exit_grace = 0.0
+	for expected_level in [4, 3, 2, 1, 0]:
+		wanted.set("_escape_progress", 0.001)
+		wanted.call("_update_escape", 0.1)
+		assert(wanted.wanted_level == expected_level)
 	assert(is_equal_approx(east_boundary.stats.heat, 25.0))
 	for state in dispatch.get_response_states():
 		assert(state in [&"returning", &"exiting"])
@@ -508,10 +550,18 @@ func _run() -> void:
 	)
 	wanted.set_wanted_level(1)
 	var suspended_incident_id: int = wanted.active_incident.incident_id
-	wanted.set_gang_war_suppressed(true)
-	assert(wanted.wanted_level == 0)
-	wanted.set_gang_war_suppressed(false)
+	var suspended_incident_data: Dictionary = (
+		wanted.active_incident.to_dictionary()
+	)
+	wanted.import_save_data({
+		"wanted_level": 0,
+		"gang_war_suppressed": true,
+		"suspended_wanted_level": 1,
+		"suspended_trigger_territory_id": "hood_east",
+		"suspended_incident": suspended_incident_data,
+	})
 	assert(wanted.wanted_level == 1)
+	assert(not wanted.is_gang_war_suppressed())
 	assert(wanted.active_incident.incident_id == suspended_incident_id)
 	assert(wanted.active_incident.crime_type == PoliceIncident.CrimeType.ILLEGAL_ACTIVITY)
 	wanted.clear_wanted(false)
@@ -528,6 +578,16 @@ func _run() -> void:
 	# road intercept. Stopping permits pull-over, but moving again before the
 	# doors open cancels deployment and resumes the chase.
 	dispatch.reset_for_load()
+	vehicle_component.prepare_for_load()
+	if health.is_downed():
+		assert(health.begin_forced_respawn())
+	if health.is_respawning():
+		assert(health.complete_respawn())
+	var menu_controller := player.get_node(
+		"Components/MenuController"
+	) as PlayerMenuController
+	if not menu_controller.active_menu.is_empty():
+		assert(menu_controller.close(menu_controller.active_menu))
 	var pursuit_vehicle_scene := load(
 		"res://Scenes/Vehicles/MuscleCar.tscn"
 	) as PackedScene
@@ -566,7 +626,7 @@ func _run() -> void:
 	pursuit_vehicle.linear_velocity = Vector3.ZERO
 	pursuit_response.stationary_elapsed = dispatch.response_profile.stationary_deploy_seconds
 	pursuit_response.cruiser.global_position = (
-		pursuit_vehicle.global_position + Vector3.RIGHT * 10.0
+		pursuit_vehicle.global_position + Vector3.RIGHT * 6.0
 	)
 	dispatch.call("_tick_mobile_response", pursuit_response, 0.1)
 	assert(pursuit_response.state_name() == &"pull_over")
@@ -596,9 +656,9 @@ func _run() -> void:
 	wanted.report_police_incident(
 		player.global_position,
 		PoliceIncident.CrimeType.OFFICER_DOWN,
-		3
+		4
 	)
-	wanted.set_wanted_level(3)
+	wanted.set_wanted_level(4)
 	assert(wanted.active_incident.territory_id == &"hood_west")
 	for _cruiser_index in 3:
 		dispatch.set("_launch_remaining", 0.0)

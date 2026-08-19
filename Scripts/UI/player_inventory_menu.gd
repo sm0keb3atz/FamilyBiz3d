@@ -154,6 +154,8 @@ var _supplies_list: VBoxContainer
 
 
 func _ready() -> void:
+	if not get_viewport().size_changed.is_connected(_on_viewport_size_changed):
+		get_viewport().size_changed.connect(_on_viewport_size_changed)
 	inventory.quantity_changed.connect(_on_quantity_changed)
 	inventory.consumable_quantity_changed.connect(_on_consumable_quantity_changed)
 	consumables.item_used.connect(_on_consumable_used)
@@ -503,10 +505,14 @@ func _animate_panel_for_tab(animated: bool, wide_override := -1) -> void:
 		else wide_override == 1
 	)
 	var edge_margin := 18.0 if wide_mode else 54.0
-	var maximum := Vector2(1500.0, 900.0) if wide_mode else Vector2(1200.0, 720.0)
+	var maximum := Vector2(1860.0, 980.0) if wide_mode else Vector2(1200.0, 720.0)
+	var available_size := Vector2(
+		maxf(viewport_size.x - edge_margin * 2.0, 320.0),
+		maxf(viewport_size.y - edge_margin * 2.0, 320.0)
+	)
 	var target_size := Vector2(
-		minf(maximum.x, maxf(viewport_size.x - edge_margin * 2.0, 760.0)),
-		minf(maximum.y, maxf(viewport_size.y - edge_margin * 2.0, 560.0))
+		minf(maximum.x, available_size.x),
+		minf(maximum.y, available_size.y)
 	)
 	var targets := {
 		"offset_left": -target_size.x * 0.5,
@@ -529,6 +535,11 @@ func _animate_panel_for_tab(animated: bool, wide_override := -1) -> void:
 			targets[property_name],
 			0.32
 		)
+
+
+func _on_viewport_size_changed() -> void:
+	if is_node_ready():
+		_animate_panel_for_tab(false)
 
 
 func _update_navigation_styles() -> void:
@@ -1648,7 +1659,7 @@ func _resolve_territory_dealers() -> void:
 func _refresh_territory() -> void:
 	for child in territory_list.get_children():
 		child.queue_free()
-	territory_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	territory_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	territory_scroll.scroll_vertical = 0
 	if _territory_dealers == null:
 		_resolve_territory_dealers()
@@ -1900,9 +1911,12 @@ func _create_territory_dealer_duty_panel(
 ) -> PanelContainer:
 	var panel := _create_section_panel("DEALERS ON CALL")
 	var box := panel.get_meta("content") as VBoxContainer
-	box.add_child(_detail_label(
+	var description := _detail_label(
 		"Call a hired dealer to follow you in combat. Their property income pauses until they are sent home."
-	))
+	)
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	description.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(description)
 	var hired: Array[Dictionary] = []
 	for entry in _territory_dealers.get_roster(territory_id):
 		if bool(entry.get("employed", false)):
@@ -2155,10 +2169,13 @@ func _create_territory_details_panel(supply: Dictionary, earnings: Dictionary) -
 	box.add_child(_create_detail_row("STAFF", "%d / %d hired" % [int(earnings.staffed), int(earnings.total_slots)]))
 	for stash in supply.get("stashes", []) as Array:
 		box.add_child(_create_stash_supply_row(stash))
-	box.add_child(_detail_label(
+	var note := _detail_label(
 		"Dealers only use the stash assigned to them. Brick stations "
 		+ "automate retail-unit production per property."
-	))
+	)
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(note)
 	return panel
 
 

@@ -1,9 +1,6 @@
 class_name PlayerWeaponComponent
 extends Node
 
-const BLOOD_IMPACT_VFX := preload(
-	"res://Scenes/VFX/BloodImpactVFX.tscn"
-)
 const WORLD_COLLISION_LAYER := 1 << 0
 const HITBOX_COLLISION_LAYER := 1 << 2
 const AIM_COLLISION_MASK := WORLD_COLLISION_LAYER | HITBOX_COLLISION_LAYER
@@ -92,46 +89,26 @@ var _attachment_states: Dictionary[StringName, Dictionary] = {}
 var _equipped_slot := 0
 var _cooldown_remaining := 0.0
 var _reload_remaining := 0.0
+var _last_shot_police_exempt := false
 var _sights_enabled := false
 var _laser_enabled := false
 var _switch_enabled := false
 var _magazine_type := MagazineType.STANDARD
-var _tracer_material: StandardMaterial3D
 var weapon_model: Node3D
 var muzzle_particles: GPUParticles3D
+var _rapid_shot_count := 0
+var _last_shot_msec := -100000
 var _default_weapon_visual_transform := Transform3D.IDENTITY
 var _weapon_visual_transforms: Dictionary[StringName, Transform3D] = {}
 var _weapon_visual_templates: Dictionary[StringName, Node3D] = {}
 
 
 func _ready() -> void:
-	BloodImpactVFX.prewarm_resources()
-	call_deferred("_prewarm_blood_vfx_runtime")
 	_cache_initial_weapon_transform()
 	_clear_weapon_visual()
 	_initialize_weapon_slots()
 	health_component.state_changed.connect(_on_health_state_changed)
 	_apply_equipped_weapon()
-
-
-func _prewarm_blood_vfx_runtime() -> void:
-	if camera == null:
-		return
-	var effect := BLOOD_IMPACT_VFX.instantiate() as BloodImpactVFX
-	camera.add_child(effect)
-	effect.position = Vector3(
-		0.0,
-		0.0,
-		-maxf(camera.near * 2.0, 0.12)
-	)
-	effect.scale = Vector3.ONE * 0.0001
-	effect.prewarm_runtime()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	await get_tree().process_frame
-	if is_instance_valid(effect):
-		effect.queue_free()
-
 
 func _cache_initial_weapon_transform() -> void:
 	var existing_weapon := (
@@ -602,10 +579,13 @@ func try_fire() -> bool:
 	_cooldown_remaining = _get_fire_interval(definition)
 	animation_component.trigger_weapon_fire(definition)
 	_play_gunshot()
-	_broadcast_gunshot()
 	_play_muzzle_flash()
+	_last_shot_police_exempt = false
 	var hit_position := _fire_hitscan(definition)
-	_spawn_tracer(_get_muzzle_position(), hit_position)
+	_broadcast_gunshot()
+	var muzzle_position := _get_muzzle_position()
+	_spawn_tracer(muzzle_position, hit_position)
+	_play_muzzle_smoke(muzzle_position, (hit_position - muzzle_position).normalized())
 	ammo_changed.emit(get_magazine_ammo(), get_reserve_ammo())
 	fired.emit(hit_position)
 	return true
@@ -953,37 +933,15 @@ func _get_muzzle_position() -> Vector3:
 
 
 func _spawn_tracer(from: Vector3, to: Vector3) -> void:
-	var segment := to - from
-	var length := segment.length()
-	if length <= 0.05:
-		return
-	var direction := segment / length
-	var visible_length := minf(tracer_length, length)
-	var tracer := MeshInstance3D.new()
-	tracer.name = "PlayerBulletTracer"
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(0.018, 0.018, visible_length)
-	if _tracer_material == null:
-		_tracer_material = StandardMaterial3D.new()
-		_tracer_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		_tracer_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_tracer_material.albedo_color = Color(1.0, 0.82, 0.28, 0.7)
-		_tracer_material.emission_enabled = true
-		_tracer_material.emission = Color(1.0, 0.62, 0.1)
-		_tracer_material.emission_energy_multiplier = 2.3
-	mesh.material = _tracer_material
-	tracer.mesh = mesh
-	var host: Node = get_tree().current_scene
-	if host == null:
-		host = get_tree().root
-	host.add_child(tracer)
-	tracer.global_position = from + direction * visible_length * 0.5
-	tracer.look_at(to, Vector3.UP)
-	var end_position := to - direction * visible_length * 0.5
-	var travel_duration := clampf(length / tracer_speed, 0.015, tracer_lifetime)
-	var tween := get_tree().create_tween()
-	tween.tween_property(tracer, "global_position", end_position, travel_duration)
-	tween.tween_callback(tracer.queue_free)
+	var manager := CombatVFXManager.find(get_tree())
+	if manager != null:
+		manager.spawn_tracer(
+			from,
+			to,
+			tracer_length,
+			tracer_speed,
+			tracer_lifetime
+		)
 
 
 func _resolve_hitscan_hit(
@@ -1003,6 +961,11 @@ func _resolve_hitscan_hit(
 		else _find_damageable(collider)
 	)
 	if damageable != null:
+		var victim := damageable.get_parent()
+		_last_shot_police_exempt = (
+			victim != null
+			and victim.is_in_group(&"lawful_defense_target")
+		)
 		if hitbox != null:
 			hitbox.resolve_damage(
 				definition.damage,
@@ -1027,7 +990,7 @@ func _resolve_hitscan_hit(
 		_play_npc_impact(hit_position)
 		var blood_spray_multiplier := 1.0
 		if hitbox != null and hitbox.hit_zone == CombatHitbox.HEAD_ZONE:
-			blood_spray_multiplier = 3.0
+			blood_spray_multiplier = 1.35
 		_spawn_blood_impact(
 			hit_position,
 			hit_normal,
@@ -1087,7 +1050,8 @@ func _broadcast_gunshot() -> void:
 			body,
 			_get_muzzle_position(),
 			gunshot_alert_radius,
-			&"player"
+			&"player",
+			{"police_exempt": _last_shot_police_exempt}
 		)
 		return
 	get_tree().call_group(
@@ -1120,16 +1084,16 @@ func _spawn_blood_impact(
 	fatal_hit: bool,
 	spray_multiplier := 1.0
 ) -> void:
-	var effect := BLOOD_IMPACT_VFX.instantiate() as BloodImpactVFX
-	get_tree().current_scene.add_child(effect)
-	effect.setup_blood_hit(
-		hit_position,
-		hit_normal,
-		hit_direction,
-		hit_collider,
-		fatal_hit,
-		spray_multiplier
-	)
+	var manager := CombatVFXManager.find(get_tree())
+	if manager != null:
+		manager.spawn_blood_hit(
+			hit_position,
+			hit_normal,
+			hit_direction,
+			hit_collider,
+			fatal_hit,
+			spray_multiplier
+		)
 
 
 func _spawn_surface_impact(
@@ -1139,17 +1103,30 @@ func _spawn_surface_impact(
 ) -> void:
 	var is_metal := _is_metal_surface(hit_collider)
 	sound_component.play_surface_impact(hit_position, is_metal)
-	var effect := BLOOD_IMPACT_VFX.instantiate() as BloodImpactVFX
-	get_tree().current_scene.add_child(effect)
-	var impact_kind := BloodImpactVFX.SurfaceImpactKind.STONE
-	if is_metal:
-		impact_kind = BloodImpactVFX.SurfaceImpactKind.METAL
-	effect.setup_surface_hit(
-		hit_position,
-		hit_normal,
-		hit_collider,
-		impact_kind
-	)
+	var manager := CombatVFXManager.find(get_tree())
+	if manager != null:
+		manager.spawn_surface_hit(
+			hit_position,
+			hit_normal,
+			hit_collider,
+			CombatVFXManager.SurfaceImpactKind.METAL
+			if is_metal
+			else CombatVFXManager.SurfaceImpactKind.STONE
+		)
+
+
+func _play_muzzle_smoke(position: Vector3, direction: Vector3) -> void:
+	var now := Time.get_ticks_msec()
+	if now - _last_shot_msec <= 170:
+		_rapid_shot_count += 1
+	else:
+		_rapid_shot_count = 1
+	_last_shot_msec = now
+	if _rapid_shot_count < 3:
+		return
+	var manager := CombatVFXManager.find(get_tree())
+	if manager != null:
+		manager.spawn_muzzle_smoke(position, direction)
 
 
 func _find_damageable(collider: Node) -> DamageableComponent:
