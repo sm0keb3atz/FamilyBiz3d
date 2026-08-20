@@ -308,7 +308,7 @@ func _change_reputation(
 		parts[value_index + 1] if parts.size() > value_index + 1 else ""
 	)
 	if boundary == null or boundary.stats == null:
-		_print_error("No territory found. Use hood_east or hood_west.")
+		_print_error("No territory found. Use hood_east, hood_west, or downtown_east.")
 		return
 	var amount := float(parts[value_index])
 	if set_value:
@@ -375,7 +375,7 @@ func _start_robbery(parts: PackedStringArray, territory_index: int) -> void:
 	if parts.size() > territory_index:
 		var boundary := _get_territory_boundary(parts[territory_index])
 		if boundary == null:
-			_print_error("No territory found. Use hood_east or hood_west.")
+			_print_error("No territory found. Use hood_east, hood_west, or downtown_east.")
 			return
 		territory_id = boundary.territory_id
 	if not encounter.debug_start_robbery(territory_id):
@@ -421,7 +421,7 @@ func _clear_event_cooldown(
 		parts[territory_index] if parts.size() > territory_index else ""
 	)
 	if boundary == null:
-		_print_error("No territory found. Use hood_east or hood_west.")
+		_print_error("No territory found. Use hood_east, hood_west, or downtown_east.")
 		return
 	encounter.debug_clear_event_cooldown(boundary.territory_id)
 	_print_success("%s encounter cooldown cleared." % String(
@@ -434,7 +434,7 @@ func _print_territory_status(parts: PackedStringArray, territory_index: int) -> 
 		parts[territory_index] if parts.size() > territory_index else ""
 	)
 	if boundary == null or boundary.stats == null:
-		_print_error("No territory found. Use hood_east or hood_west.")
+		_print_error("No territory found. Use hood_east, hood_west, or downtown_east.")
 		return
 	var encounter := _get_territory_encounter()
 	var wins := encounter.get_war_wins(boundary.territory_id) if encounter != null else 0

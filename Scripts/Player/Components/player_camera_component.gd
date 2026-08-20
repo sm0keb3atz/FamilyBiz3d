@@ -29,9 +29,14 @@ extends Node
 @export_range(0.0, 30.0, 0.1) var lock_camera_assist_speed := 7.5
 @export_range(0.0, 1.0, 0.01) var lock_camera_assist_strength := 0.72
 
-@export_category("Aim Focus")
+@export_category("Cinematic Focus")
+@export var default_depth_of_field_enabled := true
+@export_range(0.0, 0.1, 0.001) var default_dof_blur_amount := 0.012
+@export_range(1.0, 100.0, 0.5) var default_dof_focus_distance := 24.0
+@export_range(0.0, 30.0, 0.5) var default_dof_focus_padding := 8.0
+@export_range(1.0, 40.0, 0.5) var default_dof_far_transition := 18.0
 @export var aim_depth_of_field_enabled := true
-@export_range(0.0, 0.2, 0.005) var aim_dof_blur_amount := 0.045
+@export_range(0.0, 0.2, 0.005) var aim_dof_blur_amount := 0.055
 @export_range(1.0, 60.0, 0.5) var aim_dof_default_focus_distance := 14.0
 @export_range(1.0, 20.0, 0.25) var aim_dof_minimum_focus_distance := 4.0
 @export_range(5.0, 100.0, 0.5) var aim_dof_maximum_focus_distance := 35.0
@@ -421,19 +426,30 @@ func _initialize_aim_depth_of_field() -> void:
 	else:
 		_camera_attributes = CameraAttributesPractical.new()
 	_camera_attributes.resource_local_to_scene = true
-	_camera_attributes.dof_blur_amount = 0.0
-	_camera_attributes.dof_blur_far_enabled = false
+	_camera_attributes.dof_blur_amount = (
+		default_dof_blur_amount if default_depth_of_field_enabled else 0.0
+	)
+	_camera_attributes.dof_blur_far_enabled = default_depth_of_field_enabled
 	_camera_attributes.dof_blur_near_enabled = false
+	_camera_attributes.dof_blur_far_distance = (
+		default_dof_focus_distance + default_dof_focus_padding
+	)
+	_camera_attributes.dof_blur_far_transition = default_dof_far_transition
 	camera.attributes = _camera_attributes
-	_dof_focus_distance = aim_dof_default_focus_distance
+	_dof_focus_distance = default_dof_focus_distance
 
 
 func _update_aim_depth_of_field(delta: float, is_aiming: bool) -> void:
 	if _camera_attributes == null:
 		return
-	var should_focus := aim_depth_of_field_enabled and is_aiming
-	var target_amount := aim_dof_blur_amount if should_focus else 0.0
-	if should_focus:
+	var should_aim_focus := aim_depth_of_field_enabled and is_aiming
+	var default_focus_active := default_depth_of_field_enabled and not should_aim_focus
+	var target_amount := 0.0
+	if should_aim_focus:
+		target_amount = aim_dof_blur_amount
+	elif default_focus_active:
+		target_amount = default_dof_blur_amount
+	if should_aim_focus:
 		_camera_attributes.dof_blur_far_enabled = true
 		var desired_focus := aim_dof_default_focus_distance
 		if (
@@ -457,12 +473,23 @@ func _update_aim_depth_of_field(delta: float, is_aiming: bool) -> void:
 			_dof_focus_distance + aim_dof_focus_padding
 		)
 		_camera_attributes.dof_blur_far_transition = aim_dof_far_transition
+	elif default_focus_active:
+		_dof_focus_distance = lerpf(
+			_dof_focus_distance,
+			default_dof_focus_distance,
+			1.0 - exp(-aim_dof_transition_speed * delta)
+		)
+		_camera_attributes.dof_blur_far_enabled = true
+		_camera_attributes.dof_blur_far_distance = (
+			_dof_focus_distance + default_dof_focus_padding
+		)
+		_camera_attributes.dof_blur_far_transition = default_dof_far_transition
 	_camera_attributes.dof_blur_amount = lerpf(
 		_camera_attributes.dof_blur_amount,
 		target_amount,
 		1.0 - exp(-aim_dof_transition_speed * delta)
 	)
-	if not should_focus and _camera_attributes.dof_blur_amount <= 0.0005:
+	if not should_aim_focus and not default_focus_active and _camera_attributes.dof_blur_amount <= 0.0005:
 		_camera_attributes.dof_blur_amount = 0.0
 		_camera_attributes.dof_blur_far_enabled = false
 

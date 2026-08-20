@@ -96,7 +96,7 @@ unneeded new empire-management mechanics.
 | --- | --- |
 | Hood East | Reference-quality full gameplay loop and final polish benchmark. |
 | Hood West | Full system parity, distinct identity, and connected travel routes. |
-| Downtown East | Finish scene integration, permanent territory setup, and district identity. |
+| Downtown East | Integrated permanent territory with district identity, economy, population, mobility, and police coverage. |
 | Downtown West | Finish scene integration, permanent territory setup, and district identity. |
 | Suburbs East | Build and integrate as a complete territory. |
 | Suburbs West | Build and integrate as a complete territory. |

@@ -58,26 +58,29 @@ const META_BASE_MOON_ENERGY := &"fb_visual_base_moon_energy"
 @export var day_fog_color := Color(0.56, 0.65, 0.73)
 @export_range(0.0, 1.0, 0.001) var night_fog_light_energy := 0.34
 @export_range(0.0, 1.0, 0.001) var day_fog_light_energy := 0.72
-@export_range(0.0, 0.1, 0.0001) var clear_fog_density := 0.0015
-@export_range(0.0, 1.0, 0.01) var clear_fog_aerial_perspective := 0.35
+@export_range(0.0, 0.1, 0.0001) var clear_fog_density := 0.0012
+@export_range(0.0, 1.0, 0.01) var clear_fog_aerial_perspective := 0.42
 @export_range(0.0, 1.0, 0.01) var clear_fog_sun_scatter := 0.08
+@export_range(0.0, 1.0, 0.01) var night_fog_sky_affect := 0.76
+@export_range(0.0, 1.0, 0.01) var day_fog_sky_affect := 0.46
 
 @export_category("Local Atmosphere")
-@export_range(0.0, 0.1, 0.0001) var night_volumetric_fog_density := 0.0065
+@export_range(0.0, 0.1, 0.0001) var night_volumetric_fog_density := 0.0032
 @export_range(0.0, 0.1, 0.0001) var day_volumetric_fog_density := 0.0018
-@export_range(0.0, 0.1, 0.0001) var weather_volumetric_fog_density := 0.014
-@export_range(8.0, 256.0, 1.0) var volumetric_fog_length := 58.0
+@export_range(0.0, 0.1, 0.0001) var weather_volumetric_fog_density := 0.0075
+@export_range(8.0, 256.0, 1.0) var volumetric_fog_length := 180.0
 @export_range(-0.9, 0.9, 0.01) var volumetric_fog_anisotropy := 0.36
 @export_range(0.0, 1.0, 0.01) var volumetric_fog_ambient_inject := 0.22
 @export_range(0.0, 1.0, 0.01) var volumetric_fog_sky_affect := 0.32
+@export_range(0.0, 1.0, 0.01) var night_volumetric_fog_sky_affect := 0.64
 
 @export_category("Weather Modifiers")
-@export var storm_fog_color := Color(0.30, 0.35, 0.44)
+@export var storm_fog_color := Color(0.25, 0.27, 0.29)
 @export var lightning_fog_color := Color(0.62, 0.70, 0.88)
-@export var overcast_ambient_color := Color(0.25, 0.30, 0.40)
-@export var overcast_sun_color := Color(0.62, 0.69, 0.80)
-@export_range(0.0, 0.1, 0.0001) var weather_fog_density := 0.018
-@export_range(0.0, 1.0, 0.01) var weather_fog_aerial_perspective := 0.55
+@export var overcast_ambient_color := Color(0.27, 0.285, 0.31)
+@export var overcast_sun_color := Color(0.64, 0.655, 0.68)
+@export_range(0.0, 0.1, 0.0001) var weather_fog_density := 0.01
+@export_range(0.0, 1.0, 0.01) var weather_fog_aerial_perspective := 0.48
 @export_range(0.0, 1.0, 0.01) var overcast_ambient_multiplier := 0.68
 @export_range(0.0, 1.0, 0.01) var overcast_sun_multiplier := 0.32
 

@@ -18,7 +18,7 @@ func _run() -> void:
 	) as CivilianPopulationManager
 	east_manager.set_population_enabled(false)
 	assert(world.get_node_or_null("WestPopulationManager") == null)
-	assert(east_manager.get_network_count() == 2)
+	assert(east_manager.get_network_count() == 3)
 	await process_frame
 	await physics_frame
 

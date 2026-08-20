@@ -68,7 +68,6 @@ script = ExtResource("3_street_light")
 mesh = SubResource("ArrayMesh_g50vb")
 
 [node name="NightLighting" type="Node3D" parent="." unique_id=1698960791]
-visible = false
 
 [node name="BulbGlow" type="MeshInstance3D" parent="NightLighting" unique_id=1161057259]
 transform = Transform3D(0.34, 0, 0, 0, 0.11, 0, 0, 0, 0.22, 2.18, 5.93, 0)
@@ -78,16 +77,16 @@ mesh = SubResource("SphereMesh_bulb")
 [node name="KeyLight" type="SpotLight3D" parent="NightLighting" unique_id=1452366631]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 2.18, 5.78, 0)
 light_color = Color(1, 0.72, 0.42, 1)
-light_energy = 7.0
-light_indirect_energy = 2.0
+light_energy = 20.0
+light_indirect_energy = 50.0
 light_volumetric_fog_energy = 0.8
 shadow_enabled = true
 distance_fade_enabled = true
 distance_fade_begin = 35.0
 distance_fade_shadow = 22.0
 distance_fade_length = 15.0
-spot_range = 30.0
-spot_attenuation = 1.15
+spot_range = 200.0
+spot_attenuation = 0.5
 spot_angle = 58.0
 
 [node name="FillLight" type="OmniLight3D" parent="NightLighting" unique_id=197368552]

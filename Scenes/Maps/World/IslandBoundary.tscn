@@ -1,0 +1,633 @@
+[gd_scene load_steps=25 format=3]
+
+[ext_resource type="Material" path="res://Assets/VFX/Shaders/stylized_island_water.tres" id="1_water_material"]
+[ext_resource type="ArrayMesh" uid="uid://l4lon2ffssug" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01.glb" id="2_dirt_edge"]
+[ext_resource type="ArrayMesh" uid="uid://b3jrhrh7slp5x" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_grassHill_01.glb" id="3_grass_hill"]
+[ext_resource type="PackedScene" uid="uid://cyujupwuujgij" path="res://Assets/MapStuff/Meshs/Nature/SM_rock_01.gltf" id="4_rock"]
+[ext_resource type="PackedScene" path="res://Assets/MapStuff/Meshs/Nature/SM_rock_01_dirt.gltf" id="5_rock_dirt"]
+[ext_resource type="PackedScene" uid="uid://cevqwy1o2e1qg" path="res://Assets/MapStuff/Meshs/Nature/SM_tree_01.gltf" id="6_tree_01"]
+[ext_resource type="PackedScene" path="res://Assets/MapStuff/Meshs/Nature/SM_tree_02.gltf" id="7_tree_02"]
+[ext_resource type="PackedScene" path="res://Assets/MapStuff/Meshs/Nature/SM_tree_03.gltf" id="8_tree_03"]
+[ext_resource type="PackedScene" path="res://Assets/MapStuff/Meshs/Nature/SM_tree_04.gltf" id="9_tree_04"]
+[ext_resource type="PackedScene" path="res://Assets/MapStuff/Meshs/Nature/SM_bush_01.gltf" id="10_bush"]
+[ext_resource type="PackedScene" uid="uid://lgilbqcquj30" path="res://Assets/MapStuff/Meshs/Nature/SM_background_Mountains_01.gltf" id="11_mountains"]
+[ext_resource type="Script" uid="uid://dnmxrkmpfo7s8" path="res://Scripts/World/static_multimesh_batcher.gd" id="12_batcher"]
+[ext_resource type="Script" path="res://Scripts/World/island_vegetation_wind.gd" id="13_vegetation_wind"]
+
+[sub_resource type="PlaneMesh" id="NorthWaterMesh"]
+size = Vector2(820, 501)
+subdivide_width = 95
+subdivide_depth = 63
+
+[sub_resource type="PlaneMesh" id="WestWaterMesh"]
+size = Vector2(500, 531)
+subdivide_width = 63
+subdivide_depth = 63
+
+[sub_resource type="PlaneMesh" id="SouthWaterMesh"]
+size = Vector2(820, 500)
+subdivide_width = 95
+subdivide_depth = 63
+
+[sub_resource type="StandardMaterial3D" id="GroundMaterial"]
+resource_name = "Island Edge Packed Earth"
+albedo_color = Color(0.19, 0.235, 0.14, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="ConcreteMaterial"]
+resource_name = "Island Edge Weathered Concrete"
+albedo_color = Color(0.285, 0.305, 0.31, 1)
+roughness = 0.88
+
+[sub_resource type="BoxMesh" id="NorthSouthEmbankmentMesh"]
+material = SubResource("GroundMaterial")
+size = Vector3(260, 0.8, 16)
+
+[sub_resource type="BoxMesh" id="WestEmbankmentMesh"]
+material = SubResource("GroundMaterial")
+size = Vector3(16, 0.8, 531)
+
+[sub_resource type="BoxMesh" id="NorthSouthWallMesh"]
+material = SubResource("ConcreteMaterial")
+size = Vector3(260, 3.4, 2)
+
+[sub_resource type="BoxMesh" id="WestWallMesh"]
+material = SubResource("ConcreteMaterial")
+size = Vector3(2, 3.4, 531)
+
+[sub_resource type="BoxMesh" id="NorthSouthCapMesh"]
+material = SubResource("ConcreteMaterial")
+size = Vector3(260, 0.4, 3.2)
+
+[sub_resource type="BoxMesh" id="WestCapMesh"]
+material = SubResource("ConcreteMaterial")
+size = Vector3(3.2, 0.4, 531)
+
+[sub_resource type="BoxShape3D" id="NorthSouthBarrierShape"]
+size = Vector3(260, 5, 4)
+
+[sub_resource type="BoxShape3D" id="WestBarrierShape"]
+size = Vector3(4, 5, 531)
+
+[node name="IslandBoundary" type="Node3D"]
+
+[node name="Water" type="Node3D" parent="."]
+
+[node name="NorthWater" type="MeshInstance3D" parent="Water" groups=["island_boundary_water"]]
+position = Vector3(-154, -3.5, 389.5)
+mesh = SubResource("NorthWaterMesh")
+material_override = ExtResource("1_water_material")
+cast_shadow = 0
+
+[node name="WestWater" type="MeshInstance3D" parent="Water" groups=["island_boundary_water"]]
+position = Vector3(-270, -3.5, -126.5)
+mesh = SubResource("WestWaterMesh")
+material_override = ExtResource("1_water_material")
+cast_shadow = 0
+
+[node name="SouthWater" type="MeshInstance3D" parent="Water" groups=["island_boundary_water"]]
+position = Vector3(-154, -3.5, -642)
+mesh = SubResource("SouthWaterMesh")
+material_override = ExtResource("1_water_material")
+cast_shadow = 0
+
+[node name="Shore" type="Node3D" parent="."]
+
+[node name="North" type="Node3D" parent="Shore"]
+
+[node name="Embankment" type="MeshInstance3D" parent="Shore/North"]
+position = Vector3(126, -0.4, 131)
+mesh = SubResource("NorthSouthEmbankmentMesh")
+
+[node name="RetainingWall" type="MeshInstance3D" parent="Shore/North"]
+position = Vector3(126, -1.7, 139)
+mesh = SubResource("NorthSouthWallMesh")
+
+[node name="ConcreteCap" type="MeshInstance3D" parent="Shore/North"]
+position = Vector3(126, 0.02, 138.5)
+mesh = SubResource("NorthSouthCapMesh")
+
+[node name="GroundTiles" type="Node3D" parent="Shore/North"]
+
+[node name="DirtEdge01" type="MeshInstance3D" parent="Shore/North/GroundTiles"]
+position = Vector3(8, 0.02, 126)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge02" type="MeshInstance3D" parent="Shore/North/GroundTiles"]
+position = Vector3(56, 0.02, 126)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge03" type="MeshInstance3D" parent="Shore/North/GroundTiles"]
+position = Vector3(104, 0.02, 126)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge04" type="MeshInstance3D" parent="Shore/North/GroundTiles"]
+position = Vector3(152, 0.02, 126)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge05" type="MeshInstance3D" parent="Shore/North/GroundTiles"]
+position = Vector3(200, 0.02, 126)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge06" type="MeshInstance3D" parent="Shore/North/GroundTiles"]
+position = Vector3(236, 0.02, 126)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="GrassHillHood" type="MeshInstance3D" parent="Shore/North/GroundTiles"]
+position = Vector3(28, -0.04, 123)
+scale = Vector3(0.38, 0.38, 0.38)
+mesh = ExtResource("3_grass_hill")
+
+[node name="GrassHillDowntown" type="MeshInstance3D" parent="Shore/North/GroundTiles"]
+position = Vector3(188, -0.04, 123)
+scale = Vector3(0.34, 0.34, 0.34)
+mesh = ExtResource("3_grass_hill")
+
+[node name="Riprap" type="Node3D" parent="Shore/North"]
+
+[node name="Rock01" parent="Shore/North/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(-1, -1.4, 141)
+rotation = Vector3(0.12, 0.37, -0.08)
+scale = Vector3(34, 30, 38)
+
+[node name="Rock02" parent="Shore/North/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(24, -1.25, 140.5)
+rotation = Vector3(-0.09, 1.2, 0.13)
+scale = Vector3(42, 34, 36)
+
+[node name="Rock03" parent="Shore/North/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(51, -1.5, 141.5)
+rotation = Vector3(0.16, 2.1, -0.1)
+scale = Vector3(31, 39, 44)
+
+[node name="Rock04" parent="Shore/North/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(79, -1.2, 140.2)
+rotation = Vector3(-0.12, 2.72, 0.08)
+scale = Vector3(45, 31, 38)
+
+[node name="Rock05" parent="Shore/North/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(107, -1.45, 141)
+rotation = Vector3(0.07, 0.91, 0.15)
+scale = Vector3(37, 36, 48)
+
+[node name="Rock06" parent="Shore/North/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(136, -1.3, 140.5)
+rotation = Vector3(-0.06, 1.72, -0.14)
+scale = Vector3(44, 33, 41)
+
+[node name="Rock07" parent="Shore/North/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(166, -1.55, 141.2)
+rotation = Vector3(0.11, 2.54, 0.09)
+scale = Vector3(35, 40, 46)
+
+[node name="Rock08" parent="Shore/North/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(196, -1.32, 140.7)
+rotation = Vector3(-0.15, 0.26, 0.04)
+scale = Vector3(47, 35, 39)
+
+[node name="Rock09" parent="Shore/North/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(226, -1.5, 141.4)
+rotation = Vector3(0.09, 1.44, -0.12)
+scale = Vector3(39, 38, 43)
+
+[node name="Rock10" parent="Shore/North/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(252, -1.38, 140.8)
+rotation = Vector3(-0.08, 2.85, 0.11)
+scale = Vector3(31, 32, 36)
+
+[node name="Vegetation" type="Node3D" parent="Shore/North"]
+
+[node name="Tree01" parent="Shore/North/Vegetation" instance=ExtResource("6_tree_01")]
+position = Vector3(19, 0, 130)
+rotation = Vector3(0, 0.4, 0)
+scale = Vector3(0.88, 0.88, 0.88)
+
+[node name="Tree02" parent="Shore/North/Vegetation" instance=ExtResource("8_tree_03")]
+position = Vector3(67, 0, 129)
+rotation = Vector3(0, -0.75, 0)
+scale = Vector3(0.82, 0.82, 0.82)
+
+[node name="Tree03" parent="Shore/North/Vegetation" instance=ExtResource("7_tree_02")]
+position = Vector3(112, 0, 130)
+rotation = Vector3(0, 1.38, 0)
+scale = Vector3(0.72, 0.72, 0.72)
+
+[node name="Tree04" parent="Shore/North/Vegetation" instance=ExtResource("9_tree_04")]
+position = Vector3(176, 0, 129)
+rotation = Vector3(0, -1.1, 0)
+scale = Vector3(0.7, 0.7, 0.7)
+
+[node name="Bush01" parent="Shore/North/Vegetation" instance=ExtResource("10_bush")]
+position = Vector3(43, 0, 132)
+rotation = Vector3(0, 0.7, 0)
+scale = Vector3(1.25, 1.25, 1.25)
+
+[node name="Bush02" parent="Shore/North/Vegetation" instance=ExtResource("10_bush")]
+position = Vector3(91, 0, 131)
+rotation = Vector3(0, -0.9, 0)
+scale = Vector3(1.05, 1.05, 1.05)
+
+[node name="Bush03" parent="Shore/North/Vegetation" instance=ExtResource("10_bush")]
+position = Vector3(144, 0, 132)
+rotation = Vector3(0, 1.6, 0)
+scale = Vector3(1.18, 1.18, 1.18)
+
+[node name="West" type="Node3D" parent="Shore"]
+
+[node name="Embankment" type="MeshInstance3D" parent="Shore/West"]
+position = Vector3(-12, -0.4, -126.5)
+mesh = SubResource("WestEmbankmentMesh")
+
+[node name="RetainingWall" type="MeshInstance3D" parent="Shore/West"]
+position = Vector3(-20, -1.7, -126.5)
+mesh = SubResource("WestWallMesh")
+
+[node name="ConcreteCap" type="MeshInstance3D" parent="Shore/West"]
+position = Vector3(-19.5, 0.02, -126.5)
+mesh = SubResource("WestCapMesh")
+
+[node name="GroundTiles" type="Node3D" parent="Shore/West"]
+
+[node name="DirtEdge01" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-7, 0.02, 104)
+rotation = Vector3(0, 1.570796, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge02" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-7, 0.02, 56)
+rotation = Vector3(0, 1.570796, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge03" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-7, 0.02, 8)
+rotation = Vector3(0, 1.570796, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge04" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-7, 0.02, -40)
+rotation = Vector3(0, 1.570796, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge05" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-7, 0.02, -88)
+rotation = Vector3(0, 1.570796, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge06" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-7, 0.02, -136)
+rotation = Vector3(0, 1.570796, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge07" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-7, 0.02, -184)
+rotation = Vector3(0, 1.570796, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge08" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-7, 0.02, -232)
+rotation = Vector3(0, 1.570796, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge09" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-7, 0.02, -280)
+rotation = Vector3(0, 1.570796, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge10" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-7, 0.02, -328)
+rotation = Vector3(0, 1.570796, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="GrassHillNorth" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-4, -0.04, 76)
+rotation = Vector3(0, 1.570796, 0)
+scale = Vector3(0.36, 0.36, 0.36)
+mesh = ExtResource("3_grass_hill")
+
+[node name="GrassHillMiddle" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-4, -0.04, -116)
+rotation = Vector3(0, 1.570796, 0)
+scale = Vector3(0.4, 0.4, 0.4)
+mesh = ExtResource("3_grass_hill")
+
+[node name="GrassHillSouth" type="MeshInstance3D" parent="Shore/West/GroundTiles"]
+position = Vector3(-4, -0.04, -308)
+rotation = Vector3(0, 1.570796, 0)
+scale = Vector3(0.35, 0.35, 0.35)
+mesh = ExtResource("3_grass_hill")
+
+[node name="Riprap" type="Node3D" parent="Shore/West"]
+
+[node name="Rock01" parent="Shore/West/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(-22, -1.3, 124)
+rotation = Vector3(0.08, 0.42, -0.1)
+scale = Vector3(42, 34, 37)
+
+[node name="Rock02" parent="Shore/West/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(-22.5, -1.5, 88)
+rotation = Vector3(-0.11, 1.31, 0.07)
+scale = Vector3(36, 40, 45)
+
+[node name="Rock03" parent="Shore/West/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(-21.8, -1.2, 51)
+rotation = Vector3(0.14, 2.15, -0.06)
+scale = Vector3(45, 32, 39)
+
+[node name="Rock04" parent="Shore/West/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(-22.4, -1.45, 15)
+rotation = Vector3(-0.08, 2.8, 0.12)
+scale = Vector3(38, 37, 48)
+
+[node name="Rock05" parent="Shore/West/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(-21.9, -1.28, -22)
+rotation = Vector3(0.1, 0.85, -0.15)
+scale = Vector3(46, 34, 40)
+
+[node name="Rock06" parent="Shore/West/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(-22.6, -1.55, -60)
+rotation = Vector3(-0.13, 1.72, 0.08)
+scale = Vector3(35, 41, 44)
+
+[node name="Rock07" parent="Shore/West/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(-21.7, -1.26, -98)
+rotation = Vector3(0.07, 2.48, -0.11)
+scale = Vector3(44, 33, 38)
+
+[node name="Rock08" parent="Shore/West/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(-22.3, -1.5, -136)
+rotation = Vector3(-0.09, 0.28, 0.14)
+scale = Vector3(37, 39, 47)
+
+[node name="Rock09" parent="Shore/West/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(-21.9, -1.31, -175)
+rotation = Vector3(0.12, 1.08, -0.07)
+scale = Vector3(47, 35, 41)
+
+[node name="Rock10" parent="Shore/West/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(-22.5, -1.52, -214)
+rotation = Vector3(-0.06, 1.94, 0.1)
+scale = Vector3(34, 40, 46)
+
+[node name="Rock11" parent="Shore/West/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(-21.8, -1.24, -253)
+rotation = Vector3(0.15, 2.7, -0.12)
+scale = Vector3(45, 32, 39)
+
+[node name="Rock12" parent="Shore/West/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(-22.4, -1.48, -292)
+rotation = Vector3(-0.1, 0.62, 0.07)
+scale = Vector3(36, 38, 45)
+
+[node name="Rock13" parent="Shore/West/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(-21.9, -1.29, -331)
+rotation = Vector3(0.09, 1.5, -0.13)
+scale = Vector3(46, 34, 40)
+
+[node name="Rock14" parent="Shore/West/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(-22.2, -1.45, -370)
+rotation = Vector3(-0.08, 2.32, 0.09)
+scale = Vector3(39, 37, 43)
+
+[node name="Vegetation" type="Node3D" parent="Shore/West"]
+
+[node name="Tree01" parent="Shore/West/Vegetation" instance=ExtResource("7_tree_02")]
+position = Vector3(-11, 0, 96)
+rotation = Vector3(0, 0.3, 0)
+scale = Vector3(0.82, 0.82, 0.82)
+
+[node name="Tree02" parent="Shore/West/Vegetation" instance=ExtResource("6_tree_01")]
+position = Vector3(-12, 0, 41)
+rotation = Vector3(0, -1.2, 0)
+scale = Vector3(0.92, 0.92, 0.92)
+
+[node name="Tree03" parent="Shore/West/Vegetation" instance=ExtResource("9_tree_04")]
+position = Vector3(-10.5, 0, -15)
+rotation = Vector3(0, 0.8, 0)
+scale = Vector3(0.76, 0.76, 0.76)
+
+[node name="Tree04" parent="Shore/West/Vegetation" instance=ExtResource("8_tree_03")]
+position = Vector3(-11.5, 0, -78)
+rotation = Vector3(0, -0.45, 0)
+scale = Vector3(0.84, 0.84, 0.84)
+
+[node name="Tree05" parent="Shore/West/Vegetation" instance=ExtResource("6_tree_01")]
+position = Vector3(-10.5, 0, -148)
+rotation = Vector3(0, 1.46, 0)
+scale = Vector3(0.86, 0.86, 0.86)
+
+[node name="Tree06" parent="Shore/West/Vegetation" instance=ExtResource("9_tree_04")]
+position = Vector3(-11.5, 0, -224)
+rotation = Vector3(0, -1.0, 0)
+scale = Vector3(0.72, 0.72, 0.72)
+
+[node name="Tree07" parent="Shore/West/Vegetation" instance=ExtResource("8_tree_03")]
+position = Vector3(-10.5, 0, -304)
+rotation = Vector3(0, 0.55, 0)
+scale = Vector3(0.8, 0.8, 0.8)
+
+[node name="Bush01" parent="Shore/West/Vegetation" instance=ExtResource("10_bush")]
+position = Vector3(-12, 0, 69)
+rotation = Vector3(0, 0.9, 0)
+scale = Vector3(1.16, 1.16, 1.16)
+
+[node name="Bush02" parent="Shore/West/Vegetation" instance=ExtResource("10_bush")]
+position = Vector3(-11, 0, -48)
+rotation = Vector3(0, -0.7, 0)
+scale = Vector3(1.28, 1.28, 1.28)
+
+[node name="Bush03" parent="Shore/West/Vegetation" instance=ExtResource("10_bush")]
+position = Vector3(-12, 0, -184)
+rotation = Vector3(0, 1.8, 0)
+scale = Vector3(1.1, 1.1, 1.1)
+
+[node name="Bush04" parent="Shore/West/Vegetation" instance=ExtResource("10_bush")]
+position = Vector3(-11, 0, -270)
+rotation = Vector3(0, -1.45, 0)
+scale = Vector3(1.22, 1.22, 1.22)
+
+[node name="South" type="Node3D" parent="Shore"]
+
+[node name="Embankment" type="MeshInstance3D" parent="Shore/South"]
+position = Vector3(126, -0.4, -384)
+mesh = SubResource("NorthSouthEmbankmentMesh")
+
+[node name="RetainingWall" type="MeshInstance3D" parent="Shore/South"]
+position = Vector3(126, -1.7, -392)
+mesh = SubResource("NorthSouthWallMesh")
+
+[node name="ConcreteCap" type="MeshInstance3D" parent="Shore/South"]
+position = Vector3(126, 0.02, -391.5)
+mesh = SubResource("NorthSouthCapMesh")
+
+[node name="GroundTiles" type="Node3D" parent="Shore/South"]
+
+[node name="DirtEdge01" type="MeshInstance3D" parent="Shore/South/GroundTiles"]
+position = Vector3(8, 0.02, -379)
+rotation = Vector3(0, 3.141593, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge02" type="MeshInstance3D" parent="Shore/South/GroundTiles"]
+position = Vector3(56, 0.02, -379)
+rotation = Vector3(0, 3.141593, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge03" type="MeshInstance3D" parent="Shore/South/GroundTiles"]
+position = Vector3(104, 0.02, -379)
+rotation = Vector3(0, 3.141593, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge04" type="MeshInstance3D" parent="Shore/South/GroundTiles"]
+position = Vector3(152, 0.02, -379)
+rotation = Vector3(0, 3.141593, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge05" type="MeshInstance3D" parent="Shore/South/GroundTiles"]
+position = Vector3(200, 0.02, -379)
+rotation = Vector3(0, 3.141593, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="DirtEdge06" type="MeshInstance3D" parent="Shore/South/GroundTiles"]
+position = Vector3(236, 0.02, -379)
+rotation = Vector3(0, 3.141593, 0)
+mesh = ExtResource("2_dirt_edge")
+
+[node name="GrassHillHood" type="MeshInstance3D" parent="Shore/South/GroundTiles"]
+position = Vector3(32, -0.04, -376)
+rotation = Vector3(0, 3.141593, 0)
+scale = Vector3(0.38, 0.38, 0.38)
+mesh = ExtResource("3_grass_hill")
+
+[node name="GrassHillDowntown" type="MeshInstance3D" parent="Shore/South/GroundTiles"]
+position = Vector3(186, -0.04, -376)
+rotation = Vector3(0, 3.141593, 0)
+scale = Vector3(0.34, 0.34, 0.34)
+mesh = ExtResource("3_grass_hill")
+
+[node name="Riprap" type="Node3D" parent="Shore/South"]
+
+[node name="Rock01" parent="Shore/South/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(-1, -1.4, -394)
+rotation = Vector3(0.1, 0.55, -0.09)
+scale = Vector3(35, 31, 40)
+
+[node name="Rock02" parent="Shore/South/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(26, -1.25, -393.4)
+rotation = Vector3(-0.08, 1.33, 0.12)
+scale = Vector3(44, 34, 37)
+
+[node name="Rock03" parent="Shore/South/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(54, -1.5, -394.2)
+rotation = Vector3(0.14, 2.18, -0.08)
+scale = Vector3(34, 39, 46)
+
+[node name="Rock04" parent="Shore/South/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(83, -1.22, -393.6)
+rotation = Vector3(-0.11, 2.86, 0.07)
+scale = Vector3(46, 33, 39)
+
+[node name="Rock05" parent="Shore/South/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(112, -1.48, -394.1)
+rotation = Vector3(0.08, 0.88, -0.14)
+scale = Vector3(38, 37, 47)
+
+[node name="Rock06" parent="Shore/South/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(141, -1.3, -393.5)
+rotation = Vector3(-0.07, 1.7, 0.1)
+scale = Vector3(45, 35, 40)
+
+[node name="Rock07" parent="Shore/South/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(171, -1.52, -394.2)
+rotation = Vector3(0.12, 2.5, -0.09)
+scale = Vector3(36, 40, 45)
+
+[node name="Rock08" parent="Shore/South/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(201, -1.28, -393.6)
+rotation = Vector3(-0.13, 0.31, 0.08)
+scale = Vector3(47, 34, 39)
+
+[node name="Rock09" parent="Shore/South/Riprap" instance=ExtResource("4_rock")]
+position = Vector3(230, -1.5, -394.1)
+rotation = Vector3(0.09, 1.46, -0.11)
+scale = Vector3(39, 38, 44)
+
+[node name="Rock10" parent="Shore/South/Riprap" instance=ExtResource("5_rock_dirt")]
+position = Vector3(253, -1.36, -393.7)
+rotation = Vector3(-0.07, 2.78, 0.1)
+scale = Vector3(31, 32, 35)
+
+[node name="Vegetation" type="Node3D" parent="Shore/South"]
+
+[node name="Tree01" parent="Shore/South/Vegetation" instance=ExtResource("6_tree_01")]
+position = Vector3(22, 0, -384)
+rotation = Vector3(0, -0.4, 0)
+scale = Vector3(0.9, 0.9, 0.9)
+
+[node name="Tree02" parent="Shore/South/Vegetation" instance=ExtResource("9_tree_04")]
+position = Vector3(74, 0, -383)
+rotation = Vector3(0, 0.82, 0)
+scale = Vector3(0.78, 0.78, 0.78)
+
+[node name="Tree03" parent="Shore/South/Vegetation" instance=ExtResource("8_tree_03")]
+position = Vector3(128, 0, -384)
+rotation = Vector3(0, -1.36, 0)
+scale = Vector3(0.8, 0.8, 0.8)
+
+[node name="Tree04" parent="Shore/South/Vegetation" instance=ExtResource("7_tree_02")]
+position = Vector3(184, 0, -383)
+rotation = Vector3(0, 1.1, 0)
+scale = Vector3(0.68, 0.68, 0.68)
+
+[node name="Bush01" parent="Shore/South/Vegetation" instance=ExtResource("10_bush")]
+position = Vector3(48, 0, -385)
+rotation = Vector3(0, -0.75, 0)
+scale = Vector3(1.2, 1.2, 1.2)
+
+[node name="Bush02" parent="Shore/South/Vegetation" instance=ExtResource("10_bush")]
+position = Vector3(102, 0, -384)
+rotation = Vector3(0, 0.96, 0)
+scale = Vector3(1.08, 1.08, 1.08)
+
+[node name="Bush03" parent="Shore/South/Vegetation" instance=ExtResource("10_bush")]
+position = Vector3(157, 0, -385)
+rotation = Vector3(0, -1.72, 0)
+scale = Vector3(1.16, 1.16, 1.16)
+
+[node name="Backdrop" type="Node3D" parent="."]
+
+[node name="WestMountains" parent="Backdrop" instance=ExtResource("11_mountains")]
+position = Vector3(-760, -25, -145)
+rotation = Vector3(0, 0.08, 0)
+scale = Vector3(0.48, 0.48, 0.48)
+
+[node name="NorthMountains" parent="Backdrop" instance=ExtResource("11_mountains")]
+position = Vector3(-20, -30, 810)
+rotation = Vector3(0, 1.570796, 0)
+scale = Vector3(0.42, 0.42, 0.42)
+
+[node name="Collision" type="Node3D" parent="."]
+
+[node name="NorthBarrier" type="StaticBody3D" parent="Collision" groups=["island_boundary_blocker"]]
+position = Vector3(126, 1, 137.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Collision/NorthBarrier"]
+shape = SubResource("NorthSouthBarrierShape")
+
+[node name="WestBarrier" type="StaticBody3D" parent="Collision" groups=["island_boundary_blocker"]]
+position = Vector3(-18.5, 1, -126.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Collision/WestBarrier"]
+shape = SubResource("WestBarrierShape")
+
+[node name="SouthBarrier" type="StaticBody3D" parent="Collision" groups=["island_boundary_blocker"]]
+position = Vector3(126, 1, -390.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Collision/SouthBarrier"]
+shape = SubResource("NorthSouthBarrierShape")
+
+[node name="VegetationWind" type="Node" parent="."]
+script = ExtResource("13_vegetation_wind")
+
+[node name="StaticMeshBatches" type="Node3D" parent="."]
+script = ExtResource("12_batcher")
+source_roots = Array[NodePath]([NodePath("../Shore/North"), NodePath("../Shore/West"), NodePath("../Shore/South")])
+minimum_instances_per_batch = 2

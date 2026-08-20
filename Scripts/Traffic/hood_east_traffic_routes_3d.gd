@@ -26,6 +26,16 @@ const OPPOSITE := {"E": "W", "W": "E", "N": "S", "S": "N"}
 		stop_line_distance = value
 		_queue_network_rebuild()
 
+@export_category("Grid Layout")
+@export var grid_x_positions := PackedFloat32Array([7.0, 127.0]):
+	set(value):
+		grid_x_positions = value
+		_queue_network_rebuild()
+@export var grid_z_positions := PackedFloat32Array([-123.0, -3.0, 117.0]):
+	set(value):
+		grid_z_positions = value
+		_queue_network_rebuild()
+
 var _waypoints := {}
 var _rebuild_queued := false
 
@@ -54,13 +64,18 @@ func _rebuild_reference_network() -> void:
 func _build_reference_network() -> void:
 	if get_node_or_null("SW_In_N") != null:
 		return
+	var west_x := _grid_value(grid_x_positions, 0, 7.0)
+	var east_x := _grid_value(grid_x_positions, 1, 127.0)
+	var south_z := _grid_value(grid_z_positions, 0, -123.0)
+	var middle_z := _grid_value(grid_z_positions, 1, -3.0)
+	var north_z := _grid_value(grid_z_positions, 2, 117.0)
 	var intersections := {
-		"SW": {"position": Vector3(7, 0.2, -123), "arms": ["N", "E", "S"], "id": _territory_name("south_west")},
-		"SE": {"position": Vector3(127, 0.2, -123), "arms": ["N", "E", "S", "W"], "id": _territory_name("south_east")},
-		"MW": {"position": Vector3(7, 0.2, -3), "arms": ["N", "E", "S"], "id": _territory_name("mid_west")},
-		"ME": {"position": Vector3(127, 0.2, -3), "arms": ["N", "E", "S", "W"], "id": _territory_name("mid_east")},
-		"NW": {"position": Vector3(7, 0.2, 117), "arms": ["E", "S"], "id": _territory_name("north_west")},
-		"NE": {"position": Vector3(127, 0.2, 117), "arms": ["E", "S", "W"], "id": _territory_name("north_east")},
+		"SW": {"position": Vector3(west_x, 0.2, south_z), "arms": ["N", "E", "S"], "id": _territory_name("south_west")},
+		"SE": {"position": Vector3(east_x, 0.2, south_z), "arms": ["N", "E", "S", "W"], "id": _territory_name("south_east")},
+		"MW": {"position": Vector3(west_x, 0.2, middle_z), "arms": ["N", "E", "S"], "id": _territory_name("mid_west")},
+		"ME": {"position": Vector3(east_x, 0.2, middle_z), "arms": ["N", "E", "S", "W"], "id": _territory_name("mid_east")},
+		"NW": {"position": Vector3(west_x, 0.2, north_z), "arms": ["E", "S"], "id": _territory_name("north_west")},
+		"NE": {"position": Vector3(east_x, 0.2, north_z), "arms": ["E", "S", "W"], "id": _territory_name("north_east")},
 	}
 	for key: String in intersections:
 		_build_intersection(key, intersections[key])
@@ -84,6 +99,10 @@ func _build_reference_network() -> void:
 	_add_boundary_pair("SE", "S", "south_east", 22.0)
 	_add_boundary_pair("SW", "S", "south_west", 22.0)
 	_refresh_preview.call_deferred()
+
+
+func _grid_value(values: PackedFloat32Array, index: int, fallback: float) -> float:
+	return values[index] if index >= 0 and index < values.size() else fallback
 
 
 func _build_intersection(key: String, data: Dictionary) -> void:

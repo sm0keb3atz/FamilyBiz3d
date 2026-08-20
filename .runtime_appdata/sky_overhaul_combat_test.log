@@ -1,0 +1,23 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+WARNING: AnimationNodeBlendSpace1D::add_blend_point: No name provided, using safe index as reference. In the future, empty names will be deprecated, so explicitly passing a name is recommended.
+   at: add_blend_point (scene/animation/animation_blend_space_1d.cpp:168)
+   GDScript backtrace (most recent call first):
+       [0] _setup_crouch_animation_nodes (res://Scripts/Player/Components/player_animation_component.gd:946)
+       [1] _ready (res://Scripts/Player/Components/player_animation_component.gd:174)
+       [2] _run (res://Tests/combat_lock_smoke_test.gd:30)
+WARNING: AnimationNodeBlendSpace1D::add_blend_point: No name provided, using safe index as reference. In the future, empty names will be deprecated, so explicitly passing a name is recommended.
+   at: add_blend_point (scene/animation/animation_blend_space_1d.cpp:168)
+   GDScript backtrace (most recent call first):
+       [0] _setup_crouch_animation_nodes (res://Scripts/Player/Components/player_animation_component.gd:950)
+       [1] _ready (res://Scripts/Player/Components/player_animation_component.gd:174)
+       [2] _run (res://Tests/combat_lock_smoke_test.gd:30)
+WARNING: Adding 'PhysicalBoneSimulator3D' as child to 'GeneralSkeleton' will make owner 'PlayerTest2' inconsistent. Consider unsetting the owner beforehand.
+   at: add_child (scene/main/node.cpp:1728)
+   GDScript backtrace (most recent call first):
+       [0] _replace_simulator_with_npc_rig (res://Scripts/Player/Components/player_ragdoll_component.gd:92)
+       [1] _ready (res://Scripts/Player/Components/player_ragdoll_component.gd:58)
+       [2] _run (res://Tests/combat_lock_smoke_test.gd:30)
+COMBAT_LOCK_SMOKE_TEST_PASS

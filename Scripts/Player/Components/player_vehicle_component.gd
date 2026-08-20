@@ -12,6 +12,7 @@ signal vehicle_exited(vehicle: Node)
 )
 @export var movement_component_path := NodePath("../MovementComponent")
 @export var camera_component_path := NodePath("../CameraComponent")
+@export var animation_component_path := NodePath("../AnimationComponent")
 @export var weapon_component_path := NodePath("../WeaponComponent")
 @export var health_component_path := NodePath("../HealthComponent")
 @export var interaction_component_path := NodePath("../InteractionComponent")
@@ -26,6 +27,9 @@ signal vehicle_exited(vehicle: Node)
 @onready var on_foot_camera := get_node(on_foot_camera_path) as Camera3D
 @onready var movement_component := get_node(movement_component_path)
 @onready var camera_component := get_node(camera_component_path)
+@onready var animation_component := get_node(
+	animation_component_path
+) as PlayerAnimationComponent
 @onready var weapon_component := get_node(weapon_component_path)
 @onready var health_component := (
 	get_node(health_component_path) as PlayerHealthComponent
@@ -41,6 +45,12 @@ signal vehicle_exited(vehicle: Node)
 @onready var hud := get_node(hud_path) as PlayerHUD
 
 var _current_vehicle: Variant
+var _visual_original_parent: Node
+var _visual_original_transform := Transform3D.IDENTITY
+var _visual_original_index := -1
+var _visual_original_visibility := true
+var _stowed_weapon_model: Node3D
+var _stowed_weapon_visibility := false
 
 
 func _ready() -> void:
@@ -62,8 +72,12 @@ func enter_vehicle(vehicle: Variant) -> bool:
 	sound_component.set_footsteps_enabled(false)
 	body.add_collision_exception_with(vehicle)
 	_current_vehicle.exit_denied.connect(_on_exit_denied)
+	_current_vehicle.tree_exiting.connect(
+		_on_current_vehicle_tree_exiting,
+		CONNECT_ONE_SHOT
+	)
 	body.velocity = Vector3.ZERO
-	visual.visible = false
+	_attach_player_visual(vehicle)
 	body_collision.set_deferred("disabled", true)
 	menu_controller.set_gameplay_locked(true)
 	_set_on_foot_gameplay_enabled(false)
@@ -82,11 +96,13 @@ func exit_vehicle(force := false) -> bool:
 		return false
 	if vehicle.exit_denied.is_connected(_on_exit_denied):
 		vehicle.exit_denied.disconnect(_on_exit_denied)
+	if vehicle.tree_exiting.is_connected(_on_current_vehicle_tree_exiting):
+		vehicle.tree_exiting.disconnect(_on_current_vehicle_tree_exiting)
 	vehicle.clear_driver()
 	_current_vehicle = null
 	body.global_position = exit_position
 	body.velocity = Vector3.ZERO
-	visual.visible = true
+	_restore_player_visual()
 	body_collision.set_deferred("disabled", false)
 	menu_controller.set_gameplay_locked(false)
 	_set_on_foot_gameplay_enabled(true)
@@ -140,9 +156,11 @@ func prepare_for_load() -> void:
 	var vehicle: Variant = _current_vehicle
 	if vehicle.exit_denied.is_connected(_on_exit_denied):
 		vehicle.exit_denied.disconnect(_on_exit_denied)
+	if vehicle.tree_exiting.is_connected(_on_current_vehicle_tree_exiting):
+		vehicle.tree_exiting.disconnect(_on_current_vehicle_tree_exiting)
 	vehicle.clear_driver()
 	_current_vehicle = null
-	visual.visible = true
+	_restore_player_visual()
 	body_collision.set_deferred("disabled", false)
 	menu_controller.set_gameplay_locked(false)
 	_set_on_foot_gameplay_enabled(true)
@@ -172,6 +190,58 @@ func _on_exit_denied(message: String) -> void:
 func _on_player_downed() -> void:
 	if _current_vehicle != null:
 		exit_vehicle(true)
+
+
+func _attach_player_visual(vehicle: BaseVehicle) -> void:
+	_visual_original_parent = visual.get_parent()
+	_visual_original_transform = visual.transform
+	_visual_original_index = visual.get_index()
+	_visual_original_visibility = visual.visible
+	_stowed_weapon_model = weapon_component.get("weapon_model") as Node3D
+	if is_instance_valid(_stowed_weapon_model):
+		_stowed_weapon_visibility = _stowed_weapon_model.visible
+		_stowed_weapon_model.visible = false
+	else:
+		_stowed_weapon_visibility = false
+	animation_component.enter_driving_pose()
+	var seat := vehicle.get_driver_marker()
+	visual.reparent(seat, false)
+	visual.transform = Transform3D.IDENTITY
+	visual.visible = true
+
+
+func _restore_player_visual() -> void:
+	if _visual_original_parent != null and is_instance_valid(_visual_original_parent):
+		visual.reparent(_visual_original_parent, false)
+		visual.transform = _visual_original_transform
+		if (
+			_visual_original_index >= 0
+			and _visual_original_index < _visual_original_parent.get_child_count()
+		):
+			_visual_original_parent.move_child(visual, _visual_original_index)
+	visual.visible = _visual_original_visibility
+	animation_component.exit_driving_pose()
+	if is_instance_valid(_stowed_weapon_model):
+		_stowed_weapon_model.visible = _stowed_weapon_visibility
+	_visual_original_parent = null
+	_visual_original_index = -1
+	_stowed_weapon_model = null
+
+
+func _on_current_vehicle_tree_exiting() -> void:
+	if _current_vehicle == null:
+		return
+	var vehicle := _current_vehicle as BaseVehicle
+	_current_vehicle = null
+	body.global_position = vehicle.global_position + Vector3.UP
+	body.velocity = Vector3.ZERO
+	_restore_player_visual()
+	body_collision.set_deferred("disabled", false)
+	menu_controller.set_gameplay_locked(false)
+	_set_on_foot_gameplay_enabled(true)
+	sound_component.set_footsteps_enabled(true)
+	body.remove_collision_exception_with(vehicle)
+	vehicle_exited.emit(vehicle)
 
 
 func _schedule_vehicle_collision_restore(vehicle: PhysicsBody3D) -> void:

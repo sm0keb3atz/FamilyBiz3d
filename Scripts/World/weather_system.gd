@@ -36,9 +36,13 @@ const WEATHER_PROFILES := {
 @export_range(10.0, 3600.0, 1.0) var weather_duration_max_seconds := 300.0
 
 @export_category("Presentation")
-@export_range(0.1, 60.0, 0.1) var transition_seconds := 10.0
+@export_range(0.1, 120.0, 0.1) var transition_seconds := 32.0
 @export_range(2.0, 30.0, 0.5) var rain_emitter_height := 12.0
 @export var follow_player_height := true
+
+@export_category("Cloud Motion")
+@export_range(0.0, 0.01, 0.00005) var clear_cloud_drift_speed := 0.00035
+@export_range(0.0, 0.01, 0.00005) var storm_cloud_drift_speed := 0.00135
 
 @export_category("Ambience Audio")
 @export_range(-50.0, 0.0, 0.5) var city_ambience_volume_db := -34.0
@@ -84,6 +88,7 @@ var _lightning_peak := 0.0
 var _lightning_value := 0.0
 var _wind_direction := Vector2.ZERO
 var _target_wind_direction := Vector2.ZERO
+var _cloud_offset := Vector2.ZERO
 var _sky_material: ShaderMaterial
 var _environment: Environment
 var _rng := RandomNumberGenerator.new()
@@ -191,6 +196,10 @@ func get_status_text() -> String:
 
 func is_player_sheltered() -> bool:
 	return _is_sheltered
+
+
+func get_wind_intensity() -> float:
+	return _wind_intensity
 
 
 func _normalize_weather_name(weather_name: StringName) -> StringName:
@@ -342,6 +351,17 @@ func _move_ambience_volume(
 
 func _update_wind(delta: float) -> void:
 	_wind_direction = _wind_direction.move_toward(_target_wind_direction, delta * 0.12)
+	var cloud_direction := _wind_direction
+	if cloud_direction.length_squared() < 0.0025:
+		cloud_direction = Vector2(0.94, 0.34)
+	else:
+		cloud_direction = cloud_direction.normalized()
+	var cloud_drift_speed := lerpf(
+		clear_cloud_drift_speed,
+		storm_cloud_drift_speed,
+		_wind_intensity
+	)
+	_cloud_offset += cloud_direction * cloud_drift_speed * delta
 	if _rain_process_material == null:
 		return
 	var slant := _wind_direction * _wind_intensity * 0.8
@@ -525,6 +545,10 @@ func _apply_visuals() -> void:
 	if _sky_material != null:
 		_sky_material.set_shader_parameter("weather_overcast", _overcast_intensity)
 		_sky_material.set_shader_parameter("weather_flash", _lightning_value)
+		_sky_material.set_shader_parameter(
+			"weather_cloud_offset",
+			_cloud_offset
+		)
 	if _screen_material != null:
 		_screen_material.set_shader_parameter(
 			"rain_intensity",

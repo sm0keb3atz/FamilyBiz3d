@@ -9,10 +9,11 @@ actors, and the save/load controller.
 Each territory owns a permanent ID, boundary, Heat, signed `-100..100`
 Reputation, ownership state, rival-pressure tier, dealer-zone state, gang-war
 progress, and `+100` takeover availability.
-Current IDs are `hood_east` and `hood_west`. Saved data uses these IDs, not
-scene paths. Older saves migrate to neutral ownership without losing positive
-Reputation. Hood East dealer attacks cost `5` Reputation on the first damaging
-hit and another `10` on death, except at `+100` or after player ownership.
+Current IDs are `hood_east`, `hood_west`, and `downtown_east`. Saved data uses
+these IDs, not scene paths. Older saves migrate to neutral ownership without
+losing positive Reputation. Hood East dealer attacks cost `5` Reputation on
+the first damaging hit and another `10` on death, except at `+100` or after
+player ownership.
 
 Negative Hood East Reputation rolls an hourly gang-war chance from 5% to 50%.
 Surviving three 60-second wars claims the territory. At `+100`, the player may
@@ -70,9 +71,9 @@ deferred.
 
 Press backtick to open the developer console. Territory testing commands are:
 
-- `set_rep -50 [hood_east|hood_west]`
-- `give_rep 15 [hood_east|hood_west]`
-- `territory_status [hood_east|hood_west]`
+- `set_rep -50 [hood_east|hood_west|downtown_east]`
+- `give_rep 15 [hood_east|hood_west|downtown_east]`
+- `territory_status [hood_east|hood_west|downtown_east]`
 - `start_gang_war [1-4]`
 - `end_gang_war win|lose`
 - `clear_gang_war_cooldown`
@@ -114,8 +115,8 @@ milestones:
 
 ## Current Map Status
 
-The permanent world currently registers Hood East and Hood West as active
-territories. Downtown East, Downtown West, Suburbs East, and Suburbs West are
+The permanent world currently registers Hood East, Hood West, and Downtown
+East as active territories. Downtown West, Suburbs East, and Suburbs West are
 the remaining city-completion work tracked by
 [Polish Pass 1](../Polish_Pass_1.md). Every completed territory must use a
 stable permanent ID and be fully connected to territory, economy, population,

@@ -18,6 +18,7 @@
 [ext_resource type="Material" path="res://Assets/MapStuff/Materials/Vehicles/vehicle_tail_light_off.tres" id="16_tail_light_off"]
 [ext_resource type="Material" path="res://Assets/MapStuff/Materials/Vehicles/vehicle_tail_light_on.tres" id="17_tail_light_on"]
 [ext_resource type="Material" path="res://Assets/MapStuff/Materials/Vehicles/vehicle_tail_light_brake.tres" id="18_tail_light_brake"]
+[ext_resource type="Script" path="res://Scripts/Vehicles/vehicle_seat_marker_3d.gd" id="19_seat_marker"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_body"]
 size = Vector3(1.9, 0.8, 4.7)
@@ -72,6 +73,7 @@ suspension_travel = 0.18
 
 [node name="DriverMarker" type="Marker3D" parent="." unique_id=1345177452]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.72, 0.35)
+script = ExtResource("19_seat_marker")
 
 [node name="ExitLeft" type="Marker3D" parent="." unique_id=370190019]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.05, 0.25)

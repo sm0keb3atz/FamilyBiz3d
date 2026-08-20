@@ -44,7 +44,12 @@ func _run() -> void:
 	assert(camera_component != null)
 	assert(camera.attributes is CameraAttributesPractical)
 	var camera_attributes := camera.attributes as CameraAttributesPractical
-	assert(not camera_attributes.dof_blur_far_enabled)
+	assert(camera_attributes.dof_blur_far_enabled)
+	assert(is_equal_approx(
+		camera_attributes.dof_blur_amount,
+		camera_component.default_dof_blur_amount
+	))
+	var default_blur_amount := camera_attributes.dof_blur_amount
 	target_lock.set_process(false)
 	assert(not target_lock.cycle_locked_target(1))
 	target_lock.call("_set_locked_target", npc)
@@ -72,11 +77,14 @@ func _run() -> void:
 	))
 	camera_component._update_aim_depth_of_field(0.25, true)
 	assert(camera_attributes.dof_blur_far_enabled)
-	assert(camera_attributes.dof_blur_amount > 0.0)
+	assert(camera_attributes.dof_blur_amount > default_blur_amount)
 	assert(camera_attributes.dof_blur_far_distance > 1.0)
 	camera_component._update_aim_depth_of_field(2.0, false)
-	assert(camera_attributes.dof_blur_amount < 0.001)
-	assert(not camera_attributes.dof_blur_far_enabled)
+	assert(absf(
+		camera_attributes.dof_blur_amount
+		- camera_component.default_dof_blur_amount
+	) <= 0.0001)
+	assert(camera_attributes.dof_blur_far_enabled)
 	target_lock.clear_lock()
 	assert(target_lock.get_outline_mesh_count() == 0)
 

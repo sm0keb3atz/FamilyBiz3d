@@ -5,6 +5,7 @@ const AIM_ANIMATION := &"PistolAim"
 const IDLE_ANIMATION := &"Idle"
 const RELOAD_ANIMATION := &"Pistol_Reload"
 const FIRE_ANIMATION := &"PistolShoot"
+const DRIVING_ANIMATION := &"Driving"
 const RIFLE_FIRE_FALLBACKS := [
 	&"RifleShoot",
 	&"RifleFire",
@@ -31,6 +32,7 @@ const LOOPING_ANIMATIONS := [
 	&"RifleIdle",
 	&"Crouch_Idle",
 	&"Crouch_Walk",
+	DRIVING_ANIMATION,
 ]
 const RELOAD_EXCLUDED_BONES := [
 	&"Hips",
@@ -162,6 +164,7 @@ var _current_carry_animation: StringName
 var _current_aim_animation := AIM_ANIMATION
 var _current_fire_animation := FIRE_ANIMATION
 var _current_reload_animation := RELOAD_ANIMATION
+var _driving_pose_active := false
 
 
 func _ready() -> void:
@@ -233,6 +236,8 @@ func update_animation(
 	walk_speed: float,
 	run_speed: float
 ) -> void:
+	if _driving_pose_active:
+		return
 	_is_crouching = is_crouching
 	var effective_aiming := is_aiming
 	_is_aiming = effective_aiming
@@ -310,6 +315,39 @@ func cancel_reload() -> void:
 		reload_request_parameter,
 		AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT
 	)
+
+
+func enter_driving_pose() -> bool:
+	if _driving_pose_active:
+		return true
+	if not animation_player.has_animation(DRIVING_ANIMATION):
+		push_error("Player animation library is missing Driving.")
+		return false
+	cancel_reload()
+	_is_aiming = false
+	_is_crouching = false
+	_target_aim_blend = 0.0
+	_current_aim_blend = 0.0
+	_target_carry_blend = 0.0
+	_current_carry_blend = 0.0
+	_recoil_pitch = 0.0
+	animation_tree.active = false
+	animation_player.play(DRIVING_ANIMATION)
+	_driving_pose_active = true
+	return true
+
+
+func exit_driving_pose() -> void:
+	if not _driving_pose_active:
+		return
+	animation_player.stop()
+	_driving_pose_active = false
+	_reset_parameters()
+	animation_tree.active = true
+
+
+func is_driving_pose_active() -> bool:
+	return _driving_pose_active
 
 
 func set_weapon_definition(definition: WeaponDefinition) -> void:

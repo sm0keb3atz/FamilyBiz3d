@@ -69,11 +69,14 @@ func _test_environment_and_weather() -> void:
 	var environment := world_environment.environment
 	assert(sky_material.shader == SkyShader)
 	assert("moon_strength" in SkyShader.code)
+	assert("triplanar_noise" in SkyShader.code)
+	assert("weather_cloud_offset" in SkyShader.code)
+	assert("* TIME *" not in SkyShader.code)
 	assert(environment.tonemap_mode == Environment.TONE_MAPPER_AGX)
 	assert(is_equal_approx(environment.tonemap_exposure, 1.02))
 	assert(is_equal_approx(environment.tonemap_agx_contrast, 1.26))
 	assert(is_equal_approx(environment.tonemap_agx_white, 8.0))
-	assert(is_equal_approx(environment.adjustment_saturation, 0.95))
+	assert(is_equal_approx(environment.adjustment_saturation, 1.0))
 	assert(environment.adjustment_color_correction != null)
 	assert(environment.ssao_enabled)
 	assert(not environment.ssr_enabled)
@@ -81,7 +84,7 @@ func _test_environment_and_weather() -> void:
 	assert(is_equal_approx(environment.ssil_intensity, 0.58))
 	assert(not environment.sdfgi_enabled)
 	assert(environment.volumetric_fog_enabled)
-	assert(is_equal_approx(environment.volumetric_fog_length, 58.0))
+	assert(is_equal_approx(environment.volumetric_fog_length, 180.0))
 	assert(environment.fog_enabled)
 
 	var test_roof := MeshInstance3D.new()
@@ -122,7 +125,7 @@ func _test_environment_and_weather() -> void:
 	var clear_ambient := environment.ambient_light_color
 	var clear_ambient_energy := environment.ambient_light_energy
 	var clear_sun_energy := sun.light_energy
-	assert(is_equal_approx(clear_density, 0.0015))
+	assert(is_equal_approx(clear_density, 0.0012))
 	assert(is_equal_approx(clear_volumetric_density, 0.0018))
 
 	assert(weather.set_weather(WeatherSystem.RAIN, true))
@@ -161,13 +164,14 @@ func _test_environment_and_weather() -> void:
 
 	assert(time.set_time_of_day(19, 30))
 	await process_frame
-	assert(is_equal_approx(environment.ambient_light_energy, 0.22))
+	assert(is_equal_approx(environment.ambient_light_energy, 0.28))
 	assert(sun.light_energy < 0.021)
-	assert(moon.light_energy > 0.15)
+	assert(moon.light_energy > 0.21)
+	assert(environment.fog_sky_affect > 0.7)
 	assert(time.set_time_of_day(0, 0))
 	await process_frame
-	assert(is_equal_approx(environment.ambient_light_energy, 0.22))
-	assert(is_equal_approx(moon.light_energy, 0.16))
+	assert(is_equal_approx(environment.ambient_light_energy, 0.28))
+	assert(is_equal_approx(moon.light_energy, 0.22))
 
 	stage.queue_free()
 	await process_frame

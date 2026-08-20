@@ -192,7 +192,7 @@ func _activate_one() -> bool:
 	vehicle.collision_layer = 1
 	vehicle.collision_mask = 3
 	vehicle.process_mode = Node.PROCESS_MODE_INHERIT
-	vehicle.set_managed_traffic_enabled(true)
+	vehicle.set_managed_traffic_enabled(true, _random.randi())
 	if vehicle_catalog != null:
 		var palette := CatalogScript.BODY_COLORS
 		vehicle.apply_traffic_body_color(

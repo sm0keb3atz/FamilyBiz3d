@@ -1,0 +1,71 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/Traffic/territory_mobility_3d.gd" id="1_mobility"]
+[ext_resource type="Script" path="res://Scripts/Traffic/hood_east_traffic_routes_3d.gd" id="2_routes"]
+[ext_resource type="PackedScene" path="res://Scenes/NPC/HoodEastPedestrianNetwork.tscn" id="3_pedestrians"]
+[ext_resource type="Script" path="res://Scripts/Traffic/traffic_intersection_3d.gd" id="4_intersection"]
+[ext_resource type="Script" path="res://Scripts/Traffic/traffic_signal_controller_3d.gd" id="5_signal"]
+
+[node name="DowntownEastMobility" type="Node3D"]
+script = ExtResource("1_mobility")
+territory_id = &"downtown_east"
+
+[node name="TrafficRoutes" type="Node3D" parent="."]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 126, 0, 3)
+script = ExtResource("2_routes")
+territory_id = &"downtown_east"
+grid_z_positions = PackedFloat32Array(-123, -3, 133)
+
+[node name="PedestrianNetwork" parent="." instance=ExtResource("3_pedestrians")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 126, 0, 3)
+id_prefix_override = &"downtown_east"
+
+[node name="Intersections" type="Node3D" parent="."]
+
+[node name="SouthWest" type="Node3D" parent="Intersections"]
+script = ExtResource("4_intersection")
+intersection_id = &"downtown_east_south_west"
+
+[node name="SignalController" type="Node3D" parent="Intersections/SouthWest"]
+script = ExtResource("5_signal")
+controller_id = &"downtown_east_south_west"
+
+[node name="SouthEast" type="Node3D" parent="Intersections"]
+script = ExtResource("4_intersection")
+intersection_id = &"downtown_east_south_east"
+
+[node name="SignalController" type="Node3D" parent="Intersections/SouthEast"]
+script = ExtResource("5_signal")
+controller_id = &"downtown_east_south_east"
+
+[node name="MidWest" type="Node3D" parent="Intersections"]
+script = ExtResource("4_intersection")
+intersection_id = &"downtown_east_mid_west"
+
+[node name="SignalController" type="Node3D" parent="Intersections/MidWest"]
+script = ExtResource("5_signal")
+controller_id = &"downtown_east_mid_west"
+
+[node name="MidEast" type="Node3D" parent="Intersections"]
+script = ExtResource("4_intersection")
+intersection_id = &"downtown_east_mid_east"
+
+[node name="SignalController" type="Node3D" parent="Intersections/MidEast"]
+script = ExtResource("5_signal")
+controller_id = &"downtown_east_mid_east"
+
+[node name="NorthWest" type="Node3D" parent="Intersections"]
+script = ExtResource("4_intersection")
+intersection_id = &"downtown_east_north_west"
+
+[node name="SignalController" type="Node3D" parent="Intersections/NorthWest"]
+script = ExtResource("5_signal")
+controller_id = &"downtown_east_north_west"
+
+[node name="NorthEast" type="Node3D" parent="Intersections"]
+script = ExtResource("4_intersection")
+intersection_id = &"downtown_east_north_east"
+
+[node name="SignalController" type="Node3D" parent="Intersections/NorthEast"]
+script = ExtResource("5_signal")
+controller_id = &"downtown_east_north_east"

@@ -9,10 +9,10 @@
 [ext_resource type="PackedScene" uid="uid://kuehpe27hrod" path="res://Scenes/Maps/Territorys/HoodEastMobility.tscn" id="13_mobility"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lcq4g"]
-size = Vector3(147, 0.001, 264)
+size = Vector3(170.3, 0.001, 292.80002)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_territory"]
-size = Vector3(146, 20, 253)
+size = Vector3(133.90001, 20, 253)
 
 [node name="HoodEast" type="Node3D" unique_id=1815818858]
 
@@ -29,7 +29,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 5)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -32)
 
 [node name="CollisionShape3D7" type="CollisionShape3D" parent="FloorCollider" unique_id=530218881]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65, -2.0005, 24.999992)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53.35, -2.0005, 39.4)
 shape = SubResource("BoxShape3D_lcq4g")
 
 [node name="StaticMeshBatches" type="Node3D" parent="." unique_id=655137587]
@@ -42,13 +42,12 @@ territory_id = &"hood_east"
 starting_owner_faction = 1
 
 [node name="TerritoryBoundary" type="Area3D" parent="." unique_id=1647238682]
-visible = false
 script = ExtResource("11_boundary")
 territory_id = &"hood_east"
 display_name = "Hood East"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="TerritoryBoundary" unique_id=1824627339]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 57.950005, 0, 0)
 shape = SubResource("BoxShape3D_territory")
 debug_color = Color(0.91971976, 0.2827793, 0, 1)
 

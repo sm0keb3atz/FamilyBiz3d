@@ -15,7 +15,7 @@ func _run() -> void:
 	) as CivilianPopulationManager
 	civilians.set_population_enabled(false)
 	assert(world.get_node_or_null("WestPopulationManager") == null)
-	assert(civilians.get_network_count() == 2)
+	assert(civilians.get_network_count() == 3)
 	var manager := world.get_node(
 		"TrafficPopulationManager"
 	) as TrafficPopulationManager

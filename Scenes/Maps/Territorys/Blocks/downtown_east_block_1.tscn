@@ -12,7 +12,15 @@
 [ext_resource type="PackedScene" uid="uid://uhl0pjcxax36" path="res://Scenes/Maps/Buildings/building_3.tscn" id="12_qaio5"]
 [ext_resource type="PackedScene" uid="uid://deabfm03nxenr" path="res://Scenes/Maps/Buildings/DowntownPenthouse.tscn" id="13_4yjqq"]
 [ext_resource type="PackedScene" uid="uid://bruxsbqnsdkgt" path="res://Scenes/Maps/Buildings/building_4.tscn" id="13_461fa"]
+[ext_resource type="PackedScene" uid="uid://bxrq6ncuvfje1" path="res://Scenes/Maps/Buildings/Generated/buildingG5.tscn" id="14_4yjqq"]
 [ext_resource type="PackedScene" uid="uid://t5woerh4sbbq" path="res://Scenes/Maps/Buildings/building_6.tscn" id="14_461fa"]
+[ext_resource type="Script" uid="uid://dptfybw60qiqk" path="res://Tools/Godot/BuildingGenerator/building_generation_profile.gd" id="15_tur28"]
+
+[sub_resource type="Resource" id="Resource_ds2hm"]
+resource_local_to_scene = true
+script = ExtResource("15_tur28")
+story_count = 25
+preset = 2
 
 [node name="DowntownEastBlock1" type="Node3D" unique_id=208301630]
 
@@ -494,11 +502,11 @@ mesh = ExtResource("3_uim1f")
 
 [node name="Intersection3" parent="Roads" unique_id=1070683106 instance=ExtResource("6_uvjnt")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96, 0, -96)
-intersection_id = &"hood_east_south_east"
+intersection_id = &"downtown_east_mid_east"
 
 [node name="Intersection4" parent="Roads" unique_id=1537412071 instance=ExtResource("6_uvjnt")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.999998, 0, -96)
-intersection_id = &"hood_east_south_east"
+intersection_id = &"downtown_east_south_east"
 
 [node name="Sidewalk" type="Node3D" parent="." unique_id=1545924240]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27, 0, -28)
@@ -1089,7 +1097,7 @@ transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 96, 
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 83, 0, -29)
 
 [node name="Building3" parent="Buildings" unique_id=798346163 instance=ExtResource("13_461fa")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0, -107)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0, -110)
 
 [node name="Building4" parent="Buildings" unique_id=1121915260 instance=ExtResource("13_461fa")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114, 0, -94)
@@ -1107,7 +1115,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 0, -51)
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 50, 0, -29)
 
 [node name="Building13" parent="Buildings" unique_id=341458725 instance=ExtResource("13_461fa")]
-transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 28, 0, -51)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 33, 0, -28.8)
 
 [node name="Building14" parent="Buildings" unique_id=1301831320 instance=ExtResource("13_461fa")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 28, 0, -67)
@@ -1123,3 +1131,7 @@ transform = Transform3D(1.3113416e-07, 0, 1, 0, 1, 0, -1, 0, 1.3113416e-07, 50, 
 
 [node name="Building17" parent="Buildings" unique_id=2110729006 instance=ExtResource("13_4yjqq")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 80, 0, -73)
+
+[node name="BuildingGenerator" parent="Buildings" unique_id=263177720 instance=ExtResource("14_4yjqq")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 35, 0, -52)
+profile = SubResource("Resource_ds2hm")

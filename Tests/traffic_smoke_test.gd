@@ -633,6 +633,29 @@ func _run() -> void:
 		assert(traffic_vehicle.audio_component.engine.stream != null)
 		assert(traffic_vehicle.audio_component.engine.playing)
 		assert(traffic_vehicle.audio_component.engine.volume_db <= -8.0)
+		assert(traffic_vehicle.has_traffic_driver())
+		var traffic_driver := traffic_vehicle.get_traffic_driver()
+		assert(traffic_driver != null)
+		assert(not (traffic_driver is CharacterBody3D))
+		assert(traffic_driver.get_node_or_null("NavigationAgent3D") == null)
+		assert(traffic_driver.get_node_or_null("Hitboxes") == null)
+		assert(
+			traffic_driver.get_body_variant() in [&"male", &"female"]
+		)
+		var driver_marker := traffic_vehicle.get_driver_marker()
+		assert(driver_marker.get_node_or_null("TrafficDriver") == traffic_driver)
+		var runtime_driver_count := 0
+		for child in driver_marker.get_children():
+			if child is VehicleOccupantVisual:
+				runtime_driver_count += 1
+		assert(runtime_driver_count == 1)
+		if traffic_vehicle.is_traffic_detail_enabled():
+			assert(traffic_driver.visible)
+			assert(traffic_driver.is_driving_animation_playing())
+			assert(traffic_driver.process_mode != Node.PROCESS_MODE_DISABLED)
+		else:
+			assert(not traffic_driver.visible)
+			assert(traffic_driver.process_mode == Node.PROCESS_MODE_DISABLED)
 		var ai := traffic_vehicle.get_node_or_null(
 			"TrafficAIComponent"
 		) as TrafficVehicleAIComponent
@@ -668,7 +691,17 @@ func _run() -> void:
 
 	var pooled_vehicle := east_manager.get_active_vehicles()[0]
 	var pooled_variant_id := pooled_vehicle.get_vehicle_id()
+	var pooled_driver := pooled_vehicle.get_traffic_driver()
+	pooled_vehicle.set_traffic_detail_enabled(false)
+	assert(not pooled_driver.visible)
+	assert(pooled_driver.process_mode == Node.PROCESS_MODE_DISABLED)
+	pooled_vehicle.set_traffic_detail_enabled(true)
+	assert(pooled_driver.visible)
+	assert(pooled_driver.is_driving_animation_playing())
 	east_manager.call("_recycle_vehicle", pooled_vehicle)
+	assert(not pooled_driver.visible)
+	assert(not pooled_driver.is_traffic_active())
+	assert(pooled_driver.process_mode == Node.PROCESS_MODE_DISABLED)
 	var matching_variant := east_manager.vehicle_catalog.call(
 		"get_variant", pooled_variant_id
 	) as Resource
@@ -677,6 +710,16 @@ func _run() -> void:
 	) as BaseVehicle
 	assert(reused_vehicle == pooled_vehicle)
 	assert(reused_vehicle.get_vehicle_id() == pooled_variant_id)
+	reused_vehicle.set_managed_traffic_enabled(true, 22019)
+	assert(reused_vehicle.get_traffic_driver() == pooled_driver)
+	assert(pooled_driver.visible)
+	assert(pooled_driver.is_driving_animation_playing())
+	var reused_driver_count := 0
+	for child in reused_vehicle.get_driver_marker().get_children():
+		if child is VehicleOccupantVisual:
+			reused_driver_count += 1
+	assert(reused_driver_count == 1)
+	reused_vehicle.set_managed_traffic_enabled(false)
 
 	print("TRAFFIC_SMOKE_TEST_PASS")
 	quit(0)

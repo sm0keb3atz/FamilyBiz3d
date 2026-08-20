@@ -13,19 +13,25 @@ func _run() -> void:
 	await physics_frame
 
 	var zones := get_nodes_in_group(&"dealer_activity_zone")
-	assert(zones.size() == 4)
+	assert(zones.size() == 6)
 	var north := world.get_node("SpawnPoints/EastDealerZoneNorth") as DealerActivityZone3D
 	var south := world.get_node("SpawnPoints/EastDealerZoneSouth") as DealerActivityZone3D
 	var west_north := world.get_node("SpawnPoints/WestDealerZoneNorth") as DealerActivityZone3D
 	var west_south := world.get_node("SpawnPoints/WestDealerZoneSouth") as DealerActivityZone3D
+	var downtown_north := world.get_node("SpawnPoints/DowntownDealerZoneNorth") as DealerActivityZone3D
+	var downtown_south := world.get_node("SpawnPoints/DowntownDealerZoneSouth") as DealerActivityZone3D
 	assert(north.zone_id == &"hood_east_north")
 	assert(south.zone_id == &"hood_east_south")
 	assert(west_north.zone_id == &"hood_west_north")
 	assert(west_south.zone_id == &"hood_west_south")
+	assert(downtown_north.zone_id == &"downtown_east_north")
+	assert(downtown_south.zone_id == &"downtown_east_south")
 	assert(north.get_required_member_count() == 3)
 	assert(south.get_required_member_count() == 3)
 	assert(west_north.get_required_member_count() == 3)
 	assert(west_south.get_required_member_count() == 3)
+	assert(downtown_north.get_required_member_count() == 3)
+	assert(downtown_south.get_required_member_count() == 3)
 	var zone_count_by_territory := {}
 	var has_level_one_by_territory := {}
 	for node in zones:
@@ -42,8 +48,10 @@ func _run() -> void:
 				has_level_one_by_territory[zone.territory_id] = true
 	assert(int(zone_count_by_territory.get(&"hood_east", 0)) == 2)
 	assert(int(zone_count_by_territory.get(&"hood_west", 0)) == 2)
+	assert(int(zone_count_by_territory.get(&"downtown_east", 0)) == 2)
 	assert(bool(has_level_one_by_territory.get(&"hood_east", false)))
 	assert(bool(has_level_one_by_territory.get(&"hood_west", false)))
+	assert(bool(has_level_one_by_territory.get(&"downtown_east", false)))
 	assert(north.get_reinforcement_world_positions().size() == 2)
 	assert(not south.get_spawned_dealers().is_empty())
 	for _frame in range(120):

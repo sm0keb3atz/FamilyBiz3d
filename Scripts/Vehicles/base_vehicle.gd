@@ -7,6 +7,9 @@ const VehicleDefinitionResource := preload(
 const DEFAULT_VISUAL_PROFILE := preload(
 	"res://Assets/VFX/GrittyCinematicWorldVisualProfile.tres"
 )
+const TRAFFIC_DRIVER_SCENE := preload(
+	"res://Scenes/Vehicles/VehicleOccupantVisual.tscn"
+)
 const VEHICLE_PAINT_META := &"family_business_vehicle_paint"
 signal driver_changed(driver: CharacterBody3D)
 signal exit_denied(message: String)
@@ -27,6 +30,8 @@ signal service_lock_changed(locked: bool)
 	NodePath("ExitLeft"),
 	NodePath("ExitRight"),
 ]
+@export_category("Occupants")
+@export var traffic_driver_profile := &"civilian"
 @export_category("Interaction")
 @export_range(0.0, 10.0, 0.1) var maximum_exit_speed := 2.0
 @export var interact_action := &"interact"
@@ -109,6 +114,7 @@ var _tailpipe_startup_exhausts: Array[GPUParticles3D] = []
 var _soft_smoke_texture: GradientTexture2D
 var _traffic_detail_enabled := true
 var _traffic_color_materials: Array[BaseMaterial3D] = []
+var _traffic_driver: VehicleOccupantVisual
 
 
 func configure_definition_before_tree(new_definition: VehicleDefinitionResource) -> void:
@@ -283,8 +289,10 @@ func has_driver() -> bool:
 	return _driver != null
 
 
-func set_managed_traffic_enabled(enabled: bool) -> void:
+func set_managed_traffic_enabled(enabled: bool, occupant_seed := -1) -> void:
 	if _managed_traffic_enabled == enabled:
+		if enabled and occupant_seed >= 0:
+			_activate_traffic_driver(occupant_seed)
 		return
 	_managed_traffic_enabled = enabled
 	if enabled:
@@ -294,6 +302,7 @@ func set_managed_traffic_enabled(enabled: bool) -> void:
 		_traffic_detail_enabled = true
 		audio_component.set_traffic_detail_enabled(true)
 		effects_component.set_traffic_detail_enabled(true)
+		_activate_traffic_driver(occupant_seed)
 		drive_component.clear_ai_control()
 		audio_component.engine_ready = true
 		if audio_component.engine.stream != null and not audio_component.engine.playing:
@@ -304,6 +313,8 @@ func set_managed_traffic_enabled(enabled: bool) -> void:
 		_traffic_detail_enabled = true
 		audio_component.set_traffic_detail_enabled(true)
 		effects_component.set_traffic_detail_enabled(true)
+		if is_instance_valid(_traffic_driver):
+			_traffic_driver.deactivate()
 		drive_component.clear_ai_control()
 		audio_component.engine_ready = false
 		audio_component.engine.stop()
@@ -321,6 +332,8 @@ func set_traffic_detail_enabled(enabled: bool) -> void:
 	_traffic_detail_enabled = enabled
 	audio_component.set_traffic_detail_enabled(enabled)
 	effects_component.set_traffic_detail_enabled(enabled)
+	if is_instance_valid(_traffic_driver):
+		_traffic_driver.set_detail_enabled(enabled)
 
 
 func is_traffic_detail_enabled() -> bool:
@@ -329,6 +342,28 @@ func is_traffic_detail_enabled() -> bool:
 
 func get_driver() -> CharacterBody3D:
 	return _driver
+
+
+func get_driver_marker() -> Marker3D:
+	return driver_marker
+
+
+func get_traffic_driver() -> VehicleOccupantVisual:
+	return _traffic_driver if is_instance_valid(_traffic_driver) else null
+
+
+func has_traffic_driver() -> bool:
+	return is_instance_valid(_traffic_driver)
+
+
+func _activate_traffic_driver(seed: int) -> void:
+	if not is_instance_valid(_traffic_driver):
+		_traffic_driver = TRAFFIC_DRIVER_SCENE.instantiate()
+		_traffic_driver.name = "TrafficDriver"
+		driver_marker.add_child(_traffic_driver)
+		_traffic_driver.transform = Transform3D.IDENTITY
+	_traffic_driver.set_detail_enabled(_traffic_detail_enabled)
+	_traffic_driver.activate(seed, traffic_driver_profile)
 
 
 func get_vehicle_camera() -> Camera3D:

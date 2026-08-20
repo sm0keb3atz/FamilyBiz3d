@@ -2,6 +2,10 @@
 class_name PedestrianNetwork3D
 extends Node3D
 
+@export_category("Identity")
+@export var source_id_prefix: StringName = &"hood_east"
+@export var id_prefix_override: StringName = &""
+
 @export_range(8.0, 128.0, 1.0) var spatial_cell_size := 32.0:
 	set(value):
 		spatial_cell_size = value
@@ -28,9 +32,39 @@ var _debug_mesh_instance: MeshInstance3D
 var _crossings: Array[PedestrianCrossing3D] = []
 
 
+func _enter_tree() -> void:
+	_apply_id_prefix_override()
+
+
 func _ready() -> void:
 	rebuild_cache()
 	set_process(Engine.is_editor_hint())
+
+
+func _apply_id_prefix_override() -> void:
+	if id_prefix_override == &"" or id_prefix_override == source_id_prefix:
+		return
+	var source_prefix := "%s_" % String(source_id_prefix)
+	var target_prefix := "%s_" % String(id_prefix_override)
+	for child in find_children("*", "PedestrianWaypoint3D", true, false):
+		var waypoint := child as PedestrianWaypoint3D
+		var destination := String(waypoint.destination_id)
+		if destination.begins_with(source_prefix):
+			waypoint.destination_id = StringName(
+				target_prefix + destination.trim_prefix(source_prefix)
+			)
+	for child in find_children("*", "PedestrianCrossing3D", true, false):
+		var crossing := child as PedestrianCrossing3D
+		var crossing_name := String(crossing.crossing_id)
+		if crossing_name.begins_with(source_prefix):
+			crossing.crossing_id = StringName(
+				target_prefix + crossing_name.trim_prefix(source_prefix)
+			)
+		var intersection_name := String(crossing.intersection_id)
+		if intersection_name.begins_with(source_prefix):
+			crossing.intersection_id = StringName(
+				target_prefix + intersection_name.trim_prefix(source_prefix)
+			)
 
 
 func _process(delta: float) -> void:

@@ -17,7 +17,7 @@ definition = ExtResource("2")
 transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, 0, 0, 0)
 
 [node name="DriverMarker" parent="." index="6" unique_id=1345177452]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0.76, 0.38)
+transform = Transform3D(0.95, 0, 0, 0, 0.93996954, 0.13768527, 0, -0.13768527, 0.93996954, 0.42, 0.5, 0.23)
 
 [node name="ExitLeft" parent="." index="7" unique_id=370190019]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.65, 0.05, 0.38)
@@ -31,22 +31,16 @@ transform = Transform3D(1, 0, 0, 0, 0.9848077, 0.17364825, 0, -0.17364825, 0.984
 [node name="TailpipeExhaust" parent="." index="11" unique_id=975660813]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.48, 0.45, -2.5)
 
-[node name="HeadlightLeft" parent="VehicleLights/Headlights" index="0"]
+[node name="HeadlightLeft" parent="VehicleLights/Headlights" parent_id_path=PackedInt32Array(1451383261) index="0" unique_id=898045121]
 transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, 0.71329993, 0.73399997, 2.53)
 
-[node name="HeadlightRight" parent="VehicleLights/Headlights" index="1"]
+[node name="HeadlightRight" parent="VehicleLights/Headlights" parent_id_path=PackedInt32Array(1451383261) index="1" unique_id=1758978838]
 transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, -0.71999997, 0.72975004, 2.53)
 
-[node name="HeadlightBeamLeft" parent="VehicleLights/Headlights" index="2"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.65, 0.8, 2.28)
-
-[node name="HeadlightBeamRight" parent="VehicleLights/Headlights" index="3"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.65, 0.8, 2.28)
-
-[node name="TailLightLeft" parent="VehicleLights/TailLights" index="0"]
+[node name="TailLightLeft" parent="VehicleLights/TailLights" parent_id_path=PackedInt32Array(803915306) index="0" unique_id=268998607]
 transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, 0.60629994, 0.73, -2.5)
 mesh = SubResource("BoxMesh_0t851")
 
-[node name="TailLightRight" parent="VehicleLights/TailLights" index="1"]
+[node name="TailLightRight" parent="VehicleLights/TailLights" parent_id_path=PackedInt32Array(803915306) index="1" unique_id=625271209]
 transform = Transform3D(0.38, 0, 0, 0, 0.13, 0, 0, 0, 0.045, -0.60629994, 0.74, -2.5)
 mesh = SubResource("BoxMesh_wh8bo")

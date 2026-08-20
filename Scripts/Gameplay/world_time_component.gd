@@ -514,7 +514,7 @@ func _configure_environment() -> void:
 		visual_profile.clear_fog_aerial_perspective
 	)
 	environment.fog_sun_scatter = visual_profile.clear_fog_sun_scatter
-	environment.fog_sky_affect = 0.32
+	environment.fog_sky_affect = visual_profile.day_fog_sky_affect
 
 
 func _update_visuals(visual_minute := -1.0) -> void:
@@ -585,6 +585,16 @@ func _update_visuals(visual_minute := -1.0) -> void:
 			visual_profile.day_volumetric_fog_density,
 			daylight_strength
 		)
+		var fog_sky_affect := lerpf(
+			visual_profile.night_fog_sky_affect,
+			visual_profile.day_fog_sky_affect,
+			daylight_strength
+		)
+		var volumetric_fog_sky_affect := lerpf(
+			visual_profile.night_volumetric_fog_sky_affect,
+			visual_profile.volumetric_fog_sky_affect,
+			daylight_strength
+		)
 		environment.ambient_light_color = ambient_color
 		environment.ambient_light_energy = ambient_energy
 		environment.fog_enabled = true
@@ -597,7 +607,9 @@ func _update_visuals(visual_minute := -1.0) -> void:
 		environment.fog_sun_scatter = (
 			visual_profile.clear_fog_sun_scatter * daylight_strength
 		)
+		environment.fog_sky_affect = fog_sky_affect
 		environment.volumetric_fog_density = volumetric_fog_density
+		environment.volumetric_fog_sky_affect = volumetric_fog_sky_affect
 		environment.set_meta(
 			WorldVisualProfile.META_BASE_AMBIENT_COLOR,
 			ambient_color

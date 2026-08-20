@@ -38,6 +38,13 @@ func _run() -> void:
 	var sound_component := player.get_node(
 		"Components/SoundComponent"
 	) as PlayerSoundComponent
+	var animation_component := player.get_node(
+		"Components/AnimationComponent"
+	) as PlayerAnimationComponent
+	var animation_tree := player.get_node("AnimationTree") as AnimationTree
+	var animation_player := player.get_node(
+		"Visual/PlayerTest2/AnimationPlayer"
+	) as AnimationPlayer
 
 	assert(vehicle.get_node("WheelFL") is VehicleWheel3D)
 	assert(vehicle.get_node("WheelFR") is VehicleWheel3D)
@@ -96,10 +103,22 @@ func _run() -> void:
 	assert(vehicle_component.is_driving())
 	assert(vehicle.has_driver())
 	assert(not sound_component.are_footsteps_enabled())
-	assert(not player_visual.visible)
+	assert(player_visual.visible)
+	assert(player_visual.get_parent() == vehicle.get_driver_marker())
+	assert(player_visual.transform.is_equal_approx(Transform3D.IDENTITY))
+	assert(animation_component.is_driving_pose_active())
+	assert(not animation_tree.active)
+	assert(animation_player.current_animation == &"Driving")
 	assert(not on_foot_camera.current)
 	assert(vehicle_panel.visible)
 	assert(not weapon_panel.visible)
+	vehicle.rotation.y = 0.35
+	await process_frame
+	assert(
+		player_visual.global_transform.is_equal_approx(
+			vehicle.get_driver_marker().global_transform
+		)
+	)
 
 	vehicle.linear_velocity = Vector3.ZERO
 	assert(vehicle_component.exit_vehicle())
@@ -108,6 +127,9 @@ func _run() -> void:
 	assert(not vehicle.has_driver())
 	assert(sound_component.are_footsteps_enabled())
 	assert(player_visual.visible)
+	assert(player_visual.get_parent() == player)
+	assert(not animation_component.is_driving_pose_active())
+	assert(animation_tree.active)
 	assert(not player_collision.disabled)
 	assert(on_foot_camera.current)
 	assert(not vehicle_panel.visible)
@@ -121,7 +143,25 @@ func _run() -> void:
 	assert(not vehicle_component.is_driving())
 	assert(sound_component.are_footsteps_enabled())
 	assert(player_visual.visible)
+	assert(player_visual.get_parent() == player)
+	assert(not animation_component.is_driving_pose_active())
+	assert(animation_tree.active)
 	assert(on_foot_camera.current)
+
+	var removed_vehicle := vehicle_scene.instantiate() as BaseVehicle
+	world.get_node("Gameplay").add_child(removed_vehicle)
+	removed_vehicle.global_position = player.global_position
+	await process_frame
+	assert(vehicle_component.enter_vehicle(removed_vehicle))
+	assert(player_visual.get_parent() == removed_vehicle.get_driver_marker())
+	removed_vehicle.queue_free()
+	await process_frame
+	await process_frame
+	assert(not vehicle_component.is_driving())
+	assert(player_visual.get_parent() == player)
+	assert(player_visual.visible)
+	assert(not animation_component.is_driving_pose_active())
+	assert(animation_tree.active)
 
 	var east_dealer_zone := world.get_node(
 		"SpawnPoints/EastDealerZoneSouth"

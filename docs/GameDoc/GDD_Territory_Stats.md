@@ -90,4 +90,5 @@ Reputation dictates the player's economic leverage and control over a neighborho
   to `25` Heat.
 - Police share the pedestrian population system at roughly five officers per
   fifteen active civilians.
-* Territory state is saved using the permanent `hood_east` and `hood_west` IDs.
+* Territory state is saved using permanent IDs, currently `hood_east`,
+  `hood_west`, and `downtown_east`.

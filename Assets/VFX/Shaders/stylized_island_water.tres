@@ -1,0 +1,74 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://sx6pgij7ws3a"]
+
+[ext_resource type="Shader" uid="uid://dfglo6b4p8mr1" path="res://Assets/VFX/Shaders/stylized_island_water.gdshader" id="1_water"]
+
+[sub_resource type="FastNoiseLite" id="NoiseA"]
+seed = 3197
+frequency = 0.035
+fractal_octaves = 4
+fractal_lacunarity = 2.15
+fractal_gain = 0.48
+
+[sub_resource type="NoiseTexture2D" id="NoiseTextureA"]
+noise = SubResource("NoiseA")
+seamless = true
+
+[sub_resource type="FastNoiseLite" id="NoiseB"]
+noise_type = 3
+seed = 7711
+frequency = 0.055
+fractal_octaves = 3
+fractal_lacunarity = 1.85
+fractal_gain = 0.56
+
+[sub_resource type="NoiseTexture2D" id="NoiseTextureB"]
+noise = SubResource("NoiseB")
+seamless = true
+
+[sub_resource type="FastNoiseLite" id="NormalNoise"]
+noise_type = 3
+seed = 9127
+frequency = 0.075
+fractal_gain = 0.45
+
+[sub_resource type="NoiseTexture2D" id="NormalTexture"]
+noise = SubResource("NormalNoise")
+seamless = true
+as_normal_map = true
+bump_strength = 5.0
+
+[sub_resource type="FastNoiseLite" id="WaveNoise"]
+seed = 4529
+frequency = 0.022
+fractal_octaves = 4
+fractal_lacunarity = 1.7
+
+[sub_resource type="NoiseTexture2D" id="WaveTexture"]
+noise = SubResource("WaveNoise")
+seamless = true
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_water")
+shader_parameter/noise_texture_a = SubResource("NoiseTextureA")
+shader_parameter/noise_texture_b = SubResource("NoiseTextureB")
+shader_parameter/wave_texture = SubResource("WaveTexture")
+shader_parameter/normal_texture = SubResource("NormalTexture")
+shader_parameter/shallow_color = Color(0.055, 0.29, 0.35, 1)
+shader_parameter/deep_color = Color(0.012, 0.075, 0.12, 1)
+shader_parameter/foam_color = Color(0.72, 0.82, 0.8, 1)
+shader_parameter/roughness = 0.24
+shader_parameter/metallic = 0.0
+shader_parameter/water_opacity = 0.78
+shader_parameter/wave_direction_a = Vector2(0.82, 0.34)
+shader_parameter/wave_direction_b = Vector2(-0.28, 0.94)
+shader_parameter/wave_speed = 0.026
+shader_parameter/wave_scale = 24.0
+shader_parameter/wave_height = 0.18
+shader_parameter/normal_scale = 18.0
+shader_parameter/normal_strength = 0.34
+shader_parameter/deep_distance = 8.0
+shader_parameter/foam_width = 0.8
+shader_parameter/foam_noise_amount = 0.34
+shader_parameter/refraction_strength = 0.012
+shader_parameter/fresnel_strength = 0.28

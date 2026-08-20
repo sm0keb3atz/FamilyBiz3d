@@ -14,7 +14,7 @@ definition = ExtResource("2")
 transform = Transform3D(7.54979e-08, 0, -1, 0, 1, 0, 1, 0, 7.54979e-08, 0, 0, 0)
 
 [node name="DriverMarker" parent="." index="6" unique_id=1345177452]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.46, 1, 0.55)
+transform = Transform3D(0.95, 0, 0, 0, 0.94638497, 0.082797945, 0, -0.082797945, 0.94638497, 0.46, 0.98, 1.03)
 
 [node name="ExitLeft" parent="." index="7" unique_id=370190019]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7, 0.05, 0.55)

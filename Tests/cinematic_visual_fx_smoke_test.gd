@@ -68,7 +68,7 @@ func _run() -> void:
 	assert(not environment.ssr_enabled)
 	assert(not environment.sdfgi_enabled)
 	assert(environment.volumetric_fog_enabled)
-	assert(is_equal_approx(environment.volumetric_fog_length, 58.0))
+	assert(is_equal_approx(environment.volumetric_fog_length, 180.0))
 	assert(is_equal_approx(environment.glow_intensity, 0.16))
 	assert("depth_gap > depth_bias && depth_gap < merge_depth_range" in OutlineShader.code)
 	assert("float silhouette = smoothstep" in OutlineShader.code)
@@ -86,6 +86,17 @@ func _run() -> void:
 		float(sky_material.get_shader_parameter("weather_overcast")),
 		0.82
 	))
+	var cloud_offset_before := weather._cloud_offset
+	weather._wind_intensity = 1.0
+	weather._target_wind_direction = Vector2(0.8, 0.6)
+	weather._update_wind(1.0)
+	var cloud_step := weather._cloud_offset.distance_to(cloud_offset_before)
+	assert(cloud_step > 0.0)
+	assert(cloud_step <= weather.storm_cloud_drift_speed + 0.00001)
+	var continuous_offset := weather._cloud_offset
+	weather.set_weather(WeatherSystem.CLEAR, true)
+	weather._update_wind(1.0)
+	assert(weather._cloud_offset.distance_to(continuous_offset) < 0.002)
 
 	assert(time.set_time_of_day(0, 0))
 	weather.set_weather(WeatherSystem.CLEAR, true)
