@@ -49,7 +49,7 @@ profile = SubResource("BuildingGenerationProfile_default")
 
 [node name="ManualDetails" type="Node3D" parent="." unique_id=1993701713]
 
-[node name="Generated" type="Node3D" parent="." unique_id=18638783]
+[node name="Building" type="Node3D" parent="." unique_id=18638783]
 metadata/building_generator_seed = 878174941
 metadata/building_generator_preset = 2
 metadata/building_generator_palette = 4
@@ -58,11 +58,11 @@ metadata/building_generator_depth_modules = 6
 metadata/building_generator_story_count = 2
 metadata/building_generator_complete = true
 
-[node name="Walls" type="Node3D" parent="Generated" unique_id=212437895]
+[node name="Walls" type="Node3D" parent="Building" unique_id=212437895]
 
-[node name="Story01" type="Node3D" parent="Generated/Walls" unique_id=905686233]
+[node name="Story01" type="Node3D" parent="Building/Walls" unique_id=905686233]
 
-[node name="SmPillar01Corner001" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=172629966]
+[node name="SmPillar01Corner001" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=172629966]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12, 0, 12)
 mesh = ExtResource("3_l0sgq")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -74,7 +74,7 @@ metadata/building_generator_side = "front_left"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmPillar01Corner002" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1580485848]
+[node name="SmPillar01Corner002" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1580485848]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 12, 0, -12)
 mesh = ExtResource("3_l0sgq")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -86,7 +86,7 @@ metadata/building_generator_side = "front_right"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmPillar01Corner003" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1497222938]
+[node name="SmPillar01Corner003" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1497222938]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -12, 0, -12)
 mesh = ExtResource("3_l0sgq")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -98,7 +98,7 @@ metadata/building_generator_side = "back_right"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmPillar01Corner004" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1862991120]
+[node name="SmPillar01Corner004" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1862991120]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 12)
 mesh = ExtResource("3_l0sgq")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -110,7 +110,7 @@ metadata/building_generator_side = "back_left"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmWindow14001" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=719986244]
+[node name="SmWindow14001" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=719986244]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -125,7 +125,7 @@ metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14002" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1042503596]
+[node name="SmWindow14002" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1042503596]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 8)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -140,7 +140,7 @@ metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14003" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1201042722]
+[node name="SmWindow14003" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1201042722]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 4)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -155,7 +155,7 @@ metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14004" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1159058876]
+[node name="SmWindow14004" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1159058876]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 0)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -170,7 +170,7 @@ metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmShopFront01001" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1363713244]
+[node name="SmShopFront01001" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1363713244]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -4)
 mesh = ExtResource("7_b81t2")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -184,7 +184,7 @@ metadata/building_generator_side = "front"
 metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 4
 
-[node name="SmWindow14005" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=183358078]
+[node name="SmWindow14005" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=183358078]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12, 0, -12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -199,7 +199,7 @@ metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14006" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1341043919]
+[node name="SmWindow14006" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1341043919]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 8, 0, -12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -214,7 +214,7 @@ metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14007" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1461784709]
+[node name="SmWindow14007" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1461784709]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, -12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -229,7 +229,7 @@ metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14008" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1932473988]
+[node name="SmWindow14008" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1932473988]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, -12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -244,7 +244,7 @@ metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14009" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=82165710]
+[node name="SmWindow14009" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=82165710]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0, -12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -259,7 +259,7 @@ metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14010" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1458998587]
+[node name="SmWindow14010" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1458998587]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -8, 0, -12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -274,7 +274,7 @@ metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14011" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=424096916]
+[node name="SmWindow14011" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=424096916]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -289,7 +289,7 @@ metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14012" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1011952638]
+[node name="SmWindow14012" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1011952638]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -8)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -304,7 +304,7 @@ metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14013" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1124610528]
+[node name="SmWindow14013" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1124610528]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -4)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -319,7 +319,7 @@ metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14014" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1682912362]
+[node name="SmWindow14014" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1682912362]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 0)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -334,7 +334,7 @@ metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14015" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1822187536]
+[node name="SmWindow14015" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1822187536]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 4)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -349,7 +349,7 @@ metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14016" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1734791894]
+[node name="SmWindow14016" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1734791894]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 8)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -364,7 +364,7 @@ metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14017" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=721384929]
+[node name="SmWindow14017" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=721384929]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -12, 0, 12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -379,7 +379,7 @@ metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14018" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=895380472]
+[node name="SmWindow14018" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=895380472]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8, 0, 12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -394,7 +394,7 @@ metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14019" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=1752910966]
+[node name="SmWindow14019" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=1752910966]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, 12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -409,7 +409,7 @@ metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14020" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=107022048]
+[node name="SmWindow14020" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=107022048]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -424,7 +424,7 @@ metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14021" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=930279818]
+[node name="SmWindow14021" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=930279818]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 4, 0, 12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -439,7 +439,7 @@ metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="SmWindow14022" type="MeshInstance3D" parent="Generated/Walls/Story01" unique_id=39898901]
+[node name="SmWindow14022" type="MeshInstance3D" parent="Building/Walls/Story01" unique_id=39898901]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 8, 0, 12)
 mesh = ExtResource("5_cgnt6")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -454,10 +454,10 @@ metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 2
 metadata/fb_window_surface = 3
 
-[node name="Story02" type="Node3D" parent="Generated/Walls" unique_id=774759253]
+[node name="Story02" type="Node3D" parent="Building/Walls" unique_id=774759253]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 
-[node name="SmPillar01Corner005" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1406844565]
+[node name="SmPillar01Corner005" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1406844565]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12, 0, 12)
 mesh = ExtResource("3_l0sgq")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -469,7 +469,7 @@ metadata/building_generator_side = "front_left"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmPillar01Corner006" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=68301722]
+[node name="SmPillar01Corner006" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=68301722]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 12, 0, -12)
 mesh = ExtResource("3_l0sgq")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -481,7 +481,7 @@ metadata/building_generator_side = "front_right"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmPillar01Corner007" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=448622862]
+[node name="SmPillar01Corner007" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=448622862]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -12, 0, -12)
 mesh = ExtResource("3_l0sgq")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -493,7 +493,7 @@ metadata/building_generator_side = "back_right"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmPillar01Corner008" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=970796044]
+[node name="SmPillar01Corner008" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=970796044]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 12)
 mesh = ExtResource("3_l0sgq")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -505,7 +505,7 @@ metadata/building_generator_side = "back_left"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmWindow05Half001" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1394598395]
+[node name="SmWindow05Half001" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1394598395]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -520,7 +520,7 @@ metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half002" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1974909699]
+[node name="SmWindow05Half002" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1974909699]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 10)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -535,7 +535,7 @@ metadata/building_generator_cell_start = 1
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half003" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1500613354]
+[node name="SmWindow05Half003" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1500613354]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 8)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -550,7 +550,7 @@ metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half004" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1461481488]
+[node name="SmWindow05Half004" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1461481488]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 6)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -565,7 +565,7 @@ metadata/building_generator_cell_start = 3
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half005" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=874525811]
+[node name="SmWindow05Half005" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=874525811]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 4)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -580,7 +580,7 @@ metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half006" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1135877785]
+[node name="SmWindow05Half006" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1135877785]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 2)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -595,7 +595,7 @@ metadata/building_generator_cell_start = 5
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half007" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=833029247]
+[node name="SmWindow05Half007" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=833029247]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 0)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -610,7 +610,7 @@ metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half008" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1744928262]
+[node name="SmWindow05Half008" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1744928262]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -2)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -625,7 +625,7 @@ metadata/building_generator_cell_start = 7
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half009" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=234709787]
+[node name="SmWindow05Half009" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=234709787]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -4)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -640,7 +640,7 @@ metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half010" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=372794795]
+[node name="SmWindow05Half010" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=372794795]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -6)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -655,7 +655,7 @@ metadata/building_generator_cell_start = 9
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half011" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=373181911]
+[node name="SmWindow05Half011" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=373181911]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -8)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -670,7 +670,7 @@ metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half012" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1373846257]
+[node name="SmWindow05Half012" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1373846257]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -10)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -685,7 +685,7 @@ metadata/building_generator_cell_start = 11
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half013" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1756950763]
+[node name="SmWindow05Half013" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1756950763]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -700,7 +700,7 @@ metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half014" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1183671851]
+[node name="SmWindow05Half014" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1183671851]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 10, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -715,7 +715,7 @@ metadata/building_generator_cell_start = 1
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half015" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=2096880455]
+[node name="SmWindow05Half015" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=2096880455]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 8, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -730,7 +730,7 @@ metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half016" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1833370292]
+[node name="SmWindow05Half016" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1833370292]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 6, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -745,7 +745,7 @@ metadata/building_generator_cell_start = 3
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half017" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=2119591909]
+[node name="SmWindow05Half017" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=2119591909]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -760,7 +760,7 @@ metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half018" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1374469511]
+[node name="SmWindow05Half018" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1374469511]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 2, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -775,7 +775,7 @@ metadata/building_generator_cell_start = 5
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half019" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1313010403]
+[node name="SmWindow05Half019" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1313010403]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -790,7 +790,7 @@ metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half020" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=559930525]
+[node name="SmWindow05Half020" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=559930525]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -805,7 +805,7 @@ metadata/building_generator_cell_start = 7
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half021" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=737860492]
+[node name="SmWindow05Half021" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=737860492]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -820,7 +820,7 @@ metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half022" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1083905643]
+[node name="SmWindow05Half022" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1083905643]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -6, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -835,7 +835,7 @@ metadata/building_generator_cell_start = 9
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half023" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1018106403]
+[node name="SmWindow05Half023" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1018106403]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -8, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -850,7 +850,7 @@ metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half024" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=592100756]
+[node name="SmWindow05Half024" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=592100756]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -10, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -865,7 +865,7 @@ metadata/building_generator_cell_start = 11
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half025" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=180999663]
+[node name="SmWindow05Half025" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=180999663]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -880,7 +880,7 @@ metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half026" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=87173928]
+[node name="SmWindow05Half026" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=87173928]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -10)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -895,7 +895,7 @@ metadata/building_generator_cell_start = 1
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half027" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1677678379]
+[node name="SmWindow05Half027" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1677678379]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -8)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -910,7 +910,7 @@ metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half028" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1038579096]
+[node name="SmWindow05Half028" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1038579096]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -6)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -925,7 +925,7 @@ metadata/building_generator_cell_start = 3
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half029" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1583172010]
+[node name="SmWindow05Half029" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1583172010]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -4)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -940,7 +940,7 @@ metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half030" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=227243861]
+[node name="SmWindow05Half030" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=227243861]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -2)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -955,7 +955,7 @@ metadata/building_generator_cell_start = 5
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half031" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=912206189]
+[node name="SmWindow05Half031" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=912206189]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 0)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -970,7 +970,7 @@ metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half032" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=519013666]
+[node name="SmWindow05Half032" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=519013666]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 2)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -985,7 +985,7 @@ metadata/building_generator_cell_start = 7
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half033" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1753879706]
+[node name="SmWindow05Half033" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1753879706]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 4)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1000,7 +1000,7 @@ metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half034" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1670673155]
+[node name="SmWindow05Half034" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1670673155]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 6)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1015,7 +1015,7 @@ metadata/building_generator_cell_start = 9
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half035" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=102823106]
+[node name="SmWindow05Half035" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=102823106]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 8)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1030,7 +1030,7 @@ metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half036" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1703555391]
+[node name="SmWindow05Half036" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1703555391]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 10)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1045,7 +1045,7 @@ metadata/building_generator_cell_start = 11
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half037" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1217165290]
+[node name="SmWindow05Half037" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1217165290]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -12, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1060,7 +1060,7 @@ metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half038" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=831343414]
+[node name="SmWindow05Half038" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=831343414]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -10, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1075,7 +1075,7 @@ metadata/building_generator_cell_start = 1
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half039" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1094245956]
+[node name="SmWindow05Half039" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1094245956]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1090,7 +1090,7 @@ metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half040" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=920060383]
+[node name="SmWindow05Half040" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=920060383]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -6, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1105,7 +1105,7 @@ metadata/building_generator_cell_start = 3
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half041" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1625347134]
+[node name="SmWindow05Half041" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1625347134]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1120,7 +1120,7 @@ metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half042" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=550448908]
+[node name="SmWindow05Half042" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=550448908]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -2, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1135,7 +1135,7 @@ metadata/building_generator_cell_start = 5
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half043" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1432177187]
+[node name="SmWindow05Half043" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1432177187]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1150,7 +1150,7 @@ metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half044" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=193963306]
+[node name="SmWindow05Half044" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=193963306]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1165,7 +1165,7 @@ metadata/building_generator_cell_start = 7
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half045" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1819844562]
+[node name="SmWindow05Half045" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1819844562]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 4, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1180,7 +1180,7 @@ metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half046" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1398471109]
+[node name="SmWindow05Half046" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1398471109]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 6, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1195,7 +1195,7 @@ metadata/building_generator_cell_start = 9
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half047" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1451058522]
+[node name="SmWindow05Half047" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1451058522]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 8, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1210,7 +1210,7 @@ metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="SmWindow05Half048" type="MeshInstance3D" parent="Generated/Walls/Story02" unique_id=1365213897]
+[node name="SmWindow05Half048" type="MeshInstance3D" parent="Building/Walls/Story02" unique_id=1365213897]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 10, 0, 12)
 mesh = ExtResource("8_3anlo")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1225,10 +1225,10 @@ metadata/building_generator_cell_start = 11
 metadata/building_generator_cell_span = 1
 metadata/fb_window_surface = 3
 
-[node name="AtticCap" type="Node3D" parent="Generated/Walls" unique_id=529501429]
+[node name="AtticCap" type="Node3D" parent="Building/Walls" unique_id=529501429]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 0)
 
-[node name="SmWallAttic02Corner001" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=1378500260]
+[node name="SmWallAttic02Corner001" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=1378500260]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12, 0, 12)
 mesh = ExtResource("9_xpgtb")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1240,7 +1240,7 @@ metadata/building_generator_side = "front_left"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmWallAttic02Corner002" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=109974433]
+[node name="SmWallAttic02Corner002" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=109974433]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 12, 0, -12)
 mesh = ExtResource("9_xpgtb")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1252,7 +1252,7 @@ metadata/building_generator_side = "front_right"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmWallAttic02Corner003" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=1764801660]
+[node name="SmWallAttic02Corner003" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=1764801660]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -12, 0, -12)
 mesh = ExtResource("9_xpgtb")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1264,7 +1264,7 @@ metadata/building_generator_side = "back_right"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmWallAttic02Corner004" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=2133248230]
+[node name="SmWallAttic02Corner004" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=2133248230]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 12)
 mesh = ExtResource("9_xpgtb")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1276,7 +1276,7 @@ metadata/building_generator_side = "back_left"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmWallAttic02001" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=926934998]
+[node name="SmWallAttic02001" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=926934998]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1288,7 +1288,7 @@ metadata/building_generator_side = "front"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02002" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=2113817545]
+[node name="SmWallAttic02002" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=2113817545]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 8)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1300,7 +1300,7 @@ metadata/building_generator_side = "front"
 metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02003" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=548008414]
+[node name="SmWallAttic02003" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=548008414]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 4)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1312,7 +1312,7 @@ metadata/building_generator_side = "front"
 metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02004" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=250416742]
+[node name="SmWallAttic02004" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=250416742]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 0)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1324,7 +1324,7 @@ metadata/building_generator_side = "front"
 metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02005" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=491723667]
+[node name="SmWallAttic02005" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=491723667]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -4)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1336,7 +1336,7 @@ metadata/building_generator_side = "front"
 metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02006" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=703313865]
+[node name="SmWallAttic02006" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=703313865]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -8)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1348,7 +1348,7 @@ metadata/building_generator_side = "front"
 metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02007" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=511707632]
+[node name="SmWallAttic02007" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=511707632]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12, 0, -12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1360,7 +1360,7 @@ metadata/building_generator_side = "right"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02008" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=600024991]
+[node name="SmWallAttic02008" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=600024991]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 8, 0, -12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1372,7 +1372,7 @@ metadata/building_generator_side = "right"
 metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02009" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=2099508017]
+[node name="SmWallAttic02009" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=2099508017]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 0, -12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1384,7 +1384,7 @@ metadata/building_generator_side = "right"
 metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02010" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=2041463463]
+[node name="SmWallAttic02010" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=2041463463]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, -12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1396,7 +1396,7 @@ metadata/building_generator_side = "right"
 metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02011" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=1692218145]
+[node name="SmWallAttic02011" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=1692218145]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0, -12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1408,7 +1408,7 @@ metadata/building_generator_side = "right"
 metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02012" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=718364585]
+[node name="SmWallAttic02012" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=718364585]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -8, 0, -12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1420,7 +1420,7 @@ metadata/building_generator_side = "right"
 metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02013" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=175173310]
+[node name="SmWallAttic02013" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=175173310]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1432,7 +1432,7 @@ metadata/building_generator_side = "back"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02014" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=773816172]
+[node name="SmWallAttic02014" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=773816172]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -8)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1444,7 +1444,7 @@ metadata/building_generator_side = "back"
 metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02015" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=855466620]
+[node name="SmWallAttic02015" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=855466620]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, -4)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1456,7 +1456,7 @@ metadata/building_generator_side = "back"
 metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02016" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=1178347300]
+[node name="SmWallAttic02016" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=1178347300]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 0)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1468,7 +1468,7 @@ metadata/building_generator_side = "back"
 metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02017" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=200702198]
+[node name="SmWallAttic02017" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=200702198]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 4)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1480,7 +1480,7 @@ metadata/building_generator_side = "back"
 metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02018" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=1139100877]
+[node name="SmWallAttic02018" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=1139100877]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 0, 8)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1492,7 +1492,7 @@ metadata/building_generator_side = "back"
 metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02019" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=702443694]
+[node name="SmWallAttic02019" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=702443694]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -12, 0, 12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1504,7 +1504,7 @@ metadata/building_generator_side = "left"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02020" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=375200139]
+[node name="SmWallAttic02020" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=375200139]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8, 0, 12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1516,7 +1516,7 @@ metadata/building_generator_side = "left"
 metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02021" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=305585556]
+[node name="SmWallAttic02021" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=305585556]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 0, 12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1528,7 +1528,7 @@ metadata/building_generator_side = "left"
 metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02022" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=1091378065]
+[node name="SmWallAttic02022" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=1091378065]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1540,7 +1540,7 @@ metadata/building_generator_side = "left"
 metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02023" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=225128715]
+[node name="SmWallAttic02023" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=225128715]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 4, 0, 12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1552,7 +1552,7 @@ metadata/building_generator_side = "left"
 metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 2
 
-[node name="SmWallAttic02024" type="MeshInstance3D" parent="Generated/Walls/AtticCap" unique_id=222282720]
+[node name="SmWallAttic02024" type="MeshInstance3D" parent="Building/Walls/AtticCap" unique_id=222282720]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 8, 0, 12)
 mesh = ExtResource("10_tv62u")
 surface_material_override/0 = SubResource("StandardMaterial3D_3uerd")
@@ -1564,9 +1564,9 @@ metadata/building_generator_side = "left"
 metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 2
 
-[node name="Floor" type="Node3D" parent="Generated" unique_id=1007851401]
+[node name="Floor" type="Node3D" parent="Building" unique_id=1007851401]
 
-[node name="SmFloor01001" type="MeshInstance3D" parent="Generated/Floor" unique_id=134209963]
+[node name="SmFloor01001" type="MeshInstance3D" parent="Building/Floor" unique_id=134209963]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.1, -10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1577,7 +1577,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01002" type="MeshInstance3D" parent="Generated/Floor" unique_id=1502247740]
+[node name="SmFloor01002" type="MeshInstance3D" parent="Building/Floor" unique_id=1502247740]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.1, -6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1588,7 +1588,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01003" type="MeshInstance3D" parent="Generated/Floor" unique_id=1157415547]
+[node name="SmFloor01003" type="MeshInstance3D" parent="Building/Floor" unique_id=1157415547]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.1, -2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1599,7 +1599,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 12
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01004" type="MeshInstance3D" parent="Generated/Floor" unique_id=595850060]
+[node name="SmFloor01004" type="MeshInstance3D" parent="Building/Floor" unique_id=595850060]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.1, 2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1610,7 +1610,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 18
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01005" type="MeshInstance3D" parent="Generated/Floor" unique_id=1236348340]
+[node name="SmFloor01005" type="MeshInstance3D" parent="Building/Floor" unique_id=1236348340]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.1, 6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1621,7 +1621,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 24
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01006" type="MeshInstance3D" parent="Generated/Floor" unique_id=234931000]
+[node name="SmFloor01006" type="MeshInstance3D" parent="Building/Floor" unique_id=234931000]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.1, 10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1632,7 +1632,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 30
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01007" type="MeshInstance3D" parent="Generated/Floor" unique_id=2076722436]
+[node name="SmFloor01007" type="MeshInstance3D" parent="Building/Floor" unique_id=2076722436]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.1, -10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1643,7 +1643,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 1
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01008" type="MeshInstance3D" parent="Generated/Floor" unique_id=597125549]
+[node name="SmFloor01008" type="MeshInstance3D" parent="Building/Floor" unique_id=597125549]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.1, -6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1654,7 +1654,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 7
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01009" type="MeshInstance3D" parent="Generated/Floor" unique_id=881520602]
+[node name="SmFloor01009" type="MeshInstance3D" parent="Building/Floor" unique_id=881520602]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.1, -2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1665,7 +1665,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 13
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01010" type="MeshInstance3D" parent="Generated/Floor" unique_id=690491399]
+[node name="SmFloor01010" type="MeshInstance3D" parent="Building/Floor" unique_id=690491399]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.1, 2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1676,7 +1676,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 19
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01011" type="MeshInstance3D" parent="Generated/Floor" unique_id=1770192954]
+[node name="SmFloor01011" type="MeshInstance3D" parent="Building/Floor" unique_id=1770192954]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.1, 6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1687,7 +1687,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 25
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01012" type="MeshInstance3D" parent="Generated/Floor" unique_id=624621599]
+[node name="SmFloor01012" type="MeshInstance3D" parent="Building/Floor" unique_id=624621599]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.1, 10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1698,7 +1698,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 31
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01013" type="MeshInstance3D" parent="Generated/Floor" unique_id=2079571787]
+[node name="SmFloor01013" type="MeshInstance3D" parent="Building/Floor" unique_id=2079571787]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, -10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1709,7 +1709,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01014" type="MeshInstance3D" parent="Generated/Floor" unique_id=1877851882]
+[node name="SmFloor01014" type="MeshInstance3D" parent="Building/Floor" unique_id=1877851882]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, -6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1720,7 +1720,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01015" type="MeshInstance3D" parent="Generated/Floor" unique_id=1461224019]
+[node name="SmFloor01015" type="MeshInstance3D" parent="Building/Floor" unique_id=1461224019]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, -2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1731,7 +1731,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 14
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01016" type="MeshInstance3D" parent="Generated/Floor" unique_id=1945597659]
+[node name="SmFloor01016" type="MeshInstance3D" parent="Building/Floor" unique_id=1945597659]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, 2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1742,7 +1742,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 20
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01017" type="MeshInstance3D" parent="Generated/Floor" unique_id=693441830]
+[node name="SmFloor01017" type="MeshInstance3D" parent="Building/Floor" unique_id=693441830]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, 6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1753,7 +1753,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 26
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01018" type="MeshInstance3D" parent="Generated/Floor" unique_id=1129974044]
+[node name="SmFloor01018" type="MeshInstance3D" parent="Building/Floor" unique_id=1129974044]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, 10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1764,7 +1764,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 32
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01019" type="MeshInstance3D" parent="Generated/Floor" unique_id=1239999975]
+[node name="SmFloor01019" type="MeshInstance3D" parent="Building/Floor" unique_id=1239999975]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, -10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1775,7 +1775,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 3
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01020" type="MeshInstance3D" parent="Generated/Floor" unique_id=1643371649]
+[node name="SmFloor01020" type="MeshInstance3D" parent="Building/Floor" unique_id=1643371649]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, -6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1786,7 +1786,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 9
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01021" type="MeshInstance3D" parent="Generated/Floor" unique_id=252033668]
+[node name="SmFloor01021" type="MeshInstance3D" parent="Building/Floor" unique_id=252033668]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, -2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1797,7 +1797,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 15
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01022" type="MeshInstance3D" parent="Generated/Floor" unique_id=1904715763]
+[node name="SmFloor01022" type="MeshInstance3D" parent="Building/Floor" unique_id=1904715763]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, 2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1808,7 +1808,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 21
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01023" type="MeshInstance3D" parent="Generated/Floor" unique_id=1091709543]
+[node name="SmFloor01023" type="MeshInstance3D" parent="Building/Floor" unique_id=1091709543]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, 6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1819,7 +1819,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 27
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01024" type="MeshInstance3D" parent="Generated/Floor" unique_id=1328372736]
+[node name="SmFloor01024" type="MeshInstance3D" parent="Building/Floor" unique_id=1328372736]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, 10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1830,7 +1830,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 33
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01025" type="MeshInstance3D" parent="Generated/Floor" unique_id=1956768423]
+[node name="SmFloor01025" type="MeshInstance3D" parent="Building/Floor" unique_id=1956768423]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.1, -10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1841,7 +1841,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01026" type="MeshInstance3D" parent="Generated/Floor" unique_id=2047511833]
+[node name="SmFloor01026" type="MeshInstance3D" parent="Building/Floor" unique_id=2047511833]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.1, -6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1852,7 +1852,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01027" type="MeshInstance3D" parent="Generated/Floor" unique_id=373549402]
+[node name="SmFloor01027" type="MeshInstance3D" parent="Building/Floor" unique_id=373549402]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.1, -2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1863,7 +1863,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 16
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01028" type="MeshInstance3D" parent="Generated/Floor" unique_id=870864618]
+[node name="SmFloor01028" type="MeshInstance3D" parent="Building/Floor" unique_id=870864618]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.1, 2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1874,7 +1874,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 22
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01029" type="MeshInstance3D" parent="Generated/Floor" unique_id=609810336]
+[node name="SmFloor01029" type="MeshInstance3D" parent="Building/Floor" unique_id=609810336]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.1, 6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1885,7 +1885,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 28
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01030" type="MeshInstance3D" parent="Generated/Floor" unique_id=1967209406]
+[node name="SmFloor01030" type="MeshInstance3D" parent="Building/Floor" unique_id=1967209406]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.1, 10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1896,7 +1896,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 34
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01031" type="MeshInstance3D" parent="Generated/Floor" unique_id=1010447741]
+[node name="SmFloor01031" type="MeshInstance3D" parent="Building/Floor" unique_id=1010447741]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.1, -10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1907,7 +1907,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 5
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01032" type="MeshInstance3D" parent="Generated/Floor" unique_id=1252735226]
+[node name="SmFloor01032" type="MeshInstance3D" parent="Building/Floor" unique_id=1252735226]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.1, -6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1918,7 +1918,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 11
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01033" type="MeshInstance3D" parent="Generated/Floor" unique_id=171731234]
+[node name="SmFloor01033" type="MeshInstance3D" parent="Building/Floor" unique_id=171731234]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.1, -2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1929,7 +1929,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 17
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01034" type="MeshInstance3D" parent="Generated/Floor" unique_id=811033063]
+[node name="SmFloor01034" type="MeshInstance3D" parent="Building/Floor" unique_id=811033063]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.1, 2)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1940,7 +1940,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 23
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01035" type="MeshInstance3D" parent="Generated/Floor" unique_id=310358927]
+[node name="SmFloor01035" type="MeshInstance3D" parent="Building/Floor" unique_id=310358927]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.1, 6)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1951,7 +1951,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 29
 metadata/building_generator_cell_span = 1
 
-[node name="SmFloor01036" type="MeshInstance3D" parent="Generated/Floor" unique_id=397319624]
+[node name="SmFloor01036" type="MeshInstance3D" parent="Building/Floor" unique_id=397319624]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.1, 10)
 mesh = ExtResource("11_lbsoo")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_floor_01.glb"
@@ -1962,9 +1962,9 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 35
 metadata/building_generator_cell_span = 1
 
-[node name="Roof" type="Node3D" parent="Generated" unique_id=363993089]
+[node name="Roof" type="Node3D" parent="Building" unique_id=363993089]
 
-[node name="SmRoof01001" type="MeshInstance3D" parent="Generated/Roof" unique_id=991185929]
+[node name="SmRoof01001" type="MeshInstance3D" parent="Building/Roof" unique_id=991185929]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 6, -10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -1975,7 +1975,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01002" type="MeshInstance3D" parent="Generated/Roof" unique_id=1112453546]
+[node name="SmRoof01002" type="MeshInstance3D" parent="Building/Roof" unique_id=1112453546]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 6, -6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -1986,7 +1986,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 6
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01003" type="MeshInstance3D" parent="Generated/Roof" unique_id=114114008]
+[node name="SmRoof01003" type="MeshInstance3D" parent="Building/Roof" unique_id=114114008]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 6, -2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -1997,7 +1997,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 12
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01004" type="MeshInstance3D" parent="Generated/Roof" unique_id=1668845112]
+[node name="SmRoof01004" type="MeshInstance3D" parent="Building/Roof" unique_id=1668845112]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 6, 2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2008,7 +2008,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 18
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01005" type="MeshInstance3D" parent="Generated/Roof" unique_id=314711645]
+[node name="SmRoof01005" type="MeshInstance3D" parent="Building/Roof" unique_id=314711645]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 6, 6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2019,7 +2019,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 24
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01006" type="MeshInstance3D" parent="Generated/Roof" unique_id=17165840]
+[node name="SmRoof01006" type="MeshInstance3D" parent="Building/Roof" unique_id=17165840]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 6, 10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2030,7 +2030,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 30
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01007" type="MeshInstance3D" parent="Generated/Roof" unique_id=147356997]
+[node name="SmRoof01007" type="MeshInstance3D" parent="Building/Roof" unique_id=147356997]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 6, -10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2041,7 +2041,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 1
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01008" type="MeshInstance3D" parent="Generated/Roof" unique_id=1581975921]
+[node name="SmRoof01008" type="MeshInstance3D" parent="Building/Roof" unique_id=1581975921]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 6, -6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2052,7 +2052,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 7
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01009" type="MeshInstance3D" parent="Generated/Roof" unique_id=1276816603]
+[node name="SmRoof01009" type="MeshInstance3D" parent="Building/Roof" unique_id=1276816603]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 6, -2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2063,7 +2063,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 13
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01010" type="MeshInstance3D" parent="Generated/Roof" unique_id=986545478]
+[node name="SmRoof01010" type="MeshInstance3D" parent="Building/Roof" unique_id=986545478]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 6, 2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2074,7 +2074,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 19
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01011" type="MeshInstance3D" parent="Generated/Roof" unique_id=1112629743]
+[node name="SmRoof01011" type="MeshInstance3D" parent="Building/Roof" unique_id=1112629743]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 6, 6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2085,7 +2085,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 25
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01012" type="MeshInstance3D" parent="Generated/Roof" unique_id=474025188]
+[node name="SmRoof01012" type="MeshInstance3D" parent="Building/Roof" unique_id=474025188]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 6, 10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2096,7 +2096,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 31
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01013" type="MeshInstance3D" parent="Generated/Roof" unique_id=614598294]
+[node name="SmRoof01013" type="MeshInstance3D" parent="Building/Roof" unique_id=614598294]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, -10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2107,7 +2107,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 2
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01014" type="MeshInstance3D" parent="Generated/Roof" unique_id=2124659048]
+[node name="SmRoof01014" type="MeshInstance3D" parent="Building/Roof" unique_id=2124659048]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, -6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2118,7 +2118,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01015" type="MeshInstance3D" parent="Generated/Roof" unique_id=2033758564]
+[node name="SmRoof01015" type="MeshInstance3D" parent="Building/Roof" unique_id=2033758564]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, -2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2129,7 +2129,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 14
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01016" type="MeshInstance3D" parent="Generated/Roof" unique_id=913887971]
+[node name="SmRoof01016" type="MeshInstance3D" parent="Building/Roof" unique_id=913887971]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, 2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2140,7 +2140,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 20
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01017" type="MeshInstance3D" parent="Generated/Roof" unique_id=405287859]
+[node name="SmRoof01017" type="MeshInstance3D" parent="Building/Roof" unique_id=405287859]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, 6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2151,7 +2151,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 26
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01018" type="MeshInstance3D" parent="Generated/Roof" unique_id=1043255372]
+[node name="SmRoof01018" type="MeshInstance3D" parent="Building/Roof" unique_id=1043255372]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, 10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2162,7 +2162,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 32
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01019" type="MeshInstance3D" parent="Generated/Roof" unique_id=363957636]
+[node name="SmRoof01019" type="MeshInstance3D" parent="Building/Roof" unique_id=363957636]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, -10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2173,7 +2173,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 3
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01020" type="MeshInstance3D" parent="Generated/Roof" unique_id=27323911]
+[node name="SmRoof01020" type="MeshInstance3D" parent="Building/Roof" unique_id=27323911]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, -6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2184,7 +2184,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 9
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01021" type="MeshInstance3D" parent="Generated/Roof" unique_id=1674615621]
+[node name="SmRoof01021" type="MeshInstance3D" parent="Building/Roof" unique_id=1674615621]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, -2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2195,7 +2195,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 15
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01022" type="MeshInstance3D" parent="Generated/Roof" unique_id=1519104317]
+[node name="SmRoof01022" type="MeshInstance3D" parent="Building/Roof" unique_id=1519104317]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, 2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2206,7 +2206,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 21
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01023" type="MeshInstance3D" parent="Generated/Roof" unique_id=951530312]
+[node name="SmRoof01023" type="MeshInstance3D" parent="Building/Roof" unique_id=951530312]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, 6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2217,7 +2217,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 27
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01024" type="MeshInstance3D" parent="Generated/Roof" unique_id=1516281124]
+[node name="SmRoof01024" type="MeshInstance3D" parent="Building/Roof" unique_id=1516281124]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, 10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2228,7 +2228,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 33
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01025" type="MeshInstance3D" parent="Generated/Roof" unique_id=772455265]
+[node name="SmRoof01025" type="MeshInstance3D" parent="Building/Roof" unique_id=772455265]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 6, -10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2239,7 +2239,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01026" type="MeshInstance3D" parent="Generated/Roof" unique_id=1402509878]
+[node name="SmRoof01026" type="MeshInstance3D" parent="Building/Roof" unique_id=1402509878]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 6, -6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2250,7 +2250,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 10
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01027" type="MeshInstance3D" parent="Generated/Roof" unique_id=841654334]
+[node name="SmRoof01027" type="MeshInstance3D" parent="Building/Roof" unique_id=841654334]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 6, -2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2261,7 +2261,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 16
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01028" type="MeshInstance3D" parent="Generated/Roof" unique_id=566604218]
+[node name="SmRoof01028" type="MeshInstance3D" parent="Building/Roof" unique_id=566604218]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 6, 2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2272,7 +2272,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 22
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01029" type="MeshInstance3D" parent="Generated/Roof" unique_id=1489560557]
+[node name="SmRoof01029" type="MeshInstance3D" parent="Building/Roof" unique_id=1489560557]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 6, 6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2283,7 +2283,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 28
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01030" type="MeshInstance3D" parent="Generated/Roof" unique_id=21692753]
+[node name="SmRoof01030" type="MeshInstance3D" parent="Building/Roof" unique_id=21692753]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 6, 10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2294,7 +2294,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 34
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01031" type="MeshInstance3D" parent="Generated/Roof" unique_id=618299942]
+[node name="SmRoof01031" type="MeshInstance3D" parent="Building/Roof" unique_id=618299942]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 6, -10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2305,7 +2305,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 5
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01032" type="MeshInstance3D" parent="Generated/Roof" unique_id=1716918643]
+[node name="SmRoof01032" type="MeshInstance3D" parent="Building/Roof" unique_id=1716918643]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 6, -6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2316,7 +2316,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 11
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01033" type="MeshInstance3D" parent="Generated/Roof" unique_id=1712767521]
+[node name="SmRoof01033" type="MeshInstance3D" parent="Building/Roof" unique_id=1712767521]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 6, -2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2327,7 +2327,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 17
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01034" type="MeshInstance3D" parent="Generated/Roof" unique_id=1440358370]
+[node name="SmRoof01034" type="MeshInstance3D" parent="Building/Roof" unique_id=1440358370]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 6, 2)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2338,7 +2338,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 23
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01035" type="MeshInstance3D" parent="Generated/Roof" unique_id=1532429726]
+[node name="SmRoof01035" type="MeshInstance3D" parent="Building/Roof" unique_id=1532429726]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 6, 6)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2349,7 +2349,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 29
 metadata/building_generator_cell_span = 1
 
-[node name="SmRoof01036" type="MeshInstance3D" parent="Generated/Roof" unique_id=1274936588]
+[node name="SmRoof01036" type="MeshInstance3D" parent="Building/Roof" unique_id=1274936588]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 6, 10)
 mesh = ExtResource("12_6csnj")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_roof_01.glb"
@@ -2360,7 +2360,7 @@ metadata/building_generator_side = "interior"
 metadata/building_generator_cell_start = 35
 metadata/building_generator_cell_span = 1
 
-[node name="SmCornice01001" type="MeshInstance3D" parent="Generated/Roof" unique_id=2061009623]
+[node name="SmCornice01001" type="MeshInstance3D" parent="Building/Roof" unique_id=2061009623]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 6, 12)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2371,7 +2371,7 @@ metadata/building_generator_side = "front"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01002" type="MeshInstance3D" parent="Generated/Roof" unique_id=1441651202]
+[node name="SmCornice01002" type="MeshInstance3D" parent="Building/Roof" unique_id=1441651202]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 6, 4)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2382,7 +2382,7 @@ metadata/building_generator_side = "front"
 metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01003" type="MeshInstance3D" parent="Generated/Roof" unique_id=855022871]
+[node name="SmCornice01003" type="MeshInstance3D" parent="Building/Roof" unique_id=855022871]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 6, -4)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2393,7 +2393,7 @@ metadata/building_generator_side = "front"
 metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01004" type="MeshInstance3D" parent="Generated/Roof" unique_id=2135732511]
+[node name="SmCornice01004" type="MeshInstance3D" parent="Building/Roof" unique_id=2135732511]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 12, 6, -12)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2404,7 +2404,7 @@ metadata/building_generator_side = "right"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01005" type="MeshInstance3D" parent="Generated/Roof" unique_id=231813992]
+[node name="SmCornice01005" type="MeshInstance3D" parent="Building/Roof" unique_id=231813992]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4, 6, -12)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2415,7 +2415,7 @@ metadata/building_generator_side = "right"
 metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01006" type="MeshInstance3D" parent="Generated/Roof" unique_id=396535917]
+[node name="SmCornice01006" type="MeshInstance3D" parent="Building/Roof" unique_id=396535917]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 6, -12)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2426,7 +2426,7 @@ metadata/building_generator_side = "right"
 metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01007" type="MeshInstance3D" parent="Generated/Roof" unique_id=465827102]
+[node name="SmCornice01007" type="MeshInstance3D" parent="Building/Roof" unique_id=465827102]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 6, -12)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2437,7 +2437,7 @@ metadata/building_generator_side = "back"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01008" type="MeshInstance3D" parent="Generated/Roof" unique_id=2057874709]
+[node name="SmCornice01008" type="MeshInstance3D" parent="Building/Roof" unique_id=2057874709]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 6, -4)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2448,7 +2448,7 @@ metadata/building_generator_side = "back"
 metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01009" type="MeshInstance3D" parent="Generated/Roof" unique_id=1875138901]
+[node name="SmCornice01009" type="MeshInstance3D" parent="Building/Roof" unique_id=1875138901]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 6, 4)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2459,7 +2459,7 @@ metadata/building_generator_side = "back"
 metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01010" type="MeshInstance3D" parent="Generated/Roof" unique_id=617475928]
+[node name="SmCornice01010" type="MeshInstance3D" parent="Building/Roof" unique_id=617475928]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -12, 6, 12)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2470,7 +2470,7 @@ metadata/building_generator_side = "left"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01011" type="MeshInstance3D" parent="Generated/Roof" unique_id=1109817311]
+[node name="SmCornice01011" type="MeshInstance3D" parent="Building/Roof" unique_id=1109817311]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4, 6, 12)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2481,7 +2481,7 @@ metadata/building_generator_side = "left"
 metadata/building_generator_cell_start = 4
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01012" type="MeshInstance3D" parent="Generated/Roof" unique_id=1151163209]
+[node name="SmCornice01012" type="MeshInstance3D" parent="Building/Roof" unique_id=1151163209]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 4, 6, 12)
 mesh = ExtResource("13_qnfnc")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01.glb"
@@ -2492,7 +2492,7 @@ metadata/building_generator_side = "left"
 metadata/building_generator_cell_start = 8
 metadata/building_generator_cell_span = 4
 
-[node name="SmCornice01Corner001" type="MeshInstance3D" parent="Generated/Roof" unique_id=1102717780]
+[node name="SmCornice01Corner001" type="MeshInstance3D" parent="Building/Roof" unique_id=1102717780]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 12, 6, 12)
 mesh = ExtResource("14_4stlx")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01_corner.glb"
@@ -2503,7 +2503,7 @@ metadata/building_generator_side = "front_left"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmCornice01Corner002" type="MeshInstance3D" parent="Generated/Roof" unique_id=1057571134]
+[node name="SmCornice01Corner002" type="MeshInstance3D" parent="Building/Roof" unique_id=1057571134]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 6, -12)
 mesh = ExtResource("14_4stlx")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01_corner.glb"
@@ -2514,7 +2514,7 @@ metadata/building_generator_side = "front_right"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmCornice01Corner003" type="MeshInstance3D" parent="Generated/Roof" unique_id=178321789]
+[node name="SmCornice01Corner003" type="MeshInstance3D" parent="Building/Roof" unique_id=178321789]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12, 6, -12)
 mesh = ExtResource("14_4stlx")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01_corner.glb"
@@ -2525,7 +2525,7 @@ metadata/building_generator_side = "back_right"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="SmCornice01Corner004" type="MeshInstance3D" parent="Generated/Roof" unique_id=2072359614]
+[node name="SmCornice01Corner004" type="MeshInstance3D" parent="Building/Roof" unique_id=2072359614]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -12, 6, 12)
 mesh = ExtResource("14_4stlx")
 metadata/building_generator_source = "res://Assets/MapStuff/Meshs/BuildingTileset/SM_cornice_01_corner.glb"
@@ -2536,15 +2536,15 @@ metadata/building_generator_side = "back_left"
 metadata/building_generator_cell_start = 0
 metadata/building_generator_cell_span = 0
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Generated" unique_id=2142896335]
+[node name="StaticBody3D" type="StaticBody3D" parent="Building" unique_id=2142896335]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Generated/StaticBody3D" unique_id=927906792]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Building/StaticBody3D" unique_id=927906792]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 shape = SubResource("BoxShape3D_4x4i2")
 
-[node name="Props" type="Node3D" parent="Generated" unique_id=1128133179]
+[node name="Props" type="Node3D" parent="Building" unique_id=1128133179]
 
-[node name="BuildingWindowMaterials" type="Node" parent="Generated" unique_id=1460079355]
+[node name="BuildingWindowMaterials" type="Node" parent="Building" unique_id=1460079355]
 script = ExtResource("16_x10vx")
 window_off_material = ExtResource("6_k2eqf")
 window_on_material = ExtResource("17_soat4")

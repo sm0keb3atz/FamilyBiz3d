@@ -1,7 +1,10 @@
 [gd_scene format=3 uid="uid://8mjktvp5wvk1"]
 
 [ext_resource type="PackedScene" uid="uid://c0eipv3r5ufeg" path="res://Scenes/Maps/RoadPieces/RoadStraight.tscn" id="1_axwq7"]
+[ext_resource type="ArrayMesh" uid="uid://cdpm0qxroyvfk" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_01.glb" id="2_chnuo"]
+[ext_resource type="ArrayMesh" uid="uid://bskyinaat4ttr" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01.glb" id="3_5ix6k"]
 [ext_resource type="PackedScene" uid="uid://dr3oh2pyyibn5" path="res://Scenes/Maps/RoadPieces/EdgeIntersection.tscn" id="3_ylr7p"]
+[ext_resource type="ArrayMesh" uid="uid://rx4v88ha1ltc" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_corner.glb" id="4_4bple"]
 [ext_resource type="ArrayMesh" uid="uid://l4lon2ffssug" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01.glb" id="4_7b27w"]
 [ext_resource type="ArrayMesh" uid="uid://t8oac28wc7b4" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01_corner.glb" id="5_nwwl1"]
 [ext_resource type="ArrayMesh" uid="uid://dt4uhxypni1" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_grass_00.glb" id="6_sxkrs"]
@@ -10,18 +13,23 @@
 [ext_resource type="PackedScene" uid="uid://dtsnn7u32lhtp" path="res://Scenes/Maps/Buildings/CarDealership.tscn" id="8_nwwl1"]
 [ext_resource type="ArrayMesh" uid="uid://ci4i6klxu7bk6" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_00.glb" id="9_y0wen"]
 [ext_resource type="ArrayMesh" uid="uid://cvm70cq0cblw8" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_parkingSpot_01.glb" id="10_b7pm3"]
-[ext_resource type="PackedScene" uid="uid://betsd85gll2pd" path="res://Assets/MapStuff/Meshs/StreetProps/SM_fence_101.gltf" id="10_pr4m1"]
-[ext_resource type="PackedScene" uid="uid://ve66pu2nyaxx" path="res://Assets/MapStuff/Meshs/StreetProps/SM_fence_101end.gltf" id="11_byamk"]
 [ext_resource type="PackedScene" uid="uid://t5woerh4sbbq" path="res://Scenes/Maps/Buildings/building_6.tscn" id="11_vix6h"]
+[ext_resource type="ArrayMesh" uid="uid://birrbbd3d8811" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_02.glb" id="13_4bple"]
 [ext_resource type="PackedScene" uid="uid://ck8gmw0ycdiqe" path="res://Scenes/Maps/Buildings/building_5.tscn" id="13_byamk"]
+[ext_resource type="Texture2D" uid="uid://blswb5nay6xce" path="res://Assets/MapStuff/Textures/Tiled/Game/AssetsvilleTown/Textures/Tiled/T_brickSmall_01_white.PNG" id="14_gblcc"]
 [ext_resource type="PackedScene" uid="uid://bruxsbqnsdkgt" path="res://Scenes/Maps/Buildings/building_4.tscn" id="14_tem6q"]
 [ext_resource type="PackedScene" uid="uid://uhl0pjcxax36" path="res://Scenes/Maps/Buildings/building_3.tscn" id="15_4bhe4"]
+[ext_resource type="ArrayMesh" uid="uid://cv4nrh6ry2ly1" path="res://Assets/MapStuff/Meshs/BuildingTileset/SM_wallAttic_01_corner.glb" id="15_fabwi"]
 [ext_resource type="PackedScene" uid="uid://dxvqi77iptjta" path="res://Scenes/Maps/Buildings/Generated/buildingG4.tscn" id="16_chnuo"]
+[ext_resource type="PackedScene" uid="uid://grkbkte5teka" path="res://Assets/MapStuff/Meshs/StreetProps/SM_fence_103a.gltf" id="16_uagyt"]
 [ext_resource type="Script" uid="uid://dptfybw60qiqk" path="res://Tools/Godot/BuildingGenerator/building_generation_profile.gd" id="17_5ix6k"]
 [ext_resource type="PackedScene" uid="uid://bxrq6ncuvfje1" path="res://Scenes/Maps/Buildings/Generated/buildingG5.tscn" id="18_4bple"]
 [ext_resource type="ArrayMesh" uid="uid://ciqwe8yur35ny" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_04_quarter.glb" id="20_tem6q"]
 
-[sub_resource type="Resource" id="Resource_gblcc"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c8tgy"]
+albedo_texture = ExtResource("14_gblcc")
+
+[sub_resource type="Resource" id="Resource_utbea"]
 resource_local_to_scene = true
 script = ExtResource("17_5ix6k")
 width_modules = 5
@@ -29,7 +37,7 @@ depth_modules = 5
 story_count = 10
 preset = 2
 
-[sub_resource type="Resource" id="Resource_fabwi"]
+[sub_resource type="Resource" id="Resource_newmn"]
 resource_local_to_scene = true
 script = ExtResource("17_5ix6k")
 story_count = 25
@@ -43,8 +51,204 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -124)
 [node name="TestWorld7" parent="Roads" unique_id=1815818858 instance=ExtResource("1_axwq7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 120)
 
-[node name="TestWorld5" parent="Roads" unique_id=767048359 instance=ExtResource("1_axwq7")]
+[node name="TestWorld5" type="Node3D" parent="Roads" unique_id=767048359]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 132, 0, 116)
+
+[node name="SmRoad04" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1443676131]
+transform = Transform3D(6, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 0)
+mesh = ExtResource("2_chnuo")
+
+[node name="SmSidewalk01" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1782973970]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk23" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=260204909]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk47" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1878151154]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk02" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1016096538]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk03" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=32091163]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk04" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1171494690]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk05" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1579860521]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk06" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=279414578]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk07" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=290748584]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk08" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=563643981]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk09" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=637473363]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk10" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=109523321]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk11" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=40909509]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk12" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1832674939]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 67.9, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk13" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=573636947]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 88, 0, -23.999992)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk17" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=253954965]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk18" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=426482915]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk19" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1697811031]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk20" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1766188445]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk21" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1042937224]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk22" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=130282840]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, -20)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk24" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=156404478]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 28, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk25" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1608338983]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 24, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk48" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1869726547]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 20, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk26" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=899783636]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 32, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk27" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1332125962]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 36, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk28" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1459611321]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 40, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk01Corner" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1722048324]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 67.9, 0, -20.000008)
+mesh = ExtResource("4_4bple")
+
+[node name="SmSidewalk01Corner2" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=572031822]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 88, 0, -20.000008)
+mesh = ExtResource("4_4bple")
+
+[node name="SmSidewalk29" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=466898535]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 44, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk30" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=560737920]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 48, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk31" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1138437208]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 52, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk32" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=760367021]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 56, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk33" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1769247060]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 60, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk34" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=2117913560]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 64, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk35" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=2098692350]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 68, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk36" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=94160472]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 72, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk37" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1017332232]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 76, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk38" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=556040821]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 80, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk39" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=998980852]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 84, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk40" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=322065887]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 88, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk41" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=39795447]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 92, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk42" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1076847102]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 96, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk43" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1698512527]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 100, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk44" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1002280858]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 104, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk45" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=827606345]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 108, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmSidewalk46" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=467095882]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 112, 0, 4)
+mesh = ExtResource("3_5ix6k")
+
+[node name="SmRoad00" type="MeshInstance3D" parent="Roads/TestWorld5" unique_id=1576154482]
+transform = Transform3D(-2.1855694e-08, 0, -0.78749996, 0, 1, 0, 0.5, 0, -3.4422715e-08, 71.899994, 0, -24)
+mesh = ExtResource("9_y0wen")
 
 [node name="Intersection6" parent="Roads" unique_id=191216732 instance=ExtResource("3_ylr7p")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116, 0, 120)
@@ -376,26 +580,6 @@ mesh = ExtResource("7_y0wen")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 24)
 mesh = ExtResource("7_y0wen")
 
-[node name="SmSidewalk01Base123" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1423875878]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 28)
-mesh = ExtResource("7_y0wen")
-
-[node name="SmSidewalk01Base124" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1125465164]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 32)
-mesh = ExtResource("7_y0wen")
-
-[node name="SmSidewalk01Base125" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=899277802]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 36)
-mesh = ExtResource("7_y0wen")
-
-[node name="SmSidewalk01Base126" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1791656275]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 40)
-mesh = ExtResource("7_y0wen")
-
-[node name="SmSidewalk01Base127" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1642575986]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 44)
-mesh = ExtResource("7_y0wen")
-
 [node name="SmSidewalk01Base128" type="MeshInstance3D" parent="Plot/Sidewalk" unique_id=1249360591]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 48)
 mesh = ExtResource("7_y0wen")
@@ -627,7 +811,7 @@ mesh = ExtResource("7_y0wen")
 [node name="Buildings" type="Node3D" parent="." unique_id=1993063817]
 
 [node name="Hospital" parent="Buildings" unique_id=531031736 instance=ExtResource("7_7b27w")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 92.899994, 0, -95.8)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 92.899994, 0, -80.100006)
 
 [node name="ParkingLot" type="Node3D" parent="Buildings/Hospital" unique_id=1657277886]
 
@@ -655,8 +839,24 @@ mesh = ExtResource("10_b7pm3")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.330009, 0.002, 0.3999939)
 mesh = ExtResource("10_b7pm3")
 
+[node name="SmParkingSpot09" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=629149439]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.33001, 0.002, -3.7999802)
+mesh = ExtResource("10_b7pm3")
+
+[node name="SmParkingSpot10" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=2001229717]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.130013, 0.002, -3.7999802)
+mesh = ExtResource("10_b7pm3")
+
 [node name="SmParkingSpot07" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=816871576]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 19.653343, 0.002, 23.099976)
+mesh = ExtResource("10_b7pm3")
+
+[node name="SmParkingSpot17" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=1879373355]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 23.653343, 0.002, 23.099983)
+mesh = ExtResource("10_b7pm3")
+
+[node name="SmParkingSpot18" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=198207907]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 27.653343, 0.002, 23.09999)
 mesh = ExtResource("10_b7pm3")
 
 [node name="SmParkingSpot08" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=1762027019]
@@ -664,93 +864,284 @@ transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 15.7
 mesh = ExtResource("10_b7pm3")
 
 [node name="SmParkingSpot11" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=183520169]
-transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0.17333984, 0.002, 23.099976)
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -1.3266602, 0.002, 23.099976)
 mesh = ExtResource("10_b7pm3")
 
 [node name="SmParkingSpot12" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=551242122]
-transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -3.6266632, 0.002, 23.099976)
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -5.126663, 0.002, 23.099976)
+mesh = ExtResource("10_b7pm3")
+
+[node name="SmParkingSpot13" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=839802598]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -9.026657, 0.002, 23.099976)
+mesh = ExtResource("10_b7pm3")
+
+[node name="SmParkingSpot14" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=1210358060]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, -12.82666, 0.002, 23.099976)
+mesh = ExtResource("10_b7pm3")
+
+[node name="SmParkingSpot15" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=955346442]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, -17.926651, 0.002, -3.3000183)
+mesh = ExtResource("10_b7pm3")
+
+[node name="SmParkingSpot16" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=1597228702]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, -14.126656, 0.002, -3.3000183)
 mesh = ExtResource("10_b7pm3")
 
 [node name="SmRoad00" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot" unique_id=2024472769]
-transform = Transform3D(1.14530316e-07, 0, 1.77, 0, 1, 0, -1.517, 0, 1.3363129e-07, 20.100006, 0.001, 23.099998)
+transform = Transform3D(1.4888187e-07, 0, 5.26, 0, 1, 0, -1.972, 0, 3.9711898e-07, 32.100006, 0.001, 23.100037)
 mesh = ExtResource("9_y0wen")
 
 [node name="Fence" type="Node3D" parent="Buildings/Hospital/ParkingLot" unique_id=2004669702]
 
-[node name="SM_fence_101" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1725833420 instance=ExtResource("10_pr4m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7999954, 0, 23.000008)
+[node name="SmWallAttic02" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=293826112]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.999992, 0, 0.10002136)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
 
-[node name="SM_fence_102" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1707462057 instance=ExtResource("10_pr4m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7999954, 0, 19.000008)
+[node name="SmWallAttic03" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=716321179]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.999992, 0, 4.100029)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
 
-[node name="SM_fence_103" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=682204641 instance=ExtResource("10_pr4m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7999954, 0, 15.000008)
+[node name="SmWallAttic04" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1032155669]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.999992, 0, 8.100044)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
 
-[node name="SM_fence_104" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1299375542 instance=ExtResource("10_pr4m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7999954, 0, 11.000008)
+[node name="SmWallAttic05" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=2047207456]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.999992, 0, 12.100029)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
 
-[node name="SM_fence_105" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=9489808 instance=ExtResource("10_pr4m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7999954, 0, 7.100006)
+[node name="SmWallAttic06" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=18999806]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.999992, 0, 16.100037)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
 
-[node name="SM_fence_107" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=2066156811 instance=ExtResource("10_pr4m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.90001, 0, 23.000008)
+[node name="SmWallAttic07" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=2066845007]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.999992, 0, 20.100052)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
 
-[node name="SM_fence_108" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=900022949 instance=ExtResource("10_pr4m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.90001, 0, 19.000008)
+[node name="SmWallAttic08" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1179296823]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.999992, 0, 23.10006)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
 
-[node name="SM_fence_109" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1754071979 instance=ExtResource("10_pr4m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.90001, 0, 15.000008)
+[node name="SmWallAttic09" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1377629536]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.949997, 0, 0.10002899)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
 
-[node name="SM_fence_110" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1235573004 instance=ExtResource("10_pr4m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.90001, 0, 11.000008)
+[node name="SmWallAttic10" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1894769613]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.949997, 0, 4.1000366)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
 
-[node name="SM_fence_111" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1159615695 instance=ExtResource("10_pr4m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.90001, 0, 7.100006)
+[node name="SmWallAttic11" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=2126226341]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.949997, 0, 8.100052)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
 
-[node name="SM_fence_112" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=112507103 instance=ExtResource("10_pr4m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.90001, 0, 3.100006)
+[node name="SmWallAttic12" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1050718451]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.949997, 0, 12.100037)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
 
-[node name="SM_fence_101end" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1271534829 instance=ExtResource("11_byamk")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -7.7500076, 0, 3.0000076)
+[node name="SmWallAttic13" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=152606119]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.949997, 0, 16.100044)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic14" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=711384474]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.949997, 0, 20.10006)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic15" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1994766069]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.949978, 0, 23.100067)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic16" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=824297062]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -16.050003, 0, 22.800041)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic17" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=991775701]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12.050003, 0, 22.800041)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic18" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=24021797]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -8.049988, 0, 22.800041)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic19" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1847339570]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4.049988, 0, 22.800041)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic20" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=363769354]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.3499832, 0, 22.800041)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic21" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1073501212]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 27.930046, 0, 22.900078)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic22" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1608805452]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 23.930046, 0, 22.900078)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic23" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=543469403]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 19.93003, 0, 22.900078)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic24" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=490134418]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 15.930031, 0, 22.900078)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic25" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=879721434]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 13.230026, 0, 22.900078)
+mesh = ExtResource("13_4bple")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic01Corner" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=881629316]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -19.999912, 0, 22.90001)
+mesh = ExtResource("15_fabwi")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic01Corner2" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=538513204]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -1.1999512, 0, 22.80001)
+mesh = ExtResource("15_fabwi")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic01Corner3" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=857632070]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 13.100052, 0, 22.900032)
+mesh = ExtResource("15_fabwi")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic01Corner4" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=790354771]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 32.10005, 0, 23.000069)
+mesh = ExtResource("15_fabwi")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SmWallAttic01Corner5" type="MeshInstance3D" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=545602299]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 32.10005, 0, -3.5998993)
+mesh = ExtResource("15_fabwi")
+surface_material_override/0 = SubResource("StandardMaterial3D_c8tgy")
+
+[node name="SM_fence_103a" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1801834859 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.1, 0.6000001, 22.800064)
+
+[node name="SM_fence_103a2" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=30839093 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.1, 0.6000001, 18.800072)
+
+[node name="SM_fence_103a3" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1509405339 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.1, 0.6000001, 14.800079)
+
+[node name="SM_fence_103a4" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=843562896 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.1, 0.6000001, 10.800087)
+
+[node name="SM_fence_103a5" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1935855564 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.1, 0.6000001, 6.8000717)
+
+[node name="SM_fence_103a6" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1622658713 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.1, 0.6000001, 2.8000793)
+
+[node name="SM_fence_103a7" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=664918464 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.1, 0.6000001, -0.1999054)
+
+[node name="SM_fence_103a8" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1351635453 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.999989, 0.6000001, 22.800064)
+
+[node name="SM_fence_103a9" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=122865626 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.999992, 0.6000001, 18.800072)
+
+[node name="SM_fence_103a10" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1067010022 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.999992, 0.6000001, 14.800079)
+
+[node name="SM_fence_103a11" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=2078138692 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.999992, 0.6000001, 10.800087)
+
+[node name="SM_fence_103a12" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1985701330 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.999992, 0.6000001, 6.8000717)
+
+[node name="SM_fence_103a13" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1977811256 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.999992, 0.6000001, 2.8000793)
+
+[node name="SM_fence_103a14" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=815352248 instance=ExtResource("16_uagyt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.999992, 0.6000001, -0.1999054)
+
+[node name="SM_fence_103a15" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1280094732 instance=ExtResource("16_uagyt")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -19.857113, 0.6000001, 22.842941)
+
+[node name="SM_fence_103a16" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=671101382 instance=ExtResource("16_uagyt")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -15.857132, 0.6000001, 22.842934)
+
+[node name="SM_fence_103a17" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=238849342 instance=ExtResource("16_uagyt")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -11.85714, 0.6000001, 22.842934)
+
+[node name="SM_fence_103a18" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=1395139995 instance=ExtResource("16_uagyt")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -7.857155, 0.6000001, 22.842934)
+
+[node name="SM_fence_103a19" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=849270214 instance=ExtResource("16_uagyt")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -5.0571365, 0.6000001, 22.842934)
+
+[node name="SM_fence_103a20" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=100601752 instance=ExtResource("16_uagyt")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 13.242889, 0.6000001, 22.842957)
+
+[node name="SM_fence_103a21" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=577686920 instance=ExtResource("16_uagyt")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 17.242874, 0.6000001, 22.842949)
+
+[node name="SM_fence_103a22" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=481486806 instance=ExtResource("16_uagyt")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 21.242859, 0.6000001, 22.842949)
+
+[node name="SM_fence_103a23" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=390315591 instance=ExtResource("16_uagyt")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 25.242844, 0.6000001, 22.842949)
+
+[node name="SM_fence_103a24" parent="Buildings/Hospital/ParkingLot/Fence" unique_id=506097954 instance=ExtResource("16_uagyt")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 28.042862, 0.6000001, 22.842949)
 
 [node name="Building1" parent="Buildings" unique_id=1313747676 instance=ExtResource("11_vix6h")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 70.9, 0, -29.200003)
 
 [node name="Building5" parent="Buildings" unique_id=380222175 instance=ExtResource("11_vix6h")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 81.799995, 0, -51.700005)
-
-[node name="Building8" parent="Buildings" unique_id=1826254293 instance=ExtResource("11_vix6h")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 115, 0, -67.50001)
-
-[node name="Building11" parent="Buildings" unique_id=332830282 instance=ExtResource("11_vix6h")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114.9, 0, -81.30001)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 77.799995, 0, -51.700005)
 
 [node name="Building12" parent="Buildings" unique_id=1274669349 instance=ExtResource("11_vix6h")]
 transform = Transform3D(-1, 0, -3.1786506e-08, 0, 1, 0, 3.1786506e-08, 0, -1, 29, 0, -109.80002)
 
 [node name="CarDealership" parent="Buildings" unique_id=1778244247 instance=ExtResource("8_nwwl1")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 36, 0.002, -52.92)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 39.9, 0.002, -56.82)
 
 [node name="ParkingLot2" type="Node3D" parent="Buildings/CarDealership" unique_id=2134352914]
 
 [node name="SmRoad00" type="MeshInstance3D" parent="Buildings/CarDealership/ParkingLot2" unique_id=921190680]
-transform = Transform3D(-7.649493e-08, 0, 1.5, 0, 1, 0, -1.75, 0, -6.556708e-08, 25, -0.001, 8)
+transform = Transform3D(-8.4144425e-08, 0, 1.5, 0, 1, 0, -1.9250001, 0, -6.556708e-08, 28.79999, -0.001, 11.9)
 mesh = ExtResource("9_y0wen")
 
 [node name="SmParkingSpot01" type="MeshInstance3D" parent="Buildings/CarDealership/ParkingLot2" unique_id=850492372]
-transform = Transform3D(-4.371138e-08, 0, -1, 0, 1, 0, 1, 0, -4.371138e-08, 25.019993, -0.001, 3.89999)
+transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -1, -0.30501938, 0, -11.825024)
 mesh = ExtResource("10_b7pm3")
 
 [node name="SmParkingSpot02" type="MeshInstance3D" parent="Buildings/CarDealership/ParkingLot2" unique_id=909542376]
-transform = Transform3D(-4.371138e-08, 0, -1, 0, 1, 0, 1, 0, -4.371138e-08, 25.01999, -0.001, -0.10001373)
+transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -1, 3.6949806, 0, -11.825024)
 mesh = ExtResource("10_b7pm3")
 
 [node name="SmParkingSpot03" type="MeshInstance3D" parent="Buildings/CarDealership/ParkingLot2" unique_id=1351835827]
-transform = Transform3D(-4.371138e-08, 0, -1, 0, 1, 0, 1, 0, -4.371138e-08, 25.019989, -0.001, -4.000019)
+transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -1, 7.594986, 0, -11.825024)
 mesh = ExtResource("10_b7pm3")
 
 [node name="SmParkingSpot04" type="MeshInstance3D" parent="Buildings/CarDealership/ParkingLot2" unique_id=1474941928]
-transform = Transform3D(-4.371138e-08, 0, -1, 0, 1, 0, 1, 0, -4.371138e-08, 25.019987, -0.001, -7.9000244)
+transform = Transform3D(-1, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -1, 11.494991, 0, -11.825027)
 mesh = ExtResource("10_b7pm3")
 
 [node name="Building2" parent="Buildings" unique_id=447126154 instance=ExtResource("13_byamk")]
@@ -758,12 +1149,6 @@ transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 85, 
 
 [node name="Building3" parent="Buildings" unique_id=932730129 instance=ExtResource("14_tem6q")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 97.9, 0, -29.100002)
-
-[node name="Building6" parent="Buildings" unique_id=39384021 instance=ExtResource("14_tem6q")]
-transform = Transform3D(-1, 0, 1.4305904e-07, 0, 1, 0, -1.4305904e-07, 0, -1, 81.799995, 0, -64.700005)
-
-[node name="Building9" parent="Buildings" unique_id=595360477 instance=ExtResource("14_tem6q")]
-transform = Transform3D(-1.0331603e-07, 0, -1, 0, 1, 0, 1, 0, -1.0331603e-07, 73.399994, 0, -70.9)
 
 [node name="Building13" parent="Buildings" unique_id=1872517980 instance=ExtResource("14_tem6q")]
 transform = Transform3D(-1, 0, 9.139115e-08, 0, 1, 0, -9.139115e-08, 0, -1, 28.999992, 0, -96.3)
@@ -779,22 +1164,24 @@ transform = Transform3D(2.9802322e-08, 0, 1, 0, 1, 0, -1, 0, 2.9802322e-08, 53.7
 
 [node name="BuildingGenerator" parent="Buildings" unique_id=541893587 instance=ExtResource("16_chnuo")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 37.940002, 0, -78.9)
-profile = SubResource("Resource_gblcc")
+profile = SubResource("Resource_utbea")
 
 [node name="BuildingGenerator2" parent="Buildings" unique_id=263177720 instance=ExtResource("18_4bple")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 57.90001, 0, -77.4)
-profile = SubResource("Resource_fabwi")
+profile = SubResource("Resource_newmn")
 
 [node name="AlleyWay" type="Node3D" parent="." unique_id=93475086]
 
 [node name="SmRoad04Quarter" type="MeshInstance3D" parent="AlleyWay" unique_id=1499346726]
-transform = Transform3D(2.1483002, 0, 0, 0, 1, 0, 0, 0, 1.0031999, 56, 0.001, -28)
+transform = Transform3D(1.5036, 0, 0, 0, 1, 0, 0, 0, 1.009, 58.8, 0.001, -28)
 mesh = ExtResource("20_tem6q")
 
 [node name="SmRoad00" type="MeshInstance3D" parent="AlleyWay" unique_id=1878817607]
-transform = Transform3D(1.6, 0, 0, 0, 1, 0, 0, 0, 4.488, 55.999996, 0.001, -44.100002)
+transform = Transform3D(3.696, 0, 0, 0, 1, 0, 0, 0, 4.488, 27.899994, 0.001, -44.100002)
 mesh = ExtResource("9_y0wen")
 
 [node name="SmRoad01" type="MeshInstance3D" parent="AlleyWay" unique_id=252072]
 transform = Transform3D(1.6, 0, 0, 0, 1, 0, 0, 0, 3.007, 27.999996, 0.001, -67.9)
 mesh = ExtResource("9_y0wen")
+
+[node name="Props" type="Node3D" parent="AlleyWay" unique_id=367710967]

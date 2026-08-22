@@ -10,7 +10,9 @@
 [ext_resource type="PackedScene" uid="uid://cjh86oujvf7bw" path="res://Scenes/Maps/Territorys/down_town_west.tscn" id="5_21lis"]
 [ext_resource type="PackedScene" uid="uid://lbnphh8gm20q" path="res://Scenes/NPC/CustomerNPC.tscn" id="5_customer"]
 [ext_resource type="Material" uid="uid://sx6pgij7ws3a" path="res://Assets/VFX/Shaders/stylized_island_water.tres" id="6_2loyo"]
+[ext_resource type="PackedScene" uid="uid://bpb3v1yml3dx2" path="res://Scenes/Maps/Territorys/SubrurbsEast.tscn" id="6_8ung1"]
 [ext_resource type="Script" uid="uid://drakbifufadbe" path="res://Scripts/Gameplay/world_controller.gd" id="6_controller"]
+[ext_resource type="PackedScene" uid="uid://da1iyw7nive7a" path="res://Scenes/Maps/Territorys/SuburbsWest.tscn" id="7_ew0bf"]
 [ext_resource type="PackedScene" uid="uid://cyreq2x33fsli" path="res://Scenes/Vehicles/BaseVehicle.tscn" id="7_traffic_base"]
 [ext_resource type="Resource" path="res://Scripts/Traffic/Resources/default_traffic_vehicle_catalog.tres" id="7_traffic_catalog"]
 [ext_resource type="ArrayMesh" uid="uid://l4lon2ffssug" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_dirtEdge_01.glb" id="7_ymjp4"]
@@ -40,7 +42,7 @@
 [ext_resource type="Texture2D" uid="uid://bncjly3ryowvb" path="res://Assets/MapStuff/Meshs/GroundTileset/MATS/SM_dirtEdge_01_MI_GroundTile_MetallicRoughness.png" id="17_8dbpb"]
 [ext_resource type="Script" uid="uid://bns54ehh1ni0v" path="res://Scripts/NPC/AI/activity_spot_3d.gd" id="17_activity_spot"]
 [ext_resource type="Script" uid="uid://dnmxrkmpfo7s8" path="res://Scripts/World/static_multimesh_batcher.gd" id="17_eb10h"]
-[ext_resource type="Script" path="res://Scripts/World/island_vegetation_wind.gd" id="17_vegetation_wind"]
+[ext_resource type="Script" uid="uid://l1am2f0ri87f" path="res://Scripts/World/island_vegetation_wind.gd" id="17_vegetation_wind"]
 [ext_resource type="Script" uid="uid://b1atse36lmtdu" path="res://Scripts/NPC/dealer_activity_zone_3d.gd" id="18_dealer_zone"]
 [ext_resource type="Script" uid="uid://d0ndv2i7pclhl" path="res://Scripts/Gameplay/territory_encounter_controller.gd" id="19_encounter"]
 [ext_resource type="Script" uid="uid://nupsjy0e8wyx" path="res://Scripts/Gameplay/territory_dealer_service.gd" id="20_territory_dealers"]
@@ -194,11 +196,11 @@ roughness = 0.88
 
 [sub_resource type="BoxMesh" id="NorthSouthWallMesh"]
 material = SubResource("ConcreteMaterial")
-size = Vector3(288.4088, 3.4, 2)
+size = Vector3(396.40402, 3.4, 2)
 
 [sub_resource type="BoxMesh" id="NorthSouthCapMesh"]
 material = SubResource("ConcreteMaterial")
-size = Vector3(288.2605, 0.4, 3.2)
+size = Vector3(405.23132, 0.4, 3.2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_0ggab"]
 material = SubResource("StandardMaterial3D_xkigh")
@@ -257,7 +259,7 @@ shadow_mesh = SubResource("ArrayMesh_7h5hi")
 
 [sub_resource type="BoxMesh" id="BoxMesh_14xub"]
 material = SubResource("StandardMaterial3D_xkigh")
-size = Vector3(275.82593, 0.8, 16)
+size = Vector3(397.95642, 0.8, 16)
 
 [sub_resource type="BoxShape3D" id="NorthSouthBarrierShape"]
 size = Vector3(260, 5, 4)
@@ -355,6 +357,12 @@ transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 113.
 [node name="DownTownWest" parent="Territories" unique_id=1624031075 instance=ExtResource("5_21lis")]
 transform = Transform3D(-0.99999994, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -0.99999994, 249.993, 0, -254.999)
 
+[node name="SuburbsEast" parent="Territories" unique_id=1815818858 instance=ExtResource("6_8ung1")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 377.942, 0, 125.003)
+
+[node name="SuburbsWest" parent="Territories" unique_id=726259698 instance=ExtResource("7_ew0bf")]
+transform = Transform3D(-0.99999994, 0, 8.742277e-08, 0, 1, 0, -8.742277e-08, 0, -0.99999994, 377.993, 0, -379.008)
+
 [node name="IslandBoundary" type="Node3D" parent="." unique_id=1104311287]
 
 [node name="Water" type="Node3D" parent="IslandBoundary" unique_id=547079264]
@@ -372,7 +380,7 @@ cast_shadow = 0
 mesh = SubResource("WestWaterMesh")
 
 [node name="SouthWater" type="MeshInstance3D" parent="IslandBoundary/Water" unique_id=817213303 groups=["island_boundary_water"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -154, -3.5, -642)
+transform = Transform3D(1.8275616, 0, 0, 0, 1, 0, 0, 0, 1, -154, -3.5, -642)
 material_override = ExtResource("6_2loyo")
 cast_shadow = 0
 mesh = SubResource("SouthWaterMesh")
@@ -1214,6 +1222,90 @@ transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0
 
 [node name="Bush34" parent="IslandBoundary/Shore/North/Vegetation" unique_id=519504492 instance=ExtResource("15_ouasl")]
 transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 21.561401, 0, -379.6751)
+
+[node name="Tree89" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1468549295 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.8289549, 0, -0.3504765, 0, 0.9, 0, 0.3504765, 0, 0.8289549, 9.4661255, 0, -260.59418)
+
+[node name="Tree90" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1583542833 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.53213257, 0, 0.5702937, 0, 0.78, 0, -0.5702937, 0, 0.53213257, 26.991943, 0, -261.09167)
+
+[node name="Tree91" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1381584778 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.16739093, 0, -0.7822917, 0, 0.8, 0, 0.7822917, 0, 0.16739093, 151.3208, 0, -262.30273)
+
+[node name="Tree92" parent="IslandBoundary/Shore/North/Vegetation" unique_id=759515926 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 148.03445, 0, -263.891)
+
+[node name="Tree93" parent="IslandBoundary/Shore/North/Vegetation" unique_id=2076472303 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 140.32004, 0, -259.56403)
+
+[node name="Bush64" parent="IslandBoundary/Shore/North/Vegetation" unique_id=288604343 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.60663384, 0, -0.54834974, 0, 0.8152977, 0, 0.565138, 0, 0.588613, 145.62143, 0, -262.97205)
+
+[node name="Tree96" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1111683625 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.16739093, 0, -0.7822917, 0, 0.8, 0, 0.7822917, 0, 0.16739093, 142.79039, 0, -278.23444)
+
+[node name="Tree97" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1086909361 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 139.50404, 0, -279.8227)
+
+[node name="Bush74" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1817015637 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.60663384, 0, -0.54834974, 0, 0.8152977, 0, 0.565138, 0, 0.588613, 137.09102, 0, -278.90375)
+
+[node name="Tree98" parent="IslandBoundary/Shore/North/Vegetation" unique_id=62300968 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.5401322, 0, 0.59013325, 0, 0.8, 0, -0.59013325, 0, -0.5401322, 127.90715, 0, -275.9122)
+
+[node name="Tree99" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1378005889 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.040501326, 0, -0.6787928, 0, 0.68, 0, 0.6787928, 0, 0.040501326, 131.54546, 0, -276.20462)
+
+[node name="Bush75" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1414685884 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.809175, 0, 0.17524855, 0, 0.81529784, 0, -0.18061401, 0, -0.7851373, 133.16206, 0, -278.218)
+
+[node name="Tree100" parent="IslandBoundary/Shore/North/Vegetation" unique_id=464553658 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.5401322, 0, 0.59013325, 0, 0.8, 0, -0.59013325, 0, -0.5401322, 127.90716, 0, -327.17612)
+
+[node name="Tree101" parent="IslandBoundary/Shore/North/Vegetation" unique_id=417287024 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.040501326, 0, -0.6787928, 0, 0.68, 0, 0.6787928, 0, 0.040501326, 131.54547, 0, -327.46854)
+
+[node name="Bush76" parent="IslandBoundary/Shore/North/Vegetation" unique_id=94614933 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.809175, 0, 0.17524855, 0, 0.81529784, 0, -0.18061401, 0, -0.7851373, 133.16208, 0, -329.4819)
+
+[node name="Tree102" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1424714565 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.47426063, 0, -0.6442646, 0, 0.8, 0, 0.6442646, 0, -0.47426063, 139.83871, 0, -327.62442)
+
+[node name="Tree103" parent="IslandBoundary/Shore/North/Vegetation" unique_id=405943327 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.6580726, 0, 0.1712903, 0, 0.68, 0, -0.1712903, 0, 0.6580726, 138.84668, 0, -331.13705)
+
+[node name="Bush77" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1026961799 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.02036308, 0, -0.80421525, 0, 0.81529784, 0, 0.8288371, 0, -0.019758094, 136.55817, 0, -332.3328)
+
+[node name="Bush73" parent="IslandBoundary/Shore/North/Vegetation" unique_id=335301631 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.60663384, 0, -0.54834974, 0, 0.8152977, 0, 0.565138, 0, 0.588613, 150.17198, 0, -265.1363)
+
+[node name="Tree94" parent="IslandBoundary/Shore/North/Vegetation" unique_id=303721397 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.36971825, 0, 0.7094423, 0, 0.8, 0, -0.7094423, 0, -0.36971825, 133.6883, 0, -260.15854)
+
+[node name="Tree95" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1848606812 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(-0.13587943, 0, -0.6662858, 0, 0.68, 0, 0.6662858, 0, -0.13587943, 129.79869, 0, -259.6916)
+
+[node name="Bush67" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1721112044 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.7352503, 0, 0.37175357, 0, 0.81529784, 0, -0.38313523, 0, -0.7134087, 136.82501, 0, -260.58582)
+
+[node name="Bush68" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1513252274 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.38452005, 0, 0.21597782, 0, 0.5036503, 0, -0.20037149, 0, -0.41446933, 133.7843, 0, -260.10925)
+
+[node name="Bush69" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1192399485 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.38452005, 0, 0.21597782, 0, 0.5036503, 0, -0.20037149, 0, -0.41446933, 13.934753, 0, -261.5791)
+
+[node name="Bush70" parent="IslandBoundary/Shore/North/Vegetation" unique_id=650599828 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.38452005, 0, 0.21597782, 0, 0.5036503, 0, -0.20037149, 0, -0.41446933, 13.934753, 0, -260.0476)
+
+[node name="Bush71" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1280939800 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.48123923, 0, 0.24020289, 0, 0.6948234, 0, -0.25077137, 0, -0.46095812, 12.0625, 0, -260.0476)
+
+[node name="Bush72" parent="IslandBoundary/Shore/North/Vegetation" unique_id=470133425 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.61861545, 0, 0.20447181, 0, 0.5048222, 0, -0.32235745, 0, -0.39238888, 8.891998, 0, -261.57278)
+
+[node name="Bush66" parent="IslandBoundary/Shore/North/Vegetation" unique_id=100995677 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.45388794, 0, -0.40014145, 0, 0.9334395, 0, 0.42284048, 0, 0.4295223, 22.704468, 0, -260.92218)
 
 [node name="Bush35" parent="IslandBoundary/Shore/North/Vegetation" unique_id=1981081392 instance=ExtResource("15_ouasl")]
 transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 26.478058, 0, -378.6751)
@@ -3421,21 +3513,21 @@ transform = Transform3D(0.45857805, 0, -1.0655074, 0, 1.1599998, 0, 1.0655074, 0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.99)
 
 [node name="Embankment" type="MeshInstance3D" parent="IslandBoundary/Shore/South" unique_id=808241380]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 118.087036, -0.4, -384)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 179.15228, -0.4, -384)
 mesh = SubResource("BoxMesh_14xub")
 
 [node name="RetainingWall" type="MeshInstance3D" parent="IslandBoundary/Shore/South" unique_id=1898544989]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 126, -1.7, -392)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 179.9976, -1.7, -392)
 mesh = SubResource("NorthSouthWallMesh")
 
 [node name="ConcreteCap" type="MeshInstance3D" parent="IslandBoundary/Shore/South" unique_id=132122077]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.76294, 0.02, -391.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 175.24835, 0.02, -391.5)
 mesh = SubResource("NorthSouthCapMesh")
 
 [node name="GroundTiles" type="Node3D" parent="IslandBoundary/Shore/South" unique_id=508345253]
 
 [node name="DirtEdge01" type="MeshInstance3D" parent="IslandBoundary/Shore/South/GroundTiles" unique_id=1060503992]
-transform = Transform3D(-17.238, 0, 9.1094535e-08, 0, 1, 0, -1.506994e-06, 0, -1.042, 255.805, 0.02, -385.794)
+transform = Transform3D(-24.861, 0, 1.5733764e-07, 0, 1, 0, -3.7539066e-06, 0, -1.042, 378.07236, 0.02, -385.794)
 mesh = ExtResource("7_ymjp4")
 
 [node name="Vegetation" type="Node3D" parent="IslandBoundary/Shore/South" unique_id=1241381995]
@@ -3734,6 +3826,192 @@ transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0
 [node name="Bush42" parent="IslandBoundary/Shore/South/Vegetation" unique_id=738220084 instance=ExtResource("15_ouasl")]
 transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 82.714424, 0, -378.4633)
 
+[node name="Tree89" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1160920488 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.8289549, 0, -0.3504765, 0, 0.9, 0, 0.3504765, 0, 0.8289549, 44.340668, 0, -327.07803)
+
+[node name="Tree90" parent="IslandBoundary/Shore/South/Vegetation" unique_id=543632312 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.53213257, 0, 0.5702937, 0, 0.78, 0, -0.5702937, 0, 0.53213257, 55.69925, 0, -326.07803)
+
+[node name="Tree91" parent="IslandBoundary/Shore/South/Vegetation" unique_id=267625234 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.16739093, 0, -0.7822917, 0, 0.8, 0, 0.7822917, 0, 0.16739093, 53.3637, 0, -330.0414)
+
+[node name="Tree92" parent="IslandBoundary/Shore/South/Vegetation" unique_id=620400884 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 62.886, 0, -326.07803)
+
+[node name="Bush67" parent="IslandBoundary/Shore/South/Vegetation" unique_id=2044418759 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 49.292282, 0, -328.07803)
+
+[node name="Bush68" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1461160376 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 54.20894, 0, -327.07803)
+
+[node name="Bush69" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1987766528 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 43.561317, 0, -327.32147)
+
+[node name="Tree93" parent="IslandBoundary/Shore/South/Vegetation" unique_id=634239952 instance=ExtResource("11_8ung1")]
+transform = Transform3D(-0.87442225, 0, 0.21303868, 0, 0.9, 0, -0.21303868, 0, -0.87442225, 61.261677, 0, -322.8329)
+
+[node name="Tree97" parent="IslandBoundary/Shore/South/Vegetation" unique_id=237852018 instance=ExtResource("11_8ung1")]
+transform = Transform3D(-0.87442225, 0, 0.21303868, 0, 0.7776002, 0, -0.21303868, 0, -0.87442225, 61.261677, 0, -317.01816)
+
+[node name="Tree98" parent="IslandBoundary/Shore/South/Vegetation" unique_id=160687040 instance=ExtResource("11_8ung1")]
+transform = Transform3D(-0.87442225, 0, 0.21303868, 0, 1.1747241, 0, -0.21303868, 0, -0.87442225, 56.95179, 0, -317.01816)
+
+[node name="Tree99" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1336837817 instance=ExtResource("11_8ung1")]
+transform = Transform3D(-0.87442225, 0, 0.21303868, 0, 0.9, 0, -0.21303868, 0, -0.87442225, 56.95179, 0, -323.12216)
+
+[node name="Tree94" parent="IslandBoundary/Shore/South/Vegetation" unique_id=26385118 instance=ExtResource("14_boxut")]
+transform = Transform3D(-0.4338153, 0, -0.64823174, 0, 0.78, 0, 0.64823174, 0, -0.4338153, 49.8897, 0, -321.99887)
+
+[node name="Tree95" parent="IslandBoundary/Shore/South/Vegetation" unique_id=524790959 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.29064822, 0, 0.74533474, 0, 0.8, 0, -0.74533474, 0, -0.29064822, 52.830475, 0, -318.4612)
+
+[node name="Tree112" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1397041333 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.29064822, 0, 0.74533474, 0, 0.8, 0, -0.74533474, 0, -0.29064822, 22.759766, 0, -275.6674)
+
+[node name="Tree113" parent="IslandBoundary/Shore/South/Vegetation" unique_id=608425613 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.29064822, 0, 0.74533474, 0, 0.8, 0, -0.74533474, 0, -0.29064822, 22.759766, 0, -271.35468)
+
+[node name="Tree114" parent="IslandBoundary/Shore/South/Vegetation" unique_id=367405232 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.29064822, 0, 0.74533474, 0, 0.8, 0, -0.74533474, 0, -0.29064822, 22.759766, 0, -267.57022)
+
+[node name="Tree115" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1766178255 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.29064822, 0, 0.74533474, 0, 0.8, 0, -0.74533474, 0, -0.29064822, 22.759766, 0, -263.38998)
+
+[node name="Tree96" parent="IslandBoundary/Shore/South/Vegetation" unique_id=2111581815 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(-0.20729364, 0, -0.64763373, 0, 0.68, 0, 0.64763373, 0, -0.20729364, 42.795918, 0, -320.84665)
+
+[node name="Bush70" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1345334564 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.9978107, 0, 0.66661376, 0, 1.2000002, 0, -0.66661376, 0, -0.9978107, 56.534443, 0, -321.05194)
+
+[node name="Bush73" parent="IslandBoundary/Shore/South/Vegetation" unique_id=893031047 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.9978107, 0, 0.66661376, 0, 1.2000002, 0, -0.66661376, 0, -0.9978107, 56.534443, 0, -317.0093)
+
+[node name="Tree110" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1067344643 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.51461184, 0, 0.6125152, 0, 0.8, 0, -0.6125152, 0, 0.51461184, 95.51782, 0, -300.28384)
+
+[node name="Tree111" parent="IslandBoundary/Shore/South/Vegetation" unique_id=10882338 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(-0.6677052, 0, -0.12872393, 0, 0.68, 0, 0.12872393, 0, -0.6677052, 92.7982, 0, -291.72128)
+
+[node name="Bush85" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1489941567 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.10636583, 0, 1.1952767, 0, 1.2000002, 0, -1.1952767, 0, 0.10636583, 99.56763, 0, -298.27628)
+
+[node name="Bush86" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1647623915 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.10636583, 0, 1.1952767, 0, 1.2000002, 0, -1.1952767, 0, 0.10636583, 96.02032, 0, -296.33734)
+
+[node name="Bush88" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1576784080 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.044319063, 0, 0.49803194, 0, 0.8428637, 0, -0.49803194, 0, 0.044319063, 91.523766, 0, -311.4264)
+
+[node name="Bush94" parent="IslandBoundary/Shore/South/Vegetation" unique_id=280451143 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.046498258, 0, 0.77322, 0, 0.5, 0, -0.5225205, 0, 0.06880761, 90.011955, 0, -313.56458)
+
+[node name="Bush89" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1913507192 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.044319063, 0, 0.49803194, 0, 0.3967353, 0, -0.49803194, 0, 0.044319063, 91.523766, 0, -309.58365)
+
+[node name="Bush95" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1501338500 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.044319063, 0, 0.49803194, 0, 0.3967353, 0, -0.49803194, 0, 0.044319063, 22.93454, 0, -277.13718)
+
+[node name="Bush96" parent="IslandBoundary/Shore/South/Vegetation" unique_id=2112711430 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.044319063, 0, 0.49803194, 0, 0.3967353, 0, -0.49803194, 0, 0.044319063, 22.93454, 0, -274.57742)
+
+[node name="Bush97" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1404466188 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.044319063, 0, 0.49803194, 0, 0.3967353, 0, -0.49803194, 0, 0.044319063, 22.93454, 0, -272.5543)
+
+[node name="Bush98" parent="IslandBoundary/Shore/South/Vegetation" unique_id=772970687 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.044319063, 0, 0.49803194, 0, 0.7255744, 0, -0.49803194, 0, 0.044319063, 22.93454, 0, -269.87955)
+
+[node name="Bush99" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1567621047 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.044319063, 0, 0.49803194, 0, 0.3967353, 0, -0.49803194, 0, 0.044319063, 22.93454, 0, -268.03534)
+
+[node name="Bush100" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1687644268 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.06766723, 0, 0.47730166, 0, 0.3967353, 0, -0.7604051, 0, 0.042474307, 22.93454, 0, -265.74933)
+
+[node name="Bush101" parent="IslandBoundary/Shore/South/Vegetation" unique_id=400217204 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.053733673, 0, 0.48861733, 0, 0.6559033, 0, -0.60382783, 0, 0.04348127, 22.93454, 0, -262.66068)
+
+[node name="Bush90" parent="IslandBoundary/Shore/South/Vegetation" unique_id=584622150 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.032458916, 0, 0.5098921, 0, 0.57029915, 0, -0.3647545, 0, 0.045374483, 91.523766, 0, -307.45718)
+
+[node name="Bush91" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1004425249 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.06421653, 0, 0.47813448, 0, 0.6509416, 0, -0.7216282, 0, 0.04254842, 91.523766, 0, -305.3698)
+
+[node name="Bush92" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1624540331 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.068181045, 0, 0.31993356, 0, 0.32478905, 0, -0.7661791, 0, 0.028470375, 91.523766, 0, -303.445)
+
+[node name="Bush93" parent="IslandBoundary/Shore/South/Vegetation" unique_id=782695520 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.044319063, 0, 0.49803194, 0, 0.5, 0, -0.49803194, 0, 0.044319063, 91.523766, 0, -300.93326)
+
+[node name="Bush87" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1084050270 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.10636583, 0, 1.1952767, 0, 1.2000002, 0, -1.1952767, 0, 0.10636583, 86.51116, 0, -290.18387)
+
+[node name="Bush74" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1468362062 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.9978107, 0, 0.66661376, 0, 0.88630617, 0, -0.66661376, 0, -0.9978107, 52.025467, 0, -317.0093)
+
+[node name="Bush75" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1615290813 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-1.3402568, 0, 0.6569182, 0, 1.2000002, 0, -0.89539385, 0, -0.9832981, 46.81708, 0, -317.0093)
+
+[node name="Bush77" parent="IslandBoundary/Shore/South/Vegetation" unique_id=846041957 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 83.51687, 0, -327.07803)
+
+[node name="Bush78" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1866957357 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 72.86925, 0, -327.32147)
+
+[node name="Tree100" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1304541154 instance=ExtResource("11_8ung1")]
+transform = Transform3D(-0.87442225, 0, 0.21303868, 0, 0.9, 0, -0.21303868, 0, -0.87442225, 90.56961, 0, -322.8329)
+
+[node name="Tree101" parent="IslandBoundary/Shore/South/Vegetation" unique_id=142239345 instance=ExtResource("11_8ung1")]
+transform = Transform3D(-0.87442225, 0, 0.21303868, 0, 0.7776002, 0, -0.21303868, 0, -0.87442225, 90.56961, 0, -317.01816)
+
+[node name="Tree102" parent="IslandBoundary/Shore/South/Vegetation" unique_id=277349841 instance=ExtResource("11_8ung1")]
+transform = Transform3D(-0.87442225, 0, 0.21303868, 0, 1.1747241, 0, -0.21303868, 0, -0.87442225, 86.25972, 0, -317.01816)
+
+[node name="Tree108" parent="IslandBoundary/Shore/South/Vegetation" unique_id=516870342 instance=ExtResource("11_8ung1")]
+transform = Transform3D(-2.0224793, 0, 0.3317545, 0, 1.7552211, 0, -0.49274403, 0, -1.3616941, 69.738235, 0, -323.82773)
+
+[node name="Tree103" parent="IslandBoundary/Shore/South/Vegetation" unique_id=364766690 instance=ExtResource("11_8ung1")]
+transform = Transform3D(-0.87442225, 0, 0.21303868, 0, 0.9, 0, -0.21303868, 0, -0.87442225, 86.25972, 0, -323.12216)
+
+[node name="Tree104" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1260067454 instance=ExtResource("14_boxut")]
+transform = Transform3D(-0.4338153, 0, -0.64823174, 0, 0.78, 0, 0.64823174, 0, -0.4338153, 79.19763, 0, -321.99887)
+
+[node name="Tree105" parent="IslandBoundary/Shore/South/Vegetation" unique_id=548955583 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.29064822, 0, 0.74533474, 0, 0.8, 0, -0.74533474, 0, -0.29064822, 82.138405, 0, -318.11655)
+
+[node name="Tree109" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1290791974 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.29064822, 0, 0.74533474, 0, 1.0857067, 0, -0.74533474, 0, -0.29064822, 82.138405, 0, -322.5243)
+
+[node name="Tree107" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1673125991 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(-0.29064822, 0, 0.74533474, 0, 0.8, 0, -0.74533474, 0, -0.29064822, 77.02594, 0, -318.4612)
+
+[node name="Tree106" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1986884404 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(-0.20729364, 0, -0.64763373, 0, 0.68, 0, 0.64763373, 0, -0.20729364, 72.10385, 0, -320.84665)
+
+[node name="Bush79" parent="IslandBoundary/Shore/South/Vegetation" unique_id=960877414 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.9978107, 0, 0.66661376, 0, 1.2000002, 0, -0.66661376, 0, -0.9978107, 85.84238, 0, -321.05194)
+
+[node name="Bush80" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1147487604 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.9978107, 0, 0.66661376, 0, 1.2000002, 0, -0.66661376, 0, -0.9978107, 85.84238, 0, -317.0093)
+
+[node name="Bush81" parent="IslandBoundary/Shore/South/Vegetation" unique_id=862465182 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.9978107, 0, 0.66661376, 0, 0.88630617, 0, -0.66661376, 0, -0.9978107, 81.3334, 0, -317.0093)
+
+[node name="Bush82" parent="IslandBoundary/Shore/South/Vegetation" unique_id=344684044 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-1.3402568, 0, 0.6569182, 0, 1.2000002, 0, -0.89539385, 0, -0.9832981, 76.125015, 0, -317.79095)
+
+[node name="Bush83" parent="IslandBoundary/Shore/South/Vegetation" unique_id=2089025879 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-1.3402568, 0, 0.6569182, 0, 1.2000002, 0, -0.89539385, 0, -0.9832981, 76.125015, 0, -323.86078)
+
+[node name="Bush84" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1114848522 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-1.3402568, 0, 0.6569182, 0, 1.2000002, 0, -0.89539385, 0, -0.9832981, 66.56612, 0, -323.86078)
+
+[node name="Bush76" parent="IslandBoundary/Shore/South/Vegetation" unique_id=2073192810 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.9978107, 0, 0.66661376, 0, 1.2000002, 0, -0.66661376, 0, -0.9978107, 46.81708, 0, -322.6472)
+
+[node name="Bush71" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1281831614 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.4695433, 0, -0.97258896, 0, 1.0800002, 0, 0.97258896, 0, -0.4695433, 51.52106, 0, -321.25073)
+
+[node name="Bush72" parent="IslandBoundary/Shore/South/Vegetation" unique_id=898614910 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.013709009, 0, 1.159919, 0, 1.1599998, 0, -1.159919, 0, -0.013709009, 62.069973, 0, -322.71756)
+
 [node name="Tree57" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1197561058 instance=ExtResource("11_8ung1")]
 transform = Transform3D(0.8289549, 0, -0.3504765, 0, 0.9, 0, 0.3504765, 0, 0.8289549, 56.88514, 0, -378.21985)
 
@@ -3898,6 +4176,312 @@ transform = Transform3D(1.1774026, 0, -0.23178247, 0, 1.2000002, 0, 0.23178247, 
 
 [node name="Bush65" parent="IslandBoundary/Shore/South/Vegetation" unique_id=653346103 instance=ExtResource("15_ouasl")]
 transform = Transform3D(0.059553325, 0, 1.0783569, 0, 1.0800002, 0, -1.0783569, 0, 0.059553325, 5.964675, 0, -379.27466)
+
+[node name="Tree116" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1957780559 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 296.30383, 0, -377.21985)
+
+[node name="Bush102" parent="IslandBoundary/Shore/South/Vegetation" unique_id=372477459 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 286.37073, 0, -379.21985)
+
+[node name="Bush103" parent="IslandBoundary/Shore/South/Vegetation" unique_id=666662697 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 291.28738, 0, -378.21985)
+
+[node name="Bush104" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1091375086 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 280.44043, 0, -378.80185)
+
+[node name="Tree117" parent="IslandBoundary/Shore/South/Vegetation" unique_id=106291730 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.8289549, 0, -0.3504765, 0, 0.9, 0, 0.3504765, 0, 0.8289549, 254.81049, 0, -378.21985)
+
+[node name="Tree118" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1066571991 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.53213257, 0, 0.5702937, 0, 0.78, 0, -0.5702937, 0, 0.53213257, 266.16907, 0, -377.21985)
+
+[node name="Tree119" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1419676999 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.16739093, 0, -0.7822917, 0, 0.8, 0, 0.7822917, 0, 0.16739093, 263.8335, 0, -381.18323)
+
+[node name="Tree120" parent="IslandBoundary/Shore/South/Vegetation" unique_id=550950188 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 273.3558, 0, -377.21985)
+
+[node name="Bush105" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1441393911 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 259.7621, 0, -379.21985)
+
+[node name="Bush106" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1659792734 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 264.67874, 0, -378.21985)
+
+[node name="Bush107" parent="IslandBoundary/Shore/South/Vegetation" unique_id=457360661 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 252.56499, 0, -378.16653)
+
+[node name="Tree121" parent="IslandBoundary/Shore/South/Vegetation" unique_id=682794281 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.889123, 0, 0.13949901, 0, 0.9, 0, -0.13949901, 0, 0.889123, 34.13694, 0, -371.5287)
+
+[node name="Tree122" parent="IslandBoundary/Shore/South/Vegetation" unique_id=2021100868 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.15126798, 0, 0.76519144, 0, 0.78, 0, -0.76519144, 0, 0.15126798, 50.341404, 0, -376.67047)
+
+[node name="Tree123" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1718940571 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.55485016, 0, -0.5763172, 0, 0.8, 0, 0.5763172, 0, 0.55485016, 46.266605, 0, -378.8057)
+
+[node name="Tree124" parent="IslandBoundary/Shore/South/Vegetation" unique_id=612678757 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(-0.05761531, 0, 0.6775548, 0, 0.68, 0, -0.6775548, 0, -0.05761531, 56.447056, 0, -380.4613)
+
+[node name="Bush108" parent="IslandBoundary/Shore/South/Vegetation" unique_id=709817313 instance=ExtResource("15_ouasl")]
+transform = Transform3D(1.1774026, 0, -0.23178247, 0, 1.2000002, 0, 0.23178247, 0, 1.1774026, 43.843285, 0, -379.44772)
+
+[node name="Bush109" parent="IslandBoundary/Shore/South/Vegetation" unique_id=664139448 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.059553325, 0, 1.0783569, 0, 1.0800002, 0, -1.0783569, 0, 0.059553325, 49.689682, 0, -379.27466)
+
+[node name="Tree125" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1701461285 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 337.40454, 0, -377.21985)
+
+[node name="Bush110" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1933971091 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 327.47144, 0, -379.21985)
+
+[node name="Bush111" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1449108131 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 332.3881, 0, -378.21985)
+
+[node name="Bush112" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1960084508 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 321.54114, 0, -378.80185)
+
+[node name="Tree126" parent="IslandBoundary/Shore/South/Vegetation" unique_id=421567666 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.8289549, 0, -0.3504765, 0, 0.9, 0, 0.3504765, 0, 0.8289549, 295.9112, 0, -378.21985)
+
+[node name="Tree127" parent="IslandBoundary/Shore/South/Vegetation" unique_id=907345325 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.53213257, 0, 0.5702937, 0, 0.78, 0, -0.5702937, 0, 0.53213257, 307.26978, 0, -377.21985)
+
+[node name="Tree128" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1829929614 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.16739093, 0, -0.7822917, 0, 0.8, 0, 0.7822917, 0, 0.16739093, 304.9342, 0, -381.18323)
+
+[node name="Tree129" parent="IslandBoundary/Shore/South/Vegetation" unique_id=660770258 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 314.4565, 0, -377.21985)
+
+[node name="Bush113" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1183786756 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 300.8628, 0, -379.21985)
+
+[node name="Bush114" parent="IslandBoundary/Shore/South/Vegetation" unique_id=648320200 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 305.77945, 0, -378.21985)
+
+[node name="Bush115" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1541867928 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 293.6657, 0, -378.16653)
+
+[node name="Tree130" parent="IslandBoundary/Shore/South/Vegetation" unique_id=853878955 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.889123, 0, 0.13949901, 0, 0.9, 0, -0.13949901, 0, 0.889123, 75.23765, 0, -371.5287)
+
+[node name="Tree131" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1858449512 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.15126798, 0, 0.76519144, 0, 0.78, 0, -0.76519144, 0, 0.15126798, 91.44211, 0, -376.67047)
+
+[node name="Tree132" parent="IslandBoundary/Shore/South/Vegetation" unique_id=435032890 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.55485016, 0, -0.5763172, 0, 0.8, 0, 0.5763172, 0, 0.55485016, 87.36731, 0, -378.8057)
+
+[node name="Tree133" parent="IslandBoundary/Shore/South/Vegetation" unique_id=51736506 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(-0.05761531, 0, 0.6775548, 0, 0.68, 0, -0.6775548, 0, -0.05761531, 97.54776, 0, -380.4613)
+
+[node name="Bush116" parent="IslandBoundary/Shore/South/Vegetation" unique_id=369609117 instance=ExtResource("15_ouasl")]
+transform = Transform3D(1.1774026, 0, -0.23178247, 0, 1.2000002, 0, 0.23178247, 0, 1.1774026, 84.94399, 0, -379.44772)
+
+[node name="Bush117" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1860156833 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.059553325, 0, 1.0783569, 0, 1.0800002, 0, -1.0783569, 0, 0.059553325, 90.79039, 0, -379.27466)
+
+[node name="Tree134" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1760462898 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 297.96414, 0, -384.1223)
+
+[node name="Bush118" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1377549818 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 288.03104, 0, -386.1223)
+
+[node name="Bush119" parent="IslandBoundary/Shore/South/Vegetation" unique_id=277289005 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 292.9477, 0, -385.1223)
+
+[node name="Bush120" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1092446611 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 282.10074, 0, -385.7043)
+
+[node name="Tree135" parent="IslandBoundary/Shore/South/Vegetation" unique_id=576535210 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.8289549, 0, -0.3504765, 0, 0.9, 0, 0.3504765, 0, 0.8289549, 256.4708, 0, -385.1223)
+
+[node name="Tree136" parent="IslandBoundary/Shore/South/Vegetation" unique_id=529940630 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.53213257, 0, 0.5702937, 0, 0.78, 0, -0.5702937, 0, 0.53213257, 267.82938, 0, -384.1223)
+
+[node name="Tree137" parent="IslandBoundary/Shore/South/Vegetation" unique_id=2098838399 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.16739093, 0, -0.7822917, 0, 0.8, 0, 0.7822917, 0, 0.16739093, 265.4938, 0, -388.0857)
+
+[node name="Tree138" parent="IslandBoundary/Shore/South/Vegetation" unique_id=5612400 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 275.0161, 0, -384.1223)
+
+[node name="Bush121" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1828725081 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 261.4224, 0, -386.1223)
+
+[node name="Bush122" parent="IslandBoundary/Shore/South/Vegetation" unique_id=739267968 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 266.33905, 0, -385.1223)
+
+[node name="Bush123" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1631405993 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 254.22531, 0, -385.069)
+
+[node name="Tree139" parent="IslandBoundary/Shore/South/Vegetation" unique_id=557798013 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.889123, 0, 0.13949901, 0, 0.9, 0, -0.13949901, 0, 0.889123, 35.79725, 0, -378.43115)
+
+[node name="Tree140" parent="IslandBoundary/Shore/South/Vegetation" unique_id=770351876 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.15126798, 0, 0.76519144, 0, 0.78, 0, -0.76519144, 0, 0.15126798, 52.00171, 0, -383.57294)
+
+[node name="Tree141" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1506985982 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.55485016, 0, -0.5763172, 0, 0.8, 0, 0.5763172, 0, 0.55485016, 47.92691, 0, -385.70816)
+
+[node name="Tree142" parent="IslandBoundary/Shore/South/Vegetation" unique_id=550552951 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(-0.05761531, 0, 0.6775548, 0, 0.68, 0, -0.6775548, 0, -0.05761531, 58.10736, 0, -387.36377)
+
+[node name="Bush124" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1609561489 instance=ExtResource("15_ouasl")]
+transform = Transform3D(1.1774026, 0, -0.23178247, 0, 1.2000002, 0, 0.23178247, 0, 1.1774026, 45.503593, 0, -386.3502)
+
+[node name="Bush125" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1998138706 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.059553325, 0, 1.0783569, 0, 1.0800002, 0, -1.0783569, 0, 0.059553325, 51.34999, 0, -386.17712)
+
+[node name="Tree143" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1673938908 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 342.74683, 0, -384.1223)
+
+[node name="Bush126" parent="IslandBoundary/Shore/South/Vegetation" unique_id=846376812 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 332.81372, 0, -386.1223)
+
+[node name="Bush127" parent="IslandBoundary/Shore/South/Vegetation" unique_id=694105149 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 337.73035, 0, -385.1223)
+
+[node name="Bush128" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1345494615 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 326.88342, 0, -385.7043)
+
+[node name="Tree144" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1592816287 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.8289549, 0, -0.3504765, 0, 0.9, 0, 0.3504765, 0, 0.8289549, 301.25348, 0, -385.1223)
+
+[node name="Tree145" parent="IslandBoundary/Shore/South/Vegetation" unique_id=425664404 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.53213257, 0, 0.5702937, 0, 0.78, 0, -0.5702937, 0, 0.53213257, 312.61206, 0, -384.1223)
+
+[node name="Tree146" parent="IslandBoundary/Shore/South/Vegetation" unique_id=2099725 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.16739093, 0, -0.7822917, 0, 0.8, 0, 0.7822917, 0, 0.16739093, 310.2765, 0, -388.0857)
+
+[node name="Tree147" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1904114912 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 319.79877, 0, -384.1223)
+
+[node name="Bush129" parent="IslandBoundary/Shore/South/Vegetation" unique_id=960993519 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 306.20508, 0, -386.1223)
+
+[node name="Bush130" parent="IslandBoundary/Shore/South/Vegetation" unique_id=504905155 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 311.1217, 0, -385.1223)
+
+[node name="Bush131" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1930213439 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 299.008, 0, -385.069)
+
+[node name="Tree148" parent="IslandBoundary/Shore/South/Vegetation" unique_id=295977124 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.889123, 0, 0.13949901, 0, 0.9, 0, -0.13949901, 0, 0.889123, 80.57992, 0, -378.43115)
+
+[node name="Tree149" parent="IslandBoundary/Shore/South/Vegetation" unique_id=2049040840 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.15126798, 0, 0.76519144, 0, 0.78, 0, -0.76519144, 0, 0.15126798, 96.78438, 0, -383.57294)
+
+[node name="Tree150" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1830938263 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.55485016, 0, -0.5763172, 0, 0.8, 0, 0.5763172, 0, 0.55485016, 92.70958, 0, -385.70816)
+
+[node name="Tree151" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1226004377 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(-0.05761531, 0, 0.6775548, 0, 0.68, 0, -0.6775548, 0, -0.05761531, 102.89003, 0, -387.36377)
+
+[node name="Bush132" parent="IslandBoundary/Shore/South/Vegetation" unique_id=951060617 instance=ExtResource("15_ouasl")]
+transform = Transform3D(1.1774026, 0, -0.23178247, 0, 1.2000002, 0, 0.23178247, 0, 1.1774026, 90.28626, 0, -386.3502)
+
+[node name="Bush133" parent="IslandBoundary/Shore/South/Vegetation" unique_id=2005792911 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.059553325, 0, 1.0783569, 0, 1.0800002, 0, -1.0783569, 0, 0.059553325, 96.13266, 0, -386.17712)
+
+[node name="Tree152" parent="IslandBoundary/Shore/South/Vegetation" unique_id=634769814 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 375.50714, 0, -384.1223)
+
+[node name="Bush134" parent="IslandBoundary/Shore/South/Vegetation" unique_id=396549366 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 365.57404, 0, -386.1223)
+
+[node name="Bush135" parent="IslandBoundary/Shore/South/Vegetation" unique_id=438047224 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 370.49066, 0, -385.1223)
+
+[node name="Bush136" parent="IslandBoundary/Shore/South/Vegetation" unique_id=859935595 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 359.64374, 0, -385.7043)
+
+[node name="Tree153" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1768605374 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.8289549, 0, -0.3504765, 0, 0.9, 0, 0.3504765, 0, 0.8289549, 334.0138, 0, -385.1223)
+
+[node name="Tree154" parent="IslandBoundary/Shore/South/Vegetation" unique_id=236176000 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.53213257, 0, 0.5702937, 0, 0.78, 0, -0.5702937, 0, 0.53213257, 345.37238, 0, -384.1223)
+
+[node name="Tree155" parent="IslandBoundary/Shore/South/Vegetation" unique_id=59897221 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.16739093, 0, -0.7822917, 0, 0.8, 0, 0.7822917, 0, 0.16739093, 343.0368, 0, -388.0857)
+
+[node name="Tree156" parent="IslandBoundary/Shore/South/Vegetation" unique_id=764034228 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 352.55908, 0, -384.1223)
+
+[node name="Bush137" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1818980792 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 338.9654, 0, -386.1223)
+
+[node name="Bush138" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1558316395 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 343.88202, 0, -385.1223)
+
+[node name="Bush139" parent="IslandBoundary/Shore/South/Vegetation" unique_id=748010886 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 331.7683, 0, -385.069)
+
+[node name="Tree157" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1306473337 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.889123, 0, 0.13949901, 0, 0.9, 0, -0.13949901, 0, 0.889123, 113.34023, 0, -378.43115)
+
+[node name="Tree158" parent="IslandBoundary/Shore/South/Vegetation" unique_id=767502734 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.15126798, 0, 0.76519144, 0, 0.78, 0, -0.76519144, 0, 0.15126798, 129.5447, 0, -383.57294)
+
+[node name="Tree159" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1812341554 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.55485016, 0, -0.5763172, 0, 0.8, 0, 0.5763172, 0, 0.55485016, 125.469894, 0, -385.70816)
+
+[node name="Tree160" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1556155945 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(-0.05761531, 0, 0.6775548, 0, 0.68, 0, -0.6775548, 0, -0.05761531, 135.65034, 0, -387.36377)
+
+[node name="Bush140" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1499364137 instance=ExtResource("15_ouasl")]
+transform = Transform3D(1.1774026, 0, -0.23178247, 0, 1.2000002, 0, 0.23178247, 0, 1.1774026, 123.04658, 0, -386.3502)
+
+[node name="Bush141" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1862316499 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.059553325, 0, 1.0783569, 0, 1.0800002, 0, -1.0783569, 0, 0.059553325, 128.89297, 0, -386.17712)
+
+[node name="Tree161" parent="IslandBoundary/Shore/South/Vegetation" unique_id=423278450 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 375.50714, 0, -377.44263)
+
+[node name="Bush142" parent="IslandBoundary/Shore/South/Vegetation" unique_id=53484211 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 365.57404, 0, -379.44263)
+
+[node name="Bush143" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1079236490 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 370.49066, 0, -378.44263)
+
+[node name="Bush144" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1163596286 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 359.64374, 0, -379.02463)
+
+[node name="Tree162" parent="IslandBoundary/Shore/South/Vegetation" unique_id=299325889 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.8289549, 0, -0.3504765, 0, 0.9, 0, 0.3504765, 0, 0.8289549, 334.0138, 0, -378.44263)
+
+[node name="Tree163" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1812290510 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.53213257, 0, 0.5702937, 0, 0.78, 0, -0.5702937, 0, 0.53213257, 345.37238, 0, -377.44263)
+
+[node name="Tree164" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1332921840 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.16739093, 0, -0.7822917, 0, 0.8, 0, 0.7822917, 0, 0.16739093, 343.0368, 0, -381.406)
+
+[node name="Tree165" parent="IslandBoundary/Shore/South/Vegetation" unique_id=372653315 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(0.30844533, 0, 0.60602105, 0, 0.68, 0, -0.60602105, 0, 0.30844533, 352.55908, 0, -377.44263)
+
+[node name="Bush145" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1088696316 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.87802666, 0, -0.8179666, 0, 1.2, 0, 0.8179666, 0, 0.87802666, 338.9654, 0, -379.44263)
+
+[node name="Bush146" parent="IslandBoundary/Shore/South/Vegetation" unique_id=499831074 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.61940163, 0, 0.88472694, 0, 1.08, 0, -0.88472694, 0, 0.61940163, 343.88202, 0, -378.44263)
+
+[node name="Bush147" parent="IslandBoundary/Shore/South/Vegetation" unique_id=238688207 instance=ExtResource("15_ouasl")]
+transform = Transform3D(-0.17243485, 0, -1.1471121, 0, 1.16, 0, 1.1471121, 0, -0.17243485, 331.7683, 0, -378.3893)
+
+[node name="Tree166" parent="IslandBoundary/Shore/South/Vegetation" unique_id=624457233 instance=ExtResource("11_8ung1")]
+transform = Transform3D(0.889123, 0, 0.13949901, 0, 0.9, 0, -0.13949901, 0, 0.889123, 113.34023, 0, -371.75146)
+
+[node name="Tree167" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1637408260 instance=ExtResource("14_boxut")]
+transform = Transform3D(0.15126798, 0, 0.76519144, 0, 0.78, 0, -0.76519144, 0, 0.15126798, 129.5447, 0, -376.89325)
+
+[node name="Tree168" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1865706624 instance=ExtResource("12_ew0bf")]
+transform = Transform3D(0.55485016, 0, -0.5763172, 0, 0.8, 0, 0.5763172, 0, 0.55485016, 125.469894, 0, -379.02847)
+
+[node name="Tree169" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1739916477 instance=ExtResource("13_4lgg4")]
+transform = Transform3D(-0.05761531, 0, 0.6775548, 0, 0.68, 0, -0.6775548, 0, -0.05761531, 135.65034, 0, -380.68408)
+
+[node name="Bush148" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1929178160 instance=ExtResource("15_ouasl")]
+transform = Transform3D(1.1774026, 0, -0.23178247, 0, 1.2000002, 0, 0.23178247, 0, 1.1774026, 123.04658, 0, -379.6705)
+
+[node name="Bush149" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1363200035 instance=ExtResource("15_ouasl")]
+transform = Transform3D(0.059553325, 0, 1.0783569, 0, 1.0800002, 0, -1.0783569, 0, 0.059553325, 128.89297, 0, -379.49744)
 
 [node name="Bush66" parent="IslandBoundary/Shore/South/Vegetation" unique_id=1361042215 instance=ExtResource("15_ouasl")]
 transform = Transform3D(0.45857805, 0, -1.0655074, 0, 1.1599998, 0, 1.0655074, 0, 0.45857805, -9.614359, 0, -361.52628)
@@ -4447,6 +5031,152 @@ transform = Transform3D(27.15398, 5.7153034, 26.8495, -7.133392, 38.0971, 1.9235
 [node name="Rock26" parent="IslandBoundary/Shore/South/Wall/RockWall8" unique_id=725645822 instance=ExtResource("9_8dbpb")]
 transform = Transform3D(12.001391, 5.673571, 24.155125, -4.724472, 34.792908, 0.17046022, -13.9530325, -6.900822, 20.71879, 7.1201324, -4.583149, -400.89767)
 
+[node name="RockWall9" type="Node3D" parent="IslandBoundary/Shore/South/Wall" unique_id=144084343]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 251.53723, 0, 0)
+
+[node name="GrassHillHood" type="MeshInstance3D" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=1932503132]
+transform = Transform3D(-0.38000005, 0, -1.2381973e-07, 4.249745e-08, 0.3569169, -0.13042374, 1.16298295e-07, -0.13042374, -0.3569169, 32, -4.347499, -397.10358)
+mesh = ExtResource("8_j56a0")
+
+[node name="GrassHillHood4" type="MeshInstance3D" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=112058980]
+transform = Transform3D(-0.38000005, 0, -1.2381973e-07, 4.249745e-08, 0.3569169, -0.13042374, 1.16298295e-07, -0.13042374, -0.3569169, 62.595978, -4.347499, -397.10358)
+mesh = ExtResource("8_j56a0")
+
+[node name="GrassHillHood2" type="MeshInstance3D" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=792460346]
+transform = Transform3D(-0.31959066, 0, -1.07090415e-07, 2.1491948e-08, 0.36122298, -0.06782972, 1.0189394e-07, -0.07619087, -0.3215826, 10.477509, -4.347499, -397.10358)
+mesh = ExtResource("8_j56a0")
+
+[node name="GrassHillHood3" type="MeshInstance3D" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=751868590]
+transform = Transform3D(-0.29560053, -0.02896209, -0.12224183, 2.1491944e-08, 0.36122295, -0.06782971, 0.12148465, -0.07047159, -0.29744294, 46.136833, -4.347499, -397.10358)
+mesh = ExtResource("8_j56a0")
+
+[node name="Rock02" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=1223748838 instance=ExtResource("10_eg72o")]
+transform = Transform3D(5.6120386, -2.5734117, 27.751024, 2.944036, 24.116938, 2.2909272, -23.843689, 2.372076, 6.814565, 43.536026, -3.9970837, -400.10355)
+
+[node name="Rock03" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=2142318237 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-19.704018, 2.665474, 37.355682, -2.6905153, 38.49491, -6.4189835, -27.577396, -5.660132, -26.064339, 47.702454, -4.038522, -397.71503)
+
+[node name="Rock11" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=39225839 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-14.396831, 1.1283778, 20.744942, -1.5036092, 35.45632, -4.4408216, -12.309005, -5.6509457, -23.721176, 41.916843, -4.038522, -397.71503)
+
+[node name="Rock12" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=603711045 instance=ExtResource("10_eg72o")]
+transform = Transform3D(23.957176, -2.4260356, -6.2254114, 4.0056734, 22.952236, 8.434971, 4.3234305, -7.822075, 26.68148, 38.992413, -4.1940293, -399.37787)
+
+[node name="Rock13" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=935471539 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(27.15398, 5.7153034, 26.8495, -7.133392, 38.0971, 1.9235139, -19.177483, -6.078391, 37.301537, 36.692654, -3.2969491, -395.25815)
+
+[node name="Rock14" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=1399627011 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(12.001391, 5.673571, 24.155125, -4.724472, 34.792908, 0.17046022, -13.9530325, -6.900822, 20.71879, 36.570145, -4.583149, -400.89767)
+
+[node name="Rock15" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=1300771975 instance=ExtResource("10_eg72o")]
+transform = Transform3D(5.6120386, -2.5734117, 27.751024, 2.944036, 24.116938, 2.2909272, -23.843689, 2.372076, 6.814565, 28.984894, -3.9970837, -400.10355)
+
+[node name="Rock16" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=384549063 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-19.704018, 2.665474, 37.355682, -2.6905153, 38.49491, -6.4189835, -27.577396, -5.660132, -26.064339, 33.15132, -4.038522, -397.71503)
+
+[node name="Rock17" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=1722810386 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-14.396831, 1.1283778, 20.744942, -1.5036092, 35.45632, -4.4408216, -12.309005, -5.6509457, -23.721176, 27.365711, -4.038522, -397.71503)
+
+[node name="Rock18" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=342473949 instance=ExtResource("10_eg72o")]
+transform = Transform3D(23.957176, -2.4260356, -6.2254114, 4.0056734, 22.952236, 8.434971, 4.3234305, -7.822075, 26.68148, 24.44128, -4.1940293, -399.37787)
+
+[node name="Rock19" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=1774540169 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(27.15398, 5.7153034, 26.8495, -7.133392, 38.0971, 1.9235139, -19.177483, -6.078391, 37.301537, 22.141521, -3.2969491, -395.25815)
+
+[node name="Rock20" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=875152528 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(12.001391, 5.673571, 24.155125, -4.724472, 34.792908, 0.17046022, -13.9530325, -6.900822, 20.71879, 22.019012, -4.583149, -400.89767)
+
+[node name="Rock21" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=1324447776 instance=ExtResource("10_eg72o")]
+transform = Transform3D(5.6120386, -2.5734117, 27.751024, 2.944036, 24.116938, 2.2909272, -23.843689, 2.372076, 6.814565, 14.086014, -3.9970837, -400.10355)
+
+[node name="Rock22" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=704574055 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-19.704018, 2.665474, 37.355682, -2.6905153, 38.49491, -6.4189835, -27.577396, -5.660132, -26.064339, 18.252441, -4.038522, -397.71503)
+
+[node name="Rock23" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=1539703639 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-14.396831, 1.1283778, 20.744942, -1.5036092, 35.45632, -4.4408216, -12.309005, -5.6509457, -23.721176, 12.466831, -4.038522, -397.71503)
+
+[node name="Rock24" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=1536487823 instance=ExtResource("10_eg72o")]
+transform = Transform3D(23.957176, -2.4260356, -6.2254114, 4.0056734, 22.952236, 8.434971, 4.3234305, -7.822075, 26.68148, 9.5424, -4.1940293, -399.37787)
+
+[node name="Rock25" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=384542009 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(27.15398, 5.7153034, 26.8495, -7.133392, 38.0971, 1.9235139, -19.177483, -6.078391, 37.301537, 7.2426414, -3.2969491, -395.25815)
+
+[node name="Rock26" parent="IslandBoundary/Shore/South/Wall/RockWall9" unique_id=2080500503 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(12.001391, 5.673571, 24.155125, -4.724472, 34.792908, 0.17046022, -13.9530325, -6.900822, 20.71879, 7.1201324, -4.583149, -400.89767)
+
+[node name="RockWall10" type="Node3D" parent="IslandBoundary/Shore/South/Wall" unique_id=136352314]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 299.65933, 0, 0)
+
+[node name="GrassHillHood" type="MeshInstance3D" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1613302973]
+transform = Transform3D(-0.38000005, 0, -1.2381973e-07, 4.249745e-08, 0.3569169, -0.13042374, 1.16298295e-07, -0.13042374, -0.3569169, 32, -4.347499, -397.10358)
+mesh = ExtResource("8_j56a0")
+
+[node name="GrassHillHood4" type="MeshInstance3D" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1122324296]
+transform = Transform3D(-0.38000005, 0, -1.2381973e-07, 4.249745e-08, 0.3569169, -0.13042374, 1.16298295e-07, -0.13042374, -0.3569169, 62.595978, -4.347499, -397.10358)
+mesh = ExtResource("8_j56a0")
+
+[node name="GrassHillHood2" type="MeshInstance3D" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=444072971]
+transform = Transform3D(-0.31959066, 0, -1.07090415e-07, 2.1491948e-08, 0.36122298, -0.06782972, 1.0189394e-07, -0.07619087, -0.3215826, 10.477509, -4.347499, -397.10358)
+mesh = ExtResource("8_j56a0")
+
+[node name="GrassHillHood3" type="MeshInstance3D" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1105118881]
+transform = Transform3D(-0.29560053, -0.02896209, -0.12224183, 2.1491944e-08, 0.36122295, -0.06782971, 0.12148465, -0.07047159, -0.29744294, 46.136833, -4.347499, -397.10358)
+mesh = ExtResource("8_j56a0")
+
+[node name="Rock02" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1748963257 instance=ExtResource("10_eg72o")]
+transform = Transform3D(5.6120386, -2.5734117, 27.751024, 2.944036, 24.116938, 2.2909272, -23.843689, 2.372076, 6.814565, 43.536026, -3.9970837, -400.10355)
+
+[node name="Rock03" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1792487755 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-19.704018, 2.665474, 37.355682, -2.6905153, 38.49491, -6.4189835, -27.577396, -5.660132, -26.064339, 47.702454, -4.038522, -397.71503)
+
+[node name="Rock11" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=225634738 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-14.396831, 1.1283778, 20.744942, -1.5036092, 35.45632, -4.4408216, -12.309005, -5.6509457, -23.721176, 41.916843, -4.038522, -397.71503)
+
+[node name="Rock12" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=309113835 instance=ExtResource("10_eg72o")]
+transform = Transform3D(23.957176, -2.4260356, -6.2254114, 4.0056734, 22.952236, 8.434971, 4.3234305, -7.822075, 26.68148, 38.992413, -4.1940293, -399.37787)
+
+[node name="Rock13" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=2061677290 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(27.15398, 5.7153034, 26.8495, -7.133392, 38.0971, 1.9235139, -19.177483, -6.078391, 37.301537, 36.692654, -3.2969491, -395.25815)
+
+[node name="Rock14" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=124595248 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(12.001391, 5.673571, 24.155125, -4.724472, 34.792908, 0.17046022, -13.9530325, -6.900822, 20.71879, 36.570145, -4.583149, -400.89767)
+
+[node name="Rock15" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1092818813 instance=ExtResource("10_eg72o")]
+transform = Transform3D(5.6120386, -2.5734117, 27.751024, 2.944036, 24.116938, 2.2909272, -23.843689, 2.372076, 6.814565, 28.984894, -3.9970837, -400.10355)
+
+[node name="Rock16" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=417067057 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-19.704018, 2.665474, 37.355682, -2.6905153, 38.49491, -6.4189835, -27.577396, -5.660132, -26.064339, 33.15132, -4.038522, -397.71503)
+
+[node name="Rock17" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=267850742 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-14.396831, 1.1283778, 20.744942, -1.5036092, 35.45632, -4.4408216, -12.309005, -5.6509457, -23.721176, 27.365711, -4.038522, -397.71503)
+
+[node name="Rock18" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1761793525 instance=ExtResource("10_eg72o")]
+transform = Transform3D(23.957176, -2.4260356, -6.2254114, 4.0056734, 22.952236, 8.434971, 4.3234305, -7.822075, 26.68148, 24.44128, -4.1940293, -399.37787)
+
+[node name="Rock19" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1457712829 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(27.15398, 5.7153034, 26.8495, -7.133392, 38.0971, 1.9235139, -19.177483, -6.078391, 37.301537, 22.141521, -3.2969491, -395.25815)
+
+[node name="Rock20" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1148110440 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(12.001391, 5.673571, 24.155125, -4.724472, 34.792908, 0.17046022, -13.9530325, -6.900822, 20.71879, 22.019012, -4.583149, -400.89767)
+
+[node name="Rock21" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1157032487 instance=ExtResource("10_eg72o")]
+transform = Transform3D(5.6120386, -2.5734117, 27.751024, 2.944036, 24.116938, 2.2909272, -23.843689, 2.372076, 6.814565, 14.086014, -3.9970837, -400.10355)
+
+[node name="Rock22" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1435973466 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-19.704018, 2.665474, 37.355682, -2.6905153, 38.49491, -6.4189835, -27.577396, -5.660132, -26.064339, 18.252441, -4.038522, -397.71503)
+
+[node name="Rock23" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1801821786 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-14.396831, 1.1283778, 20.744942, -1.5036092, 35.45632, -4.4408216, -12.309005, -5.6509457, -23.721176, 12.466831, -4.038522, -397.71503)
+
+[node name="Rock24" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1902896026 instance=ExtResource("10_eg72o")]
+transform = Transform3D(23.957176, -2.4260356, -6.2254114, 4.0056734, 22.952236, 8.434971, 4.3234305, -7.822075, 26.68148, 9.5424, -4.1940293, -399.37787)
+
+[node name="Rock25" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=2099888122 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(27.15398, 5.7153034, 26.8495, -7.133392, 38.0971, 1.9235139, -19.177483, -6.078391, 37.301537, 7.2426414, -3.2969491, -395.25815)
+
+[node name="Rock26" parent="IslandBoundary/Shore/South/Wall/RockWall10" unique_id=1490703521 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(12.001391, 5.673571, 24.155125, -4.724472, 34.792908, 0.17046022, -13.9530325, -6.900822, 20.71879, 7.1201324, -4.583149, -400.89767)
+
 [node name="Riprap" type="Node3D" parent="IslandBoundary/Shore/South/Wall" unique_id=1166884603]
 
 [node name="Rock04" parent="IslandBoundary/Shore/South/Wall/Riprap" unique_id=445593208 instance=ExtResource("10_eg72o")]
@@ -4469,6 +5199,18 @@ transform = Transform3D(4.740534, 9.948304, 46.65867, -5.178083, 97.578255, -4.2
 
 [node name="Rock10" parent="IslandBoundary/Shore/South/Wall/Riprap" unique_id=1327666153 instance=ExtResource("10_eg72o")]
 transform = Transform3D(-28.927095, 2.2002552, 12.351433, -0.64526916, 31.026085, -8.538164, -11.126861, -7.519388, -31.61554, 247.52353, -1.36, -393.7)
+
+[node name="Rock11" parent="IslandBoundary/Shore/South/Wall/Riprap" unique_id=521462500 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(-28.956255, -0.026046634, 26.737574, -3.2123594, 39.551617, -5.387049, -21.14748, -5.9723325, -35.792202, 263.33002, -1.52, -394.2)
+
+[node name="Rock12" parent="IslandBoundary/Shore/South/Wall/Riprap" unique_id=127435358 instance=ExtResource("10_eg72o")]
+transform = Transform3D(59.133774, -5.3644934, 16.548098, 4.95259, 45.896698, 7.0919285, -19.62207, -4.5823503, 51.659935, 293.33002, -1.28, -393.6)
+
+[node name="Rock13" parent="IslandBoundary/Shore/South/Wall/Riprap" unique_id=2075791258 instance=ExtResource("9_8dbpb")]
+transform = Transform3D(4.740534, 9.948304, 46.65867, -5.178083, 97.578255, -4.236633, -46.83701, -9.780898, 5.1908655, 322.33002, -1.5, -394.1)
+
+[node name="Rock14" parent="IslandBoundary/Shore/South/Wall/Riprap" unique_id=479397466 instance=ExtResource("10_eg72o")]
+transform = Transform3D(-28.927095, 2.2002552, 12.351433, -0.64526916, 31.026085, -8.538164, -11.126861, -7.519388, -31.61554, 339.85355, -1.36, -393.7)
 
 [node name="Backdrop" type="Node3D" parent="IslandBoundary" unique_id=224073439]
 
@@ -4511,7 +5253,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 126, 1, -390.5)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.882324, 0, 0)
 shape = SubResource("BoxShape3D_05fj2")
 
-[node name="VegetationWind" type="Node" parent="IslandBoundary"]
+[node name="VegetationWind" type="Node" parent="IslandBoundary" unique_id=24271625]
 script = ExtResource("17_vegetation_wind")
 
 [node name="StaticMeshBatches" type="Node3D" parent="IslandBoundary" unique_id=1252614894]
@@ -4583,7 +5325,7 @@ activity_animations = PackedStringArray("Idle", "LeaningOnWall1", "Idle", "Idle"
 reinforcement_positions = Array[Vector3]([Vector3(-14, 0, 6), Vector3(14, 0, 6)])
 
 [node name="WestDealerZoneNorth" type="Node3D" parent="SpawnPoints" unique_id=624407290]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52.278175, 0.1, -332.693)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.32457, 0.1, -302.46805)
 script = ExtResource("18_dealer_zone")
 zone_id = &"hood_west_north"
 territory_id = &"hood_west"
@@ -4598,7 +5340,7 @@ activity_animations = PackedStringArray("Idle", "Talking", "Talking")
 reinforcement_positions = Array[Vector3]([Vector3(-12, 0, -8), Vector3(12, 0, -8)])
 
 [node name="WestDealerZoneSouth" type="Node3D" parent="SpawnPoints" unique_id=1333548260]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 45.31323, 0.1, -328.17047)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 49.297813, 0.1, -173.89136)
 script = ExtResource("18_dealer_zone")
 zone_id = &"hood_west_south"
 territory_id = &"hood_west"

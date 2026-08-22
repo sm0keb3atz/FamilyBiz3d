@@ -157,6 +157,31 @@ func interact(player: CharacterBody3D) -> void:
 		npc.global_position,
 		amount_wanted
 	)
+	if result.success:
+		FloatingText3D.spawn_cash_and_xp(
+			npc.get_tree(),
+			npc.global_position,
+			result.dirty_cash_delta,
+			result.experience_delta
+		)
+		var barks := [
+			"Good looks.",
+			"Appreciate you.",
+			"Pure quality.",
+			"Stay safe.",
+			"Keep it lowkey.",
+			"Say less.",
+			"Good business."
+		]
+		var bark: String = barks.pick_random()
+		FloatingText3D.spawn(
+			npc.get_tree(),
+			npc.global_position + Vector3.UP * 1.55,
+			"\"%s\"" % bark,
+			Color(0.88, 0.92, 1.0, 0.92),
+			28,
+			1.6
+		)
 	hud.show_feedback(result.message)
 	npc.finish_customer_trade()
 

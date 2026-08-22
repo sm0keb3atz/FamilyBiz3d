@@ -151,13 +151,17 @@ func create_vfx_attachment(world_position: Vector3) -> Node3D:
 	var closest_bone := (
 		_find_closest_vfx_bone(world_position).name as StringName
 	)
+	var node_name := "BloodMark_%s" % closest_bone
+	var existing := _skeleton.get_node_or_null(node_name) as BoneAttachment3D
+	if existing != null:
+		return existing
 	var attachment := BoneAttachment3D.new()
-	attachment.name = "BloodMark_%s" % closest_bone
-	_skeleton.add_child(attachment)
+	attachment.name = node_name
 	attachment.bone_name = closest_bone
 	var bone_index := _skeleton.find_bone(closest_bone)
 	if bone_index >= 0:
 		attachment.transform = _skeleton.get_bone_global_pose(bone_index)
+	_skeleton.add_child(attachment)
 	return attachment
 
 

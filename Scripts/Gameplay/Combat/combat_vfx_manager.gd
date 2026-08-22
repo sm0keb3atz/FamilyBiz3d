@@ -10,6 +10,7 @@ const BLOOD_POOL_SIZE := 16
 const SURFACE_POOL_SIZE := 24
 const TRACER_POOL_SIZE := 32
 const MUZZLE_SMOKE_POOL_SIZE := 8
+const SHELL_CASING_POOL_SIZE := 32
 const MAX_WOUNDS_PER_CHARACTER := 4
 const MAX_BLOOD_MARKS := 48
 const MAX_BULLET_HOLES := 96
@@ -36,11 +37,16 @@ var _surface_pool: Array[Node3D] = []
 var _tracer_pool: Array[MeshInstance3D] = []
 var _muzzle_smoke_pool: Array[Node3D] = []
 var _bullet_hole_pool: Array[MeshInstance3D] = []
+var _blood_mark_pool: Array[MeshInstance3D] = []
+var _shell_casing_pool: Array[MeshInstance3D] = []
+
 var _blood_cursor := 0
 var _surface_cursor := 0
 var _tracer_cursor := 0
 var _muzzle_smoke_cursor := 0
 var _bullet_hole_cursor := 0
+var _blood_mark_cursor := 0
+var _shell_casing_cursor := 0
 
 var _blood_marks: Array[Dictionary] = []
 var _bullet_holes: Array[Dictionary] = []
@@ -56,9 +62,13 @@ var _tracer_mesh: BoxMesh
 var _ribbon_mesh: BoxMesh
 var _bullet_hole_mesh: QuadMesh
 var _impact_flash_mesh: QuadMesh
+var _shell_casing_mesh: CylinderMesh
 var _bullet_hole_material: ShaderMaterial
 var _tracer_material: StandardMaterial3D
 var _ribbon_material: StandardMaterial3D
+var _shell_casing_material: StandardMaterial3D
+var _wound_materials: Array[ShaderMaterial] = []
+var _death_pool_material: ShaderMaterial
 var _smoke_fade_texture: GradientTexture1D
 
 
@@ -78,6 +88,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_update_tracers(delta)
+	_update_shell_casings(delta)
 	_update_surface_flashes()
 	_update_pending_death_pools()
 	_update_death_pools()
@@ -157,6 +168,34 @@ func spawn_tracer(
 	_spawn_tracer_internal(
 		from, to, visible_length, speed, lifetime, false
 	)
+
+
+func spawn_shell_casing(
+	origin: Vector3,
+	forward_direction: Vector3,
+	right_direction: Vector3,
+	is_heavy := false
+) -> void:
+	if _shell_casing_pool.is_empty():
+		return
+	var casing: MeshInstance3D = _shell_casing_pool[_shell_casing_cursor]
+	_shell_casing_cursor = (_shell_casing_cursor + 1) % _shell_casing_pool.size()
+	casing.visible = true
+	casing.global_position = origin
+	var ejection_dir := (
+		right_direction * randf_range(0.85, 1.25)
+		+ Vector3.UP * randf_range(1.2, 1.8)
+		- forward_direction * randf_range(0.15, 0.45)
+	).normalized()
+	var speed := randf_range(2.8, 4.4) if not is_heavy else randf_range(3.2, 5.0)
+	casing.set_meta("velocity", ejection_dir * speed)
+	casing.set_meta("angular_velocity", Vector3(
+		randf_range(-18.0, 18.0),
+		randf_range(-18.0, 18.0),
+		randf_range(-18.0, 18.0)
+	))
+	casing.set_meta("remaining", 3.0)
+	casing.set_meta("bounces", 0)
 
 
 func spawn_near_miss_ribbon(
@@ -286,6 +325,30 @@ func _build_shared_resources() -> void:
 		Color(1.0, 0.72, 0.18, 0.5), Color(1.0, 0.38, 0.02), 2.1
 	)
 
+	_shell_casing_material = StandardMaterial3D.new()
+	_shell_casing_material.albedo_color = Color(0.92, 0.75, 0.32)
+	_shell_casing_material.metallic = 0.88
+	_shell_casing_material.roughness = 0.22
+	_shell_casing_mesh = CylinderMesh.new()
+	_shell_casing_mesh.top_radius = 0.007
+	_shell_casing_mesh.bottom_radius = 0.007
+	_shell_casing_mesh.height = 0.03
+	_shell_casing_mesh.radial_segments = 6
+	_shell_casing_mesh.material = _shell_casing_material
+
+	_wound_materials.clear()
+	for texture in BLOOD_WOUND_TEXTURES:
+		var mat := ShaderMaterial.new()
+		mat.shader = BLOOD_MARK_SHADER
+		mat.set_shader_parameter("blood_texture", texture)
+		mat.set_shader_parameter("blood_tint", Color(0.24, 0.0015, 0.003, 0.96))
+		_wound_materials.append(mat)
+
+	_death_pool_material = ShaderMaterial.new()
+	_death_pool_material.shader = BLOOD_MARK_SHADER
+	_death_pool_material.set_shader_parameter("blood_texture", BLOOD_POOL_TEXTURE)
+	_death_pool_material.set_shader_parameter("blood_tint", Color(0.19, 0.001, 0.003, 0.9))
+
 
 func _prewarm_pools() -> void:
 	for index in BLOOD_POOL_SIZE:
@@ -310,6 +373,27 @@ func _prewarm_pools() -> void:
 		var mark := _create_pooled_bullet_hole(index)
 		add_child(mark)
 		_bullet_hole_pool.append(mark)
+	for index in MAX_BLOOD_MARKS:
+		var mark := MeshInstance3D.new()
+		mark.name = "PooledBloodMark%02d" % index
+		var quad := QuadMesh.new()
+		quad.size = Vector2.ONE * 0.1
+		mark.mesh = quad
+		mark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mark.visible = false
+		mark.set_meta("pooled_blood_mark", true)
+		add_child(mark)
+		_blood_mark_pool.append(mark)
+	for index in SHELL_CASING_POOL_SIZE:
+		var casing := MeshInstance3D.new()
+		casing.name = "PooledShellCasing%02d" % index
+		casing.top_level = true
+		casing.mesh = _shell_casing_mesh
+		casing.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		casing.visible = false
+		casing.set_meta("remaining", 0.0)
+		add_child(casing)
+		_shell_casing_pool.append(casing)
 	for index in MUZZLE_SMOKE_POOL_SIZE:
 		var slot := Node3D.new()
 		slot.name = "MuzzleSmokeSlot%02d" % index
@@ -541,6 +625,44 @@ func _update_tracers(delta: float) -> void:
 			tracer.visible = false
 
 
+func _update_shell_casings(delta: float) -> void:
+	for casing in _shell_casing_pool:
+		var remaining: float = float(casing.get_meta("remaining", 0.0))
+		if remaining <= 0.0:
+			continue
+		var velocity: Vector3 = casing.get_meta("velocity", Vector3.ZERO) as Vector3
+		var angular: Vector3 = casing.get_meta("angular_velocity", Vector3.ZERO) as Vector3
+		velocity += Vector3.DOWN * 9.8 * delta
+		var motion := velocity * delta
+		var bounces: int = int(casing.get_meta("bounces", 0))
+		if bounces < 3 and casing.is_inside_tree() and get_world_3d() != null:
+			var query := PhysicsRayQueryParameters3D.create(
+				casing.global_position,
+				casing.global_position + motion
+			)
+			var hit := get_world_3d().direct_space_state.intersect_ray(query)
+			if not hit.is_empty():
+				casing.global_position = (hit.position as Vector3) + (hit.normal as Vector3) * 0.015
+				var normal: Vector3 = hit.normal
+				velocity = velocity.bounce(normal) * 0.45
+				angular = angular * 0.5
+				bounces += 1
+				casing.set_meta("bounces", bounces)
+			else:
+				casing.global_position += motion
+		else:
+			casing.global_position += motion
+		casing.rotate_x(angular.x * delta)
+		casing.rotate_y(angular.y * delta)
+		casing.rotate_z(angular.z * delta)
+		casing.set_meta("velocity", velocity)
+		casing.set_meta("angular_velocity", angular)
+		remaining -= delta
+		casing.set_meta("remaining", remaining)
+		if remaining <= 0.0:
+			casing.visible = false
+
+
 func _update_surface_flashes() -> void:
 	var now: int = Time.get_ticks_msec()
 	for slot in _surface_pool:
@@ -557,8 +679,9 @@ func _create_wound_mark(
 ) -> void:
 	var owner: Node3D = _find_vfx_owner(hit_collider)
 	_remove_excess_owner_wounds(owner)
+	var texture_index := randi() % _wound_materials.size() if not _wound_materials.is_empty() else 0
 	var mark: MeshInstance3D = _create_blood_mark(
-		BLOOD_WOUND_TEXTURES.pick_random(),
+		texture_index,
 		hit_position,
 		hit_normal,
 		0.072,
@@ -593,8 +716,9 @@ func _trace_environment_splats(
 		var result: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
 		if result.is_empty():
 			continue
+		var texture_index := randi() % _wound_materials.size() if not _wound_materials.is_empty() else 0
 		var mark: MeshInstance3D = _create_blood_mark(
-			BLOOD_WOUND_TEXTURES.pick_random(),
+			texture_index,
 			result.position as Vector3,
 			result.normal as Vector3,
 			randf_range(0.13, 0.27),
@@ -651,22 +775,53 @@ func _release_existing_bullet_hole_record(mark: MeshInstance3D) -> void:
 			return
 
 
+func _release_existing_blood_mark_record(mark: MeshInstance3D) -> void:
+	for index in range(_blood_marks.size() - 1, -1, -1):
+		var record: Dictionary = _blood_marks[index]
+		if _get_valid_record_node(record, &"node") == mark:
+			_blood_marks.remove_at(index)
+			return
+
+
 func _create_blood_mark(
-	texture: Texture2D,
+	texture_index: int,
 	position: Vector3,
 	normal: Vector3,
 	size: float,
-	color: Color
+	_color: Color
 ) -> MeshInstance3D:
-	var mark := MeshInstance3D.new()
-	var quad := QuadMesh.new()
-	quad.size = Vector2.ONE * size
-	var material := ShaderMaterial.new()
-	material.shader = BLOOD_MARK_SHADER
-	material.set_shader_parameter("blood_texture", texture)
-	material.set_shader_parameter("blood_tint", color)
-	quad.material = material
-	mark.mesh = quad
+	if _blood_mark_pool.is_empty():
+		var fallback := MeshInstance3D.new()
+		fallback.mesh = QuadMesh.new()
+		fallback.mesh.size = Vector2.ONE * size
+		_place_mark(fallback, position, normal, 0.006)
+		return fallback
+	# Advance cursor until we find a valid (not freed) pooled node
+	var attempts := 0
+	var mark: MeshInstance3D
+	while attempts < _blood_mark_pool.size():
+		var candidate: MeshInstance3D = _blood_mark_pool[_blood_mark_cursor]
+		_blood_mark_cursor = (_blood_mark_cursor + 1) % _blood_mark_pool.size()
+		if is_instance_valid(candidate):
+			mark = candidate
+			break
+		attempts += 1
+	if mark == null:
+		# All pooled marks were freed — fall back to a fresh one
+		var fallback := MeshInstance3D.new()
+		fallback.mesh = QuadMesh.new()
+		fallback.mesh.size = Vector2.ONE * size
+		_place_mark(fallback, position, normal, 0.006)
+		return fallback
+	_release_existing_blood_mark_record(mark)
+	if mark.get_parent() != self:
+		mark.reparent(self, true)
+	mark.visible = true
+	var quad := mark.mesh as QuadMesh
+	if quad != null:
+		quad.size = Vector2.ONE * size
+		if not _wound_materials.is_empty():
+			quad.material = _wound_materials[texture_index % _wound_materials.size()]
 	_place_mark(mark, position, normal, 0.006)
 	return mark
 
@@ -695,13 +850,37 @@ func _create_death_pool(owner: Node3D) -> void:
 	var result: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
 	if result.is_empty():
 		return
-	var mark: MeshInstance3D = _create_blood_mark(
-		BLOOD_POOL_TEXTURE,
-		result.position as Vector3,
-		result.normal as Vector3,
-		randf_range(1.18, 1.42),
-		Color(0.19, 0.001, 0.003, 0.9)
-	)
+
+	# Death pools use a dedicated material (BLOOD_POOL_TEXTURE), not the wound index pool.
+	var mark: MeshInstance3D
+	if not _blood_mark_pool.is_empty():
+		# Advance cursor until a valid (not freed) pooled node is found
+		var attempts := 0
+		while attempts < _blood_mark_pool.size():
+			var candidate: MeshInstance3D = _blood_mark_pool[_blood_mark_cursor]
+			_blood_mark_cursor = (_blood_mark_cursor + 1) % _blood_mark_pool.size()
+			if is_instance_valid(candidate):
+				mark = candidate
+				break
+			attempts += 1
+	if mark != null:
+		_release_existing_blood_mark_record(mark)
+		if mark.get_parent() != self:
+			mark.reparent(self, true)
+		mark.visible = true
+		var quad := mark.mesh as QuadMesh
+		if quad != null:
+			quad.size = Vector2.ONE * randf_range(1.18, 1.42)
+			quad.material = _death_pool_material
+	else:
+		mark = MeshInstance3D.new()
+		var quad := QuadMesh.new()
+		quad.size = Vector2.ONE * randf_range(1.18, 1.42)
+		quad.material = _death_pool_material
+		mark.mesh = quad
+		mark.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_place_mark(mark, result.position as Vector3, result.normal as Vector3, 0.006)
+
 	mark.name = "PooledDeathPool"
 	var host: Node3D = _attach_mark(mark, result.collider as Node3D)
 	var target_scale: Vector3 = Vector3(randf_range(1.0, 1.3), randf_range(0.72, 0.94), 1.0)

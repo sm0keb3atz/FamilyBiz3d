@@ -340,41 +340,46 @@ func _on_footstep_played(_is_sprinting: bool) -> void:
 
 func add_shot_impulse(definition: WeaponDefinition) -> void:
 	var pitch_degrees := shot_rotation_degrees
-	var yaw_degrees := shot_rotation_degrees * 0.2
+	var yaw_degrees := shot_rotation_degrees * 0.25
 	var position_kick := shot_position_strength
 	var shake_strength := 1.0
 	var recovery := shot_shake_decay
+	var is_heavy := false
 	if definition != null:
 		pitch_degrees = definition.visual_recoil_pitch_degrees
 		yaw_degrees = definition.visual_recoil_yaw_degrees
 		position_kick = definition.visual_recoil_position_kick
 		shake_strength = definition.visual_shake_strength
 		recovery = definition.visual_recoil_recovery
+		is_heavy = definition.weapon_id == &"draco"
+
+	var heavy_mult := 1.35 if is_heavy else 1.0
 	_rotation_impulse += Vector3(
-		-deg_to_rad(pitch_degrees),
-		deg_to_rad(randf_range(-yaw_degrees, yaw_degrees)),
-		deg_to_rad(randf_range(-yaw_degrees * 0.35, yaw_degrees * 0.35))
+		-deg_to_rad(pitch_degrees * heavy_mult),
+		deg_to_rad(randf_range(-yaw_degrees, yaw_degrees) * heavy_mult),
+		deg_to_rad(randf_range(-yaw_degrees * 0.45, yaw_degrees * 0.45))
 	)
-	_position_impulse.y = minf(_position_impulse.y + position_kick * 0.45, 0.045)
-	_rotation_impulse.x = maxf(_rotation_impulse.x, deg_to_rad(-3.0))
-	_impulse_recovery = maxf(recovery, 0.1)
-	_shot_shake_target = minf(_shot_shake_target + shake_strength, 1.35)
+	_position_impulse.y = minf(_position_impulse.y + position_kick * 0.55 * heavy_mult, 0.065)
+	_position_impulse.x += randf_range(-position_kick * 0.25, position_kick * 0.25)
+	_rotation_impulse.x = maxf(_rotation_impulse.x, deg_to_rad(-4.5))
+	_impulse_recovery = maxf(recovery * 1.25, 0.1)
+	_shot_shake_target = minf(_shot_shake_target + shake_strength * heavy_mult, 1.8)
 
 
 func add_damage_impulse(world_direction: Vector3, strength := 1.0) -> void:
 	var safe_strength := clampf(strength, 0.2, 1.5)
 	var local_direction := camera.global_basis.inverse() * world_direction.normalized()
 	_rotation_impulse += Vector3(
-		deg_to_rad(damage_rotation_degrees * 0.35 * safe_strength),
+		deg_to_rad(damage_rotation_degrees * 0.45 * safe_strength),
 		deg_to_rad(-local_direction.x * damage_rotation_degrees * safe_strength),
-		deg_to_rad(-local_direction.x * damage_rotation_degrees * 0.65 * safe_strength)
+		deg_to_rad(-local_direction.x * damage_rotation_degrees * 0.75 * safe_strength)
 	)
 	_position_impulse += Vector3(
 		-local_direction.x,
-		0.45,
+		0.55,
 		0.0
 	).normalized() * damage_position_strength * safe_strength
-	_shot_shake_target = minf(_shot_shake_target + 0.7 * safe_strength, 1.35)
+	_shot_shake_target = minf(_shot_shake_target + 0.85 * safe_strength, 1.6)
 	_impulse_recovery = impulse_recovery_speed
 
 

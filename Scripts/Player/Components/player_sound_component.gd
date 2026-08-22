@@ -42,6 +42,44 @@ var _footstep_playback_id := 0
 var _reload_playback_id := 0
 var _footsteps_enabled := true
 
+const AUDIO_POOL_SIZE := 8
+var _gunshot_pool: Array[AudioStreamPlayer3D] = []
+var _impact_pool: Array[AudioStreamPlayer3D] = []
+var _surface_pool: Array[AudioStreamPlayer3D] = []
+var _gunshot_cursor := 0
+var _impact_cursor := 0
+var _surface_cursor := 0
+
+
+func _ready() -> void:
+	_initialize_audio_pools()
+
+
+func _initialize_audio_pools() -> void:
+	for i in AUDIO_POOL_SIZE:
+		var gp := AudioStreamPlayer3D.new()
+		gp.name = "PooledGunshot%02d" % i
+		gp.max_distance = 90.0
+		gp.max_polyphony = 1
+		if gunshot_player != null:
+			gp.bus = gunshot_player.bus
+		add_child(gp)
+		_gunshot_pool.append(gp)
+
+		var ip := AudioStreamPlayer3D.new()
+		ip.name = "PooledImpact%02d" % i
+		ip.max_distance = 24.0
+		ip.max_polyphony = 1
+		add_child(ip)
+		_impact_pool.append(ip)
+
+		var sp := AudioStreamPlayer3D.new()
+		sp.name = "PooledSurface%02d" % i
+		sp.max_distance = 28.0
+		sp.max_polyphony = 1
+		add_child(sp)
+		_surface_pool.append(sp)
+
 
 func play_footstep(
 	clip_index: int,
@@ -154,14 +192,11 @@ func play_equip_sound() -> void:
 
 func play_gunshot(position: Vector3, sound_override: AudioStream = null) -> void:
 	var sound := sound_override if sound_override != null else gunshot_sound
-	if sound == null:
+	if sound == null or _gunshot_pool.is_empty():
 		return
 
-	var player := AudioStreamPlayer3D.new()
-	var host := get_tree().current_scene
-	if host == null:
-		host = get_tree().root
-	host.add_child(player)
+	var player := _gunshot_pool[_gunshot_cursor]
+	_gunshot_cursor = (_gunshot_cursor + 1) % _gunshot_pool.size()
 	player.global_position = position
 	player.stream = sound
 	player.pitch_scale = randf_range(
@@ -169,26 +204,19 @@ func play_gunshot(position: Vector3, sound_override: AudioStream = null) -> void
 		1.0 + gunshot_pitch_variation
 	)
 	player.volume_db = gunshot_volume_db
-	player.max_distance = gunshot_player.max_distance
-	player.max_polyphony = 1
-	player.bus = gunshot_player.bus
-	player.finished.connect(player.queue_free)
 	player.play()
 
 
 func play_npc_impact(position: Vector3) -> void:
-	if npc_impact_sounds.is_empty():
+	if npc_impact_sounds.is_empty() or _impact_pool.is_empty():
 		return
 
 	var sound := npc_impact_sounds.pick_random() as AudioStream
 	if sound == null:
 		return
 
-	var player := AudioStreamPlayer3D.new()
-	var sound_parent: Node = get_tree().current_scene
-	if sound_parent == null:
-		sound_parent = get_tree().root
-	sound_parent.add_child(player)
+	var player := _impact_pool[_impact_cursor]
+	_impact_cursor = (_impact_cursor + 1) % _impact_pool.size()
 	player.global_position = position
 	player.stream = sound
 	player.pitch_scale = randf_range(
@@ -196,25 +224,20 @@ func play_npc_impact(position: Vector3) -> void:
 		1.0 + impact_pitch_variation
 	)
 	player.volume_db = impact_volume_db
-	player.max_distance = 22.0
-	player.finished.connect(player.queue_free)
 	player.play()
 
 
 func play_surface_impact(position: Vector3, is_metal: bool) -> void:
 	var sounds := metal_impact_sounds if is_metal else stone_impact_sounds
-	if sounds.is_empty():
+	if sounds.is_empty() or _surface_pool.is_empty():
 		return
 
 	var sound := sounds.pick_random() as AudioStream
 	if sound == null:
 		return
 
-	var player := AudioStreamPlayer3D.new()
-	var sound_parent: Node = get_tree().current_scene
-	if sound_parent == null:
-		sound_parent = get_tree().root
-	sound_parent.add_child(player)
+	var player := _surface_pool[_surface_cursor]
+	_surface_cursor = (_surface_cursor + 1) % _surface_pool.size()
 	player.global_position = position
 	player.stream = sound
 	player.pitch_scale = randf_range(
@@ -222,8 +245,6 @@ func play_surface_impact(position: Vector3, is_metal: bool) -> void:
 		1.0 + impact_pitch_variation
 	)
 	player.volume_db = surface_impact_volume_db
-	player.max_distance = 28.0
-	player.finished.connect(player.queue_free)
 	player.play()
 
 

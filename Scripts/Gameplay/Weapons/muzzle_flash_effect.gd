@@ -1,9 +1,9 @@
 class_name MuzzleFlashEffect
 extends Node3D
 
-@export_range(0.01, 0.2, 0.005) var light_duration := 0.065
-@export_range(0.0, 16.0, 0.1) var light_energy_min := 5.5
-@export_range(0.0, 16.0, 0.1) var light_energy_max := 7.5
+@export_range(0.01, 0.2, 0.005) var light_duration := 0.085
+@export_range(0.0, 32.0, 0.1) var light_energy_min := 12.0
+@export_range(0.0, 32.0, 0.1) var light_energy_max := 16.0
 
 @onready var _particles := $MuzzlePlanes as GPUParticles3D
 @onready var _light := $FlashLight as OmniLight3D
@@ -41,4 +41,4 @@ func _process(delta: float) -> void:
 		set_process(false)
 		return
 	var life_ratio := _light_time_remaining / light_duration
-	_light.light_energy = _peak_light_energy * life_ratio * life_ratio
+	_light.light_energy = _peak_light_energy * sqrt(life_ratio)

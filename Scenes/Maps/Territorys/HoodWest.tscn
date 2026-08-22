@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://cy184qp616gim" path="res://Scenes/Maps/Territorys/Blocks/hood_west_block_1.tscn" id="4_rvle8"]
 [ext_resource type="PackedScene" uid="uid://bd6hdd3lsvq36" path="res://Scenes/Maps/Territorys/Blocks/hood_west_block_2.tscn" id="5_mglua"]
+[ext_resource type="PackedScene" uid="uid://dplcnrn0vwr7" path="res://Scenes/Maps/RoadPieces/street_light.tscn" id="6_mglua"]
 [ext_resource type="Script" uid="uid://daq7qgwhbofw5" path="res://Scripts/Gameplay/territory_stats_component.gd" id="10_stats"]
 [ext_resource type="Script" uid="uid://cqkqgrwcoxm7u" path="res://Scripts/Gameplay/territory_boundary.gd" id="11_boundary"]
 [ext_resource type="Script" uid="uid://dnmxrkmpfo7s8" path="res://Scripts/World/static_multimesh_batcher.gd" id="12_batcher"]
@@ -43,3 +44,102 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 128,
 
 [node name="HoodWestBlock2" parent="." unique_id=299342787 instance=ExtResource("5_mglua")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 136, 0, -7)
+
+[node name="StreetLights" type="Node3D" parent="." unique_id=287650331]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 12)
+
+[node name="StreetLight" parent="StreetLights" unique_id=2065760400 instance=ExtResource("6_mglua")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 62.4, 2.9802322e-07, -17)
+
+[node name="StreetLight4" parent="StreetLights" unique_id=1652856357 instance=ExtResource("6_mglua")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 23.400002, 2.9802322e-07, -17)
+
+[node name="StreetLight2" parent="StreetLights" unique_id=1272258969 instance=ExtResource("6_mglua")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 83.80001, 2.9802322e-07, -17)
+
+[node name="StreetLight3" parent="StreetLights" unique_id=1850834853 instance=ExtResource("6_mglua")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 106.30001, 2.9802322e-07, -17)
+
+[node name="StreetLight5" parent="StreetLights" unique_id=4722036 instance=ExtResource("6_mglua")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 57.4, 2.9802322e-07, 2.8000002)
+
+[node name="StreetLight8" parent="StreetLights" unique_id=277162551 instance=ExtResource("6_mglua")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 31.3, 2.9802322e-07, 2.8000002)
+
+[node name="StreetLight6" parent="StreetLights" unique_id=338164138 instance=ExtResource("6_mglua")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 83.80001, 2.9802322e-07, 2.8000002)
+
+[node name="StreetLight7" parent="StreetLights" unique_id=2030704769 instance=ExtResource("6_mglua")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 106.30001, 2.9802322e-07, 2.8000002)
+
+[node name="StreetLight9" parent="StreetLights" unique_id=1238160708 instance=ExtResource("6_mglua")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 16.000004, 2.9802322e-07, 66)
+
+[node name="StreetLight10" parent="StreetLights" unique_id=1991480375 instance=ExtResource("6_mglua")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 16.000004, 2.9802322e-07, 92.1)
+
+[node name="StreetLight11" parent="StreetLights" unique_id=1140051293 instance=ExtResource("6_mglua")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 16.000004, 2.9802322e-07, 39.59999)
+
+[node name="StreetLight12" parent="StreetLights" unique_id=1979268805 instance=ExtResource("6_mglua")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 16.000004, 2.9802322e-07, 17.099993)
+
+[node name="StreetLight13" parent="StreetLights" unique_id=1482037674 instance=ExtResource("6_mglua")]
+transform = Transform3D(1.2665987e-07, 0, -1, 0, 1, 0, 1, 0, 1.2665987e-07, 79.40001, 2.9802322e-07, 103.299995)
+
+[node name="StreetLight14" parent="StreetLights" unique_id=445075764 instance=ExtResource("6_mglua")]
+transform = Transform3D(1.2665987e-07, 0, -1, 0, 1, 0, 1, 0, 1.2665987e-07, 105.50001, 2.9802322e-07, 103.299995)
+
+[node name="StreetLight15" parent="StreetLights" unique_id=64407227 instance=ExtResource("6_mglua")]
+transform = Transform3D(1.2665987e-07, 0, -1, 0, 1, 0, 1, 0, 1.2665987e-07, 53, 2.9802322e-07, 103.3)
+
+[node name="StreetLight16" parent="StreetLights" unique_id=89743414 instance=ExtResource("6_mglua")]
+transform = Transform3D(1.2665987e-07, 0, -1, 0, 1, 0, 1, 0, 1.2665987e-07, 30.5, 2.9802322e-07, 103.3)
+
+[node name="StreetLight17" parent="StreetLights" unique_id=874055737 instance=ExtResource("6_mglua")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.9, 2.9802322e-07, 45.8)
+
+[node name="StreetLight18" parent="StreetLights" unique_id=188917859 instance=ExtResource("6_mglua")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.9, 2.9802322e-07, 17.7)
+
+[node name="StreetLight19" parent="StreetLights" unique_id=1458144818 instance=ExtResource("6_mglua")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.90001, 2.9802322e-07, 64.20001)
+
+[node name="StreetLight20" parent="StreetLights" unique_id=1185117753 instance=ExtResource("6_mglua")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.90001, 2.9802322e-07, 92.70001)
+
+[node name="StreetLight21" parent="StreetLights" unique_id=813254080 instance=ExtResource("6_mglua")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.9, 2.9802322e-07, -78.600006)
+
+[node name="StreetLight22" parent="StreetLights" unique_id=1512174285 instance=ExtResource("6_mglua")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.9, 2.9802322e-07, -104.7)
+
+[node name="StreetLight23" parent="StreetLights" unique_id=1607273032 instance=ExtResource("6_mglua")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.90001, 2.9802322e-07, -52.19999)
+
+[node name="StreetLight24" parent="StreetLights" unique_id=960011537 instance=ExtResource("6_mglua")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.90001, 2.9802322e-07, -29.69999)
+
+[node name="StreetLight25" parent="StreetLights" unique_id=968470363 instance=ExtResource("6_mglua")]
+transform = Transform3D(-2.1408266e-07, 0, 1, 0, 1, 0, -1, 0, -2.1408266e-07, 46.5, 2.9802322e-07, -117.09999)
+
+[node name="StreetLight26" parent="StreetLights" unique_id=1194038998 instance=ExtResource("6_mglua")]
+transform = Transform3D(-2.1408266e-07, 0, 1, 0, 1, 0, -1, 0, -2.1408266e-07, 21.800009, 2.9802322e-07, -117.09999)
+
+[node name="StreetLight27" parent="StreetLights" unique_id=557922990 instance=ExtResource("6_mglua")]
+transform = Transform3D(-2.1408266e-07, 0, 1, 0, 1, 0, -1, 0, -2.1408266e-07, 79.70001, 2.9802322e-07, -117.09999)
+
+[node name="StreetLight28" parent="StreetLights" unique_id=1367022251 instance=ExtResource("6_mglua")]
+transform = Transform3D(-2.1408266e-07, 0, 1, 0, 1, 0, -1, 0, -2.1408266e-07, 102.20001, 2.9802322e-07, -117.09999)
+
+[node name="StreetLight29" parent="StreetLights" unique_id=1057007969 instance=ExtResource("6_mglua")]
+transform = Transform3D(-1, 0, -2.5779406e-07, 0, 1, 0, 2.5779406e-07, 0, -1, 15.550009, 2.9802322e-07, -55.14998)
+
+[node name="StreetLight30" parent="StreetLights" unique_id=760785524 instance=ExtResource("6_mglua")]
+transform = Transform3D(-1, 0, -2.5779406e-07, 0, 1, 0, 2.5779406e-07, 0, -1, 15.550009, 2.9802322e-07, -30.44999)
+
+[node name="StreetLight31" parent="StreetLights" unique_id=666930792 instance=ExtResource("6_mglua")]
+transform = Transform3D(-1, 0, -2.5779406e-07, 0, 1, 0, 2.5779406e-07, 0, -1, 15.550009, 2.9802322e-07, -88.35)
+
+[node name="StreetLight32" parent="StreetLights" unique_id=543806273 instance=ExtResource("6_mglua")]
+transform = Transform3D(-1, 0, -2.5779406e-07, 0, 1, 0, 2.5779406e-07, 0, -1, 15.550009, 2.9802322e-07, -110.85)

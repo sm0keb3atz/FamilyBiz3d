@@ -585,6 +585,7 @@ func try_fire() -> bool:
 	_broadcast_gunshot()
 	var muzzle_position := _get_muzzle_position()
 	_spawn_tracer(muzzle_position, hit_position)
+	_spawn_shell_casing(definition)
 	_play_muzzle_smoke(muzzle_position, (hit_position - muzzle_position).normalized())
 	ammo_changed.emit(get_magazine_ammo(), get_reserve_ammo())
 	fired.emit(hit_position)
@@ -942,6 +943,20 @@ func _spawn_tracer(from: Vector3, to: Vector3) -> void:
 			tracer_speed,
 			tracer_lifetime
 		)
+
+
+func _spawn_shell_casing(definition: WeaponDefinition) -> void:
+	var manager := CombatVFXManager.find(get_tree())
+	if manager == null:
+		return
+	var origin := _get_muzzle_position()
+	var forward := -body.global_transform.basis.z
+	var right := body.global_transform.basis.x
+	if weapon_model != null:
+		forward = -weapon_model.global_transform.basis.z
+		right = weapon_model.global_transform.basis.x
+	var is_heavy := definition != null and definition.weapon_id == &"draco"
+	manager.spawn_shell_casing(origin - forward * 0.12 + Vector3.UP * 0.04, forward, right, is_heavy)
 
 
 func _resolve_hitscan_hit(

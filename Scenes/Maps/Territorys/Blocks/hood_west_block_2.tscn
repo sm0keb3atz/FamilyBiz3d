@@ -7,6 +7,111 @@
 [ext_resource type="PackedScene" uid="uid://dr3oh2pyyibn5" path="res://Scenes/Maps/RoadPieces/EdgeIntersection.tscn" id="5_ulu5n"]
 [ext_resource type="PackedScene" uid="uid://dqou4rqdajdki" path="res://Scenes/Maps/RoadPieces/CornerInterSection.tscn" id="6_x0lfm"]
 [ext_resource type="PackedScene" uid="uid://c0eipv3r5ufeg" path="res://Scenes/Maps/RoadPieces/RoadStraight.tscn" id="6_xolqc"]
+[ext_resource type="PackedScene" uid="uid://dc6m74vb0nm8e" path="res://Scenes/Maps/Buildings/building_1.tscn" id="8_4sji0"]
+[ext_resource type="PackedScene" uid="uid://dlx2n61a113ri" path="res://Scenes/Maps/Buildings/building_2.tscn" id="9_5ga70"]
+[ext_resource type="PackedScene" uid="uid://cc2hrfrvrub0m" path="res://Scenes/Maps/Buildings/Generated/buildingG6.tscn" id="10_albd0"]
+[ext_resource type="Script" uid="uid://dptfybw60qiqk" path="res://Tools/Godot/BuildingGenerator/building_generation_profile.gd" id="11_pisjy"]
+[ext_resource type="PackedScene" uid="uid://lubg00lk83jc" path="res://Scenes/Maps/Buildings/Generated/buildingG3.tscn" id="12_s6nlh"]
+[ext_resource type="PackedScene" uid="uid://cbyarbtqcejm2" path="res://Scenes/Maps/Buildings/Generated/buildingG2.tscn" id="13_do06k"]
+[ext_resource type="ArrayMesh" uid="uid://bskyinaat4ttr" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01.glb" id="14_gu3c4"]
+[ext_resource type="ArrayMesh" uid="uid://cjau7jq3foioe" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_cornerIn.glb" id="15_6kdde"]
+[ext_resource type="ArrayMesh" uid="uid://ci4i6klxu7bk6" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_road_00.glb" id="16_sni77"]
+[ext_resource type="ArrayMesh" uid="uid://rx4v88ha1ltc" path="res://Assets/MapStuff/Meshs/GroundTileset/SM_sidewalk_01_corner.glb" id="17_cu42r"]
+[ext_resource type="PackedScene" uid="uid://hpwisq3kjjci" path="res://Assets/MapStuff/Meshs/StreetProps/SM_bench_02.gltf" id="18_io5wj"]
+[ext_resource type="PackedScene" uid="uid://cyujupwuujgij" path="res://Assets/MapStuff/Meshs/Nature/SM_rock_01.gltf" id="19_va830"]
+[ext_resource type="PackedScene" uid="uid://cbk4i5wk37std" path="res://Assets/MapStuff/Meshs/Nature/SM_grassVerticalSingle.gltf" id="20_qnk4t"]
+
+[sub_resource type="Resource" id="Resource_eyey4"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+story_count = 4
+material_palette = 2
+prop_density = 0
+
+[sub_resource type="Resource" id="Resource_gu3c4"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+story_count = 4
+material_palette = 2
+prop_density = 0
+
+[sub_resource type="Resource" id="Resource_6kdde"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+story_count = 4
+material_palette = 2
+prop_density = 0
+
+[sub_resource type="Resource" id="Resource_sni77"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+story_count = 4
+material_palette = 2
+prop_density = 0
+
+[sub_resource type="Resource" id="Resource_cu42r"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+story_count = 4
+material_palette = 2
+prop_density = 0
+
+[sub_resource type="Resource" id="Resource_io5wj"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+story_count = 4
+material_palette = 2
+prop_density = 0
+
+[sub_resource type="Resource" id="Resource_va830"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_qnk4t"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+width_modules = 2
+depth_modules = 2
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_xmolm"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+preset = 1
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_lr3u3"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+preset = 1
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_yitkj"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+preset = 1
+material_palette = 2
+prop_density = 0
+seed = 819481002
+
+[sub_resource type="Resource" id="Resource_oif27"]
+resource_local_to_scene = true
+script = ExtResource("11_pisjy")
+preset = 1
+material_palette = 2
+prop_density = 0
+seed = 819481002
 
 [node name="HoodWestBlock1" type="Node3D" unique_id=1105998331]
 
@@ -46,11 +151,11 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 72, 
 mesh = ExtResource("1_x0lfm")
 
 [node name="SmDirtEdge29" type="MeshInstance3D" parent="Ground" unique_id=441197527]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 88, 0, 12)
+transform = Transform3D(-0.891, 0, -8.742278e-08, 0, 1, 0, 7.7893695e-08, 0, -1, 86, 0, 12)
 mesh = ExtResource("1_x0lfm")
 
 [node name="SmDirtEdge30" type="MeshInstance3D" parent="Ground" unique_id=982603410]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 104, 0, 12)
+transform = Transform3D(-0.7, 0, -8.742278e-08, 0, 1, 0, 6.119594e-08, 0, -1, 104, 0, 12)
 mesh = ExtResource("1_x0lfm")
 
 [node name="SmDirtEdge31" type="MeshInstance3D" parent="Ground" unique_id=570061369]
@@ -137,10 +242,6 @@ mesh = ExtResource("3_vmff8")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 44)
 mesh = ExtResource("3_vmff8")
 
-[node name="SmGrass32" type="MeshInstance3D" parent="Ground" unique_id=1609112198]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 60)
-mesh = ExtResource("3_vmff8")
-
 [node name="SmGrass33" type="MeshInstance3D" parent="Ground" unique_id=1997011025]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 76)
 mesh = ExtResource("3_vmff8")
@@ -157,10 +258,6 @@ mesh = ExtResource("3_vmff8")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, 44)
 mesh = ExtResource("3_vmff8")
 
-[node name="SmGrass37" type="MeshInstance3D" parent="Ground" unique_id=903533466]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, 60)
-mesh = ExtResource("3_vmff8")
-
 [node name="SmGrass38" type="MeshInstance3D" parent="Ground" unique_id=1271924124]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, 76)
 mesh = ExtResource("3_vmff8")
@@ -170,15 +267,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, 0, 92)
 mesh = ExtResource("3_vmff8")
 
 [node name="SmGrass40" type="MeshInstance3D" parent="Ground" unique_id=935305501]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, 28)
+transform = Transform3D(0.80999994, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, 28)
 mesh = ExtResource("3_vmff8")
 
 [node name="SmGrass41" type="MeshInstance3D" parent="Ground" unique_id=461712098]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, 44)
-mesh = ExtResource("3_vmff8")
-
-[node name="SmGrass42" type="MeshInstance3D" parent="Ground" unique_id=425816989]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, 60)
+transform = Transform3D(0.8, 0, 0, 0, 1, 0, 0, 0, 0.7, 72, 0, 39)
 mesh = ExtResource("3_vmff8")
 
 [node name="SmGrass43" type="MeshInstance3D" parent="Ground" unique_id=1531755456]
@@ -190,15 +283,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 0, 92)
 mesh = ExtResource("3_vmff8")
 
 [node name="SmGrass45" type="MeshInstance3D" parent="Ground" unique_id=550025316]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0, 28)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91, 0, 28)
 mesh = ExtResource("3_vmff8")
 
 [node name="SmGrass46" type="MeshInstance3D" parent="Ground" unique_id=1048504421]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0, 44)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91, 0, 44)
 mesh = ExtResource("3_vmff8")
 
 [node name="SmGrass47" type="MeshInstance3D" parent="Ground" unique_id=588030527]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 0, 60)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91, 0, 60)
 mesh = ExtResource("3_vmff8")
 
 [node name="SmGrass48" type="MeshInstance3D" parent="Ground" unique_id=1365930548]
@@ -597,3 +690,996 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 132,
 
 [node name="Intersection6" parent="Roads" unique_id=2082081183 instance=ExtResource("5_ulu5n")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 120)
+
+[node name="Buildings" type="Node3D" parent="." unique_id=2034794938]
+
+[node name="Building1" parent="Buildings" unique_id=1313747676 instance=ExtResource("8_4sji0")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 34, 0, 5)
+
+[node name="Building9" parent="Buildings" unique_id=1486779214 instance=ExtResource("8_4sji0")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 38, 0, 91)
+
+[node name="Building4" parent="Buildings" unique_id=1396458615 instance=ExtResource("8_4sji0")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 74, 0, 5)
+
+[node name="Building10" parent="Buildings" unique_id=650155931 instance=ExtResource("8_4sji0")]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 87, 0, 37)
+
+[node name="Building5" parent="Buildings" unique_id=1097252479 instance=ExtResource("8_4sji0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 115, 0, 55)
+
+[node name="Building2" parent="Buildings" unique_id=1208636317 instance=ExtResource("9_5ga70")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 47, 0, 5)
+
+[node name="Building3" parent="Buildings" unique_id=134429129 instance=ExtResource("9_5ga70")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 60.8, 0, 5)
+
+[node name="Building11" parent="Buildings" unique_id=1411097996 instance=ExtResource("9_5ga70")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 59.8, 0, 37)
+
+[node name="Building7" parent="Buildings" unique_id=673904600 instance=ExtResource("9_5ga70")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 64.8, 0, 91)
+
+[node name="Building8" parent="Buildings" unique_id=354269357 instance=ExtResource("9_5ga70")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 50.800003, 0, 91)
+
+[node name="Building6" parent="Buildings" unique_id=1353042527 instance=ExtResource("9_5ga70")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114.8, 0, 69)
+
+[node name="BuildingGenerator" parent="Buildings" unique_id=33739062 instance=ExtResource("10_albd0")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 87, 0, 12)
+profile = SubResource("Resource_eyey4")
+
+[node name="BuildingGenerator12" parent="Buildings" unique_id=1081172400 instance=ExtResource("10_albd0")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 73, 0, 30)
+profile = SubResource("Resource_gu3c4")
+
+[node name="BuildingGenerator6" parent="Buildings" unique_id=1166433658 instance=ExtResource("10_albd0")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 92, 0, 84)
+profile = SubResource("Resource_6kdde")
+
+[node name="BuildingGenerator7" parent="Buildings" unique_id=1749606307 instance=ExtResource("10_albd0")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 78, 0, 84)
+profile = SubResource("Resource_sni77")
+
+[node name="BuildingGenerator10" parent="Buildings" unique_id=1159902416 instance=ExtResource("10_albd0")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 36, 0, 53)
+profile = SubResource("Resource_cu42r")
+
+[node name="BuildingGenerator4" parent="Buildings" unique_id=1709485891 instance=ExtResource("10_albd0")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 108, 0, 12)
+profile = SubResource("Resource_io5wj")
+
+[node name="BuildingGenerator2" parent="Buildings" unique_id=1830734443 instance=ExtResource("12_s6nlh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112, 0, 81)
+profile = SubResource("Resource_va830")
+
+[node name="BuildingGenerator11" parent="Buildings" unique_id=311134790 instance=ExtResource("12_s6nlh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0, 41.7)
+profile = SubResource("Resource_qnk4t")
+
+[node name="BuildingGenerator3" parent="Buildings" unique_id=1729860844 instance=ExtResource("13_do06k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 28)
+profile = SubResource("Resource_xmolm")
+
+[node name="BuildingGenerator5" parent="Buildings" unique_id=1644144484 instance=ExtResource("13_do06k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 0, 41)
+profile = SubResource("Resource_lr3u3")
+
+[node name="BuildingGenerator8" parent="Buildings" unique_id=1384459743 instance=ExtResource("13_do06k")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 36, 0, 67)
+profile = SubResource("Resource_yitkj")
+
+[node name="BuildingGenerator9" parent="Buildings" unique_id=1369258042 instance=ExtResource("13_do06k")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 36, 0, 27)
+profile = SubResource("Resource_oif27")
+
+[node name="Alleyway" type="Node3D" parent="." unique_id=874343815]
+
+[node name="Roads" type="Node3D" parent="Alleyway" unique_id=1214613445]
+
+[node name="SmSidewalk01" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1738463193]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk20" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1627649859]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 47, 0.001, 45)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk21" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=2143135980]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 47, 0.001, 49)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk22" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=473362813]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 47, 0.001, 53)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk23" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1502947070]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 55, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk24" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1554730856]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 59, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk25" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=263228422]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 63, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk26" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=407434169]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 67, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk27" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=613997924]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 71, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk28" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=395688013]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 75, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk29" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1796638917]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 79, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk30" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=2110576475]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 83, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk31" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1020183531]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 87, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk32" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=234156840]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 91, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk33" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1654031925]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 95, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk47" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=223996258]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 98.3, 0.001, 57)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk34" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=919422302]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 49)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk35" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=2002735294]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 45)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk36" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1824882590]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 41)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk37" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=176589218]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk38" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=719642414]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 33)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk39" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=10574365]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 29)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk40" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1086258156]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 25)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk41" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=707762872]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 21)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk42" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1808741062]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 17)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk43" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1069025842]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 13)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk44" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=752642433]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 9)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk45" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=266341834]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 5)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk46" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=2108396991]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 4)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk02" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=2029441793]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk03" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1978971049]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk04" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1641176952]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk05" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1130462620]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 67, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk06" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=554845976]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk07" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1080363258]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 75, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk08" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1817934238]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 79, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk09" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=674915984]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 83, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk10" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=617438757]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 87, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk11" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=921918232]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91, 0.001, 37)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk12" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1642414155]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91, 0.001, 33)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk13" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=897345187]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91, 0.001, 29)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk14" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=733989625]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91, 0.001, 25)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk15" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1406483849]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91, 0.001, 21)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk16" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1056306422]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91, 0.001, 17)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk17" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=668174153]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91, 0.001, 13)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk18" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1391738486]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91, 0.001, 9)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk19" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1692926856]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91, 0.001, 8)
+mesh = ExtResource("14_gu3c4")
+
+[node name="SmSidewalk01CornerIn" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=375674651]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 47, 0.001, 41)
+mesh = ExtResource("15_6kdde")
+
+[node name="SmSidewalk01CornerIn2" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=843032741]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 51, 0.001, 57)
+mesh = ExtResource("15_6kdde")
+
+[node name="SmRoad00" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=1991413867]
+transform = Transform3D(2.95, 0, 0, 0, 1, 0, 0, 0, 0.76, 51, 0, 53)
+mesh = ExtResource("16_sni77")
+
+[node name="SmRoad01" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=704236239]
+transform = Transform3D(0.19999999, 0, 0, 0, 1, 0, 0, 0, 2.31, 95, 0, 41)
+mesh = ExtResource("16_sni77")
+
+[node name="SmSidewalk01CornerIn3" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=969873197]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 102.2, 0.001, 53)
+mesh = ExtResource("15_6kdde")
+
+[node name="SmSidewalk01Corner" type="MeshInstance3D" parent="Alleyway/Roads" unique_id=823512187]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 91, 0.001, 37)
+mesh = ExtResource("17_cu42r")
+
+[node name="Props" type="Node3D" parent="Alleyway" unique_id=1310068055]
+
+[node name="SM_bench_02" parent="Alleyway/Props" unique_id=15287199 instance=ExtResource("18_io5wj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 67, 0, 62)
+
+[node name="SM_bench_03" parent="Alleyway/Props" unique_id=583181621 instance=ExtResource("18_io5wj")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 72, 0, 62)
+
+[node name="Nature" type="Node3D" parent="Alleyway/Props" unique_id=1504231236]
+
+[node name="SM_rock_01" parent="Alleyway/Props/Nature" unique_id=1889107586 instance=ExtResource("19_va830")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 73, 0, 58)
+
+[node name="SM_rock_02" parent="Alleyway/Props/Nature" unique_id=561163840 instance=ExtResource("19_va830")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 65, 0, 58)
+
+[node name="SM_rock_03" parent="Alleyway/Props/Nature" unique_id=1078961160 instance=ExtResource("19_va830")]
+transform = Transform3D(7.071068, 0, 7.071068, 3.535534, 8.660254, -3.535534, -6.1237245, 5, 6.1237245, 65, 0, 59)
+
+[node name="SM_rock_04" parent="Alleyway/Props/Nature" unique_id=837516990 instance=ExtResource("19_va830")]
+transform = Transform3D(4.9999995, 0, -8.6602545, 0, 10, 0, 8.6602545, 0, 4.9999995, 82.433014, 0, 63.25)
+
+[node name="SM_rock_05" parent="Alleyway/Props/Nature" unique_id=927302865 instance=ExtResource("19_va830")]
+transform = Transform3D(8.838835, -4.3301272, -1.7677677, 3.535534, 8.660254, -3.535534, 3.0618625, 2.4999998, 9.185587, 81.566986, 0, 63.75)
+
+[node name="SM_grassVerticalSingle" parent="Alleyway/Props/Nature" unique_id=106524716 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 76, 0, 60)
+
+[node name="SM_grassVerticalSingle2" parent="Alleyway/Props/Nature" unique_id=40266141 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 81, 0, 66)
+
+[node name="SM_grassVerticalSingle3" parent="Alleyway/Props/Nature" unique_id=1672895538 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 78, 0, 62)
+
+[node name="SM_grassVerticalSingle4" parent="Alleyway/Props/Nature" unique_id=1342083206 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 78, 0, 66)
+
+[node name="SM_grassVerticalSingle5" parent="Alleyway/Props/Nature" unique_id=1606954496 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 74, 0, 63)
+
+[node name="SM_grassVerticalSingle6" parent="Alleyway/Props/Nature" unique_id=1942023090 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 88, 0, 63)
+
+[node name="SM_grassVerticalSingle7" parent="Alleyway/Props/Nature" unique_id=939145996 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 87.9091, 0, 60)
+
+[node name="SM_grassVerticalSingle8" parent="Alleyway/Props/Nature" unique_id=115379818 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 80.9091, 0, 60)
+
+[node name="SM_grassVerticalSingle9" parent="Alleyway/Props/Nature" unique_id=2007742387 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 80, 0, 62)
+
+[node name="SM_grassVerticalSingle10" parent="Alleyway/Props/Nature" unique_id=46445407 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 85, 0, 68)
+
+[node name="SM_grassVerticalSingle11" parent="Alleyway/Props/Nature" unique_id=215512411 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 82, 0, 64)
+
+[node name="SM_grassVerticalSingle12" parent="Alleyway/Props/Nature" unique_id=383791830 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 82, 0, 68)
+
+[node name="SM_grassVerticalSingle13" parent="Alleyway/Props/Nature" unique_id=1388141425 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 78, 0, 65)
+
+[node name="SM_grassVerticalSingle14" parent="Alleyway/Props/Nature" unique_id=217587164 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 92, 0, 65)
+
+[node name="SM_grassVerticalSingle15" parent="Alleyway/Props/Nature" unique_id=1006871744 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 91.9091, 0, 62)
+
+[node name="SM_grassVerticalSingle16" parent="Alleyway/Props/Nature" unique_id=1100260607 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 84.9091, 0, 62)
+
+[node name="SM_grassVerticalSingle17" parent="Alleyway/Props/Nature" unique_id=1531993549 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 90.07913, 0, 58.56632)
+
+[node name="SM_grassVerticalSingle18" parent="Alleyway/Props/Nature" unique_id=227693919 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 89.372025, 0, 66.34449)
+
+[node name="SM_grassVerticalSingle19" parent="Alleyway/Props/Nature" unique_id=39855102 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 90.07913, 0, 61.394745)
+
+[node name="SM_grassVerticalSingle209" parent="Alleyway/Props/Nature" unique_id=217385964 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 40.85741, 0, 51.298153)
+
+[node name="SM_grassVerticalSingle210" parent="Alleyway/Props/Nature" unique_id=1012154394 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 40.85741, 0, 37.298153)
+
+[node name="SM_grassVerticalSingle211" parent="Alleyway/Props/Nature" unique_id=986386652 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 37.85741, 0, 37.38905)
+
+[node name="SM_grassVerticalSingle212" parent="Alleyway/Props/Nature" unique_id=1815582376 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 37.85741, 0, 44.38905)
+
+[node name="SM_grassVerticalSingle213" parent="Alleyway/Props/Nature" unique_id=512075123 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 39.85741, 0, 45.298153)
+
+[node name="SM_grassVerticalSingle214" parent="Alleyway/Props/Nature" unique_id=1878978934 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 45.85741, 0, 40.298153)
+
+[node name="SM_grassVerticalSingle215" parent="Alleyway/Props/Nature" unique_id=251012043 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 41.85741, 0, 43.298153)
+
+[node name="SM_grassVerticalSingle216" parent="Alleyway/Props/Nature" unique_id=1572046795 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 45.85741, 0, 43.298153)
+
+[node name="SM_grassVerticalSingle217" parent="Alleyway/Props/Nature" unique_id=679552138 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 42.85741, 0, 47.298153)
+
+[node name="SM_grassVerticalSingle218" parent="Alleyway/Props/Nature" unique_id=809743176 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 42.85741, 0, 33.298153)
+
+[node name="SM_grassVerticalSingle219" parent="Alleyway/Props/Nature" unique_id=2093468319 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 39.85741, 0, 33.38905)
+
+[node name="SM_grassVerticalSingle220" parent="Alleyway/Props/Nature" unique_id=1246985656 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-3.059797e-08, 0, 0.7, 0, 0.7, 0, -0.7, 0, -3.059797e-08, 39.85741, 0, 40.38905)
+
+[node name="SM_grassVerticalSingle221" parent="Alleyway/Props/Nature" unique_id=490440271 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.4949747, 0, 0.49497476, 0, 0.70000005, 0, -0.49497476, 0, 0.4949747, 36.42373, 0, 35.21902)
+
+[node name="SM_grassVerticalSingle222" parent="Alleyway/Props/Nature" unique_id=1670888305 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.4949747, 0, 0.49497476, 0, 0.70000005, 0, -0.49497476, 0, 0.4949747, 44.2019, 0, 35.92613)
+
+[node name="SM_grassVerticalSingle223" parent="Alleyway/Props/Nature" unique_id=1075087052 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.4949747, 0, 0.49497476, 0, 0.70000005, 0, -0.49497476, 0, 0.4949747, 39.252155, 0, 35.21902)
+
+[node name="SM_grassVerticalSingle20" parent="Alleyway/Props/Nature" unique_id=1910650729 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 87.2507, 0, 64.223175)
+
+[node name="SM_grassVerticalSingle25" parent="Alleyway/Props/Nature" unique_id=1465774817 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 96.7032, 0, 64.14839)
+
+[node name="SM_grassVerticalSingle26" parent="Alleyway/Props/Nature" unique_id=734789856 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 88.925026, 0, 63.441284)
+
+[node name="SM_grassVerticalSingle27" parent="Alleyway/Props/Nature" unique_id=698179876 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 93.87478, 0, 64.14839)
+
+[node name="SM_grassVerticalSingle28" parent="Alleyway/Props/Nature" unique_id=2090236953 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 91.04635, 0, 61.31996)
+
+[node name="SM_grassVerticalSingle29" parent="Alleyway/Props/Nature" unique_id=778410160 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 95.99609, 0, 60.612858)
+
+[node name="SM_grassVerticalSingle30" parent="Alleyway/Props/Nature" unique_id=1584365717 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 86.0966, 0, 70.51235)
+
+[node name="SM_grassVerticalSingle31" parent="Alleyway/Props/Nature" unique_id=1406848831 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 88.282196, 0, 72.5694)
+
+[node name="SM_grassVerticalSingle32" parent="Alleyway/Props/Nature" unique_id=1464645617 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 93.23194, 0, 67.61965)
+
+[node name="SM_grassVerticalSingle33" parent="Alleyway/Props/Nature" unique_id=1801832514 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 92.46056, 0, 65.56261)
+
+[node name="SM_grassVerticalSingle34" parent="Alleyway/Props/Nature" unique_id=1560302225 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 84.68239, 0, 64.8555)
+
+[node name="SM_grassVerticalSingle35" parent="Alleyway/Props/Nature" unique_id=168838762 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 89.63213, 0, 65.56261)
+
+[node name="SM_grassVerticalSingle36" parent="Alleyway/Props/Nature" unique_id=1101602570 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 86.80371, 0, 62.734177)
+
+[node name="SM_grassVerticalSingle37" parent="Alleyway/Props/Nature" unique_id=1275020555 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 91.753456, 0, 62.02707)
+
+[node name="SM_grassVerticalSingle38" parent="Alleyway/Props/Nature" unique_id=1878580801 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 81.85396, 0, 71.92657)
+
+[node name="SM_grassVerticalSingle39" parent="Alleyway/Props/Nature" unique_id=568995016 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 84.03956, 0, 73.98361)
+
+[node name="SM_grassVerticalSingle40" parent="Alleyway/Props/Nature" unique_id=1828435978 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 88.9893, 0, 69.03387)
+
+[node name="SM_grassVerticalSingle41" parent="Alleyway/Props/Nature" unique_id=1440108622 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 87.76152, 0, 75.11761)
+
+[node name="SM_grassVerticalSingle42" parent="Alleyway/Props/Nature" unique_id=1825530515 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 82.76152, 0, 69.11761)
+
+[node name="SM_grassVerticalSingle43" parent="Alleyway/Props/Nature" unique_id=1331317387 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 85.76152, 0, 73.11761)
+
+[node name="SM_grassVerticalSingle44" parent="Alleyway/Props/Nature" unique_id=1019938631 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 85.76152, 0, 69.1176)
+
+[node name="SM_grassVerticalSingle45" parent="Alleyway/Props/Nature" unique_id=179664609 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 84.7032, 0, 62.14839)
+
+[node name="SM_grassVerticalSingle46" parent="Alleyway/Props/Nature" unique_id=2144937152 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 76.925026, 0, 61.441284)
+
+[node name="SM_grassVerticalSingle47" parent="Alleyway/Props/Nature" unique_id=463800279 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 81.87478, 0, 62.14839)
+
+[node name="SM_grassVerticalSingle48" parent="Alleyway/Props/Nature" unique_id=1755436447 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 79.04635, 0, 59.31996)
+
+[node name="SM_grassVerticalSingle49" parent="Alleyway/Props/Nature" unique_id=1013127795 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 83.99609, 0, 58.612858)
+
+[node name="SM_grassVerticalSingle50" parent="Alleyway/Props/Nature" unique_id=1252463756 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 74.0966, 0, 68.51235)
+
+[node name="SM_grassVerticalSingle51" parent="Alleyway/Props/Nature" unique_id=1228509078 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 76.282196, 0, 70.5694)
+
+[node name="SM_grassVerticalSingle52" parent="Alleyway/Props/Nature" unique_id=1970206304 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 81.23194, 0, 65.61965)
+
+[node name="SM_grassVerticalSingle53" parent="Alleyway/Props/Nature" unique_id=2008303522 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 80.46056, 0, 63.562607)
+
+[node name="SM_grassVerticalSingle54" parent="Alleyway/Props/Nature" unique_id=665564497 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 72.68239, 0, 62.8555)
+
+[node name="SM_grassVerticalSingle55" parent="Alleyway/Props/Nature" unique_id=177463465 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 77.63213, 0, 63.562607)
+
+[node name="SM_grassVerticalSingle56" parent="Alleyway/Props/Nature" unique_id=1138157673 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 74.80371, 0, 60.734177)
+
+[node name="SM_grassVerticalSingle57" parent="Alleyway/Props/Nature" unique_id=1561567672 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 79.753456, 0, 60.02707)
+
+[node name="SM_grassVerticalSingle58" parent="Alleyway/Props/Nature" unique_id=173680007 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 69.85396, 0, 69.92657)
+
+[node name="SM_grassVerticalSingle59" parent="Alleyway/Props/Nature" unique_id=1249965437 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 72.03956, 0, 71.98361)
+
+[node name="SM_grassVerticalSingle60" parent="Alleyway/Props/Nature" unique_id=1384819833 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 76.9893, 0, 67.03387)
+
+[node name="SM_grassVerticalSingle61" parent="Alleyway/Props/Nature" unique_id=246623628 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 75.76152, 0, 73.11761)
+
+[node name="SM_grassVerticalSingle62" parent="Alleyway/Props/Nature" unique_id=1614791077 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 70.76152, 0, 67.11761)
+
+[node name="SM_grassVerticalSingle63" parent="Alleyway/Props/Nature" unique_id=1428426105 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 73.76152, 0, 71.11761)
+
+[node name="SM_grassVerticalSingle64" parent="Alleyway/Props/Nature" unique_id=668843124 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 73.76152, 0, 67.1176)
+
+[node name="SM_grassVerticalSingle65" parent="Alleyway/Props/Nature" unique_id=224940303 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 81.38459, 0, 72.35608)
+
+[node name="SM_grassVerticalSingle66" parent="Alleyway/Props/Nature" unique_id=1603181748 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 88.714714, 0, 75.05223)
+
+[node name="SM_grassVerticalSingle67" parent="Alleyway/Props/Nature" unique_id=1136675994 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 84.11664, 0, 73.08813)
+
+[node name="SM_grassVerticalSingle68" parent="Alleyway/Props/Nature" unique_id=1663686054 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 86.11664, 0, 76.55223)
+
+[node name="SM_grassVerticalSingle69" parent="Alleyway/Props/Nature" unique_id=910399321 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 81.15254, 0, 75.954155)
+
+[node name="SM_grassVerticalSingle70" parent="Alleyway/Props/Nature" unique_id=2034091948 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 93.27689, 0, 68.95415)
+
+[node name="SM_grassVerticalSingle71" parent="Alleyway/Props/Nature" unique_id=1185974239 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 91.69817, 0, 66.40153)
+
+[node name="SM_grassVerticalSingle72" parent="Alleyway/Props/Nature" unique_id=1442883908 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 85.636, 0, 69.90152)
+
+[node name="SM_grassVerticalSingle73" parent="Alleyway/Props/Nature" unique_id=597348410 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 85.84869, 0, 72.08813)
+
+[node name="SM_grassVerticalSingle74" parent="Alleyway/Props/Nature" unique_id=1106048135 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 93.17882, 0, 74.78428)
+
+[node name="SM_grassVerticalSingle75" parent="Alleyway/Props/Nature" unique_id=1233077767 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 88.58074, 0, 72.820175)
+
+[node name="SM_grassVerticalSingle76" parent="Alleyway/Props/Nature" unique_id=1339230795 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 90.580734, 0, 76.28428)
+
+[node name="SM_grassVerticalSingle77" parent="Alleyway/Props/Nature" unique_id=2127798986 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 85.61664, 0, 75.6862)
+
+[node name="SM_grassVerticalSingle78" parent="Alleyway/Props/Nature" unique_id=957123334 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 97.741, 0, 68.6862)
+
+[node name="SM_grassVerticalSingle79" parent="Alleyway/Props/Nature" unique_id=129007130 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 96.16227, 0, 66.133575)
+
+[node name="SM_grassVerticalSingle80" parent="Alleyway/Props/Nature" unique_id=1443039403 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 90.1001, 0, 69.633575)
+
+[node name="SM_grassVerticalSingle81" parent="Alleyway/Props/Nature" unique_id=598356291 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, -0.18117332, 0, 0.70000005, 0, 0.18117332, 0, 0.67614806, 92.860634, 0, 64.074905)
+
+[node name="SM_grassVerticalSingle82" parent="Alleyway/Props/Nature" unique_id=232502126 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, -0.18117332, 0, 0.70000005, 0, 0.18117332, 0, 0.67614806, 96.137344, 0, 71.16456)
+
+[node name="SM_grassVerticalSingle83" parent="Alleyway/Props/Nature" unique_id=641641236 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, -0.18117332, 0, 0.70000005, 0, 0.18117332, 0, 0.67614806, 94.27485, 0, 66.5244)
+
+[node name="SM_grassVerticalSingle84" parent="Alleyway/Props/Nature" unique_id=1266568135 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, -0.18117332, 0, 0.70000005, 0, 0.18117332, 0, 0.67614806, 93.23957, 0, 70.38811)
+
+[node name="SM_grassVerticalSingle85" parent="Alleyway/Props/Nature" unique_id=1042573038 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 81.405556, 0, 62.137524)
+
+[node name="SM_grassVerticalSingle86" parent="Alleyway/Props/Nature" unique_id=832576795 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 87.78809, 0, 66.63898)
+
+[node name="SM_grassVerticalSingle87" parent="Alleyway/Props/Nature" unique_id=639639945 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 83.85504, 0, 63.55173)
+
+[node name="SM_grassVerticalSingle88" parent="Alleyway/Props/Nature" unique_id=2146782386 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 84.89032, 0, 67.415436)
+
+[node name="SM_grassVerticalSingle89" parent="Alleyway/Props/Nature" unique_id=564034293 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 80.25016, 0, 65.55294)
+
+[node name="SM_grassVerticalSingle90" parent="Alleyway/Props/Nature" unique_id=866646095 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 93.773125, 0, 61.929462)
+
+[node name="SM_grassVerticalSingle91" parent="Alleyway/Props/Nature" unique_id=2009316489 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 92.90886, 0, 59.055218)
+
+[node name="SM_grassVerticalSingle92" parent="Alleyway/Props/Nature" unique_id=1243102823 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 86.14739, 0, 60.866947)
+
+[node name="SM_grassVerticalSingle93" parent="Alleyway/Props/Nature" unique_id=1813021038 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 85.786896, 0, 63.034096)
+
+[node name="SM_grassVerticalSingle94" parent="Alleyway/Props/Nature" unique_id=97709438 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 92.16944, 0, 67.53555)
+
+[node name="SM_grassVerticalSingle95" parent="Alleyway/Props/Nature" unique_id=1844830615 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 88.23639, 0, 64.4483)
+
+[node name="SM_grassVerticalSingle96" parent="Alleyway/Props/Nature" unique_id=1233609568 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 89.27165, 0, 68.31201)
+
+[node name="SM_grassVerticalSingle97" parent="Alleyway/Props/Nature" unique_id=827864690 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 84.6315, 0, 66.44951)
+
+[node name="SM_grassVerticalSingle98" parent="Alleyway/Props/Nature" unique_id=1147403759 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 98.154465, 0, 62.826046)
+
+[node name="SM_grassVerticalSingle99" parent="Alleyway/Props/Nature" unique_id=221558996 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 97.2902, 0, 59.95179)
+
+[node name="SM_grassVerticalSingle100" parent="Alleyway/Props/Nature" unique_id=1763676567 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 90.528725, 0, 61.763527)
+
+[node name="SM_grassVerticalSingle101" parent="Alleyway/Props/Nature" unique_id=499590774 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, -0.34999996, 0, 0.7000001, 0, 0.34999996, 0, 0.60621774, 94.63389, 0, 58.10874)
+
+[node name="SM_grassVerticalSingle102" parent="Alleyway/Props/Nature" unique_id=740053850 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, -0.34999996, 0, 0.7000001, 0, 0.34999996, 0, 0.60621774, 95.96401, 0, 64.80489)
+
+[node name="SM_grassVerticalSingle103" parent="Alleyway/Props/Nature" unique_id=331510431 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, -0.34999996, 0, 0.7000001, 0, 0.34999996, 0, 0.60621774, 95.36594, 0, 59.840797)
+
+[node name="SM_grassVerticalSingle104" parent="Alleyway/Props/Nature" unique_id=1873476822 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, -0.34999996, 0, 0.7000001, 0, 0.34999996, 0, 0.60621774, 93.36594, 0, 63.3049)
+
+[node name="SM_grassVerticalSingle21" parent="Alleyway/Props/Nature" unique_id=1259773051 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 86.543594, 0, 59.273426)
+
+[node name="SM_grassVerticalSingle22" parent="Alleyway/Props/Nature" unique_id=1780440603 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 96.44309, 0, 69.17292)
+
+[node name="SM_grassVerticalSingle23" parent="Alleyway/Props/Nature" unique_id=2085295001 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 98.50014, 0, 66.98733)
+
+[node name="SM_grassVerticalSingle24" parent="Alleyway/Props/Nature" unique_id=408252582 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 93.55039, 0, 62.03758)
+
+[node name="SM_grassVerticalSingle105" parent="Alleyway/Props/Nature" unique_id=546807207 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 51, 0, 60)
+
+[node name="SM_grassVerticalSingle106" parent="Alleyway/Props/Nature" unique_id=1347540695 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 56, 0, 66)
+
+[node name="SM_grassVerticalSingle107" parent="Alleyway/Props/Nature" unique_id=226724997 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 53, 0, 62)
+
+[node name="SM_grassVerticalSingle108" parent="Alleyway/Props/Nature" unique_id=1069769192 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 53, 0, 66)
+
+[node name="SM_grassVerticalSingle109" parent="Alleyway/Props/Nature" unique_id=283945327 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 49, 0, 63)
+
+[node name="SM_grassVerticalSingle110" parent="Alleyway/Props/Nature" unique_id=1362541735 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 63, 0, 63)
+
+[node name="SM_grassVerticalSingle111" parent="Alleyway/Props/Nature" unique_id=1147328298 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 62.909103, 0, 60)
+
+[node name="SM_grassVerticalSingle112" parent="Alleyway/Props/Nature" unique_id=1735402449 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 55.909103, 0, 60)
+
+[node name="SM_grassVerticalSingle113" parent="Alleyway/Props/Nature" unique_id=684779378 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 55, 0, 62)
+
+[node name="SM_grassVerticalSingle114" parent="Alleyway/Props/Nature" unique_id=881278161 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 60, 0, 68)
+
+[node name="SM_grassVerticalSingle115" parent="Alleyway/Props/Nature" unique_id=29089814 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 57, 0, 64)
+
+[node name="SM_grassVerticalSingle116" parent="Alleyway/Props/Nature" unique_id=1855780760 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 57, 0, 68)
+
+[node name="SM_grassVerticalSingle117" parent="Alleyway/Props/Nature" unique_id=998280752 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 53, 0, 65)
+
+[node name="SM_grassVerticalSingle118" parent="Alleyway/Props/Nature" unique_id=1053297000 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 67, 0, 65)
+
+[node name="SM_grassVerticalSingle119" parent="Alleyway/Props/Nature" unique_id=188367644 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 66.9091, 0, 62)
+
+[node name="SM_grassVerticalSingle120" parent="Alleyway/Props/Nature" unique_id=582773669 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 59.909103, 0, 62)
+
+[node name="SM_grassVerticalSingle121" parent="Alleyway/Props/Nature" unique_id=659895527 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 65.07913, 0, 58.56632)
+
+[node name="SM_grassVerticalSingle122" parent="Alleyway/Props/Nature" unique_id=1485558883 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 64.372025, 0, 66.34449)
+
+[node name="SM_grassVerticalSingle123" parent="Alleyway/Props/Nature" unique_id=1202693229 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 65.07913, 0, 61.394745)
+
+[node name="SM_grassVerticalSingle124" parent="Alleyway/Props/Nature" unique_id=953693073 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 62.2507, 0, 64.223175)
+
+[node name="SM_grassVerticalSingle125" parent="Alleyway/Props/Nature" unique_id=602139399 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 71.7032, 0, 64.14839)
+
+[node name="SM_grassVerticalSingle126" parent="Alleyway/Props/Nature" unique_id=1060824874 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 63.925026, 0, 63.441284)
+
+[node name="SM_grassVerticalSingle127" parent="Alleyway/Props/Nature" unique_id=959828857 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 68.87478, 0, 64.14839)
+
+[node name="SM_grassVerticalSingle128" parent="Alleyway/Props/Nature" unique_id=1308491551 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 66.04635, 0, 61.31996)
+
+[node name="SM_grassVerticalSingle129" parent="Alleyway/Props/Nature" unique_id=1736886536 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 70.99609, 0, 60.612858)
+
+[node name="SM_grassVerticalSingle130" parent="Alleyway/Props/Nature" unique_id=470901920 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 61.096603, 0, 70.51235)
+
+[node name="SM_grassVerticalSingle131" parent="Alleyway/Props/Nature" unique_id=322386712 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 63.282196, 0, 72.5694)
+
+[node name="SM_grassVerticalSingle132" parent="Alleyway/Props/Nature" unique_id=2145094188 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 68.23194, 0, 67.61965)
+
+[node name="SM_grassVerticalSingle133" parent="Alleyway/Props/Nature" unique_id=929357432 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 67.46056, 0, 65.56261)
+
+[node name="SM_grassVerticalSingle134" parent="Alleyway/Props/Nature" unique_id=171784543 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 59.68239, 0, 64.8555)
+
+[node name="SM_grassVerticalSingle135" parent="Alleyway/Props/Nature" unique_id=2077155327 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 64.63213, 0, 65.56261)
+
+[node name="SM_grassVerticalSingle136" parent="Alleyway/Props/Nature" unique_id=355263908 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 61.80371, 0, 62.734177)
+
+[node name="SM_grassVerticalSingle137" parent="Alleyway/Props/Nature" unique_id=1575886266 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 66.753456, 0, 62.02707)
+
+[node name="SM_grassVerticalSingle138" parent="Alleyway/Props/Nature" unique_id=1745664030 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 56.85396, 0, 71.92657)
+
+[node name="SM_grassVerticalSingle139" parent="Alleyway/Props/Nature" unique_id=1295223756 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 59.03956, 0, 73.98361)
+
+[node name="SM_grassVerticalSingle140" parent="Alleyway/Props/Nature" unique_id=742054386 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 63.989304, 0, 69.03387)
+
+[node name="SM_grassVerticalSingle141" parent="Alleyway/Props/Nature" unique_id=1765179487 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 62.76152, 0, 75.11761)
+
+[node name="SM_grassVerticalSingle142" parent="Alleyway/Props/Nature" unique_id=969443420 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 57.76152, 0, 69.11761)
+
+[node name="SM_grassVerticalSingle143" parent="Alleyway/Props/Nature" unique_id=1843694140 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 60.76152, 0, 73.11761)
+
+[node name="SM_grassVerticalSingle144" parent="Alleyway/Props/Nature" unique_id=1343553042 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 60.76152, 0, 69.1176)
+
+[node name="SM_grassVerticalSingle145" parent="Alleyway/Props/Nature" unique_id=657668393 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 59.7032, 0, 62.14839)
+
+[node name="SM_grassVerticalSingle146" parent="Alleyway/Props/Nature" unique_id=1981659632 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 51.925026, 0, 61.441284)
+
+[node name="SM_grassVerticalSingle147" parent="Alleyway/Props/Nature" unique_id=552515586 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 56.87478, 0, 62.14839)
+
+[node name="SM_grassVerticalSingle148" parent="Alleyway/Props/Nature" unique_id=401030408 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 54.04635, 0, 59.31996)
+
+[node name="SM_grassVerticalSingle149" parent="Alleyway/Props/Nature" unique_id=1482622788 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 58.996094, 0, 58.612858)
+
+[node name="SM_grassVerticalSingle150" parent="Alleyway/Props/Nature" unique_id=1152727158 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 49.096603, 0, 68.51235)
+
+[node name="SM_grassVerticalSingle151" parent="Alleyway/Props/Nature" unique_id=250173067 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 51.282196, 0, 70.5694)
+
+[node name="SM_grassVerticalSingle152" parent="Alleyway/Props/Nature" unique_id=1108769595 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 56.23194, 0, 65.61965)
+
+[node name="SM_grassVerticalSingle153" parent="Alleyway/Props/Nature" unique_id=419625756 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 55.460564, 0, 63.562607)
+
+[node name="SM_grassVerticalSingle154" parent="Alleyway/Props/Nature" unique_id=266798373 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 47.68239, 0, 62.8555)
+
+[node name="SM_grassVerticalSingle155" parent="Alleyway/Props/Nature" unique_id=776999933 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 52.632133, 0, 63.562607)
+
+[node name="SM_grassVerticalSingle156" parent="Alleyway/Props/Nature" unique_id=214119054 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 49.80371, 0, 60.734177)
+
+[node name="SM_grassVerticalSingle157" parent="Alleyway/Props/Nature" unique_id=322923105 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 54.753456, 0, 60.02707)
+
+[node name="SM_grassVerticalSingle158" parent="Alleyway/Props/Nature" unique_id=524462109 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 44.85396, 0, 69.92657)
+
+[node name="SM_grassVerticalSingle159" parent="Alleyway/Props/Nature" unique_id=1214294309 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 47.03956, 0, 71.98361)
+
+[node name="SM_grassVerticalSingle160" parent="Alleyway/Props/Nature" unique_id=1046008560 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.49497473, 0, -0.49497473, 0, 0.70000005, 0, 0.49497473, 0, -0.49497473, 51.989304, 0, 67.03387)
+
+[node name="SM_grassVerticalSingle161" parent="Alleyway/Props/Nature" unique_id=448338944 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 50.76152, 0, 73.11761)
+
+[node name="SM_grassVerticalSingle162" parent="Alleyway/Props/Nature" unique_id=1809932202 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 45.76152, 0, 67.11761)
+
+[node name="SM_grassVerticalSingle163" parent="Alleyway/Props/Nature" unique_id=1949326894 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 48.76152, 0, 71.11761)
+
+[node name="SM_grassVerticalSingle164" parent="Alleyway/Props/Nature" unique_id=303414801 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(-0.7, 0, 0, 0, 0.70000005, 0, 0, 0, -0.7, 48.76152, 0, 67.1176)
+
+[node name="SM_grassVerticalSingle165" parent="Alleyway/Props/Nature" unique_id=609081301 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 56.38459, 0, 72.35608)
+
+[node name="SM_grassVerticalSingle166" parent="Alleyway/Props/Nature" unique_id=1117193738 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 63.714714, 0, 75.05223)
+
+[node name="SM_grassVerticalSingle167" parent="Alleyway/Props/Nature" unique_id=2108319823 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 59.11664, 0, 73.08813)
+
+[node name="SM_grassVerticalSingle168" parent="Alleyway/Props/Nature" unique_id=880107299 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 61.11664, 0, 76.55223)
+
+[node name="SM_grassVerticalSingle169" parent="Alleyway/Props/Nature" unique_id=160642119 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 56.152542, 0, 75.954155)
+
+[node name="SM_grassVerticalSingle170" parent="Alleyway/Props/Nature" unique_id=1610755940 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 68.27689, 0, 68.95415)
+
+[node name="SM_grassVerticalSingle171" parent="Alleyway/Props/Nature" unique_id=1296731706 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 66.69817, 0, 66.40153)
+
+[node name="SM_grassVerticalSingle172" parent="Alleyway/Props/Nature" unique_id=1809564375 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 60.636, 0, 69.90152)
+
+[node name="SM_grassVerticalSingle173" parent="Alleyway/Props/Nature" unique_id=1563975886 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 60.848686, 0, 72.08813)
+
+[node name="SM_grassVerticalSingle174" parent="Alleyway/Props/Nature" unique_id=1185365518 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 68.17882, 0, 74.78428)
+
+[node name="SM_grassVerticalSingle175" parent="Alleyway/Props/Nature" unique_id=250804938 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 63.58074, 0, 72.820175)
+
+[node name="SM_grassVerticalSingle176" parent="Alleyway/Props/Nature" unique_id=1436801952 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 65.580734, 0, 76.28428)
+
+[node name="SM_grassVerticalSingle177" parent="Alleyway/Props/Nature" unique_id=1515886467 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 60.61664, 0, 75.6862)
+
+[node name="SM_grassVerticalSingle178" parent="Alleyway/Props/Nature" unique_id=1263098259 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 72.741, 0, 68.6862)
+
+[node name="SM_grassVerticalSingle179" parent="Alleyway/Props/Nature" unique_id=1118237869 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 71.16227, 0, 66.133575)
+
+[node name="SM_grassVerticalSingle180" parent="Alleyway/Props/Nature" unique_id=2048480525 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, 0.35000002, 0, 0.7000001, 0, -0.35000002, 0, 0.60621774, 65.1001, 0, 69.633575)
+
+[node name="SM_grassVerticalSingle181" parent="Alleyway/Props/Nature" unique_id=1257156265 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, -0.18117332, 0, 0.70000005, 0, 0.18117332, 0, 0.67614806, 67.860634, 0, 64.074905)
+
+[node name="SM_grassVerticalSingle182" parent="Alleyway/Props/Nature" unique_id=489560468 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, -0.18117332, 0, 0.70000005, 0, 0.18117332, 0, 0.67614806, 71.137344, 0, 71.16456)
+
+[node name="SM_grassVerticalSingle183" parent="Alleyway/Props/Nature" unique_id=1897243928 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, -0.18117332, 0, 0.70000005, 0, 0.18117332, 0, 0.67614806, 69.27485, 0, 66.5244)
+
+[node name="SM_grassVerticalSingle184" parent="Alleyway/Props/Nature" unique_id=2029348513 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, -0.18117332, 0, 0.70000005, 0, 0.18117332, 0, 0.67614806, 68.23957, 0, 70.38811)
+
+[node name="SM_grassVerticalSingle185" parent="Alleyway/Props/Nature" unique_id=1198645296 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 56.405556, 0, 62.137524)
+
+[node name="SM_grassVerticalSingle186" parent="Alleyway/Props/Nature" unique_id=1364830793 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 62.788094, 0, 66.63898)
+
+[node name="SM_grassVerticalSingle187" parent="Alleyway/Props/Nature" unique_id=1794873043 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 58.85504, 0, 63.55173)
+
+[node name="SM_grassVerticalSingle188" parent="Alleyway/Props/Nature" unique_id=1303954872 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 59.89032, 0, 67.415436)
+
+[node name="SM_grassVerticalSingle189" parent="Alleyway/Props/Nature" unique_id=1267850163 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 55.25016, 0, 65.55294)
+
+[node name="SM_grassVerticalSingle190" parent="Alleyway/Props/Nature" unique_id=1409449871 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 68.773125, 0, 61.929462)
+
+[node name="SM_grassVerticalSingle191" parent="Alleyway/Props/Nature" unique_id=1416692550 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 67.90886, 0, 59.055218)
+
+[node name="SM_grassVerticalSingle192" parent="Alleyway/Props/Nature" unique_id=2133362062 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 61.147392, 0, 60.866947)
+
+[node name="SM_grassVerticalSingle193" parent="Alleyway/Props/Nature" unique_id=833104499 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 60.786896, 0, 63.034096)
+
+[node name="SM_grassVerticalSingle194" parent="Alleyway/Props/Nature" unique_id=1108729740 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 67.16944, 0, 67.53555)
+
+[node name="SM_grassVerticalSingle195" parent="Alleyway/Props/Nature" unique_id=1865620884 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 63.23639, 0, 64.4483)
+
+[node name="SM_grassVerticalSingle196" parent="Alleyway/Props/Nature" unique_id=1593932286 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 64.27165, 0, 68.31201)
+
+[node name="SM_grassVerticalSingle197" parent="Alleyway/Props/Nature" unique_id=1778722095 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 59.6315, 0, 66.44951)
+
+[node name="SM_grassVerticalSingle198" parent="Alleyway/Props/Nature" unique_id=1311178651 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 73.154465, 0, 62.826046)
+
+[node name="SM_grassVerticalSingle199" parent="Alleyway/Props/Nature" unique_id=739927483 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 72.2902, 0, 59.95179)
+
+[node name="SM_grassVerticalSingle200" parent="Alleyway/Props/Nature" unique_id=1998774515 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.67614806, 0, 0.18117338, 0, 0.7000001, 0, -0.18117338, 0, 0.67614806, 65.528725, 0, 61.763527)
+
+[node name="SM_grassVerticalSingle201" parent="Alleyway/Props/Nature" unique_id=1302341160 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, -0.34999996, 0, 0.7000001, 0, 0.34999996, 0, 0.60621774, 69.63389, 0, 58.10874)
+
+[node name="SM_grassVerticalSingle202" parent="Alleyway/Props/Nature" unique_id=1853973320 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, -0.34999996, 0, 0.7000001, 0, 0.34999996, 0, 0.60621774, 70.96401, 0, 64.80489)
+
+[node name="SM_grassVerticalSingle203" parent="Alleyway/Props/Nature" unique_id=1072049101 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, -0.34999996, 0, 0.7000001, 0, 0.34999996, 0, 0.60621774, 70.36594, 0, 59.840797)
+
+[node name="SM_grassVerticalSingle204" parent="Alleyway/Props/Nature" unique_id=711391637 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.60621774, 0, -0.34999996, 0, 0.7000001, 0, 0.34999996, 0, 0.60621774, 68.36594, 0, 63.3049)
+
+[node name="SM_grassVerticalSingle205" parent="Alleyway/Props/Nature" unique_id=2094850535 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 61.543594, 0, 59.273426)
+
+[node name="SM_grassVerticalSingle206" parent="Alleyway/Props/Nature" unique_id=1270959965 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 71.44309, 0, 69.17292)
+
+[node name="SM_grassVerticalSingle207" parent="Alleyway/Props/Nature" unique_id=717456643 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 73.50014, 0, 66.98733)
+
+[node name="SM_grassVerticalSingle208" parent="Alleyway/Props/Nature" unique_id=593877286 instance=ExtResource("20_qnk4t")]
+transform = Transform3D(0.49497473, 0, -0.49497473, 0, 0.7, 0, 0.49497473, 0, 0.49497473, 68.55039, 0, 62.03758)

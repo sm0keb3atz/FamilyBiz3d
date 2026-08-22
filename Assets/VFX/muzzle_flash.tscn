@@ -56,9 +56,9 @@ draw_pass_1 = ExtResource("2_lbfqs")
 
 [node name="FlashLight" type="OmniLight3D" parent="."]
 visible = false
-light_color = Color(1, 0.54, 0.2, 1)
-light_energy = 6.5
-light_indirect_energy = 0.0
-omni_range = 7.0
-omni_attenuation = 1.35
+light_color = Color(1, 0.62, 0.25, 1)
+light_energy = 14.0
+light_indirect_energy = 0.5
+omni_range = 14.0
+omni_attenuation = 1.15
 shadow_enabled = false

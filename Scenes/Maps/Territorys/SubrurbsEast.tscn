@@ -1,0 +1,153 @@
+[gd_scene format=3 uid="uid://bpb3v1yml3dx2"]
+
+[ext_resource type="PackedScene" uid="uid://kuehpe27hrod" path="res://Scenes/Maps/Territorys/HoodEastMobility.tscn" id="1_g2lud"]
+[ext_resource type="PackedScene" uid="uid://re27socje0fa" path="res://Scenes/Maps/Territorys/Blocks/suburbs_east_block_1.tscn" id="1_nijdq"]
+[ext_resource type="PackedScene" uid="uid://bbedixtu088id" path="res://Scenes/Maps/Territorys/Blocks/subrurbs_east_block_2.tscn" id="2_sdq3a"]
+[ext_resource type="Script" uid="uid://dnmxrkmpfo7s8" path="res://Scripts/World/static_multimesh_batcher.gd" id="4_5ih12"]
+[ext_resource type="Script" uid="uid://daq7qgwhbofw5" path="res://Scripts/Gameplay/territory_stats_component.gd" id="5_ee5hr"]
+[ext_resource type="Script" uid="uid://cqkqgrwcoxm7u" path="res://Scripts/Gameplay/territory_boundary.gd" id="6_jxl1t"]
+[ext_resource type="PackedScene" uid="uid://dplcnrn0vwr7" path="res://Scenes/Maps/RoadPieces/street_light.tscn" id="7_sc7rp"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lcq4g"]
+size = Vector3(170.3, 0.001, 292.80002)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_territory"]
+size = Vector3(133.90001, 20, 253)
+
+[node name="SuburbsEast" type="Node3D" unique_id=1815818858]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+
+[node name="Mobility" parent="." unique_id=1486368606 instance=ExtResource("1_g2lud")]
+transform = Transform3D(-7.54979e-08, -6.600236e-15, 1, 8.742278e-08, -1, 0, 1, 8.742278e-08, 7.54979e-08, -128.69998, 0, 5.6999774)
+
+[node name="SuburbsEastBlock1" parent="." unique_id=1701640062 instance=ExtResource("1_nijdq")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 0, 0)
+
+[node name="SubrurbsEastBlock2" parent="." unique_id=1546218333 instance=ExtResource("2_sdq3a")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -264.30002, 0, 0.9999665)
+
+[node name="FloorCollider" type="StaticBody3D" parent="." unique_id=224138873]
+transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, -180.30002, 2, 127.399994)
+
+[node name="CollisionShape3D7" type="CollisionShape3D" parent="FloorCollider" unique_id=530218881]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53.35, -2.0005, 39.4)
+shape = SubResource("BoxShape3D_lcq4g")
+
+[node name="StaticMeshBatches" type="Node3D" parent="." unique_id=655137587]
+script = ExtResource("4_5ih12")
+source_roots = Array[NodePath]([NodePath(""), NodePath("")])
+
+[node name="TerritoryStats" type="Node" parent="." unique_id=156318492]
+script = ExtResource("5_ee5hr")
+territory_id = &"suburbs_east"
+starting_owner_faction = 1
+
+[node name="TerritoryBoundary" type="Area3D" parent="." unique_id=1647238682]
+transform = Transform3D(-4.371138e-08, 0, 1, 0, 1, 0, -1, 0, -4.371138e-08, -125.9, 0, 122.09999)
+script = ExtResource("6_jxl1t")
+territory_id = &"suburbs_east"
+display_name = "Suburbs East"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TerritoryBoundary" unique_id=1824627339]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 57.950005, 0, 0)
+shape = SubResource("BoxShape3D_territory")
+debug_color = Color(0.91971976, 0.2827793, 0, 1)
+
+[node name="StreetLights" type="Node3D" parent="." unique_id=761322865]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -139.8, 0, 5.799988)
+
+[node name="StreetLight" parent="StreetLights" unique_id=2065760400 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 62.4, 2.9802322e-07, -17)
+
+[node name="StreetLight4" parent="StreetLights" unique_id=770213749 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 23.400002, 2.9802322e-07, -17)
+
+[node name="StreetLight2" parent="StreetLights" unique_id=1128183583 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 83.80001, 2.9802322e-07, -17)
+
+[node name="StreetLight3" parent="StreetLights" unique_id=113685120 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 106.30001, 2.9802322e-07, -17)
+
+[node name="StreetLight5" parent="StreetLights" unique_id=145146266 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 57.4, 2.9802322e-07, 2.8000002)
+
+[node name="StreetLight8" parent="StreetLights" unique_id=632568942 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 31.3, 2.9802322e-07, 2.8000002)
+
+[node name="StreetLight6" parent="StreetLights" unique_id=961550053 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 83.80001, 2.9802322e-07, 2.8000002)
+
+[node name="StreetLight7" parent="StreetLights" unique_id=141730819 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 106.30001, 2.9802322e-07, 2.8000002)
+
+[node name="StreetLight9" parent="StreetLights" unique_id=888969010 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 16.000004, 2.9802322e-07, 66)
+
+[node name="StreetLight10" parent="StreetLights" unique_id=1238303173 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 16.000004, 2.9802322e-07, 92.1)
+
+[node name="StreetLight11" parent="StreetLights" unique_id=1529447681 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 16.000004, 2.9802322e-07, 39.59999)
+
+[node name="StreetLight12" parent="StreetLights" unique_id=1257207533 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 16.000004, 2.9802322e-07, 17.099993)
+
+[node name="StreetLight13" parent="StreetLights" unique_id=236072702 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1.2665987e-07, 0, -1, 0, 1, 0, 1, 0, 1.2665987e-07, 79.40001, 2.9802322e-07, 103.299995)
+
+[node name="StreetLight14" parent="StreetLights" unique_id=895467941 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1.2665987e-07, 0, -1, 0, 1, 0, 1, 0, 1.2665987e-07, 105.50001, 2.9802322e-07, 103.299995)
+
+[node name="StreetLight15" parent="StreetLights" unique_id=1320273200 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1.2665987e-07, 0, -1, 0, 1, 0, 1, 0, 1.2665987e-07, 53, 2.9802322e-07, 103.3)
+
+[node name="StreetLight16" parent="StreetLights" unique_id=911636681 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1.2665987e-07, 0, -1, 0, 1, 0, 1, 0, 1.2665987e-07, 30.5, 2.9802322e-07, 103.3)
+
+[node name="StreetLight17" parent="StreetLights" unique_id=1970873032 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.9, 2.9802322e-07, 43.8)
+
+[node name="StreetLight18" parent="StreetLights" unique_id=676797633 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.9, 2.9802322e-07, 17.7)
+
+[node name="StreetLight19" parent="StreetLights" unique_id=957364903 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.90001, 2.9802322e-07, 70.20001)
+
+[node name="StreetLight20" parent="StreetLights" unique_id=1908173304 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.90001, 2.9802322e-07, 92.70001)
+
+[node name="StreetLight21" parent="StreetLights" unique_id=141031630 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.9, 2.9802322e-07, -78.600006)
+
+[node name="StreetLight22" parent="StreetLights" unique_id=720603767 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.9, 2.9802322e-07, -104.7)
+
+[node name="StreetLight23" parent="StreetLights" unique_id=85527660 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.90001, 2.9802322e-07, -52.19999)
+
+[node name="StreetLight24" parent="StreetLights" unique_id=142098104 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(1, 0, 1.7037127e-07, 0, 1, 0, -1.7037127e-07, 0, 1, 115.90001, 2.9802322e-07, -29.69999)
+
+[node name="StreetLight25" parent="StreetLights" unique_id=1218572784 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-2.1408266e-07, 0, 1, 0, 1, 0, -1, 0, -2.1408266e-07, 46.5, 2.9802322e-07, -117.09999)
+
+[node name="StreetLight26" parent="StreetLights" unique_id=819933301 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-2.1408266e-07, 0, 1, 0, 1, 0, -1, 0, -2.1408266e-07, 21.800009, 2.9802322e-07, -117.09999)
+
+[node name="StreetLight27" parent="StreetLights" unique_id=1070334162 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-2.1408266e-07, 0, 1, 0, 1, 0, -1, 0, -2.1408266e-07, 79.70001, 2.9802322e-07, -117.09999)
+
+[node name="StreetLight28" parent="StreetLights" unique_id=192362008 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-2.1408266e-07, 0, 1, 0, 1, 0, -1, 0, -2.1408266e-07, 102.20001, 2.9802322e-07, -117.09999)
+
+[node name="StreetLight29" parent="StreetLights" unique_id=1444444567 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-1, 0, -2.5779406e-07, 0, 1, 0, 2.5779406e-07, 0, -1, 15.550009, 2.9802322e-07, -55.14998)
+
+[node name="StreetLight30" parent="StreetLights" unique_id=361322777 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-1, 0, -2.5779406e-07, 0, 1, 0, 2.5779406e-07, 0, -1, 15.550009, 2.9802322e-07, -30.44999)
+
+[node name="StreetLight31" parent="StreetLights" unique_id=898973379 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-1, 0, -2.5779406e-07, 0, 1, 0, 2.5779406e-07, 0, -1, 15.550009, 2.9802322e-07, -88.35)
+
+[node name="StreetLight32" parent="StreetLights" unique_id=905887602 instance=ExtResource("7_sc7rp")]
+transform = Transform3D(-1, 0, -2.5779406e-07, 0, 1, 0, 2.5779406e-07, 0, -1, 15.550009, 2.9802322e-07, -110.85)

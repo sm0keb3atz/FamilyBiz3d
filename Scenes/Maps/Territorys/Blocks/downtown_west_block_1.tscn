@@ -591,4 +591,4 @@ mesh = ExtResource("7_8xvjc")
 [node name="Buildings" type="Node3D" parent="." unique_id=1550040883]
 
 [node name="CourtHouse" parent="Buildings" unique_id=22015400 instance=ExtResource("7_b18hi")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.4, 0.01, -36.1)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 67.8, 0.92, -65.9)

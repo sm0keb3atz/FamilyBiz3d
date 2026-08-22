@@ -489,20 +489,9 @@ func _build_combat_indicators() -> void:
 	crosshair.visible = false
 	add_child(crosshair)
 	_remove_legacy_root("HitMarker")
-	hit_marker = Label.new()
+	hit_marker = ReticleHitmarker.new()
 	hit_marker.name = "HitMarker"
 	hit_marker.unique_name_in_owner = true
-	hit_marker.set_anchors_preset(Control.PRESET_CENTER)
-	hit_marker.position = Vector2(-18, -20)
-	hit_marker.size = Vector2(36, 40)
-	hit_marker.text = "×"
-	hit_marker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hit_marker.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	hit_marker.add_theme_font_size_override("font_size", 30)
-	hit_marker.add_theme_color_override("font_color", HUDTokens.TEXT)
-	hit_marker.add_theme_color_override("font_shadow_color", HUDTokens.SHADOW)
-	hit_marker.add_theme_constant_override("shadow_offset_x", 1)
-	hit_marker.add_theme_constant_override("shadow_offset_y", 1)
 	hit_marker.visible = false
 	add_child(hit_marker)
 

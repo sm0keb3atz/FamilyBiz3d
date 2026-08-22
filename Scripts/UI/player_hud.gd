@@ -50,7 +50,7 @@ signal daily_report_closed
 @onready var feedback_label := %FeedbackLabel as Label
 @onready var feedback_timer := %FeedbackTimer as Timer
 @onready var crosshair := %Crosshair as Label
-@onready var hit_marker := %HitMarker as Label
+@onready var hit_marker := %HitMarker as Control
 @onready var weapon_name_label := %WeaponNameLabel as Label
 @onready var ammo_label := %AmmoLabel as Label
 @onready var reload_label := %ReloadLabel as Label
@@ -185,12 +185,12 @@ func _process(delta: float) -> void:
 		and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	)
 	_refresh_vehicle_hud()
-	if _hit_marker_remaining <= 0.0:
-		return
-	_hit_marker_remaining = maxf(_hit_marker_remaining - delta, 0.0)
-	hit_marker.modulate.a = _hit_marker_remaining / hit_marker_duration
-	if is_zero_approx(_hit_marker_remaining):
-		hit_marker.visible = false
+	if hit_marker != null and not hit_marker.has_method(&"trigger"):
+		if _hit_marker_remaining > 0.0:
+			_hit_marker_remaining = maxf(_hit_marker_remaining - delta, 0.0)
+			hit_marker.modulate.a = _hit_marker_remaining / hit_marker_duration
+			if is_zero_approx(_hit_marker_remaining):
+				hit_marker.visible = false
 
 
 func _refresh_court_dates() -> void:
@@ -1002,13 +1002,25 @@ func _on_reload_completed() -> void:
 
 
 func _on_hit_confirmed(fatal_hit: bool) -> void:
-	_hit_marker_remaining = hit_marker_duration
-	hit_marker.modulate = (
-		Color(1.0, 0.36, 0.22, 1.0)
-		if fatal_hit
-		else Color.WHITE
+	if hit_marker != null and hit_marker.has_method(&"trigger"):
+		hit_marker.call(&"trigger", fatal_hit, hit_marker_duration)
+	elif hit_marker != null:
+		_hit_marker_remaining = hit_marker_duration
+		hit_marker.modulate = (
+			Color(1.0, 0.36, 0.22, 1.0)
+			if fatal_hit
+			else Color.WHITE
+		)
+		hit_marker.visible = true
+	if fatal_hit:
+		_trigger_kill_hitstop()
+
+
+func _trigger_kill_hitstop() -> void:
+	Engine.time_scale = 0.05
+	get_tree().create_timer(0.025, true, false, true).timeout.connect(func() -> void:
+		Engine.time_scale = 1.0
 	)
-	hit_marker.visible = true
 
 
 func _on_wanted_level_changed(_previous: int, current: int) -> void:

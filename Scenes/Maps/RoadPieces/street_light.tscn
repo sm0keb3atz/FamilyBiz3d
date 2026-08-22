@@ -59,6 +59,10 @@ material = SubResource("StandardMaterial3D_bulb_glow")
 radial_segments = 16
 rings = 8
 
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_1c86s"]
+height = 2.8000002
+radius = 0.3
+
 [node name="StreetLight" type="Node3D" unique_id=2065760400]
 script = ExtResource("3_street_light")
 
@@ -100,3 +104,9 @@ distance_fade_begin = 28.0
 distance_fade_length = 12.0
 omni_range = 6.0
 omni_attenuation = 1.8
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1852764907]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1184117017]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5000001, 0)
+shape = SubResource("CylinderShape3D_1c86s")

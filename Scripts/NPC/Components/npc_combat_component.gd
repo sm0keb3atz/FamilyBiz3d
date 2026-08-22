@@ -216,6 +216,7 @@ func try_fire_at(target_position: Vector3, spread_degrees: float) -> bool:
 	npc.animation_component.trigger_combat_recoil()
 	_play_gunshot()
 	_play_muzzle_flash()
+	_spawn_shell_casing()
 	_play_muzzle_smoke(origin, direction)
 	var event_bus := WorldEventBus.find(npc.get_tree())
 	if event_bus != null:
@@ -233,6 +234,20 @@ func try_fire_at(target_position: Vector3, spread_degrees: float) -> bool:
 		)
 	fired.emit(hit_position)
 	return true
+
+
+func _spawn_shell_casing() -> void:
+	var manager := CombatVFXManager.find(npc.get_tree())
+	if manager == null:
+		return
+	var origin: Vector3 = _get_muzzle_position()
+	var forward: Vector3 = -(npc.global_transform.basis.z as Vector3)
+	var right: Vector3 = npc.global_transform.basis.x as Vector3
+	if _weapon_model != null:
+		forward = -(_weapon_model.global_transform.basis.z as Vector3)
+		right = _weapon_model.global_transform.basis.x as Vector3
+	var is_heavy := weapon_definition != null and weapon_definition.weapon_id == &"draco"
+	manager.spawn_shell_casing(origin - forward * 0.12 + Vector3.UP * 0.04, forward, right, is_heavy)
 
 
 func try_reload() -> bool:
@@ -304,7 +319,7 @@ func _cache_muzzle_effect() -> void:
 
 
 func _find_muzzle_flash_effect(node: Node) -> Node3D:
-	if node is Node3D and node.name == &"MuzzleFlash":
+	if node is Node3D and (node.name == &"MuzzleFlash" or node.has_method(&"play_flash")):
 		return node as Node3D
 	for child in node.get_children():
 		var result := _find_muzzle_flash_effect(child)
@@ -324,14 +339,19 @@ func _find_muzzle_particles(node: Node) -> GPUParticles3D:
 
 
 func _play_muzzle_flash() -> void:
+	if _muzzle_flash_effect == null or not is_instance_valid(_muzzle_flash_effect):
+		_cache_muzzle_effect()
+	var scale_factor: float = (
+		weapon_definition.muzzle_flash_scale
+		if weapon_definition != null
+		else 1.0
+	)
 	if (
 		_muzzle_flash_effect != null
 		and is_instance_valid(_muzzle_flash_effect)
 		and _muzzle_flash_effect.has_method(&"play_flash")
 	):
-		_muzzle_flash_effect.scale = (
-			Vector3.ONE * weapon_definition.muzzle_flash_scale
-		)
+		_muzzle_flash_effect.scale = Vector3.ONE * scale_factor
 		_muzzle_flash_effect.call(&"play_flash")
 	elif _muzzle_particles != null and is_instance_valid(_muzzle_particles):
 		_muzzle_particles.restart()
