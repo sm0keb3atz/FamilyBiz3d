@@ -5,10 +5,12 @@ uniform sampler2D albedo_texture : source_color, filter_linear_mipmap_anisotropi
 uniform sampler2D metallic_texture : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D roughness_texture : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D ao_texture : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D normal_texture : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform bool use_albedo_texture = false;
 uniform bool use_metallic_texture = false;
 uniform bool use_roughness_texture = false;
 uniform bool use_ao_texture = false;
+uniform bool use_normal_texture = false;
 uniform int metallic_channel = 0;
 uniform int roughness_channel = 0;
 uniform int ao_channel = 0;
@@ -18,12 +20,19 @@ uniform vec3 uv_scale = vec3(1.0);
 uniform vec3 uv_offset = vec3(0.0);
 uniform float metallic = 0.0;
 uniform float roughness = 1.0;
+uniform float normal_scale : hint_range(0.0, 4.0) = 1.0;
 uniform float macro_scale = 18.0;
 uniform float macro_variation = 0.065;
 uniform float roughness_variation = 0.06;
 uniform float roughness_bias = 0.0;
+uniform float wetness : hint_range(0.0, 1.0) = 0.0;
+uniform float wet_response : hint_range(0.0, 1.0) = 1.0;
+uniform float wet_darkening : hint_range(0.0, 0.3) = 0.1;
+uniform float wet_roughness : hint_range(0.0, 1.0) = 0.28;
+uniform float planar_normal_stabilization : hint_range(0.0, 1.0) = 0.0;
 
 varying vec3 world_position;
+varying vec3 world_normal;
 
 
 float channel_value(vec4 sample_value, int channel) {
@@ -59,8 +68,28 @@ float value_noise(vec2 point) {
 }
 
 
+vec2 rotate_coordinate(vec2 point, float angle) {
+	float sine = sin(angle);
+	float cosine = cos(angle);
+	return vec2(
+		point.x * cosine - point.y * sine,
+		point.x * sine + point.y * cosine
+	);
+}
+
+
+float organic_noise(vec2 point) {
+	float broad = value_noise(rotate_coordinate(point, 0.41));
+	float breakup = value_noise(
+		rotate_coordinate(point * 2.07 + vec2(13.7, -8.9), -0.73)
+	);
+	return broad * 0.68 + breakup * 0.32;
+}
+
+
 void vertex() {
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	world_normal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 }
 
 
@@ -70,9 +99,36 @@ void fragment() {
 	if (use_albedo_texture) {
 		base *= texture(albedo_texture, styled_uv);
 	}
-	float macro_noise = value_noise(world_position.xz / max(macro_scale, 0.001));
+	float macro_noise = organic_noise(
+		world_position.xz / max(macro_scale, 0.001)
+	);
 	float centered_noise = macro_noise * 2.0 - 1.0;
-	ALBEDO = base.rgb * surface_tint * (1.0 + centered_noise * macro_variation);
+	float wet_factor = clamp(wetness * wet_response, 0.0, 1.0);
+	float horizontal_wet_noise = organic_noise(
+		rotate_coordinate(world_position.xz / 5.2, -0.37)
+		+ vec2(9.7, -4.3)
+	);
+	float upward_facing = smoothstep(0.82, 0.98, world_normal.y);
+	float wall_runoff_noise = value_noise(vec2(
+		world_position.x * 0.38 + world_position.z * 0.31,
+		world_position.y * 0.16
+	));
+	float surface_wet_noise = mix(
+		wall_runoff_noise,
+		horizontal_wet_noise,
+		upward_facing
+	);
+	float wet_variation = clamp(
+		wet_factor * mix(0.72, 1.08, surface_wet_noise),
+		0.0,
+		1.0
+	);
+	float visible_wetness = wet_variation;
+	float surface_darkening = wet_darkening * visible_wetness;
+	ALBEDO = base.rgb
+		* surface_tint
+		* (1.0 + centered_noise * macro_variation)
+		* (1.0 - surface_darkening);
 	float final_metallic = metallic;
 	if (use_metallic_texture) {
 		final_metallic *= channel_value(texture(metallic_texture, styled_uv), metallic_channel);
@@ -82,11 +138,28 @@ void fragment() {
 		final_roughness *= channel_value(texture(roughness_texture, styled_uv), roughness_channel);
 	}
 	METALLIC = clamp(final_metallic, 0.0, 1.0);
-	ROUGHNESS = clamp(
+	float dry_roughness = clamp(
 		final_roughness + roughness_bias + centered_noise * roughness_variation,
 		0.04,
 		1.0
 	);
+	float rain_roughness = mix(dry_roughness, wet_roughness, wet_variation);
+	ROUGHNESS = clamp(rain_roughness, 0.04, 1.0);
+	SPECULAR = mix(0.5, 0.72, visible_wetness);
+	vec3 geometric_normal = normalize(cross(dFdx(VERTEX), dFdy(VERTEX)));
+	if (dot(geometric_normal, NORMAL) < 0.0) {
+		geometric_normal *= -1.0;
+	}
+	float stable_normal_blend = (
+		planar_normal_stabilization
+		* upward_facing
+		* visible_wetness
+	);
+	NORMAL = normalize(mix(NORMAL, geometric_normal, stable_normal_blend));
+	if (use_normal_texture) {
+		NORMAL_MAP = texture(normal_texture, styled_uv).rgb;
+		NORMAL_MAP_DEPTH = normal_scale;
+	}
 	if (use_ao_texture) {
 		AO = channel_value(texture(ao_texture, styled_uv), ao_channel);
 		AO_LIGHT_AFFECT = 0.35;

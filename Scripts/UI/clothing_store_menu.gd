@@ -5,36 +5,7 @@ const ACCENT := Color(0.73, 0.38, 0.96, 1.0)
 const GREEN := Color(0.39, 0.72, 0.26, 1.0)
 const PREVIEW_SCENE := preload("res://Scenes/PlayerVisualModular.tscn")
 const BusinessManagementPanelScript := preload("res://Scripts/UI/business_management_panel.gd")
-const COLOR_OPTIONS := [
-	{"name": "White", "color": Color("f4f1e8")},
-	{"name": "Cream", "color": Color("e8dcc4")},
-	{"name": "Black", "color": Color("151419")},
-	{"name": "Charcoal", "color": Color("34343c")},
-	{"name": "Slate Grey", "color": Color("626776")},
-	{"name": "Silver", "color": Color("aeb4c0")},
-	{"name": "Scarlet", "color": Color("db2b39")},
-	{"name": "Burgundy", "color": Color("702c3e")},
-	{"name": "Burnt Orange", "color": Color("c65d28")},
-	{"name": "Gold", "color": Color("d6a72e")},
-	{"name": "Sun Yellow", "color": Color("e8cf45")},
-	{"name": "Forest Green", "color": Color("315a45")},
-	{"name": "Emerald", "color": Color("25855e")},
-	{"name": "Mint", "color": Color("8fd9bd")},
-	{"name": "Teal", "color": Color("257b7c")},
-	{"name": "Sky Blue", "color": Color("6fb8e8")},
-	{"name": "Royal Blue", "color": Color("3158c9")},
-	{"name": "Navy", "color": Color("202f59")},
-	{"name": "Purple", "color": Color("713ea8")},
-	{"name": "Lavender", "color": Color("b8a1dc")},
-	{"name": "Hot Pink", "color": Color("d9478d")},
-	{"name": "Rose", "color": Color("b8546f")},
-	{"name": "Pastel Peach", "color": Color("f1b89f")},
-	{"name": "Pastel Yellow", "color": Color("f2dda0")},
-	{"name": "Pastel Green", "color": Color("b8dfb1")},
-	{"name": "Pastel Blue", "color": Color("aecff0")},
-	{"name": "Pastel Purple", "color": Color("cbb7e8")},
-	{"name": "Pastel Pink", "color": Color("efbdd5")},
-]
+const COLOR_OPTIONS := ClothingColorPalette.OPTIONS
 
 @export var wallet_component_path := NodePath("../Components/WalletComponent")
 @export var wardrobe_component_path := NodePath("../Components/WardrobeComponent")

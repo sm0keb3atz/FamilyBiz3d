@@ -461,6 +461,9 @@ func _tick_surrender(delta: float) -> void:
 func _tick_combat(delta: float) -> void:
 	combat.set_equipped(true)
 	var target := _retaliation_target if is_instance_valid(_retaliation_target) else player
+	var pursuing_player := target == player
+	if pursuing_player and perception.player_vehicle != null and perception.player_vehicle.is_driving():
+		target = perception.player_vehicle.get_current_vehicle()
 	if not _is_actor_alive(target):
 		clear_retaliation_target()
 		combat.clear_aim()
@@ -468,7 +471,7 @@ func _tick_combat(delta: float) -> void:
 	var target_position := target.global_position + Vector3.UP
 	var target_visible := (
 		perception.can_see_player()
-		if target == player
+		if pursuing_player
 		else _has_line_to_actor(target, target_position)
 	)
 	if target_visible:
@@ -480,7 +483,7 @@ func _tick_combat(delta: float) -> void:
 			_state_reason = &"pursuing_recent_visual"
 			_move_to(_last_seen_position, pursuit_speed, &"police_combat_memory", 110, delta)
 			return
-		if target == player:
+		if pursuing_player:
 			_change_state(State.SEARCH, &"combat_visual_expired")
 			_tick_search(delta)
 		else:
@@ -527,7 +530,7 @@ func _update_combat_movement(
 	npc.clear_navigation_target()
 	if _strafe_remaining <= 0.0:
 		_strafe_sign = -_strafe_sign
-		_strafe_remaining = _random.randf_range(0.55, 1.0)
+		_strafe_remaining = _random.randf_range(1.5, 2.8)
 	var toward := target.global_position - npc.global_position
 	toward.y = 0.0
 	if toward.is_zero_approx():
@@ -536,13 +539,20 @@ func _update_combat_movement(
 		Vector3.UP,
 		_strafe_sign * PI * 0.5
 	)
-	if distance < minimum_combat_distance:
+	if distance < minimum_combat_distance or combat.is_reloading():
 		direction = (direction - toward.normalized() * 0.9).normalized()
 	elif distance > preferred_combat_distance:
 		direction = (direction + toward.normalized() * 0.55).normalized()
 	_state_reason = &"combat_strafe"
 	npc.set_facing_override(target_position)
-	npc.move_in_world_direction(direction, aimed_move_speed, delta)
+	# Use navigable tactical destinations rather than blindly strafing into cars
+	# or walls. Hold position when projection cannot provide meaningful movement.
+	var destination := _project_destination(npc.global_position + direction * 3.0)
+	if destination.distance_squared_to(npc.global_position) < 0.25:
+		_strafe_remaining = 0.0
+		npc.stop_moving(delta)
+		return
+	_move_to(destination, aimed_move_speed, &"police_combat", 110, delta, true)
 
 
 func _move_to(
@@ -812,6 +822,10 @@ func clear_retaliation_target() -> void:
 func cancel_wanted_engagement() -> void:
 	_has_response_target = false
 	_response_remaining = 0.0
+	# Resolved incidents must not be reopened by an old gunshot observation.
+	_investigation_remaining = 0.0
+	_investigation_source = null
+	_investigation_event_id = 0
 	clear_retaliation_target()
 	_clear_search()
 	_visual_memory_remaining = 0.0

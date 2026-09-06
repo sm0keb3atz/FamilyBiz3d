@@ -26,6 +26,7 @@ const WEATHER_PROFILES := {
 @export var world_environment_path := NodePath("../Environment/WorldEnvironment")
 @export var sun_path := NodePath("../Environment/Sun")
 @export var moon_path := NodePath("../Environment/Moon")
+@export var surface_styler_path := NodePath("../WorldSurfaceStyler")
 @export var visual_profile: WorldVisualProfile = DEFAULT_VISUAL_PROFILE
 
 @export_category("Random Weather")
@@ -61,6 +62,9 @@ const WEATHER_PROFILES := {
 @onready var _world_environment := get_node_or_null(world_environment_path) as WorldEnvironment
 @onready var _sun := get_node_or_null(sun_path) as DirectionalLight3D
 @onready var _moon := get_node_or_null(moon_path) as DirectionalLight3D
+@onready var _surface_styler := (
+	get_node_or_null(surface_styler_path) as WorldSurfaceStyler
+)
 @onready var _rain_streaks := $RainStreaks as GPUParticles3D
 @onready var _near_rain := $NearRain as GPUParticles3D
 @onready var _ground_mist := $GroundMist as GPUParticles3D
@@ -96,6 +100,7 @@ var _shelter_visual_scale := 1.0
 var _shelter_check_elapsed := 0.0
 var _is_sheltered := false
 var _roof_meshes: Array[MeshInstance3D] = []
+var _surface_wetness := 0.0
 
 
 func _ready() -> void:
@@ -120,6 +125,7 @@ func _process(delta: float) -> void:
 	_update_shelter(delta)
 	_update_random_weather(delta)
 	_update_weather_blend(delta)
+	_update_surface_wetness(delta)
 	_update_ambience(delta)
 	_update_lightning(delta)
 	_update_wind(delta)
@@ -202,6 +208,18 @@ func get_wind_intensity() -> float:
 	return _wind_intensity
 
 
+func get_visual_rain_intensity() -> float:
+	return _rain_intensity
+
+
+func get_visual_overcast_intensity() -> float:
+	return _overcast_intensity
+
+
+func get_surface_wetness() -> float:
+	return _surface_wetness
+
+
 func _normalize_weather_name(weather_name: StringName) -> StringName:
 	var text := String(weather_name).strip_edges().to_lower().replace(" ", "_")
 	match text:
@@ -266,6 +284,40 @@ func _update_weather_blend(delta: float) -> void:
 		1.0
 	) * 0.28
 	_rain_splashes.amount_ratio = clampf(local_rain * 0.38, 0.0, 1.0)
+
+
+func _update_surface_wetness(delta: float) -> void:
+	if visual_profile == null or not visual_profile.surface_wetness_enabled:
+		_surface_wetness = 0.0
+	elif _rain_intensity > 0.01:
+		# Rain immediately leaves a thin reflective film. Deeper saturation still
+		# accumulates over time and is what lingers after the shower has passed.
+		var heavy_rain_blend := smoothstep(0.35, 1.0, _rain_intensity)
+		var active_rain_floor := clampf(
+			visual_profile.active_rain_wetness_floor
+			+ visual_profile.heavy_rain_wetness_boost * heavy_rain_blend,
+			0.0,
+			1.0
+		)
+		_surface_wetness = maxf(_surface_wetness, active_rain_floor)
+		_surface_wetness = move_toward(
+			_surface_wetness,
+			1.0,
+			delta
+			* visual_profile.wetness_accumulation_per_second
+			* _rain_intensity
+		)
+	else:
+		_surface_wetness = move_toward(
+			_surface_wetness,
+			0.0,
+			delta * visual_profile.wetness_drying_per_second
+		)
+	if not is_instance_valid(_surface_styler):
+		_surface_styler = get_node_or_null(surface_styler_path) as WorldSurfaceStyler
+	if _surface_styler != null:
+		_surface_styler.set_wetness(_surface_wetness)
+		_surface_styler.set_rain_intensity(_rain_intensity)
 
 
 func _start_ambience_players() -> void:
@@ -556,6 +608,44 @@ func _apply_visuals() -> void:
 		)
 		_screen_material.set_shader_parameter("lightning", _lightning_value)
 	if _environment != null:
+		if visual_profile.dynamic_color_grading_enabled:
+			var base_grade: PackedColorArray = _environment.get_meta(
+				WorldVisualProfile.META_BASE_GRADE_COLORS,
+				visual_profile.get_day_grade_colors()
+			)
+			var weather_grade := visual_profile.blend_grade_colors(
+				base_grade,
+				visual_profile.get_storm_grade_colors(),
+				_overcast_intensity
+			)
+			var grade_texture := (
+				_environment.adjustment_color_correction as GradientTexture1D
+			)
+			if grade_texture == null or grade_texture.gradient == null:
+				grade_texture = (
+					visual_profile.create_color_correction_texture(weather_grade)
+				)
+				_environment.adjustment_color_correction = grade_texture
+			else:
+				grade_texture.gradient.colors = weather_grade
+			var base_saturation := float(_environment.get_meta(
+				WorldVisualProfile.META_BASE_SATURATION,
+				visual_profile.saturation
+			))
+			_environment.adjustment_saturation = lerpf(
+				base_saturation,
+				visual_profile.storm_saturation,
+				_overcast_intensity * visual_profile.storm_grade_strength
+			)
+			var base_glow := float(_environment.get_meta(
+				WorldVisualProfile.META_BASE_GLOW_INTENSITY,
+				visual_profile.day_glow_intensity
+			))
+			_environment.glow_intensity = lerpf(
+				base_glow,
+				visual_profile.overcast_glow_intensity,
+				_overcast_intensity
+			)
 		var base_fog_color: Color = _environment.get_meta(
 			WorldVisualProfile.META_BASE_FOG_COLOR,
 			visual_profile.day_fog_color

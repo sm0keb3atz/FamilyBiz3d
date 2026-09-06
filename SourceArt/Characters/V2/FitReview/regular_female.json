@@ -1,0 +1,20 @@
+{
+  "status": "UNAPPROVED_AUTOMATIC_FIT",
+  "garments": [
+    {
+      "name": "TOP_Female_01_HoodieCrop",
+      "fallback_vertices": 0,
+      "unweighted": 0
+    },
+    {
+      "name": "BOTTOM_Female_01_Leggins",
+      "fallback_vertices": 0,
+      "unweighted": 0
+    },
+    {
+      "name": "SHOES_Female_01_FemaleSneakers",
+      "fallback_vertices": 0,
+      "unweighted": 0
+    }
+  ]
+}

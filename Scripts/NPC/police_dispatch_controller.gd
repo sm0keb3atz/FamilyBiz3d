@@ -645,8 +645,7 @@ func _choose_dispatch_route(
 			continue
 		starts.append(start)
 	starts.sort_custom(func(a: TrafficWaypoint3D, b: TrafficWaypoint3D) -> bool:
-		var preferred_distance := (minimum_dispatch_distance + maximum_dispatch_distance) * 0.5
-		return absf(a.global_position.distance_to(effective_position) - preferred_distance) < absf(b.global_position.distance_to(effective_position) - preferred_distance)
+		return a.global_position.distance_squared_to(target_position) < b.global_position.distance_squared_to(target_position)
 	)
 	var clear_starts: Array[TrafficWaypoint3D] = []
 	for start in starts:
@@ -657,7 +656,6 @@ func _choose_dispatch_route(
 			clear_starts.append(start)
 			if clear_starts.size() >= maximum_route_starts_per_dispatch:
 				break
-	var desired := (response_profile.get_arrival_minimum(wanted.wanted_level) + response_profile.get_arrival_maximum(wanted.wanted_level)) * 0.5
 	var exclusions := _get_response_destination_exclusions()
 	for start in clear_starts:
 		_last_dispatch_route_search_count += 1
@@ -672,11 +670,9 @@ func _choose_dispatch_route(
 		if road_target.is_empty():
 			continue
 		var route_distance := float(road_target.get("route_distance", INF))
-		var eta := route_distance / 16.0
 		var score := (
-			absf(eta - desired) * 8.0
-			+ float(road_target.get("target_distance", INF)) * 2.0
-			+ route_distance * 0.05
+			route_distance
+			+ float(road_target.get("target_distance", INF)) * 4.0
 		)
 		if score < best_score:
 			best_score = score
@@ -719,7 +715,7 @@ func _tick_mobile_response(response: ResponseUnit, delta: float) -> void:
 	if response.stalled_elapsed >= response_profile.stalled_reroute_seconds:
 		_recover_stalled_response(response)
 		response.stalled_elapsed = 0.0
-		if response.state == ResponseUnit.State.EXITING:
+		if response.state not in [ResponseUnit.State.EN_ROUTE, ResponseUnit.State.PURSUING]:
 			return
 	var target := _get_effective_target_node()
 	var sees_target := target != null and bool(response.cruiser.call("can_see_target", target))
@@ -735,7 +731,7 @@ func _tick_mobile_response(response: ResponseUnit, delta: float) -> void:
 	response.route_refresh_remaining = maxf(response.route_refresh_remaining - delta, 0.0)
 	var target_speed := vehicle_component.get_effective_velocity().length()
 	var player_is_moving_vehicle := (
-		vehicle_component.is_driving()
+		sees_target and vehicle_component.is_driving()
 		and target_speed > response_profile.stationary_speed
 	)
 	if player_is_moving_vehicle:
@@ -789,7 +785,7 @@ func _tick_mobile_response(response: ResponseUnit, delta: float) -> void:
 		if player_is_moving_vehicle:
 			_retarget_dynamic_response(response, response_target, false, &"intercept_reached")
 			return
-		if vehicle_component.is_driving():
+		if sees_target and vehicle_component.is_driving():
 			var close_to_vehicle := (
 				response.cruiser.global_position.distance_to(
 					vehicle_component.get_effective_position()
@@ -825,6 +821,7 @@ func _retarget_dynamic_response(
 	if (
 		not force_retarget
 		and response.ai.has_route()
+		and response.ai.is_stopping_at_destination() == stop_at_destination
 		and not response.ai.has_reached_destination()
 		and response.target_snapshot.distance_to(world_position)
 		< minimum_dynamic_retarget_distance
@@ -867,14 +864,16 @@ func _retarget_dynamic_response(
 
 func _tick_pull_over(response: ResponseUnit, delta: float) -> void:
 	var target_speed := vehicle_component.get_effective_velocity().length()
+	var target := _get_effective_target_node()
+	var sees_target := target != null and bool(response.cruiser.call("can_see_target", target))
 	if (
-		vehicle_component.is_driving()
+		sees_target and vehicle_component.is_driving()
 		and target_speed > response_profile.stationary_speed
 	):
 		_resume_mounted_response(response)
 		return
 	if (
-		not vehicle_component.is_driving()
+		sees_target and not vehicle_component.is_driving()
 		and response.hold < 0.5
 		and response.cruiser.global_position.distance_to(
 			vehicle_component.get_effective_position()
@@ -908,6 +907,18 @@ func _tick_pull_over(response: ResponseUnit, delta: float) -> void:
 func _recover_stalled_response(response: ResponseUnit) -> void:
 	if _incident == null:
 		return
+	# Finish the approach on foot when traffic blocks a nearby incident.
+	# Use dispatch intelligence, so an unseen suspect cannot steer this decision.
+	if (
+		response.cruiser.global_position.distance_to(_last_known_position)
+		<= response_profile.deployment_distance * 2.0
+		and _incident.last_known_velocity.length() <= response_profile.stationary_speed
+	):
+		response.ai.clear()
+		response.hold = 0.0
+		response.state = ResponseUnit.State.PULL_OVER
+		response.cruiser.drive_component.set_ai_control(0.0, 1.0, 0.0)
+		return
 	if response.recovery_count >= 2:
 		_request_response_replacement(response, &"recovery_exhausted")
 		return
@@ -916,14 +927,15 @@ func _recover_stalled_response(response: ResponseUnit) -> void:
 		and vehicle_component.get_effective_velocity().length()
 		> response_profile.stationary_speed
 	)
-	if _retarget_dynamic_response(
+	# Failed route searches must also consume the recovery budget.
+	response.recovery_count += 1
+	_retarget_dynamic_response(
 		response,
 		_get_role_target(response.role, false),
 		not moving_vehicle or String(response.role).begins_with("containment"),
 		&"stalled_reroute_failed",
 		true
-	):
-		response.recovery_count += 1
+	)
 
 
 func _resume_mounted_response(response: ResponseUnit) -> void:
@@ -1037,9 +1049,11 @@ func _get_response_destination_exclusions(
 
 
 func _tick_unloading(response: ResponseUnit, delta: float) -> void:
+	response.cruiser.drive_component.set_ai_control(0.0, 1.0, 0.0)
 	if (
 		response.officers.is_empty()
 		and vehicle_component.is_driving()
+		and bool(response.cruiser.call("can_see_target", _get_effective_target_node()))
 		and vehicle_component.get_effective_velocity().length()
 		> response_profile.stationary_speed
 	):
@@ -1067,18 +1081,7 @@ func _tick_unloading(response: ResponseUnit, delta: float) -> void:
 		exit_position,
 		_incident.incident_id if _incident != null else 0,
 		response_target
-	) if population != null else null
-	if officer == null and population != null:
-		var nearest := population.get_nearest_waypoint(
-			response.cruiser.global_position,
-			45.0
-		)
-		if nearest != null:
-			officer = population.spawn_response_officer(
-				nearest.global_position,
-				_incident.incident_id if _incident != null else 0,
-				response_target
-			)
+	) if population != null and exit_position.is_finite() else null
 	if officer != null:
 		response.officers.append(officer)
 	if response.deploy_elapsed >= deployment_failure_timeout and officer == null:
@@ -1088,6 +1091,7 @@ func _tick_unloading(response: ResponseUnit, delta: float) -> void:
 
 
 func _tick_on_scene(response: ResponseUnit, delta: float) -> void:
+	response.cruiser.drive_component.set_ai_control(0.0, 1.0, 0.0)
 	var living: Array[PoliceNPC] = []
 	for officer in response.officers:
 		if is_instance_valid(officer) and not officer.is_defeated():
@@ -1123,6 +1127,9 @@ func _get_safe_officer_exit_position(
 		door_position + side * 0.9,
 		door_position + side * 0.9 + forward * 1.0,
 		door_position + side * 0.9 - forward * 1.0,
+		cruiser.global_position - side * 2.2,
+		cruiser.global_position - forward * 3.5 + side * 1.5,
+		cruiser.global_position - forward * 3.5 - side * 1.5,
 	]
 	for candidate in candidates:
 		var grounded := _ground_officer_exit(candidate, cruiser)
@@ -1131,11 +1138,11 @@ func _get_safe_officer_exit_position(
 	if population != null:
 		var nearest := population.get_nearest_waypoint(
 			cruiser.global_position,
-			45.0
+			8.0
 		)
-		if nearest != null:
+		if nearest != null and _is_officer_exit_clear(nearest.global_position, cruiser):
 			return nearest.global_position
-	return door_position
+	return Vector3.INF
 
 
 func _ground_officer_exit(position: Vector3, cruiser: BaseVehicle) -> Vector3:
@@ -1147,13 +1154,17 @@ func _ground_officer_exit(position: Vector3, cruiser: BaseVehicle) -> Vector3:
 	query.collide_with_areas = false
 	query.exclude = [cruiser.get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
-	return hit.get("position", position) as Vector3
+	if hit.is_empty() or (hit.get("normal", Vector3.ZERO) as Vector3).y < 0.5:
+		return Vector3.INF
+	return hit.get("position") as Vector3
 
 
 func _is_officer_exit_clear(
 	position: Vector3,
 	cruiser: BaseVehicle
 ) -> bool:
+	if not position.is_finite():
+		return false
 	var shape := CapsuleShape3D.new()
 	shape.radius = 0.38
 	shape.height = 1.7
@@ -1187,11 +1198,14 @@ func _begin_response_return(response: ResponseUnit) -> void:
 		var police := response.officers[officer_index]
 		if is_instance_valid(police) and not police.is_defeated():
 			police.bt_player.set_active(false)
+			police.brain_component.deactivate()
 			var door_position := _get_safe_officer_exit_position(
 				response.cruiser,
 				officer_index,
 				population
 			)
+			if not door_position.is_finite():
+				door_position = response.cruiser.global_position
 			returning_officers.append(police)
 			response.return_positions.append(door_position)
 			police.set_navigation_target(door_position)

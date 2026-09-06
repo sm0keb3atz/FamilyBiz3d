@@ -1,7 +1,7 @@
 class_name WorldController
 extends Node
 
-const SAVE_VERSION := 19
+const SAVE_VERSION := 20
 const SAVE_PATH := "user://family_business_save.json"
 
 @export var player_path := NodePath("../Gameplay/Player")
@@ -19,6 +19,12 @@ const SAVE_PATH := "user://family_business_save.json"
 @onready var wardrobe := player.get_node(
 	"Components/WardrobeComponent"
 ) as PlayerWardrobeComponent
+@onready var identity := player.get_node(
+	"Components/IdentityComponent"
+) as PlayerIdentityComponent
+@onready var appearance := player.get_node(
+	"Components/AppearanceComponent"
+) as PlayerAppearanceComponent
 @onready var weapon := player.get_node(
 	"Components/WeaponComponent"
 ) as PlayerWeaponComponent
@@ -122,6 +128,8 @@ func save_game() -> bool:
 		"wholesalers": wholesalers,
 		"dealer_zones": dealer_zones,
 		"player": {
+			"identity": identity.export_save_data(),
+			"appearance": appearance.export_save_data(),
 			"position": _vector_to_array(
 				vehicle_component.get_safe_save_position()
 			),
@@ -172,6 +180,12 @@ func load_game() -> bool:
 	if police_dispatch != null:
 		police_dispatch.reset_for_load()
 	wallet.import_save_data(player_data.get("wallet", {}) as Dictionary)
+	identity.import_save_data(
+		player_data.get("identity", {}) as Dictionary
+	)
+	appearance.import_save_data(
+		player_data.get("appearance", {}) as Dictionary
+	)
 	stats.import_save_data(player_data.get("stats", {}) as Dictionary)
 	properties.import_save_data(
 		player_data.get("properties", {}) as Dictionary

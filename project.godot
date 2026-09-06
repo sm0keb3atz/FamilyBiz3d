@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="FamilyBizPrototype"
-run/main_scene="uid://bu34jrbyqy8ge"
+run/main_scene="res://Scenes/UI/StartupMenu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+StartupFlow="*res://Scripts/Startup/startup_flow.gd"
 
 [audio]
 

@@ -320,6 +320,29 @@ func _run() -> void:
 	assert(cruiser_ai.has_dynamic_destination())
 	assert(dynamic_stop.is_finite())
 	assert(first_response.destination_position == dynamic_stop)
+	# A stop-mode change must not be swallowed by the position-change threshold.
+	assert(dispatch.call("_retarget_dynamic_response", first_response, first_response.target_snapshot, false, &"test_drive_through"))
+	assert(not cruiser_ai.is_stopping_at_destination())
+	assert(dispatch.call("_retarget_dynamic_response", first_response, first_response.target_snapshot, true, &"test_stop"))
+	assert(cruiser_ai.is_stopping_at_destination())
+	assert(float(cruiser_ai.call("_get_remaining_stop_distance")) > 0.0)
+	var saved_position := first_cruiser.global_position
+	var saved_terminal: bool = cruiser_ai.get("_dynamic_terminal_active")
+	var saved_target := cruiser_ai.target_waypoint
+	cruiser_ai.set("_dynamic_terminal_active", true)
+	cruiser_ai.target_waypoint = cruiser_ai.get("_dynamic_segment_end")
+	first_cruiser.global_position = cruiser_ai.get_destination_position() + cruiser_ai.get_destination_approach_direction() * 2.0
+	assert(is_zero_approx(float(cruiser_ai.call("_get_remaining_stop_distance"))))
+	first_cruiser.global_position = saved_position
+	cruiser_ai.set("_dynamic_terminal_active", saved_terminal)
+	cruiser_ai.target_waypoint = saved_target
+	# Even an unavailable road network consumes a bounded recovery attempt.
+	var failed_response := PoliceDispatchController.ResponseUnit.new()
+	failed_response.cruiser = first_cruiser
+	failed_response.ai = cruiser_ai
+	dispatch.call("_recover_stalled_response", failed_response)
+	assert(failed_response.recovery_count == 1)
+	assert(failed_response.last_failure_reason == &"missing_network")
 	assert(get_nodes_in_group(&"police_staging_point").is_empty())
 	var first_seat_count := int(first_response.seat_count)
 	var deployment_frames := 0
@@ -419,6 +442,7 @@ func _run() -> void:
 	assert(first_response.return_positions.size() == first_response.officers.size())
 	for returning_response_officer in first_response.officers:
 		assert(not returning_response_officer.bt_player.active)
+		assert(not returning_response_officer.brain_component.is_physics_processing())
 	assert(dispatch.get_effective_officer_count() == 0)
 	assert(dispatch.get_scheduled_officer_count() == 0)
 	player.global_position = returning_officer.global_position + Vector3(1.0, 0.0, 0.0)

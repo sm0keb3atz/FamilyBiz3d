@@ -17,6 +17,7 @@ signal material_color_changed(
 )
 signal aura_changed(current: int)
 signal body_variant_changed(variant: StringName)
+signal skin_preset_changed(preset: StringName, difficulty_index: int)
 
 const SLOT_TOP := &"top"
 const SLOT_BOTTOM := &"bottom"
@@ -24,6 +25,9 @@ const SLOT_SHOES := &"shoes"
 const SLOT_BODY := &"body"
 const BODY_VARIANT_MALE := &"male"
 const BODY_VARIANT_FEMALE := &"female"
+const SKIN_PRESET_EASY := &"easy"
+const SKIN_PRESET_MEDIUM := &"medium"
+const SKIN_PRESET_HARD := &"hard"
 const AUTO_MESH_DIR := "res://Assets/BaseChracters/Player/Meshes/Auto"
 const AUTO_MATERIAL_DIR := (
 	"res://Assets/BaseChracters/Player/Materials/Variants"
@@ -33,6 +37,9 @@ const BODY_TEXTURE_01 := preload(
 )
 const BODY_TEXTURE_02 := preload(
 	"res://Assets/BaseChracters/Player/Materials/Modular/Body_Texture_02.tres"
+)
+const ASIAN_MALE := preload(
+	"res://Assets/BaseChracters/Player/Materials/Modular/AsainMale.tres"
 )
 const HOODIE_TEXTURE_01 := preload(
 	"res://Assets/BaseChracters/Player/Materials/Modular/Hoodie_Texture_01.tres"
@@ -121,6 +128,7 @@ var _material_color := {
 }
 var _material_variants: Dictionary = {}
 var _body_variant := BODY_VARIANT_MALE
+var _skin_preset := SKIN_PRESET_HARD
 var _current_aura := 0
 var _equipped_aura_by_slot: Dictionary[StringName, int] = {}
 
@@ -183,8 +191,7 @@ func copy_skeleton_pose_to(target: PlayerAppearanceComponent) -> void:
 	if _skeleton == null or target == null or target._skeleton == null:
 		return
 	target.set_body_variant(_body_variant)
-	target._selected_material[SLOT_BODY] = _selected_material[SLOT_BODY]
-	target._apply_material(SLOT_BODY)
+	target.set_skin_preset(_skin_preset)
 	for source_index in _skeleton.get_bone_count():
 		var target_index := target._skeleton.find_bone(
 			_skeleton.get_bone_name(source_index)
@@ -276,7 +283,14 @@ func randomize_appearance(
 		0,
 		body_materials.size() - 1
 	)
+	_skin_preset = StringName(
+		body_materials[int(_selected_material[SLOT_BODY])].get(
+			"id",
+			SKIN_PRESET_HARD
+		)
+	)
 	_apply_material(SLOT_BODY)
+	skin_preset_changed.emit(_skin_preset, get_skin_difficulty_index())
 	for slot in _options:
 		var options: Array = _options[slot]
 		if not options.is_empty():
@@ -333,6 +347,71 @@ func get_body_variant() -> StringName:
 	return _body_variant
 
 
+func set_skin_preset(preset: StringName) -> bool:
+	var material_index := _find_body_material_index(preset)
+	if material_index < 0:
+		push_warning("Unknown skin preset: %s" % preset)
+		return false
+	_skin_preset = preset
+	_selected_material[SLOT_BODY] = material_index
+	_apply_material(SLOT_BODY)
+	skin_preset_changed.emit(_skin_preset, get_skin_difficulty_index())
+	return true
+
+
+func set_skin_difficulty(difficulty_index: int) -> bool:
+	match difficulty_index:
+		0:
+			return set_skin_preset(SKIN_PRESET_EASY)
+		1:
+			return set_skin_preset(SKIN_PRESET_MEDIUM)
+		2:
+			return set_skin_preset(SKIN_PRESET_HARD)
+		_:
+			return false
+
+
+func get_skin_preset() -> StringName:
+	return _skin_preset
+
+
+func get_skin_difficulty_index() -> int:
+	match _skin_preset:
+		SKIN_PRESET_EASY:
+			return 0
+		SKIN_PRESET_MEDIUM:
+			return 1
+		_:
+			return 2
+
+
+func get_body_material_resource_path() -> String:
+	var materials := _get_material_options(SLOT_BODY)
+	var index := int(_selected_material[SLOT_BODY])
+	if index < 0 or index >= materials.size():
+		return ""
+	var material := materials[index].get("material") as Material
+	return material.resource_path if material != null else ""
+
+
+func export_save_data() -> Dictionary:
+	return {
+		"body_variant": String(_body_variant),
+		"skin_preset": String(_skin_preset),
+	}
+
+
+func import_save_data(data: Dictionary) -> void:
+	if data.is_empty():
+		return
+	var variant := StringName(str(data.get("body_variant", _body_variant)))
+	if variant == BODY_VARIANT_MALE or variant == BODY_VARIANT_FEMALE:
+		set_body_variant(variant)
+	var preset := StringName(str(data.get("skin_preset", _skin_preset)))
+	if _find_body_material_index(preset) >= 0:
+		set_skin_preset(preset)
+
+
 func apply_police_uniform() -> void:
 	for slot in _options:
 		var options: Array = _options[slot]
@@ -346,8 +425,7 @@ func apply_police_uniform() -> void:
 
 func reset_appearance() -> void:
 	set_body_variant(BODY_VARIANT_MALE)
-	_selected_material[SLOT_BODY] = 0
-	_apply_material(SLOT_BODY)
+	set_skin_preset(SKIN_PRESET_HARD)
 	for slot in _selected:
 		_selected[slot] = 0
 		_selected_material[slot] = 0
@@ -368,7 +446,17 @@ func cycle_material(slot: StringName, direction: int) -> void:
 		0,
 		materials.size()
 	)
+	if slot == SLOT_BODY:
+		var material_option: Dictionary = materials[
+			int(_selected_material[SLOT_BODY])
+		]
+		_skin_preset = StringName(material_option.get("id", SKIN_PRESET_HARD))
 	_apply_material(slot)
+	if slot == SLOT_BODY:
+		skin_preset_changed.emit(
+			_skin_preset,
+			get_skin_difficulty_index()
+		)
 
 
 func get_material_name(slot: StringName) -> String:
@@ -483,8 +571,21 @@ func _apply_female_clothing_material(slot: StringName) -> void:
 func _get_material_options(slot: StringName) -> Array:
 	if slot == SLOT_BODY:
 		return [
-			{"name": "Body 1", "material": BODY_TEXTURE_01},
-			{"name": "Body 2", "material": BODY_TEXTURE_02},
+			{
+				"id": SKIN_PRESET_HARD,
+				"name": "Black / Hard",
+				"material": BODY_TEXTURE_01,
+			},
+			{
+				"id": SKIN_PRESET_EASY,
+				"name": "White / Easy",
+				"material": BODY_TEXTURE_02,
+			},
+			{
+				"id": SKIN_PRESET_MEDIUM,
+				"name": "Asian / Medium",
+				"material": ASIAN_MALE,
+			},
 		]
 	var option: Dictionary = _options[slot][int(_selected[slot])]
 	var node_name := StringName(option["node"])
@@ -556,6 +657,14 @@ func _discover_auto_materials() -> void:
 			func(a: Dictionary, b: Dictionary) -> bool:
 				return str(a["name"]) < str(b["name"])
 		)
+
+
+func _find_body_material_index(preset: StringName) -> int:
+	var materials := _get_material_options(SLOT_BODY)
+	for index in materials.size():
+		if StringName(materials[index].get("id", &"")) == preset:
+			return index
+	return -1
 
 
 func _register_material_file(file_name: String) -> void:

@@ -1,6 +1,10 @@
 class_name PlayerCameraComponent
 extends Node
 
+const DEFAULT_VISUAL_PROFILE := preload(
+	"res://Assets/VFX/GrittyCinematicWorldVisualProfile.tres"
+)
+
 @export var camera_pivot_path := NodePath("../../CameraPivot")
 @export var spring_arm_path := NodePath("../../CameraPivot/SpringArm3D")
 @export var camera_path := NodePath("../../CameraPivot/SpringArm3D/Camera3D")
@@ -31,18 +35,38 @@ extends Node
 
 @export_category("Cinematic Focus")
 @export var default_depth_of_field_enabled := true
-@export_range(0.0, 0.1, 0.001) var default_dof_blur_amount := 0.012
-@export_range(1.0, 100.0, 0.5) var default_dof_focus_distance := 24.0
-@export_range(0.0, 30.0, 0.5) var default_dof_focus_padding := 8.0
-@export_range(1.0, 40.0, 0.5) var default_dof_far_transition := 18.0
+@export_range(0.0, 0.1, 0.001) var default_dof_blur_amount := 0.009
+@export_range(1.0, 100.0, 0.5) var default_dof_focus_distance := 30.0
+@export_range(1.0, 100.0, 0.5) var default_dof_minimum_focus_distance := 4.0
+@export_range(5.0, 150.0, 0.5) var default_dof_maximum_focus_distance := 55.0
+@export_range(0.0, 10.0, 0.1) var default_dof_focus_dead_zone := 1.5
+@export_range(0.0, 30.0, 0.25) var default_dof_focus_padding_min := 8.0
+@export_range(0.0, 40.0, 0.25) var default_dof_focus_padding_max := 18.0
+@export_range(0.0, 1.0, 0.01) var default_dof_focus_padding_ratio := 0.35
+@export_range(1.0, 40.0, 0.5) var default_dof_far_transition := 20.0
+@export_range(0.02, 1.0, 0.005) var default_dof_sample_interval := 0.125
+@export_range(0.1, 10.0, 0.05) var default_dof_focus_speed := 1.25
+@export_range(0.1, 10.0, 0.05) var default_dof_transition_speed := 3.0
 @export var aim_depth_of_field_enabled := true
-@export_range(0.0, 0.2, 0.005) var aim_dof_blur_amount := 0.055
-@export_range(1.0, 60.0, 0.5) var aim_dof_default_focus_distance := 14.0
-@export_range(1.0, 20.0, 0.25) var aim_dof_minimum_focus_distance := 4.0
-@export_range(5.0, 100.0, 0.5) var aim_dof_maximum_focus_distance := 35.0
-@export_range(0.0, 10.0, 0.1) var aim_dof_focus_padding := 1.8
-@export_range(0.1, 20.0, 0.1) var aim_dof_far_transition := 5.5
+@export_range(0.0, 0.2, 0.005) var aim_dof_blur_amount := 0.035
+@export_range(1.0, 150.0, 0.5) var aim_dof_default_focus_distance := 35.0
+@export_range(0.5, 20.0, 0.25) var aim_dof_minimum_focus_distance := 2.0
+@export_range(5.0, 150.0, 0.5) var aim_dof_maximum_focus_distance := 120.0
+@export_range(0.0, 5.0, 0.05) var aim_dof_focus_dead_zone := 0.2
+@export_range(0.0, 10.0, 0.05) var aim_dof_focus_padding_min := 0.75
+@export_range(0.0, 15.0, 0.05) var aim_dof_focus_padding_max := 3.0
+@export_range(0.0, 0.5, 0.005) var aim_dof_focus_padding_ratio := 0.05
+@export_range(0.1, 20.0, 0.1) var aim_dof_far_transition_min := 3.0
+@export_range(0.1, 30.0, 0.1) var aim_dof_far_transition_max := 12.0
+@export_range(0.0, 1.0, 0.01) var aim_dof_far_transition_ratio := 0.2
+@export_range(0.05, 2.0, 0.05) var aim_dof_near_distance := 0.35
+@export_range(0.05, 3.0, 0.05) var aim_dof_near_transition := 0.65
+@export_range(0.1, 30.0, 0.1) var aim_dof_focus_near_speed := 10.0
+@export_range(0.1, 30.0, 0.1) var aim_dof_focus_far_speed := 6.0
 @export_range(0.1, 30.0, 0.1) var aim_dof_transition_speed := 6.0
+
+@export_category("Exposure")
+@export var visual_profile: WorldVisualProfile = DEFAULT_VISUAL_PROFILE
 
 @export_category("Movement Bob")
 @export_range(0.0, 0.2, 0.001) var walk_bob_height := 0.032
@@ -108,7 +132,10 @@ var _movement_sway := Vector3.ZERO
 var _previous_horizontal_velocity := Vector3.ZERO
 var _impulse_recovery := 9.0
 var _camera_attributes: CameraAttributesPractical
-var _dof_focus_distance := 14.0
+var _dof_focus_distance := 30.0
+var _dof_target_focus_distance := 30.0
+var _dof_sample_remaining := 0.0
+var _dof_aim_blend := 0.0
 
 
 func _ready() -> void:
@@ -437,11 +464,32 @@ func _initialize_aim_depth_of_field() -> void:
 	_camera_attributes.dof_blur_far_enabled = default_depth_of_field_enabled
 	_camera_attributes.dof_blur_near_enabled = false
 	_camera_attributes.dof_blur_far_distance = (
-		default_dof_focus_distance + default_dof_focus_padding
+		default_dof_focus_distance + default_dof_focus_padding_min
 	)
 	_camera_attributes.dof_blur_far_transition = default_dof_far_transition
+	if visual_profile != null:
+		_camera_attributes.auto_exposure_enabled = (
+			visual_profile.auto_exposure_enabled
+		)
+		_camera_attributes.auto_exposure_min_sensitivity = minf(
+			visual_profile.auto_exposure_min_sensitivity,
+			visual_profile.auto_exposure_max_sensitivity
+		)
+		_camera_attributes.auto_exposure_max_sensitivity = maxf(
+			visual_profile.auto_exposure_min_sensitivity,
+			visual_profile.auto_exposure_max_sensitivity
+		)
+		_camera_attributes.auto_exposure_speed = (
+			visual_profile.auto_exposure_speed
+		)
+		_camera_attributes.auto_exposure_scale = (
+			visual_profile.auto_exposure_scale
+		)
 	camera.attributes = _camera_attributes
 	_dof_focus_distance = default_dof_focus_distance
+	_dof_target_focus_distance = default_dof_focus_distance
+	_dof_sample_remaining = 0.0
+	_dof_aim_blend = 0.0
 
 
 func _update_aim_depth_of_field(delta: float, is_aiming: bool) -> void:
@@ -449,54 +497,151 @@ func _update_aim_depth_of_field(delta: float, is_aiming: bool) -> void:
 		return
 	var should_aim_focus := aim_depth_of_field_enabled and is_aiming
 	var default_focus_active := default_depth_of_field_enabled and not should_aim_focus
+	_update_dof_focus_target(delta, should_aim_focus, default_focus_active)
+	var focus_speed := default_dof_focus_speed
+	if should_aim_focus:
+		focus_speed = (
+			aim_dof_focus_near_speed
+			if _dof_target_focus_distance < _dof_focus_distance
+			else aim_dof_focus_far_speed
+		)
+	_dof_focus_distance = lerpf(
+		_dof_focus_distance,
+		_dof_target_focus_distance,
+		1.0 - exp(-focus_speed * delta)
+	)
+	var aim_blend_speed := (
+		aim_dof_transition_speed
+		if should_aim_focus
+		else default_dof_transition_speed
+	)
+	_dof_aim_blend = lerpf(
+		_dof_aim_blend,
+		1.0 if should_aim_focus else 0.0,
+		1.0 - exp(-aim_blend_speed * delta)
+	)
 	var target_amount := 0.0
 	if should_aim_focus:
 		target_amount = aim_dof_blur_amount
 	elif default_focus_active:
 		target_amount = default_dof_blur_amount
-	if should_aim_focus:
-		_camera_attributes.dof_blur_far_enabled = true
-		var desired_focus := aim_dof_default_focus_distance
-		if (
-			target_lock_component != null
-			and target_lock_component.has_locked_target()
-		):
-			desired_focus = camera.global_position.distance_to(
-				target_lock_component.get_lock_point()
-			)
-		desired_focus = clampf(
-			desired_focus,
-			aim_dof_minimum_focus_distance,
-			aim_dof_maximum_focus_distance
-		)
-		_dof_focus_distance = lerpf(
-			_dof_focus_distance,
-			desired_focus,
-			1.0 - exp(-aim_dof_transition_speed * delta)
-		)
-		_camera_attributes.dof_blur_far_distance = (
-			_dof_focus_distance + aim_dof_focus_padding
-		)
-		_camera_attributes.dof_blur_far_transition = aim_dof_far_transition
-	elif default_focus_active:
-		_dof_focus_distance = lerpf(
-			_dof_focus_distance,
-			default_dof_focus_distance,
-			1.0 - exp(-aim_dof_transition_speed * delta)
-		)
-		_camera_attributes.dof_blur_far_enabled = true
-		_camera_attributes.dof_blur_far_distance = (
-			_dof_focus_distance + default_dof_focus_padding
-		)
-		_camera_attributes.dof_blur_far_transition = default_dof_far_transition
+	var amount_speed := (
+		aim_dof_transition_speed
+		if should_aim_focus
+		else default_dof_transition_speed
+	)
 	_camera_attributes.dof_blur_amount = lerpf(
 		_camera_attributes.dof_blur_amount,
 		target_amount,
-		1.0 - exp(-aim_dof_transition_speed * delta)
+		1.0 - exp(-amount_speed * delta)
 	)
+	if (
+		should_aim_focus
+		or default_focus_active
+		or _camera_attributes.dof_blur_amount > 0.0005
+	):
+		_camera_attributes.dof_blur_far_enabled = true
+		_apply_dof_focus_profile()
+	if _dof_aim_blend > 0.01:
+		_camera_attributes.dof_blur_near_enabled = true
+		_camera_attributes.dof_blur_near_distance = lerpf(
+			maxf(camera.near + 0.01, 0.06),
+			aim_dof_near_distance,
+			_dof_aim_blend
+		)
+		_camera_attributes.dof_blur_near_transition = lerpf(
+			0.1,
+			aim_dof_near_transition,
+			_dof_aim_blend
+		)
+	else:
+		_camera_attributes.dof_blur_near_enabled = false
 	if not should_aim_focus and not default_focus_active and _camera_attributes.dof_blur_amount <= 0.0005:
 		_camera_attributes.dof_blur_amount = 0.0
 		_camera_attributes.dof_blur_far_enabled = false
+		_camera_attributes.dof_blur_near_enabled = false
+
+
+func _update_dof_focus_target(
+	delta: float,
+	should_aim_focus: bool,
+	default_focus_active: bool
+) -> void:
+	if should_aim_focus:
+		var aim_position := weapon_component.get_predicted_aim_position()
+		var aim_distance := aim_dof_default_focus_distance
+		if aim_position.is_finite():
+			aim_distance = camera.global_position.distance_to(aim_position)
+		_set_dof_focus_target(
+			aim_distance,
+			aim_dof_minimum_focus_distance,
+			aim_dof_maximum_focus_distance,
+			aim_dof_focus_dead_zone
+		)
+		_dof_sample_remaining = 0.0
+		return
+	if not default_focus_active:
+		return
+	_dof_sample_remaining -= delta
+	if _dof_sample_remaining > 0.0:
+		return
+	_dof_sample_remaining = default_dof_sample_interval
+	var ambient_position := weapon_component.get_predicted_aim_position(
+		default_dof_maximum_focus_distance,
+		false
+	)
+	var ambient_distance := default_dof_focus_distance
+	if ambient_position.is_finite():
+		ambient_distance = camera.global_position.distance_to(ambient_position)
+	_set_dof_focus_target(
+		ambient_distance,
+		default_dof_minimum_focus_distance,
+		default_dof_maximum_focus_distance,
+		default_dof_focus_dead_zone
+	)
+
+
+func _set_dof_focus_target(
+	distance: float,
+	minimum_distance: float,
+	maximum_distance: float,
+	dead_zone: float
+) -> void:
+	var desired_focus := clampf(distance, minimum_distance, maximum_distance)
+	var effective_dead_zone := maxf(
+		dead_zone,
+		_dof_target_focus_distance * 0.01
+	)
+	if absf(desired_focus - _dof_target_focus_distance) < effective_dead_zone:
+		return
+	_dof_target_focus_distance = desired_focus
+
+
+func _apply_dof_focus_profile() -> void:
+	var ambient_padding := clampf(
+		_dof_focus_distance * default_dof_focus_padding_ratio,
+		default_dof_focus_padding_min,
+		default_dof_focus_padding_max
+	)
+	var aim_padding := clampf(
+		_dof_focus_distance * aim_dof_focus_padding_ratio,
+		aim_dof_focus_padding_min,
+		aim_dof_focus_padding_max
+	)
+	var aim_far_transition := clampf(
+		_dof_focus_distance * aim_dof_far_transition_ratio,
+		aim_dof_far_transition_min,
+		aim_dof_far_transition_max
+	)
+	_camera_attributes.dof_blur_far_distance = (
+		_dof_focus_distance
+		+ lerpf(ambient_padding, aim_padding, _dof_aim_blend)
+	)
+	_camera_attributes.dof_blur_far_transition = lerpf(
+		default_dof_far_transition,
+		aim_far_transition,
+		_dof_aim_blend
+	)
 
 
 func walk_speed_reference() -> float:

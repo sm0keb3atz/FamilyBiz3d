@@ -18,6 +18,47 @@ size = Vector3(133.90001, 20, 253)
 
 [node name="Mobility" parent="." unique_id=1486368606 instance=ExtResource("1_0aaou")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.6, 0, -129.5)
+territory_id = &"suburbs_west"
+
+[node name="TrafficRoutes" parent="Mobility" index="0"]
+territory_id = &"suburbs_west"
+
+[node name="SouthWest" parent="Mobility/Intersections" index="0"]
+intersection_id = &"suburbs_west_south_west"
+
+[node name="SignalController" parent="Mobility/Intersections/SouthWest" index="0"]
+controller_id = &"suburbs_west_south_west"
+
+[node name="SouthEast" parent="Mobility/Intersections" index="1"]
+intersection_id = &"suburbs_west_south_east"
+
+[node name="SignalController" parent="Mobility/Intersections/SouthEast" index="0"]
+controller_id = &"suburbs_west_south_east"
+
+[node name="MidWest" parent="Mobility/Intersections" index="2"]
+intersection_id = &"suburbs_west_mid_west"
+
+[node name="SignalController" parent="Mobility/Intersections/MidWest" index="0"]
+controller_id = &"suburbs_west_mid_west"
+
+[node name="MidEast" parent="Mobility/Intersections" index="3"]
+intersection_id = &"suburbs_west_mid_east"
+
+[node name="SignalController" parent="Mobility/Intersections/MidEast" index="0"]
+controller_id = &"suburbs_west_mid_east"
+
+[node name="NorthWest" parent="Mobility/Intersections" index="4"]
+intersection_id = &"suburbs_west_north_west"
+
+[node name="SignalController" parent="Mobility/Intersections/NorthWest" index="0"]
+controller_id = &"suburbs_west_north_west"
+
+[node name="NorthEast" parent="Mobility/Intersections" index="5"]
+intersection_id = &"suburbs_west_north_east"
+
+[node name="SignalController" parent="Mobility/Intersections/NorthEast" index="0"]
+controller_id = &"suburbs_west_north_east"
+
 
 [node name="SuburbsEastBlock1" parent="." unique_id=1701640062 instance=ExtResource("2_d0oil")]
 

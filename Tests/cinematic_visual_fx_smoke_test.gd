@@ -69,7 +69,10 @@ func _run() -> void:
 	assert(not environment.sdfgi_enabled)
 	assert(environment.volumetric_fog_enabled)
 	assert(is_equal_approx(environment.volumetric_fog_length, 180.0))
-	assert(is_equal_approx(environment.glow_intensity, 0.16))
+	assert(is_equal_approx(
+		environment.glow_intensity,
+		time.visual_profile.day_glow_intensity
+	))
 	assert("depth_gap > depth_bias && depth_gap < merge_depth_range" in OutlineShader.code)
 	assert("float silhouette = smoothstep" in OutlineShader.code)
 	assert("EMISSION = base_color" in OutlineShader.code)

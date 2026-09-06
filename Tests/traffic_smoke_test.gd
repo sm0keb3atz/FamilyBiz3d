@@ -636,7 +636,7 @@ func _run() -> void:
 		assert(traffic_vehicle.has_traffic_driver())
 		var traffic_driver := traffic_vehicle.get_traffic_driver()
 		assert(traffic_driver != null)
-		assert(not (traffic_driver is CharacterBody3D))
+		assert(not ((traffic_driver as Node) is CharacterBody3D))
 		assert(traffic_driver.get_node_or_null("NavigationAgent3D") == null)
 		assert(traffic_driver.get_node_or_null("Hitboxes") == null)
 		assert(

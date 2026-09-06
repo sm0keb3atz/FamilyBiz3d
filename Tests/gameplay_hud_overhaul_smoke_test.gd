@@ -14,6 +14,14 @@ func _run() -> void:
 	await process_frame
 	var player := world.get_node("Gameplay/Player") as CharacterBody3D
 	var hud := player.get_node("PlayerHUD") as PlayerHUD
+	var hit_marker := hud.get_node("HitMarker") as ReticleHitmarker
+	assert(hit_marker != null)
+	var viewport_center := root.get_visible_rect().size * 0.5
+	assert(hit_marker.get_global_rect().get_center().is_equal_approx(viewport_center))
+	var weapon := player.get_node("Components/WeaponComponent") as PlayerWeaponComponent
+	weapon.hit_confirmed.emit(false)
+	assert(hit_marker.visible)
+	assert(hit_marker._remaining > 0.0)
 	assert(hud.get_node("TimePanel") is PanelContainer)
 	assert(hud.get_node("ReputationPanel") is PanelContainer)
 	var territory_fx := hud.get_node(

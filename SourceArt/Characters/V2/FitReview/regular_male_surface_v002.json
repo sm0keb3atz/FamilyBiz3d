@@ -1,0 +1,21 @@
+{
+  "status": "UNAPPROVED_SURFACE_REPAIR",
+  "input": "C:\\Users\\smo0o\\OneDrive\\Documents\\family-biz-prototype\\SourceArt\\Characters\\V2\\FitReview\\regular_male_sculpt_v001.blend",
+  "garments": [
+    {
+      "name": "TOP_01_Hoodie",
+      "joined_vertices": 0,
+      "unweighted": 0
+    },
+    {
+      "name": "BOTTOM_01_Jeans",
+      "joined_vertices": 1682,
+      "unweighted": 0
+    },
+    {
+      "name": "SHOES_01_Sneakers",
+      "joined_vertices": 5097,
+      "unweighted": 0
+    }
+  ]
+}

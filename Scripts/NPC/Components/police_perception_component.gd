@@ -27,6 +27,7 @@ var npc: BaseNPC
 var player: CharacterBody3D
 var wanted: PlayerWantedComponent
 var player_weapon: PlayerWeaponComponent
+var player_vehicle: PlayerVehicleComponent
 var coordinator: Node
 var _debug_mesh_instance: MeshInstance3D
 var _wanted_cone_mesh_instance: MeshInstance3D
@@ -47,6 +48,7 @@ func initialize(owner_npc: BaseNPC, target_player: CharacterBody3D) -> void:
 	player_weapon = player.get_node(
 		"Components/WeaponComponent"
 	) as PlayerWeaponComponent
+	player_vehicle = player.get_node_or_null("Components/VehicleComponent") as PlayerVehicleComponent
 	coordinator = player.get_tree().get_first_node_in_group(&"police_coordinator")
 	_ensure_debug_mesh()
 	_debug_mesh_instance.visible = debug_draw_enabled
@@ -124,10 +126,11 @@ func can_see_player() -> bool:
 func _sample_can_see_player() -> bool:
 	if player == null:
 		return false
-	var distance: float = npc.global_position.distance_to(player.global_position)
+	var position := player_vehicle.get_effective_position() if player_vehicle != null else player.global_position
+	var distance: float = npc.global_position.distance_to(position)
 	var targets: Array[Vector3] = [
-		player.global_position + Vector3.UP * 0.9,
-		player.global_position + Vector3.UP * 1.55,
+		position + Vector3.UP * 0.9,
+		position + Vector3.UP * 1.55,
 	]
 	for target: Vector3 in targets:
 		if distance <= near_awareness_range and _has_sight(
@@ -225,9 +228,10 @@ func _has_sight(
 
 
 func _is_player_node(node: Node) -> bool:
+	var vehicle: Node3D = player_vehicle.get_current_vehicle() if player_vehicle != null else null
 	var current: Node = node
 	while current != null:
-		if current == player:
+		if current == player or (vehicle != null and current == vehicle):
 			return true
 		current = current.get_parent()
 	return false

@@ -169,7 +169,8 @@ func try_fire_at(target_position: Vector3, spread_degrees: float) -> bool:
 	):
 		return false
 	if _magazine <= 0:
-		return try_reload()
+		try_reload()
+		return false
 	var origin := _get_muzzle_position()
 	var direction := (target_position - origin).normalized()
 	direction = direction.rotated(

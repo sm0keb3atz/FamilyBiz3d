@@ -7,10 +7,19 @@ const WeatherScene := preload("res://Scenes/VFX/WeatherSystem.tscn")
 const SurfaceStylerScript := preload("res://Scripts/World/world_surface_styler.gd")
 const StaticBatcherScript := preload("res://Scripts/World/static_multimesh_batcher.gd")
 const SkyShader := preload("res://Assets/VFX/Shaders/customizable_sky.gdshader")
+const LensShader := preload(
+	"res://Assets/VFX/Shaders/grounded_lens_finish.gdshader"
+)
 const GrassMesh := preload(
 	"res://Assets/MapStuff/Meshs/GroundTileset/SM_grass_00.glb"
 )
+const RoadMesh := preload(
+	"res://Assets/MapStuff/Meshs/GroundTileset/SM_road_00.glb"
+)
 const MuscleCarScene := preload("res://Scenes/Vehicles/MuscleCar.tscn")
+const StreetLightScene := preload(
+	"res://Scenes/Maps/RoadPieces/street_light.tscn"
+)
 const PAINT_META := &"family_business_vehicle_paint"
 
 
@@ -78,6 +87,10 @@ func _test_environment_and_weather() -> void:
 	assert(is_equal_approx(environment.tonemap_agx_white, 8.0))
 	assert(is_equal_approx(environment.adjustment_saturation, 1.0))
 	assert(environment.adjustment_color_correction != null)
+	assert("vignette_strength" in LensShader.code)
+	assert("grain_strength" in LensShader.code)
+	assert("dither_strength" in LensShader.code)
+	assert("chromatic" not in LensShader.code.to_lower())
 	assert(environment.ssao_enabled)
 	assert(not environment.ssr_enabled)
 	assert(environment.ssil_enabled)
@@ -118,6 +131,14 @@ func _test_environment_and_weather() -> void:
 
 	assert(time.set_time_of_day(13, 30))
 	await process_frame
+	var midday_grade := (
+		environment.adjustment_color_correction as GradientTexture1D
+	).gradient.colors
+	assert(midday_grade[1].is_equal_approx(time.visual_profile.grade_shadow))
+	assert(is_equal_approx(
+		environment.glow_intensity,
+		time.visual_profile.day_glow_intensity
+	))
 	assert(sun.light_energy > 1.3)
 	assert(is_equal_approx(environment.ambient_light_energy, 0.52))
 	var clear_density := environment.fog_density
@@ -130,6 +151,20 @@ func _test_environment_and_weather() -> void:
 
 	assert(weather.set_weather(WeatherSystem.RAIN, true))
 	await process_frame
+	assert(is_equal_approx(weather.get_visual_rain_intensity(), 0.55))
+	assert(is_equal_approx(weather.get_visual_overcast_intensity(), 0.55))
+	assert(
+		weather.get_surface_wetness()
+		>= weather.visual_profile.active_rain_wetness_floor
+	)
+	weather._update_surface_wetness(25.0)
+	var rain_wetness := weather.get_surface_wetness()
+	assert(rain_wetness > 0.5)
+	var rainy_grade := (
+		environment.adjustment_color_correction as GradientTexture1D
+	).gradient.colors
+	assert(not rainy_grade[1].is_equal_approx(midday_grade[1]))
+	assert(environment.adjustment_saturation < time.visual_profile.saturation)
 	assert(is_equal_approx(
 		float(sky_material.get_shader_parameter("weather_overcast")),
 		0.55
@@ -154,6 +189,8 @@ func _test_environment_and_weather() -> void:
 
 	assert(weather.set_weather(WeatherSystem.CLEAR, true))
 	await process_frame
+	weather._update_surface_wetness(10.0)
+	assert(weather.get_surface_wetness() < rain_wetness)
 	assert(is_zero_approx(
 		float(sky_material.get_shader_parameter("weather_overcast"))
 	))
@@ -170,8 +207,29 @@ func _test_environment_and_weather() -> void:
 	assert(environment.fog_sky_affect > 0.7)
 	assert(time.set_time_of_day(0, 0))
 	await process_frame
+	var night_grade := (
+		environment.adjustment_color_correction as GradientTexture1D
+	).gradient.colors
+	assert(not night_grade[1].is_equal_approx(midday_grade[1]))
+	assert(is_equal_approx(
+		environment.glow_intensity,
+		time.visual_profile.night_glow_intensity
+	))
 	assert(is_equal_approx(environment.ambient_light_energy, 0.28))
 	assert(is_equal_approx(moon.light_energy, 0.22))
+
+	var street_light := StreetLightScene.instantiate() as StreetLight
+	stage.add_child(street_light)
+	await process_frame
+	var key_light := street_light.get_node("NightLighting/KeyLight") as SpotLight3D
+	var bulb := street_light.get_node("NightLighting/BulbGlow") as GeometryInstance3D
+	assert(is_equal_approx(key_light.spot_range, 48.0))
+	assert(is_equal_approx(key_light.light_indirect_energy, 1.0))
+	street_light.set("_night_blend", 0.0)
+	street_light._update_light(true)
+	street_light._process(0.75)
+	assert(key_light.light_energy > 0.0 and key_light.light_energy < 20.0)
+	assert(bulb.transparency > 0.0 and bulb.transparency < 1.0)
 
 	stage.queue_free()
 	await process_frame
@@ -203,19 +261,69 @@ func _test_surface_styling_and_batching() -> void:
 	unrelated.name = "UnrelatedProp"
 	unrelated.mesh = BoxMesh.new()
 	surface_root.add_child(unrelated)
+	var building_wall := MeshInstance3D.new()
+	building_wall.name = "GeneratedFacade"
+	var building_mesh := BoxMesh.new()
+	var building_material := StandardMaterial3D.new()
+	building_material.resource_name = "GeneratedFacadeTest"
+	building_material.albedo_color = Color(0.42, 0.38, 0.34)
+	building_material.roughness = 0.82
+	building_mesh.material = building_material
+	building_wall.mesh = building_mesh
+	building_wall.set_meta(
+		&"building_generator_source",
+		"res://Assets/MapStuff/Meshs/BuildingTileset/SM_wall_01.glb"
+	)
+	building_wall.position.x = 12.0
+	surface_root.add_child(building_wall)
+	var road_piece := MeshInstance3D.new()
+	road_piece.name = "RoadPiece"
+	road_piece.mesh = RoadMesh
+	road_piece.position.z = 12.0
+	surface_root.add_child(road_piece)
 
 	var styler := SurfaceStylerScript.new() as WorldSurfaceStyler
 	styler.name = "WorldSurfaceStyler"
 	styler.source_roots = [NodePath("../SurfaceRoot")]
 	stage.add_child(styler)
-	assert(styler.styled_mesh_count == 2)
-	assert(styler.get_cached_material_count() == 1)
+	assert(styler.styled_mesh_count >= 3)
+	assert(styler.get_cached_material_count() >= 2)
+	assert(styler.get_puddle_instance_count() > 0)
+	assert(styler.get_puddle_material() != null)
 	var styled_a := grass_a.get_surface_override_material(0)
 	var styled_b := grass_b.get_surface_override_material(0)
 	assert(styled_a is ShaderMaterial)
 	assert(styled_a == styled_b)
 	assert(excluded_window.get_surface_override_material(0) == null)
 	assert(unrelated.get_surface_override_material(0) == null)
+	var styled_wall := building_wall.get_surface_override_material(0)
+	assert(styled_wall is ShaderMaterial)
+	assert(is_equal_approx(
+		float((styled_wall as ShaderMaterial).get_shader_parameter("wet_response")),
+		0.75
+	))
+	styler.set_wetness(0.8)
+	assert(is_equal_approx(styler.get_wetness(), 0.8))
+	assert(is_equal_approx(
+		float((styled_a as ShaderMaterial).get_shader_parameter("wetness")),
+		0.8
+	))
+	assert(is_equal_approx(
+		float((styled_wall as ShaderMaterial).get_shader_parameter("wetness")),
+		0.8
+	))
+	assert(is_equal_approx(
+		float(styler.get_puddle_material().get_shader_parameter("wetness")),
+		0.8
+	))
+	styler.set_rain_intensity(0.65)
+	assert(is_equal_approx(styler.get_rain_intensity(), 0.65))
+	assert(is_equal_approx(
+		float(styler.get_puddle_material().get_shader_parameter("rain_activity")),
+		0.65
+	))
+	styler.set_wetness(2.0)
+	assert(is_equal_approx(styler.get_wetness(), 1.0))
 
 	var batcher := StaticBatcherScript.new() as StaticMultiMeshBatcher
 	batcher.name = "StaticMultiMeshBatcher"

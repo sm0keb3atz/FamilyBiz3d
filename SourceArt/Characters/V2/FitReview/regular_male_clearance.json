@@ -1,0 +1,23 @@
+{
+  "status": "UNAPPROVED_AUTOMATIC_FIT",
+  "garments": [
+    {
+      "name": "TOP_01_Hoodie",
+      "fallback_vertices": 0,
+      "body_clearance_corrections": 3579,
+      "unweighted": 0
+    },
+    {
+      "name": "BOTTOM_01_Jeans",
+      "fallback_vertices": 0,
+      "body_clearance_corrections": 1323,
+      "unweighted": 0
+    },
+    {
+      "name": "SHOES_01_Sneakers",
+      "fallback_vertices": 0,
+      "body_clearance_corrections": 1846,
+      "unweighted": 0
+    }
+  ]
+}

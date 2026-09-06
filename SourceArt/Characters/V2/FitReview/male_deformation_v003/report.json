@@ -1,0 +1,125 @@
+{
+  "status": "UNAPPROVED_POSE_REVIEW",
+  "input": "C:\\Users\\smo0o\\OneDrive\\Documents\\family-biz-prototype\\SourceArt\\Characters\\V2\\FitReview\\regular_male_surface_v002.blend",
+  "notes": [
+    "Synthetic stress poses only; gameplay clips not validated.",
+    "Inside-vertex counts are nearest-surface heuristics, not a collision pass.",
+    "No runtime assets or original downloaded files changed."
+  ],
+  "garments": [
+    {
+      "name": "TOP_01_Hoodie",
+      "vertices": 4991,
+      "coincident_vertices_joined": 8,
+      "unweighted": 0,
+      "non_normalized": 0,
+      "max_influences": 4,
+      "unknown_groups": []
+    },
+    {
+      "name": "BOTTOM_01_Jeans",
+      "vertices": 5080,
+      "coincident_vertices_joined": 0,
+      "unweighted": 0,
+      "non_normalized": 0,
+      "max_influences": 4,
+      "unknown_groups": []
+    },
+    {
+      "name": "SHOES_01_Sneakers",
+      "vertices": 9293,
+      "coincident_vertices_joined": 0,
+      "unweighted": 0,
+      "non_normalized": 0,
+      "max_influences": 3,
+      "unknown_groups": []
+    }
+  ],
+  "poses": {
+    "rest": {
+      "frame": 1,
+      "metrics": {
+        "TOP_01_Hoodie": {
+          "possibly_inside_body_vertices": 0
+        },
+        "BOTTOM_01_Jeans": {
+          "possibly_inside_body_vertices": 0
+        },
+        "SHOES_01_Sneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    },
+    "arms_down": {
+      "frame": 21,
+      "metrics": {
+        "TOP_01_Hoodie": {
+          "possibly_inside_body_vertices": 103
+        },
+        "BOTTOM_01_Jeans": {
+          "possibly_inside_body_vertices": 0
+        },
+        "SHOES_01_Sneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    },
+    "elbows_bent": {
+      "frame": 41,
+      "metrics": {
+        "TOP_01_Hoodie": {
+          "possibly_inside_body_vertices": 90
+        },
+        "BOTTOM_01_Jeans": {
+          "possibly_inside_body_vertices": 0
+        },
+        "SHOES_01_Sneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    },
+    "stride": {
+      "frame": 61,
+      "metrics": {
+        "TOP_01_Hoodie": {
+          "possibly_inside_body_vertices": 103
+        },
+        "BOTTOM_01_Jeans": {
+          "possibly_inside_body_vertices": 0
+        },
+        "SHOES_01_Sneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    },
+    "seated": {
+      "frame": 81,
+      "metrics": {
+        "TOP_01_Hoodie": {
+          "possibly_inside_body_vertices": 111
+        },
+        "BOTTOM_01_Jeans": {
+          "possibly_inside_body_vertices": 84
+        },
+        "SHOES_01_Sneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    },
+    "crouch": {
+      "frame": 101,
+      "metrics": {
+        "TOP_01_Hoodie": {
+          "possibly_inside_body_vertices": 128
+        },
+        "BOTTOM_01_Jeans": {
+          "possibly_inside_body_vertices": 174
+        },
+        "SHOES_01_Sneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    }
+  },
+  "review_only_muted_constraints": 357
+}

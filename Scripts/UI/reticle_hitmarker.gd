@@ -10,8 +10,10 @@ var _scale_mult := 1.0
 func _ready() -> void:
 	mouse_filter = MOUSE_FILTER_IGNORE
 	set_anchors_preset(Control.PRESET_CENTER)
-	size = Vector2(48, 48)
-	position = -size * 0.5
+	offset_left = -24.0
+	offset_top = -24.0
+	offset_right = 24.0
+	offset_bottom = 24.0
 	visible = false
 	set_process(true)
 

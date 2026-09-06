@@ -63,6 +63,9 @@ func _run() -> void:
 	var active_police := population.get_active_police()
 	assert(not active_police.is_empty())
 	var police := active_police[0] as PoliceNPC
+	# Test sight angles in empty space, independently of the random patrol spawn
+	# and buildings/vehicles that may occupy its forward ray.
+	police.global_position = Vector3(0.0, 100.0, 0.0)
 	var forward := police.visual.global_basis.z.normalized()
 	player.global_position = police.global_position - forward * 4.0
 	assert(not bool(police.perception_component.call("_sample_can_see_player")))

@@ -4,6 +4,12 @@ const SkyShader := preload("res://Assets/VFX/Shaders/customizable_sky.gdshader")
 const OutlineShader := preload(
 	"res://Assets/VFX/Shaders/target_lock_outline.gdshader"
 )
+const SurfaceShader := preload(
+	"res://Assets/VFX/Shaders/world_surface_detail.gdshader"
+)
+const PuddleShader := preload(
+	"res://Assets/VFX/Shaders/rain_puddle_overlay.gdshader"
+)
 const SCREENSHOT_PATH := "res://.runtime_appdata/cinematic_visual_render.png"
 
 
@@ -89,6 +95,75 @@ func _run() -> void:
 	ground_material.roughness = 0.72
 	ground.material_override = ground_material
 	stage.add_child(ground)
+
+	var wet_ground := MeshInstance3D.new()
+	var wet_ground_mesh := PlaneMesh.new()
+	wet_ground_mesh.size = Vector2(6.0, 7.0)
+	wet_ground.mesh = wet_ground_mesh
+	wet_ground.position = Vector3(3.0, 0.012, 0.0)
+	var wet_material := ShaderMaterial.new()
+	wet_material.shader = SurfaceShader
+	wet_material.set_shader_parameter("albedo_color", Color(0.075, 0.08, 0.09))
+	wet_material.set_shader_parameter("surface_tint", Color.WHITE)
+	wet_material.set_shader_parameter("roughness", 0.72)
+	wet_material.set_shader_parameter("wetness", 1.0)
+	wet_material.set_shader_parameter("wet_response", 1.0)
+	wet_material.set_shader_parameter("wet_darkening", 0.17)
+	wet_material.set_shader_parameter("wet_roughness", 0.30)
+	wet_material.set_shader_parameter("planar_normal_stabilization", 1.0)
+	wet_ground.material_override = wet_material
+	stage.add_child(wet_ground)
+
+	var puddle_overlay := MeshInstance3D.new()
+	var puddle_overlay_mesh := PlaneMesh.new()
+	puddle_overlay_mesh.size = Vector2(4.4, 2.7)
+	puddle_overlay.mesh = puddle_overlay_mesh
+	puddle_overlay.position = Vector3(3.0, 0.032, 0.15)
+	puddle_overlay.rotation.y = 0.32
+	var puddle_material := ShaderMaterial.new()
+	puddle_material.shader = PuddleShader
+	puddle_material.set_shader_parameter("wetness", 1.0)
+	puddle_material.set_shader_parameter("rain_activity", 0.75)
+	puddle_material.set_shader_parameter("puddle_opacity", 0.34)
+	puddle_material.set_shader_parameter("puddle_roughness", 0.14)
+	puddle_material.set_shader_parameter("edge_softness", 0.12)
+	puddle_overlay.material_override = puddle_material
+	stage.add_child(puddle_overlay)
+
+	var wet_wall := MeshInstance3D.new()
+	var wet_wall_mesh := BoxMesh.new()
+	wet_wall_mesh.size = Vector3(6.0, 4.0, 0.25)
+	wet_wall.mesh = wet_wall_mesh
+	wet_wall.position = Vector3(3.0, 2.0, -3.5)
+	var wet_wall_material := wet_material.duplicate() as ShaderMaterial
+	wet_wall_material.set_shader_parameter(
+		"albedo_color",
+		Color(0.24, 0.12, 0.075)
+	)
+	wet_wall_material.set_shader_parameter("wet_response", 0.75)
+	wet_wall_material.set_shader_parameter("wet_darkening", 0.10)
+	wet_wall_material.set_shader_parameter("wet_roughness", 0.24)
+	wet_wall_material.set_shader_parameter("planar_normal_stabilization", 0.15)
+	wet_wall.material_override = wet_wall_material
+	stage.add_child(wet_wall)
+
+	var street_light := OmniLight3D.new()
+	street_light.position = Vector3(3.0, 3.2, 0.4)
+	street_light.light_color = Color(1.0, 0.67, 0.34)
+	street_light.light_energy = 4.0
+	street_light.omni_range = 8.0
+	stage.add_child(street_light)
+
+	var foreground := MeshInstance3D.new()
+	var foreground_mesh := BoxMesh.new()
+	foreground_mesh.size = Vector3(1.2, 2.2, 1.0)
+	foreground.mesh = foreground_mesh
+	foreground.position = Vector3(-2.7, 1.1, 2.2)
+	var foreground_material := StandardMaterial3D.new()
+	foreground_material.albedo_color = Color(0.018, 0.022, 0.03)
+	foreground_material.roughness = 0.82
+	foreground.material_override = foreground_material
+	stage.add_child(foreground)
 
 	for _frame in 16:
 		await process_frame

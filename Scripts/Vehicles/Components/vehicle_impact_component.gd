@@ -1,9 +1,12 @@
 class_name VehicleImpactComponent
 extends Node
 
+const NPC_IMPACT_DAMAGE := 10.0
+
 var vehicle: BaseVehicle
 var previous_linear_velocity := Vector3.ZERO
 var _recent_impacts: Dictionary = {}
+var _damaged_npcs: Dictionary = {}
 
 
 func setup(owner_vehicle: BaseVehicle) -> void:
@@ -43,6 +46,14 @@ func handle_body_entered(body: Node) -> void:
 func _apply_vehicle_damage(body: Node, impact_velocity: Vector3) -> void:
 	if vehicle.is_managed_traffic():
 		return
+	var npc := _find_npc(body)
+	if npc != null:
+		var npc_key := npc.get_instance_id()
+		if _damaged_npcs.has(npc_key):
+			return
+		_damaged_npcs[npc_key] = true
+		vehicle.condition_component.apply_damage(NPC_IMPACT_DAMAGE)
+		return
 	var key := body.get_instance_id()
 	var now := Time.get_ticks_msec()
 	if now - int(_recent_impacts.get(key, 0)) < 750:
@@ -58,3 +69,12 @@ func _apply_vehicle_damage(body: Node, impact_velocity: Vector3) -> void:
 		return
 	_recent_impacts[key] = now
 	vehicle.condition_component.apply_damage(amount)
+
+
+func _find_npc(body: Node) -> BaseNPC:
+	var current := body
+	while current != null:
+		if current is BaseNPC:
+			return current as BaseNPC
+		current = current.get_parent()
+	return null

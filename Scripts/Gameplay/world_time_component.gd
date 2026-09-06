@@ -45,6 +45,7 @@ var _last_night_state := false
 var _has_emitted_night_state := false
 var _wallet: PlayerWalletComponent
 var _last_day_transactions: Array[Dictionary] = []
+var _color_correction_texture: GradientTexture1D
 @onready var _sun := get_node_or_null(sun_path) as DirectionalLight3D
 @onready var _moon := get_node_or_null(moon_path) as DirectionalLight3D
 @onready var _world_environment := get_node_or_null(world_environment_path) as WorldEnvironment
@@ -468,9 +469,8 @@ func _configure_environment() -> void:
 	environment.adjustment_brightness = 1.0
 	environment.adjustment_contrast = 1.0
 	environment.adjustment_saturation = visual_profile.saturation
-	environment.adjustment_color_correction = (
-		visual_profile.create_color_correction_texture()
-	)
+	_color_correction_texture = visual_profile.create_color_correction_texture()
+	environment.adjustment_color_correction = _color_correction_texture
 	environment.ssao_enabled = true
 	environment.ssao_radius = 1.25
 	environment.ssao_intensity = 1.15
@@ -562,6 +562,32 @@ func _update_visuals(visual_minute := -1.0) -> void:
 		_moon.set_meta(WorldVisualProfile.META_BASE_MOON_ENERGY, moon_energy)
 	if _world_environment != null and _world_environment.environment != null:
 		var environment := _world_environment.environment
+		var grade_state := _get_time_grade_state(hour)
+		var grade_colors: PackedColorArray = grade_state["colors"]
+		if (
+			_color_correction_texture == null
+			or _color_correction_texture.gradient == null
+		):
+			_color_correction_texture = (
+				visual_profile.create_color_correction_texture(grade_colors)
+			)
+		else:
+			_color_correction_texture.gradient.colors = grade_colors
+		environment.adjustment_color_correction = _color_correction_texture
+		environment.adjustment_saturation = float(grade_state["saturation"])
+		environment.glow_intensity = float(grade_state["glow"])
+		environment.set_meta(
+			WorldVisualProfile.META_BASE_GRADE_COLORS,
+			grade_colors
+		)
+		environment.set_meta(
+			WorldVisualProfile.META_BASE_SATURATION,
+			environment.adjustment_saturation
+		)
+		environment.set_meta(
+			WorldVisualProfile.META_BASE_GLOW_INTENSITY,
+			environment.glow_intensity
+		)
 		var ambient_color := visual_profile.night_ambient_color.lerp(
 			visual_profile.day_ambient_color,
 			daylight_strength
@@ -636,3 +662,107 @@ func _update_visuals(visual_minute := -1.0) -> void:
 			WorldVisualProfile.META_BASE_FOG_SUN_SCATTER,
 			visual_profile.clear_fog_sun_scatter * daylight_strength
 		)
+
+
+func _get_time_grade_state(hour: float) -> Dictionary:
+	var day_colors := visual_profile.get_day_grade_colors()
+	if not visual_profile.dynamic_color_grading_enabled:
+		return {
+			"colors": day_colors,
+			"saturation": visual_profile.saturation,
+			"glow": visual_profile.glow_intensity,
+		}
+	var golden_colors := visual_profile.get_golden_grade_colors()
+	var night_colors := visual_profile.get_night_grade_colors()
+	var half_window := maxf(visual_profile.golden_transition_hours * 0.5, 0.125)
+	var morning_start := SUNRISE_HOUR - half_window
+	var morning_end := SUNRISE_HOUR + half_window
+	var evening_start := SUNSET_HOUR - half_window
+	var evening_end := SUNSET_HOUR + half_window
+	if hour < morning_start or hour >= evening_end:
+		return {
+			"colors": night_colors,
+			"saturation": visual_profile.night_saturation,
+			"glow": visual_profile.night_glow_intensity,
+		}
+	if hour < SUNRISE_HOUR:
+		var dawn_weight := smoothstep(morning_start, SUNRISE_HOUR, hour)
+		return {
+			"colors": visual_profile.blend_grade_colors(
+				night_colors,
+				golden_colors,
+				dawn_weight
+			),
+			"saturation": lerpf(
+				visual_profile.night_saturation,
+				visual_profile.golden_saturation,
+				dawn_weight
+			),
+			"glow": lerpf(
+				visual_profile.night_glow_intensity,
+				visual_profile.golden_glow_intensity,
+				dawn_weight
+			),
+		}
+	if hour < morning_end:
+		var morning_weight := smoothstep(SUNRISE_HOUR, morning_end, hour)
+		return {
+			"colors": visual_profile.blend_grade_colors(
+				golden_colors,
+				day_colors,
+				morning_weight
+			),
+			"saturation": lerpf(
+				visual_profile.golden_saturation,
+				visual_profile.saturation,
+				morning_weight
+			),
+			"glow": lerpf(
+				visual_profile.golden_glow_intensity,
+				visual_profile.day_glow_intensity,
+				morning_weight
+			),
+		}
+	if hour < evening_start:
+		return {
+			"colors": day_colors,
+			"saturation": visual_profile.saturation,
+			"glow": visual_profile.day_glow_intensity,
+		}
+	if hour < SUNSET_HOUR:
+		var evening_weight := smoothstep(evening_start, SUNSET_HOUR, hour)
+		return {
+			"colors": visual_profile.blend_grade_colors(
+				day_colors,
+				golden_colors,
+				evening_weight
+			),
+			"saturation": lerpf(
+				visual_profile.saturation,
+				visual_profile.golden_saturation,
+				evening_weight
+			),
+			"glow": lerpf(
+				visual_profile.day_glow_intensity,
+				visual_profile.golden_glow_intensity,
+				evening_weight
+			),
+		}
+	var dusk_weight := smoothstep(SUNSET_HOUR, evening_end, hour)
+	return {
+		"colors": visual_profile.blend_grade_colors(
+			golden_colors,
+			night_colors,
+			dusk_weight
+		),
+		"saturation": lerpf(
+			visual_profile.golden_saturation,
+			visual_profile.night_saturation,
+			dusk_weight
+		),
+		"glow": lerpf(
+			visual_profile.golden_glow_intensity,
+			visual_profile.night_glow_intensity,
+			dusk_weight
+		),
+	}

@@ -116,5 +116,17 @@ func _run() -> void:
 	)
 	assert(officer.brain_component.get_state_name() == &"search")
 
+	# Reloading starts without reporting a shot or consuming a burst round.
+	officer.combat_component.set_equipped(true)
+	officer.combat_component.set("_magazine", 0)
+	officer.combat_component.set("_reserve", 20)
+	officer.combat_component.set("_cooldown_remaining", 0.0)
+	assert(not officer.combat_component.try_fire_at(player.global_position, 0.0))
+	assert(officer.combat_component.is_reloading())
+	officer.brain_component.note_investigation(player.global_position, 123, player)
+	assert(officer.brain_component.has_active_investigation())
+	officer.brain_component.cancel_wanted_engagement()
+	assert(not officer.brain_component.has_active_investigation())
+
 	print("POLICE_CLEAN_BRAIN_SMOKE_TEST_PASS")
 	quit(0)

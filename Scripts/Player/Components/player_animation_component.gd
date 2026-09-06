@@ -60,6 +60,20 @@ const FIRE_ANIMATION_BONES := [
 	&"RightLowerArm",
 	&"RightHand",
 ]
+const CARRY_ANIMATION_BONES := [
+	&"Chest",
+	&"UpperChest",
+	&"Neck",
+	&"Head",
+	&"LeftShoulder",
+	&"LeftUpperArm",
+	&"LeftLowerArm",
+	&"LeftHand",
+	&"RightShoulder",
+	&"RightUpperArm",
+	&"RightLowerArm",
+	&"RightHand",
+]
 
 @export_category("Scene References")
 @export var animation_tree_path := NodePath("../../AnimationTree")
@@ -975,7 +989,9 @@ func _setup_carry_animation_node() -> void:
 	carry_animation.animation = IDLE_ANIMATION
 	var carry_blend := AnimationNodeBlend2.new()
 	carry_blend.filter_enabled = true
-	for bone_name in FIRE_ANIMATION_BONES:
+	# Carry poses are upper-body overlays. Including Hips here replaces the
+	# crouch animation's root rotation and height with the standing rifle pose.
+	for bone_name in CARRY_ANIMATION_BONES:
 		carry_blend.set_filter_path(
 			NodePath("%GeneralSkeleton:" + String(bone_name)),
 			true

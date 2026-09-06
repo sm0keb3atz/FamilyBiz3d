@@ -424,6 +424,13 @@ func tick_traffic(
 	target_speed = minf(target_speed, _curve_speed_limit(steering))
 	if _emergency_pass_active:
 		target_speed = minf(target_speed, emergency_pass_speed)
+	# Start braking before entering a short final road segment.
+	if _dynamic_destination_active and _stop_at_destination:
+		var remaining := _get_remaining_stop_distance()
+		target_speed = minf(target_speed, sqrt(
+			2.0 * maxf(comfortable_deceleration, 0.1)
+			* maxf(remaining - destination_stop_gap, 0.0)
+		))
 	var terminal_approach := (
 		_dynamic_terminal_active
 		and _stop_at_destination
@@ -434,6 +441,8 @@ func tick_traffic(
 			target_distance - destination_stop_gap,
 			0.0
 		)
+		if _has_passed_dynamic_destination():
+			usable_terminal_distance = 0.0
 		var terminal_speed := sqrt(
 			2.0 * maxf(comfortable_deceleration, 0.1)
 			* usable_terminal_distance
@@ -452,7 +461,7 @@ func tick_traffic(
 		steering
 	)
 	if terminal_approach:
-		if target_distance <= destination_stop_gap + 0.5:
+		if target_distance <= destination_stop_gap + 0.5 or _has_passed_dynamic_destination():
 			controls["throttle"] = 0.0
 			controls["brake"] = 1.0 if control_speed > destination_arrival_speed else 0.35
 		elif control_speed > target_speed + 0.15:
@@ -485,6 +494,21 @@ func tick_traffic(
 	)
 
 
+func _get_remaining_stop_distance() -> float:
+	if _dynamic_terminal_active:
+		return 0.0 if _has_passed_dynamic_destination() else vehicle.global_position.distance_to(_dynamic_destination_position)
+	if not is_instance_valid(target_waypoint):
+		return INF
+	var remaining := vehicle.global_position.distance_to(target_waypoint.global_position)
+	var index := _planned_route.find(target_waypoint)
+	if index < 0:
+		return INF
+	for next_index in range(index + 1, _planned_route.size()):
+		remaining += _planned_route[next_index - 1].global_position.distance_to(_planned_route[next_index].global_position)
+	remaining += _dynamic_segment_start.global_position.distance_to(_dynamic_destination_position)
+	return remaining
+
+
 func has_route() -> bool:
 	return is_instance_valid(current_waypoint) and is_instance_valid(target_waypoint)
 
@@ -513,6 +537,10 @@ func get_destination_approach_direction() -> Vector3:
 
 func has_dynamic_destination() -> bool:
 	return _dynamic_destination_active
+
+
+func is_stopping_at_destination() -> bool:
+	return _stop_at_destination
 
 
 func get_spawn_transform() -> Transform3D:

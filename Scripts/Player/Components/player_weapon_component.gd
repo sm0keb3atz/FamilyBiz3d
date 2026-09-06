@@ -809,10 +809,37 @@ func get_aim_target_position() -> Vector3:
 	var max_range := definition.max_range if definition != null else 50.0
 	var query := _create_aim_query(max_range)
 	var hit := body.get_world_3d().direct_space_state.intersect_ray(query)
-	if hit.is_empty():
-		shot_resolved.emit(null, false, query.to)
-		return query.to
-	return hit.position as Vector3
+	return hit.get("position", query.to) as Vector3
+
+
+## Returns the point a shot would resolve toward without firing or emitting signals.
+func get_predicted_aim_position(
+	max_range_override: float = -1.0,
+	include_lock_assist: bool = true
+) -> Vector3:
+	var definition := get_equipped_weapon()
+	var max_range := (
+		max_range_override
+		if max_range_override > 0.0
+		else definition.max_range if definition != null else 50.0
+	)
+	var query := _create_aim_query(max_range)
+	var hit := body.get_world_3d().direct_space_state.intersect_ray(query)
+	if not hit.is_empty():
+		return hit.position as Vector3
+	if (
+		include_lock_assist
+		and target_lock_component != null
+		and is_target_lock_enabled()
+		and target_lock_component.has_locked_target()
+	):
+		var assist_query := _create_lock_assist_query(max_range)
+		var assist_hit := (
+			body.get_world_3d().direct_space_state.intersect_ray(assist_query)
+		)
+		if not assist_hit.is_empty():
+			return assist_hit.position as Vector3
+	return query.to
 
 
 func _apply_equipped_weapon() -> void:

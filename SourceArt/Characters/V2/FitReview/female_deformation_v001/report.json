@@ -1,0 +1,125 @@
+{
+  "status": "UNAPPROVED_POSE_REVIEW",
+  "input": "C:\\Users\\smo0o\\OneDrive\\Documents\\family-biz-prototype\\SourceArt\\Characters\\V2\\FitReview\\regular_female_clearance.blend",
+  "notes": [
+    "Synthetic stress poses only; gameplay clips not validated.",
+    "Inside-vertex counts are nearest-surface heuristics, not a collision pass.",
+    "No runtime assets or original downloaded files changed."
+  ],
+  "garments": [
+    {
+      "name": "TOP_Female_01_HoodieCrop",
+      "vertices": 2354,
+      "coincident_vertices_joined": 3001,
+      "unweighted": 0,
+      "non_normalized": 0,
+      "max_influences": 4,
+      "unknown_groups": []
+    },
+    {
+      "name": "BOTTOM_Female_01_Leggins",
+      "vertices": 2390,
+      "coincident_vertices_joined": 578,
+      "unweighted": 0,
+      "non_normalized": 0,
+      "max_influences": 4,
+      "unknown_groups": []
+    },
+    {
+      "name": "SHOES_Female_01_FemaleSneakers",
+      "vertices": 5022,
+      "coincident_vertices_joined": 8544,
+      "unweighted": 0,
+      "non_normalized": 0,
+      "max_influences": 3,
+      "unknown_groups": []
+    }
+  ],
+  "poses": {
+    "rest": {
+      "frame": 1,
+      "metrics": {
+        "TOP_Female_01_HoodieCrop": {
+          "possibly_inside_body_vertices": 0
+        },
+        "BOTTOM_Female_01_Leggins": {
+          "possibly_inside_body_vertices": 0
+        },
+        "SHOES_Female_01_FemaleSneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    },
+    "arms_down": {
+      "frame": 21,
+      "metrics": {
+        "TOP_Female_01_HoodieCrop": {
+          "possibly_inside_body_vertices": 44
+        },
+        "BOTTOM_Female_01_Leggins": {
+          "possibly_inside_body_vertices": 0
+        },
+        "SHOES_Female_01_FemaleSneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    },
+    "elbows_bent": {
+      "frame": 41,
+      "metrics": {
+        "TOP_Female_01_HoodieCrop": {
+          "possibly_inside_body_vertices": 44
+        },
+        "BOTTOM_Female_01_Leggins": {
+          "possibly_inside_body_vertices": 0
+        },
+        "SHOES_Female_01_FemaleSneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    },
+    "stride": {
+      "frame": 61,
+      "metrics": {
+        "TOP_Female_01_HoodieCrop": {
+          "possibly_inside_body_vertices": 44
+        },
+        "BOTTOM_Female_01_Leggins": {
+          "possibly_inside_body_vertices": 0
+        },
+        "SHOES_Female_01_FemaleSneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    },
+    "seated": {
+      "frame": 81,
+      "metrics": {
+        "TOP_Female_01_HoodieCrop": {
+          "possibly_inside_body_vertices": 214
+        },
+        "BOTTOM_Female_01_Leggins": {
+          "possibly_inside_body_vertices": 61
+        },
+        "SHOES_Female_01_FemaleSneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    },
+    "crouch": {
+      "frame": 101,
+      "metrics": {
+        "TOP_Female_01_HoodieCrop": {
+          "possibly_inside_body_vertices": 154
+        },
+        "BOTTOM_Female_01_Leggins": {
+          "possibly_inside_body_vertices": 91
+        },
+        "SHOES_Female_01_FemaleSneakers": {
+          "possibly_inside_body_vertices": 0
+        }
+      }
+    }
+  },
+  "review_only_muted_constraints": 357
+}

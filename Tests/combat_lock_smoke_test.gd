@@ -77,14 +77,19 @@ func _run() -> void:
 	))
 	camera_component._update_aim_depth_of_field(0.25, true)
 	assert(camera_attributes.dof_blur_far_enabled)
+	assert(camera_attributes.dof_blur_near_enabled)
 	assert(camera_attributes.dof_blur_amount > default_blur_amount)
 	assert(camera_attributes.dof_blur_far_distance > 1.0)
+	assert(camera_attributes.dof_blur_far_transition < (
+		camera_component.default_dof_far_transition
+	))
 	camera_component._update_aim_depth_of_field(2.0, false)
 	assert(absf(
 		camera_attributes.dof_blur_amount
 		- camera_component.default_dof_blur_amount
 	) <= 0.0001)
 	assert(camera_attributes.dof_blur_far_enabled)
+	assert(not camera_attributes.dof_blur_near_enabled)
 	target_lock.clear_lock()
 	assert(target_lock.get_outline_mesh_count() == 0)
 

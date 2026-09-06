@@ -87,7 +87,7 @@ func _run() -> void:
 	assert(condition.set_performance_tier(1))
 	assert(condition.performance_tier == 1)
 	assert(condition.repair_full() == 50.0)
-	var condition_save := vehicle.export_condition_state()
+	var condition_save: Dictionary = vehicle.export_condition_state()
 	condition.consume_fuel(5.0)
 	condition.apply_damage(20.0)
 	vehicle.import_condition_state(condition_save)
@@ -170,10 +170,15 @@ func _run() -> void:
 	assert(
 		(npc as DealerNPC).role_component is DealerRoleComponent
 	)
+	condition.repair_full()
 	vehicle.linear_velocity = Vector3.FORWARD * 8.0
+	var damage_before_npc_impact := condition.damage
 	vehicle._on_body_entered(npc)
 	assert(npc.damageable.is_depleted())
 	assert(npc.is_defeated())
+	assert(is_equal_approx(condition.damage, damage_before_npc_impact + 10.0))
+	vehicle._on_body_entered(npc)
+	assert(is_equal_approx(condition.damage, damage_before_npc_impact + 10.0))
 
 	print("VEHICLE_SMOKE_TEST_PASS")
 	quit(0)

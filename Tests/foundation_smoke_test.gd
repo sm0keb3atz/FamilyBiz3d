@@ -21,6 +21,12 @@ func _run() -> void:
 	var inventory := player.get_node(
 		"Components/InventoryComponent"
 	) as PlayerInventoryComponent
+	var identity := player.get_node(
+		"Components/IdentityComponent"
+	) as PlayerIdentityComponent
+	var appearance := player.get_node(
+		"Components/AppearanceComponent"
+	) as PlayerAppearanceComponent
 	var trade := player.get_node("Components/TradeService") as TradeService
 	var east_dealer_zone := world.get_node(
 		"SpawnPoints/EastDealerZoneSouth"
@@ -81,11 +87,20 @@ func _run() -> void:
 	assert(dealer.get_interaction_prompt(player) == "E - Shop")
 
 	var controller := world.get_node("WorldController") as WorldController
+	assert(identity.set_display_name("Foundation Test"))
+	assert(appearance.set_skin_preset(
+		PlayerAppearanceComponent.SKIN_PRESET_MEDIUM
+	))
 	assert(controller.save_game())
 	var saved_cash := wallet.dirty_cash
 	wallet.add_dirty(999)
 	east.stats.add_heat(20.0)
 	assert(controller.load_game())
+	assert(identity.get_display_name() == "Foundation Test")
+	assert(
+		appearance.get_skin_preset()
+		== PlayerAppearanceComponent.SKIN_PRESET_MEDIUM
+	)
 	assert(wallet.dirty_cash == saved_cash)
 	assert(east.stats.heat < 20.0)
 
